@@ -1,0 +1,16 @@
+[build]
+target = "index.html"
+dist = "dist"
+
+[watch]
+watch = ["src", "index.html"]
+
+[serve]
+address = "127.0.0.1"
+port = 8080
+open = false
+
+# Proxy API requests to backend
+[[proxy]]
+rewrite = "/api/"
+backend = "http://127.0.0.1:3000/api/"

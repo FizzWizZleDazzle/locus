@@ -1,0 +1,45 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/common",
+    "crates/frontend",
+    "crates/backend",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Artur"]
+license = "MIT"
+
+[workspace.dependencies]
+# Shared
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+
+# Backend
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "uuid", "chrono"] }
+jsonwebtoken = "9"
+argon2 = "0.5"
+wasmtime = "27"
+dotenvy = "0.15"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rand = "0.9"
+
+# Frontend
+leptos = { version = "0.7", features = ["csr"] }
+leptos_router = "0.7"
+leptos_meta = "0.7"
+gloo-net = "0.6"
+gloo-storage = "0.3"
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = "0.3"
+console_error_panic_hook = "0.1"

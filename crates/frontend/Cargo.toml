@@ -1,0 +1,39 @@
+[package]
+name = "locus-frontend"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+locus-common = { path = "../common" }
+
+# Leptos framework
+leptos = { workspace = true }
+leptos_router = { workspace = true }
+leptos_meta = { workspace = true }
+
+# HTTP client
+gloo-net = { workspace = true }
+gloo-storage = { workspace = true }
+
+# WASM bindings
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+web-sys = { workspace = true, features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlElement",
+    "HtmlInputElement",
+    "console",
+] }
+console_error_panic_hook = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { version = "1", features = ["v4", "serde", "js"] }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+getrandom = { version = "0.3", features = ["wasm_js"] }
