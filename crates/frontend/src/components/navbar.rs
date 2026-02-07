@@ -16,52 +16,49 @@ pub fn Navbar() -> impl IntoView {
     };
 
     view! {
-        <nav class="border-b border-gray-200 bg-white">
+        <nav class="border-b bg-white">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between h-14">
-                    <A href="/" attr:class="text-lg font-semibold text-gray-900">
+                <div class="flex items-center justify-between h-16">
+                    <A href="/" attr:class="text-lg font-medium">
                         "Locus"
                     </A>
 
-                    <div class="flex items-center space-x-6">
-                        <A href="/practice" attr:class="text-sm text-gray-600 hover:text-gray-900">
+                    <div class="flex items-center gap-6">
+                        <A href="/practice" attr:class="text-sm hover:text-gray-600">
                             "Practice"
                         </A>
-                        <A href="/ranked" attr:class="text-sm text-gray-600 hover:text-gray-900">
+                        <A href="/ranked" attr:class="text-sm hover:text-gray-600">
                             "Ranked"
                         </A>
-                        <A href="/leaderboard" attr:class="text-sm text-gray-600 hover:text-gray-900">
+                        <A href="/leaderboard" attr:class="text-sm hover:text-gray-600">
                             "Leaderboard"
                         </A>
 
                         {move || {
                             if auth.is_logged_in.get() {
                                 view! {
-                                    <div class="flex items-center space-x-4">
-                                        <span class="text-sm text-gray-700">
+                                    <>
+                                        <span class="text-sm text-gray-600">
                                             {move || auth.username.get().unwrap_or_default()}
                                         </span>
                                         <button
                                             on:click=logout
-                                            class="text-sm text-gray-500 hover:text-gray-900"
+                                            class="text-sm hover:text-gray-600"
                                         >
                                             "Logout"
                                         </button>
-                                    </div>
+                                    </>
                                 }.into_any()
                             } else {
                                 view! {
-                                    <div class="flex items-center space-x-4">
-                                        <A href="/login" attr:class="text-sm text-gray-600 hover:text-gray-900">
+                                    <>
+                                        <A href="/login" attr:class="text-sm hover:text-gray-600">
                                             "Login"
                                         </A>
-                                        <A
-                                            href="/register"
-                                            attr:class="text-sm px-3 py-1.5 bg-gray-900 text-white rounded hover:bg-gray-800"
-                                        >
+                                        <A href="/register" attr:class="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800">
                                             "Sign Up"
                                         </A>
-                                    </div>
+                                    </>
                                 }.into_any()
                             }
                         }}

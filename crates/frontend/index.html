@@ -5,56 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Locus</title>
 
-    <!-- KaTeX for math rendering -->
+    <!-- KaTeX for math rendering (static content) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
+    <!-- MathLive for interactive math input (like Desmos) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive-static.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#6366f1',
-                        secondary: '#8b5cf6',
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
         }
         .katex { font-size: 1.1em; }
         .math-input {
-            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        /* MathLive styling adjustments */
+        math-field {
+            --caret-color: #1f2937;
+            --primary-color: #1f2937;
+            --keyboard-zindex: -1;
+        }
+
+        /* Hide virtual keyboard and menu buttons using class selector */
+        math-field .ML__virtual-keyboard-toggle,
+        math-field .ML__menu-toggle {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* Additional hiding via shadow DOM parts if available */
+        math-field::part(virtual-keyboard-toggle),
+        math-field::part(menu-toggle) {
+            display: none !important;
         }
     </style>
 
     <link data-trunk rel="rust" data-wasm-opt="z" />
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-white min-h-screen">
     <div id="app"></div>
 
     <script>
-        // Render KaTeX after content loads
+        // Render KaTeX for static content (problem questions)
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof renderMathInElement !== 'undefined') {
-                setInterval(() => {
-                    renderMathInElement(document.body, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false},
-                            {left: '\\(', right: '\\)', display: false},
-                            {left: '\\[', right: '\\]', display: true}
-                        ],
-                        throwOnError: false
+                // Only run once on initial load for static content
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+
+                // Set up a MutationObserver for new static content only
+                const observer = new MutationObserver(() => {
+                    requestAnimationFrame(() => {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                                {left: '$$', right: '$$', display: true},
+                                {left: '$', right: '$', display: false},
+                                {left: '\\(', right: '\\)', display: false},
+                                {left: '\\[', right: '\\]', display: true}
+                            ],
+                            throwOnError: false
+                        });
                     });
-                }, 500);
+                });
+
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
             }
         });
     </script>

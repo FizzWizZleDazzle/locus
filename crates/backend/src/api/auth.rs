@@ -11,6 +11,7 @@ use locus_common::{AuthResponse, LoginRequest, RegisterRequest, UserProfile};
 use crate::{
     auth::{create_token, AuthUser},
     models::User,
+    validation,
     AppError,
 };
 use super::AppState;
@@ -24,12 +25,14 @@ pub async fn register(
     if req.username.len() < 3 || req.username.len() > 50 {
         return Err(AppError::BadRequest("Username must be 3-50 characters".into()));
     }
-    if req.password.len() < 8 {
-        return Err(AppError::BadRequest("Password must be at least 8 characters".into()));
-    }
-    if !req.email.contains('@') {
-        return Err(AppError::BadRequest("Invalid email address".into()));
-    }
+
+    // Validate password complexity
+    validation::validate_password(&req.password)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    // Validate email format
+    validation::validate_email(&req.email)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
     // Check if username or email already exists
     if User::username_exists(&state.pool, &req.username).await? {

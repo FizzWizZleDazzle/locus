@@ -1,5 +1,7 @@
 //! Common types shared between frontend and backend
 
+pub mod grader;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
@@ -172,6 +174,8 @@ pub enum GradingMode {
     Equivalent,
     /// Check if expression is in factored form and equals answer
     Factor,
+    /// Check if expression is in expanded form and equals answer
+    Expand,
 }
 
 impl Default for GradingMode {
@@ -286,4 +290,24 @@ impl ApiError {
     pub fn new(error: impl Into<String>) -> Self {
         Self { error: error.into() }
     }
+}
+
+// ============================================================================
+// Factory Submission Types
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateProblemRequest {
+    pub question_latex: String,
+    pub answer_key: String,
+    pub difficulty: i32,
+    pub main_topic: String,
+    pub subtopic: String,
+    pub grading_mode: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateProblemResponse {
+    pub id: Uuid,
+    pub message: String,
 }

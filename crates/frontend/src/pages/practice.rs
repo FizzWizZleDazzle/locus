@@ -32,6 +32,7 @@ pub fn Practice() -> impl IntoView {
         set_answer.set(String::new());
         set_result.set(None);
         set_show_answer.set(false);
+        set_problem.set(None); // Clear problem to unmount <Show> and destroy old MathInput
 
         let topic = selected_topic.get().map(|t| t.as_str().to_string());
         let subtopics = selected_subtopics.get();
@@ -123,7 +124,7 @@ pub fn Practice() -> impl IntoView {
                         }
                     })}
 
-                    {move || problem.get().is_some().then(|| view! {
+                    <Show when=move || problem.get().is_some()>
                         <div class="space-y-4">
                             <MathInput
                                 value=answer
@@ -132,7 +133,7 @@ pub fn Practice() -> impl IntoView {
                                 on_submit=on_submit
                             />
 
-                            <div class="flex space-x-2">
+                                <div class="flex space-x-2">
                                 <button
                                     class="flex-1 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
                                     on:click=move |_| check()
@@ -169,7 +170,7 @@ pub fn Practice() -> impl IntoView {
                                 </button>
                             })}
                         </div>
-                    })}
+                    </Show>
                 </div>
             })}
         </div>

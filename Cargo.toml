@@ -32,6 +32,11 @@ dotenvy = "0.15"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rand = "0.9"
+tower_governor = "0.8"
+governor = "0.10"
+validator = { version = "0.18", features = ["derive"] }
+regex = "1.10"
+lazy_static = "1.4"
 
 # Frontend
 leptos = { version = "0.7", features = ["csr"] }

@@ -112,12 +112,12 @@ pub fn Ranked() -> impl IntoView {
     };
 
     view! {
-        <div class="max-w-2xl mx-auto py-8">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-xl font-medium text-gray-900">"Ranked"</h1>
+        <div class="max-w-2xl mx-auto px-4 py-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold">"Ranked"</h1>
                 {move || selected_topic.get().is_some().then(|| view! {
                     <button
-                        class="text-sm text-gray-500 hover:text-gray-900"
+                        class="text-sm text-gray-600 hover:text-gray-900"
                         on:click=move |_| reset_selection()
                     >
                         "Change Topics"
@@ -131,7 +131,7 @@ pub fn Ranked() -> impl IntoView {
 
             // Show topic selector if no topic selected
             {move || selected_topic.get().is_none().then(|| view! {
-                <div class="border border-gray-200 rounded p-6">
+                <div class="border p-6">
                     <TopicSelector on_confirm=on_topic_confirm />
                 </div>
             })}
@@ -158,7 +158,7 @@ pub fn Ranked() -> impl IntoView {
                             />
 
                             <button
-                                class="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
+                                class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
                                 on:click=move |_| submit()
                                 disabled=move || answer.get().is_empty() || submitting.get()
                             >
@@ -172,18 +172,18 @@ pub fn Ranked() -> impl IntoView {
                         let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
 
                         view! {
-                            <div class="p-4 border border-gray-200 rounded">
+                            <div class="p-6 border">
                                 <div class="text-lg mb-2">
-                                    {if r.is_correct { "Correct" } else { "Incorrect" }}
+                                    {if r.is_correct { "✓ Correct" } else { "✗ Incorrect" }}
                                 </div>
-                                <div class="text-sm text-gray-600">
+                                <div class="text-sm text-gray-600 mb-4">
                                     {format!("{} → {}", r.elo_before, r.elo_after)}
-                                    <span class=format!(" ml-2 {}", elo_color)>
+                                    <span class=format!("ml-2 font-medium {}", elo_color)>
                                         {format!("({}{})", elo_prefix, r.elo_change)}
                                     </span>
                                 </div>
                                 <button
-                                    class="mt-4 w-full px-4 py-2 border border-gray-300 rounded hover:border-gray-400"
+                                    class="w-full px-4 py-3 border hover:bg-gray-50"
                                     on:click=move |_| load_problem()
                                 >
                                     "Next Problem"

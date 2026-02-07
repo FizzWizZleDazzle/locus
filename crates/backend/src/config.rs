@@ -2,6 +2,25 @@
 
 use std::env;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum Environment {
+    Development,
+    Production,
+}
+
+impl Environment {
+    pub fn from_env() -> Self {
+        match env::var("ENVIRONMENT")
+            .unwrap_or_else(|_| "development".to_string())
+            .to_lowercase()
+            .as_str()
+        {
+            "production" | "prod" => Environment::Production,
+            _ => Environment::Development,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config {
     pub host: String,
@@ -9,10 +28,53 @@ pub struct Config {
     pub database_url: String,
     pub jwt_secret: String,
     pub jwt_expiry_hours: i64,
+    pub api_key_secret: String,
+    pub environment: Environment,
+    pub allowed_origins: Vec<String>,
 }
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
+        let environment = Environment::from_env();
+
+        let jwt_secret = env::var("JWT_SECRET")
+            .unwrap_or_else(|_| "development-secret-change-in-production".to_string());
+
+        // Validate JWT secret in production
+        if environment == Environment::Production {
+            if jwt_secret == "development-secret-change-in-production" {
+                return Err(ConfigError::InsecureJwtSecret);
+            }
+            if jwt_secret.len() < 32 {
+                return Err(ConfigError::JwtSecretTooShort);
+            }
+        } else if jwt_secret == "development-secret-change-in-production" {
+            tracing::warn!("Using default JWT secret in development mode. This is insecure for production!");
+        }
+
+        let api_key_secret = env::var("API_KEY_SECRET")
+            .unwrap_or_else(|_| "development-factory-key-change-in-production".to_string());
+
+        // Validate API key in production
+        if environment == Environment::Production {
+            if api_key_secret == "development-factory-key-change-in-production" {
+                return Err(ConfigError::InsecureApiKey);
+            }
+            if api_key_secret.len() < 32 {
+                return Err(ConfigError::ApiKeyTooShort);
+            }
+        } else if api_key_secret == "development-factory-key-change-in-production" {
+            tracing::warn!("Using default API key in development mode. This is insecure for production!");
+        }
+
+        // Parse allowed origins
+        let allowed_origins = env::var("ALLOWED_ORIGINS")
+            .unwrap_or_else(|_| "http://localhost:8080".to_string())
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+
         Ok(Self {
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT")
@@ -21,12 +83,14 @@ impl Config {
                 .map_err(|_| ConfigError::InvalidPort)?,
             database_url: env::var("DATABASE_URL")
                 .map_err(|_| ConfigError::MissingEnv("DATABASE_URL"))?,
-            jwt_secret: env::var("JWT_SECRET")
-                .unwrap_or_else(|_| "development-secret-change-in-production".to_string()),
+            jwt_secret,
             jwt_expiry_hours: env::var("JWT_EXPIRY_HOURS")
                 .unwrap_or_else(|_| "24".to_string())
                 .parse()
                 .unwrap_or(24),
+            api_key_secret,
+            environment,
+            allowed_origins,
         })
     }
 }
@@ -38,4 +102,16 @@ pub enum ConfigError {
 
     #[error("Invalid port number")]
     InvalidPort,
+
+    #[error("JWT secret cannot be the default development secret in production. Generate a secure secret with: openssl rand -base64 32")]
+    InsecureJwtSecret,
+
+    #[error("JWT secret must be at least 32 characters long in production")]
+    JwtSecretTooShort,
+
+    #[error("API key cannot be the default development key in production. Generate a secure key with: openssl rand -base64 32")]
+    InsecureApiKey,
+
+    #[error("API key must be at least 32 characters long in production")]
+    ApiKeyTooShort,
 }

@@ -36,3 +36,10 @@ tracing-subscriber = { workspace = true }
 thiserror = { workspace = true }
 rand = { workspace = true }
 anyhow = "1.0"
+
+# Security
+tower_governor = { workspace = true }
+governor = { workspace = true }
+validator = { workspace = true }
+regex = { workspace = true }
+lazy_static = { workspace = true }

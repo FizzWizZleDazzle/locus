@@ -1,88 +1,79 @@
-//! Answer grading using SymEngine WASM via wasmtime
+//! Server-side answer grading.
 //!
-//! This module provides server-side grading of mathematical expressions.
-//! For the MVP, we use a simplified grading approach that can be enhanced
-//! with full SymEngine integration later.
+//! Uses the shared grading logic from `locus_common::grader`.
+//! Currently uses string normalization as a fallback since SymEngine
+//! is not yet linked natively. Once a native SymEngine ExprEngine
+//! implementation is added, switch `check_answer` to use it via
+//! `grader::check_answer::<NativeExpr>(...)`.
 
 use locus_common::GradingMode;
+use locus_common::grader::{self as common_grader, ExprEngine};
 
-/// Normalize a mathematical expression for comparison
+/// Fallback expression engine using string normalization.
 ///
-/// This performs basic normalization:
-/// - Remove whitespace
-/// - Lowercase
-/// - Sort terms (simple heuristic)
-fn normalize_expr(expr: &str) -> String {
-    expr.chars()
-        .filter(|c| !c.is_whitespace())
-        .collect::<String>()
-        .to_lowercase()
+/// This is a stopgap until native SymEngine is linked.
+/// It normalizes expressions (lowercase, strip whitespace) and
+/// compares strings. It does NOT handle symbolic equivalence.
+///
+/// TODO: Replace with native SymEngine or wasmtime-based ExprEngine
+/// to get full symbolic grading on the server.
+struct StringExpr {
+    normalized: String,
 }
 
-/// Check if a user's answer matches the expected answer
+impl ExprEngine for StringExpr {
+    type Error = String;
+
+    fn parse(input: &str) -> Result<Self, Self::Error> {
+        let normalized = input.chars()
+            .filter(|c| !c.is_whitespace())
+            .collect::<String>()
+            .to_lowercase();
+        Ok(Self { normalized })
+    }
+
+    fn expand(&self) -> Self {
+        // String normalization can't expand — return as-is
+        Self { normalized: self.normalized.clone() }
+    }
+
+    fn sub(&self, other: &Self) -> Self {
+        // Can't do symbolic subtraction with strings.
+        // Return a sentinel that signals "not zero" unless strings match.
+        if self.normalized == other.normalized {
+            Self { normalized: "0".to_string() }
+        } else {
+            Self { normalized: format!("({})-({})", self.normalized, other.normalized) }
+        }
+    }
+
+    fn equals(&self, other: &Self) -> bool {
+        self.normalized == other.normalized
+    }
+
+    fn is_zero(&self) -> bool {
+        self.normalized == "0"
+    }
+
+    fn free_symbols(&self) -> Vec<String> {
+        Vec::new()
+    }
+
+    fn subs_float(&self, _var_name: &str, _val: f64) -> Self {
+        Self { normalized: self.normalized.clone() }
+    }
+
+    fn to_float(&self) -> Option<f64> {
+        self.normalized.parse::<f64>().ok()
+    }
+}
+
+/// Check if a user's answer matches the expected answer.
 ///
-/// # Arguments
-/// * `user_input` - The user's answer
-/// * `answer_key` - The correct answer
-/// * `mode` - The grading mode
-///
-/// # Returns
-/// `true` if the answer is correct
+/// Uses the shared grading algorithm from locus_common.
+/// Currently backed by string normalization (MVP fallback).
 pub fn check_answer(user_input: &str, answer_key: &str, mode: GradingMode) -> bool {
-    let user_normalized = normalize_expr(user_input);
-    let answer_normalized = normalize_expr(answer_key);
-
-    match mode {
-        GradingMode::Equivalent => {
-            // For MVP: exact match after normalization
-            // TODO: Full symbolic comparison with SymEngine
-            user_normalized == answer_normalized
-        }
-        GradingMode::Factor => {
-            // For factored form, we need exact structural match
-            user_normalized == answer_normalized
-        }
-    }
-}
-
-/// Future: Initialize SymEngine WASM runtime
-///
-/// This will load symengine.wasm via wasmtime and provide
-/// full symbolic computation capabilities.
-pub struct SymEngineRuntime {
-    // TODO: wasmtime::Engine, Store, Instance
-}
-
-impl SymEngineRuntime {
-    /// Create a new SymEngine runtime
-    pub fn new() -> Result<Self, GraderError> {
-        // TODO: Load WASM module
-        Ok(Self {})
-    }
-
-    /// Parse and expand an expression
-    pub fn expand(&self, _expr: &str) -> Result<String, GraderError> {
-        // TODO: Call SymEngine basic_expand
-        Err(GraderError::NotImplemented)
-    }
-
-    /// Check if two expressions are equal
-    pub fn equals(&self, _a: &str, _b: &str) -> Result<bool, GraderError> {
-        // TODO: Call SymEngine basic_eq
-        Err(GraderError::NotImplemented)
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum GraderError {
-    #[error("SymEngine not yet implemented")]
-    NotImplemented,
-
-    #[error("Failed to parse expression: {0}")]
-    ParseError(String),
-
-    #[error("WASM runtime error: {0}")]
-    WasmError(String),
+    common_grader::check_answer::<StringExpr>(user_input, answer_key, mode).is_correct()
 }
 
 #[cfg(test)]

@@ -1,156 +1,198 @@
-//! Client-side grading for practice mode
+//! Client-side grading for practice mode.
+//!
+//! Implements the `ExprEngine` trait from `locus_common` using
+//! SymEngine WASM FFI, then delegates grading to the shared logic.
 
 use locus_common::GradingMode;
+use locus_common::grader::{self, ExprEngine};
 use crate::symengine::Expr;
 
-/// Check if a user's answer matches the expected answer
-///
-/// This runs entirely in the browser for instant feedback in practice mode.
-pub fn check_answer(user_input: &str, answer_key: &str, mode: GradingMode) -> GradeResult {
-    // Parse both expressions
-    let user_expr = match Expr::parse(user_input) {
-        Ok(e) => e,
-        Err(_) => return GradeResult::Invalid("Could not parse your answer".into()),
-    };
+// Re-export GradeResult so existing code doesn't need to change imports
+pub use locus_common::grader::GradeResult;
 
-    let answer_expr = match Expr::parse(answer_key) {
-        Ok(e) => e,
-        Err(_) => return GradeResult::Error("Invalid answer key".into()),
-    };
+// Implement the shared ExprEngine trait for our WASM-backed Expr type
+impl ExprEngine for Expr {
+    type Error = crate::symengine::ExprError;
 
-    let is_correct = match mode {
-        GradingMode::Equivalent => {
-            // Expand both and compare
-            user_expr.expand().equals(&answer_expr.expand())
-        }
-        GradingMode::Factor => {
-            // Must be in factored form AND equal
-            user_expr.is_mul() && user_expr.equals(&answer_expr)
-        }
-    };
+    fn parse(input: &str) -> Result<Self, Self::Error> {
+        Expr::parse(input)
+    }
 
-    if is_correct {
-        GradeResult::Correct
-    } else {
-        GradeResult::Incorrect
+    fn expand(&self) -> Self {
+        Expr::expand(self)
+    }
+
+    fn sub(&self, other: &Self) -> Self {
+        Expr::sub(self, other)
+    }
+
+    fn equals(&self, other: &Self) -> bool {
+        Expr::equals(self, other)
+    }
+
+    fn is_zero(&self) -> bool {
+        Expr::is_zero(self)
+    }
+
+    fn free_symbols(&self) -> Vec<String> {
+        Expr::free_symbols(self)
+    }
+
+    fn subs_float(&self, var_name: &str, val: f64) -> Self {
+        Expr::subs_float(self, var_name, val)
+    }
+
+    fn to_float(&self) -> Option<f64> {
+        Expr::to_float(self)
     }
 }
 
-/// Preprocess input to add implicit multiplication
+/// Check if a user's answer matches the expected answer.
 ///
-/// Converts LaTeX-like notation to SymEngine-compatible format:
-/// - "2x" -> "2*x"
-/// - "xy" -> "x*y"
-/// - "2sin(x)" -> "2*sin(x)"
-/// - Preserves functions: sin, cos, tan, sqrt, ln, log, exp, etc.
-pub fn preprocess_input(input: &str) -> String {
-    const FUNCTIONS: &[&str] = &[
-        "sin", "cos", "tan", "sec", "csc", "cot",
-        "sinh", "cosh", "tanh", "sech", "csch", "coth",
-        "arcsin", "arccos", "arctan", "asin", "acos", "atan",
-        "sqrt", "exp", "ln", "log", "abs",
-    ];
+/// Delegates to the shared grading logic in `locus_common::grader`,
+/// using SymEngine WASM for symbolic computation.
+pub fn check_answer(user_input: &str, answer_key: &str, mode: GradingMode) -> GradeResult {
+    grader::check_answer::<Expr>(user_input, answer_key, mode)
+}
 
-    let mut result = String::with_capacity(input.len() * 2);
-    let chars: Vec<char> = input.chars().collect();
-    let mut i = 0;
+/// Convert LaTeX commands to plain text notation for SymEngine parsing.
+///
+/// Handles: \frac, \sqrt, trig functions, exponent braces, delimiters.
+/// SymEngine's parser handles implicit multiplication (2x, xy, etc.)
+/// so we only need to convert LaTeX syntax to plain math notation.
+fn convert_latex_to_plain(input: &str) -> String {
+    let mut result = input.to_string();
 
-    while i < chars.len() {
-        let c = chars[i];
+    // Remove \left and \right delimiters first
+    result = result.replace("\\left", "");
+    result = result.replace("\\right", "");
 
-        // Check if we're at the start of a function name
-        if c.is_ascii_alphabetic() {
-            let mut matched_func = None;
-            for func in FUNCTIONS {
-                if input[i..].starts_with(func) {
-                    // Make sure it's not part of a larger word
-                    let after_idx = i + func.len();
-                    let is_complete = after_idx >= chars.len()
-                        || !chars[after_idx].is_ascii_alphabetic();
-
-                    if is_complete {
-                        matched_func = Some(*func);
-                        break;
-                    }
-                }
-            }
-
-            if let Some(func) = matched_func {
-                // Insert multiplication before function if needed
-                if !result.is_empty() {
-                    let last_char = result.chars().last().unwrap();
-                    if last_char.is_ascii_alphanumeric() || last_char == ')' {
-                        result.push('*');
-                    }
-                }
-
-                // Add the function name
-                result.push_str(func);
-                i += func.len();
+    // Convert fractions: \frac{a}{b} -> (a)/(b) - do this first before other replacements
+    while let Some(frac_start) = result.find("\\frac") {
+        if let Some(numerator) = extract_braced_content(&result[frac_start + 5..]) {
+            let after_num = frac_start + 5 + numerator.len() + 2; // +2 for braces
+            if let Some(denominator) = extract_braced_content(&result[after_num..]) {
+                let frac_end = after_num + denominator.len() + 2;
+                // Recursively convert LaTeX in numerator and denominator
+                let num_plain = convert_latex_to_plain(&numerator);
+                let den_plain = convert_latex_to_plain(&denominator);
+                let fraction = format!("({})/({})", num_plain, den_plain);
+                result.replace_range(frac_start..frac_end, &fraction);
                 continue;
             }
         }
+        break; // If parsing failed, stop to avoid infinite loop
+    }
 
-        result.push(c);
+    // Handle \sqrt specially - it can have implicit argument like \sqrt2 or explicit \sqrt{x}
+    while let Some(sqrt_pos) = result.find("\\sqrt") {
+        let after_sqrt = sqrt_pos + 5; // Length of "\sqrt"
 
-        // Check if we need to insert '*' after this character
-        // But only if the next position is NOT the start of a function
-        if i + 1 < chars.len() {
-            let next = chars[i + 1];
+        if after_sqrt < result.len() {
+            let rest = &result[after_sqrt..];
 
-            // Check if next position starts a function
-            let next_is_func = if next.is_ascii_alphabetic() {
-                FUNCTIONS.iter().any(|func| {
-                    let after_idx = i + 1 + func.len();
-                    input[i + 1..].starts_with(func)
-                        && (after_idx >= chars.len() || !chars[after_idx].is_ascii_alphabetic())
-                })
-            } else {
-                false
-            };
-
-            if !next_is_func {
-                let needs_mul = match (c, next) {
-                    // digit followed by letter: 2x -> 2*x
-                    (d, l) if d.is_ascii_digit() && l.is_ascii_alphabetic() => true,
-                    // letter followed by letter: xy -> x*y
-                    (a, b) if a.is_ascii_alphabetic() && b.is_ascii_alphabetic() => true,
-                    // closing paren followed by letter or digit or opening paren
-                    (')', l) if l.is_ascii_alphanumeric() || l == '(' => true,
-                    // letter/digit followed by opening paren
-                    (a, '(') if a.is_ascii_alphanumeric() => true,
-                    _ => false,
-                };
-
-                if needs_mul {
-                    result.push('*');
+            if rest.starts_with('{') {
+                // \sqrt{content} case - extract braced content
+                if let Some(content) = extract_braced_content(rest) {
+                    let sqrt_end = after_sqrt + content.len() + 2;
+                    let converted = format!("sqrt({})", convert_latex_to_plain(&content));
+                    result.replace_range(sqrt_pos..sqrt_end, &converted);
+                    continue;
+                }
+            } else if let Some(next_char) = rest.chars().next() {
+                // \sqrt2 or \sqrtx case - single character argument
+                if next_char.is_alphanumeric() {
+                    let sqrt_end = after_sqrt + next_char.len_utf8();
+                    let converted = format!("sqrt({})", next_char);
+                    result.replace_range(sqrt_pos..sqrt_end, &converted);
+                    continue;
                 }
             }
         }
 
-        i += 1;
+        // Fallback: just remove backslash if no argument found
+        result.replace_range(sqrt_pos..sqrt_pos + 5, "sqrt");
     }
+
+    // Remove LaTeX function backslashes: \sin -> sin, \cos -> cos, etc.
+    result = result.replace("\\sin", "sin");
+    result = result.replace("\\cos", "cos");
+    result = result.replace("\\tan", "tan");
+    result = result.replace("\\sec", "sec");
+    result = result.replace("\\csc", "csc");
+    result = result.replace("\\cot", "cot");
+    result = result.replace("\\ln", "ln");
+    result = result.replace("\\log", "log");
+    result = result.replace("\\exp", "exp");
+    result = result.replace("\\abs", "abs");
+    result = result.replace("\\cdot", "*");
+    result = result.replace("\\times", "*");
+
+    // Handle exponents with braces: x^{2} -> x^(2), e^{x+1} -> e^(x+1)
+    while let Some(exp_start) = result.find("^{") {
+        if let Some(exp_content) = extract_braced_content(&result[exp_start + 1..]) {
+            let exp_end = exp_start + 1 + exp_content.len() + 2; // +1 for ^, +2 for braces
+            let converted = format!("^({})", convert_latex_to_plain(&exp_content));
+            result.replace_range(exp_start..exp_end, &converted);
+        } else {
+            break;
+        }
+    }
+
+    // Handle subscripts with braces similarly
+    while let Some(sub_start) = result.find("_{") {
+        if let Some(sub_content) = extract_braced_content(&result[sub_start + 1..]) {
+            let sub_end = sub_start + 1 + sub_content.len() + 2;
+            let converted = format!("_{}", convert_latex_to_plain(&sub_content));
+            result.replace_range(sub_start..sub_end, &converted);
+        } else {
+            break;
+        }
+    }
+
+    // Convert any remaining unmatched braces to parens (for grouping)
+    result = result.replace('{', "(");
+    result = result.replace('}', ")");
 
     result
 }
 
-/// Result of grading an answer
-#[derive(Debug, Clone, PartialEq)]
-pub enum GradeResult {
-    /// Answer is correct
-    Correct,
-    /// Answer is incorrect
-    Incorrect,
-    /// Input could not be parsed
-    Invalid(String),
-    /// Grading error
-    Error(String),
+/// Extract content between braces starting at the beginning of the string
+fn extract_braced_content(s: &str) -> Option<String> {
+    let s = s.trim_start();
+    if !s.starts_with('{') {
+        return None;
+    }
+
+    let mut depth = 0;
+    let mut content = String::new();
+
+    for (_i, c) in s.chars().enumerate() {
+        if c == '{' {
+            depth += 1;
+            if depth > 1 {
+                content.push(c);
+            }
+        } else if c == '}' {
+            depth -= 1;
+            if depth == 0 {
+                return Some(content);
+            }
+            content.push(c);
+        } else if depth > 0 {
+            content.push(c);
+        }
+    }
+
+    None
 }
 
-impl GradeResult {
-    pub fn is_correct(&self) -> bool {
-        matches!(self, GradeResult::Correct)
-    }
+/// Preprocess user input for SymEngine: convert LaTeX to plain math notation.
+///
+/// SymEngine's parser handles implicit multiplication natively,
+/// so we only need to convert LaTeX syntax here.
+pub fn preprocess_input(input: &str) -> String {
+    convert_latex_to_plain(input)
 }
 
 #[cfg(test)]
@@ -158,47 +200,74 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_preprocess_2x() {
-        assert_eq!(preprocess_input("2x"), "2*x");
+    fn test_latex_functions() {
+        assert_eq!(preprocess_input("\\cos(x)"), "cos(x)");
+        assert_eq!(preprocess_input("\\sin(x)"), "sin(x)");
+        assert_eq!(preprocess_input("\\tan(x)"), "tan(x)");
     }
 
     #[test]
-    fn test_preprocess_xy() {
-        assert_eq!(preprocess_input("xy"), "x*y");
+    fn test_latex_fractions() {
+        assert_eq!(preprocess_input("\\frac{1}{x}"), "(1)/(x)");
+        assert_eq!(preprocess_input("\\frac{x^2}{2}"), "(x^2)/(2)");
     }
 
     #[test]
-    fn test_preprocess_2x_squared() {
-        assert_eq!(preprocess_input("2x^2"), "2*x^2");
+    fn test_latex_delimiters() {
+        assert_eq!(preprocess_input("\\left(x\\right)"), "(x)");
     }
 
     #[test]
-    fn test_preprocess_parens() {
-        assert_eq!(preprocess_input("2(x+1)"), "2*(x+1)");
-        assert_eq!(preprocess_input("(x+1)(x-1)"), "(x+1)*(x-1)");
+    fn test_latex_cdot_times() {
+        assert_eq!(preprocess_input("2\\cdot x"), "2* x");
+        assert_eq!(preprocess_input("a\\times b"), "a* b");
     }
 
     #[test]
-    fn test_preprocess_functions() {
-        assert_eq!(preprocess_input("sin(x)"), "sin(x)");
-        assert_eq!(preprocess_input("cos(x)"), "cos(x)");
-        assert_eq!(preprocess_input("sqrt(x)"), "sqrt(x)");
-        assert_eq!(preprocess_input("2sin(x)"), "2*sin(x)");
-        assert_eq!(preprocess_input("sin(x)cos(x)"), "sin(x)*cos(x)");
-        assert_eq!(preprocess_input("xsin(x)"), "x*sin(x)");
-        assert_eq!(preprocess_input("ln(x)"), "ln(x)");
-        assert_eq!(preprocess_input("exp(x)"), "exp(x)");
+    fn test_latex_exponents_with_braces() {
+        assert_eq!(preprocess_input("x^{2}"), "x^(2)");
+        assert_eq!(preprocess_input("e^{x+1}"), "e^(x+1)");
     }
 
     #[test]
-    fn test_check_correct() {
+    fn test_check_equivalent_correct() {
         let result = check_answer("x^2+1", "x^2+1", GradingMode::Equivalent);
         assert_eq!(result, GradeResult::Correct);
     }
 
     #[test]
-    fn test_check_incorrect() {
+    fn test_check_equivalent_incorrect() {
         let result = check_answer("x^2+2", "x^2+1", GradingMode::Equivalent);
+        assert_eq!(result, GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_check_equivalent_reordered() {
+        let result = check_answer("1+x^2", "x^2+1", GradingMode::Equivalent);
+        assert_eq!(result, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_factor_correct() {
+        let result = check_answer("(x+1)*(x-1)", "x^2-1", GradingMode::Factor);
+        assert_eq!(result, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_factor_rejects_expanded_form() {
+        let result = check_answer("x^2-1", "x^2-1", GradingMode::Factor);
+        assert_eq!(result, GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_expand_correct() {
+        let result = check_answer("x^2+2*x+1", "(x+1)^2", GradingMode::Expand);
+        assert_eq!(result, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_expand_rejects_factored_form() {
+        let result = check_answer("(x+1)^2", "(x+1)^2", GradingMode::Expand);
         assert_eq!(result, GradeResult::Incorrect);
     }
 }

@@ -4,6 +4,7 @@ mod auth;
 mod problems;
 mod submit;
 mod leaderboard;
+mod factory;
 
 use axum::{
     routing::{get, post},
@@ -21,11 +22,12 @@ use locus_common::ApiError;
 pub struct AppState {
     pub pool: PgPool,
     pub jwt_secret: String,
+    pub api_key: String,
 }
 
 impl AppState {
-    pub fn new(pool: PgPool, jwt_secret: String) -> Self {
-        Self { pool, jwt_secret }
+    pub fn new(pool: PgPool, jwt_secret: String, api_key: String) -> Self {
+        Self { pool, jwt_secret, api_key }
     }
 }
 
@@ -45,6 +47,8 @@ pub fn router() -> Router<AppState> {
         .route("/leaderboard", get(leaderboard::get_leaderboard))
         // User profile
         .route("/user/me", get(auth::get_me))
+        // Factory endpoint (internal)
+        .route("/internal/problems", post(factory::create_problem))
 }
 
 /// Health check endpoint

@@ -7,9 +7,11 @@ mod grader;
 mod auth;
 mod api;
 mod models;
+mod validation;
+mod rate_limit;
 
-use axum::Router;
-use tower_http::cors::{CorsLayer, Any};
+use axum::{http::Method, Router};
+use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -28,6 +30,12 @@ async fn main() -> anyhow::Result<()> {
     // Load configuration
     let config = config::Config::from_env()?;
 
+    // Log startup information
+    tracing::info!("Starting Locus backend");
+    tracing::info!("Environment: {:?}", config.environment);
+    tracing::info!("Allowed CORS origins: {:?}", config.allowed_origins);
+    tracing::info!("Factory endpoint enabled at /api/internal/problems");
+
     // Connect to database
     let pool = db::create_pool(&config.database_url).await?;
 
@@ -39,16 +47,29 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Database migrations completed");
 
     // Build application state
-    let state = api::AppState::new(pool, config.jwt_secret.clone());
+    let state = api::AppState::new(pool, config.jwt_secret.clone(), config.api_key_secret.clone());
+
+    // Parse allowed origins for CORS
+    let allowed_origins: Vec<_> = config
+        .allowed_origins
+        .iter()
+        .filter_map(|origin| origin.parse().ok())
+        .collect();
 
     // Build router
     let app = Router::new()
         .nest("/api", api::router())
-        .layer(CorsLayer::new()
-            .allow_origin(Any)
-            .allow_methods(Any)
-            .allow_headers(Any))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(allowed_origins)
+                .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+                .allow_headers([
+                    axum::http::header::AUTHORIZATION,
+                    axum::http::header::CONTENT_TYPE,
+                ]),
+        )
         .layer(TraceLayer::new_for_http())
+        .layer(rate_limit::general_rate_limiter())
         .with_state(state);
 
     // Start server
@@ -57,7 +78,12 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("Server listening on {}", addr);
 
-    axum::serve(listener, app).await?;
+    // Use into_make_service_with_connect_info to enable IP tracking for rate limiting
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+    )
+    .await?;
 
     Ok(())
 }

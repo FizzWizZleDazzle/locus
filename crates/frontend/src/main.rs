@@ -5,6 +5,7 @@ mod grader;
 mod symengine;
 mod pages;
 mod components;
+mod katex_bindings;
 
 use leptos::prelude::*;
 use leptos_router::{
@@ -38,8 +39,8 @@ fn App() -> impl IntoView {
         <Router>
             <div class="min-h-screen flex flex-col">
                 <Navbar />
-                <main class="flex-1 container mx-auto px-4 py-8">
-                    <Routes fallback=|| view! { <p>"Page not found"</p> }>
+                <main class="flex-1">
+                    <Routes fallback=|| view! { <p class="text-center mt-12">"Page not found"</p> }>
                         <Route path=path!("/") view=Home />
                         <Route path=path!("/practice") view=Practice />
                         <Route path=path!("/ranked") view=Ranked />
@@ -48,7 +49,7 @@ fn App() -> impl IntoView {
                         <Route path=path!("/register") view=Register />
                     </Routes>
                 </main>
-                <footer class="py-8 text-center text-xs text-gray-400">
+                <footer class="py-6 text-center text-xs text-gray-400 border-t">
                     "Locus"
                 </footer>
             </div>

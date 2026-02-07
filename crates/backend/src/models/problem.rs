@@ -116,6 +116,7 @@ impl Problem {
         let mode_str = match grading_mode {
             GradingMode::Equivalent => "equivalent",
             GradingMode::Factor => "factor",
+            GradingMode::Expand => "expand",
         };
 
         sqlx::query_as(
@@ -139,6 +140,7 @@ impl Problem {
     pub fn get_grading_mode(&self) -> GradingMode {
         match self.grading_mode.as_str() {
             "factor" => GradingMode::Factor,
+            "expand" => GradingMode::Expand,
             _ => GradingMode::Equivalent,
         }
     }
