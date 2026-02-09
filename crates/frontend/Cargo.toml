@@ -1,7 +1,7 @@
 [package]
 name = "locus-frontend"
 version.workspace = true
-edition.workspace = true
+edition = "2021"  # Override workspace edition for FFI compat
 authors.workspace = true
 license.workspace = true
 
@@ -40,3 +40,6 @@ uuid = { version = "1", features = ["v4", "serde", "js"] }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 getrandom = { version = "0.3", features = ["wasm_js"] }
+
+[build-dependencies]
+cc = "1"

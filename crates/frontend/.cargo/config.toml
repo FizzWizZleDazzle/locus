@@ -1,0 +1,5 @@
+# Configuration for WASM builds
+# Note: reference-types is enabled by default in Rust 1.82+ and works fine
+# with wasm-bindgen 0.2.100+. No special configuration needed.
+
+[target.wasm32-unknown-unknown]

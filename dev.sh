@@ -97,6 +97,7 @@ start_backend() {
 start_frontend() {
     log_info "Starting frontend on http://localhost:8080"
     cd crates/frontend
+    # Pass wasm-bindgen flags to disable reference types (fixes "env" module errors)
     trunk serve &
     FRONTEND_PID=$!
     cd ../..
