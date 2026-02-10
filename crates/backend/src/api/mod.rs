@@ -6,6 +6,7 @@ mod submit;
 mod leaderboard;
 mod factory;
 mod oauth;
+mod topics;
 
 use axum::{
     routing::{get, post},
@@ -29,6 +30,7 @@ pub struct AppState {
     pub github_client_id: Option<String>,
     pub github_client_secret: Option<String>,
     pub oauth_redirect_base: String,
+    pub topic_cache: crate::topics::TopicCache,
 }
 
 impl AppState {
@@ -42,6 +44,7 @@ impl AppState {
         github_client_id: Option<String>,
         github_client_secret: Option<String>,
         oauth_redirect_base: String,
+        topic_cache: crate::topics::TopicCache,
     ) -> Self {
         Self {
             pool,
@@ -53,6 +56,7 @@ impl AppState {
             github_client_id,
             github_client_secret,
             oauth_redirect_base,
+            topic_cache,
         }
     }
 }
@@ -71,6 +75,8 @@ pub fn router() -> Router<AppState> {
         .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))
         // Problem routes
         .route("/problem", get(problems::get_problem))
+        // Topics
+        .route("/topics", get(topics::get_topics))
         // Submit route
         .route("/submit", post(submit::submit_answer))
         // Leaderboard

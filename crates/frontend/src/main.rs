@@ -137,7 +137,7 @@ use leptos_router::{
 };
 
 use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings};
-use components::Navbar;
+use components::{Navbar, Sidebar};
 
 fn main() {
     console_error_panic_hook::set_once();
@@ -158,11 +158,19 @@ fn App() -> impl IntoView {
         set_username,
     });
 
+    let auth = expect_context::<AuthContext>();
+
     view! {
         <Router>
             <div class="min-h-screen flex flex-col">
                 <Navbar />
-                <main class="flex-1">
+                {move || auth.is_logged_in.get().then(|| view! {
+                    <Sidebar />
+                })}
+                <main class=move || format!(
+                    "flex-1 transition-all duration-300 {}",
+                    if auth.is_logged_in.get() { "ml-16" } else { "" }
+                )>
                     <Routes fallback=|| view! { <p class="text-center mt-12">"Page not found"</p> }>
                         <Route path=path!("/") view=Home />
                         <Route path=path!("/practice") view=Practice />
@@ -173,7 +181,10 @@ fn App() -> impl IntoView {
                         <Route path=path!("/settings") view=Settings />
                     </Routes>
                 </main>
-                <footer class="py-6 text-center text-xs text-gray-400 border-t">
+                <footer class=move || format!(
+                    "py-6 text-center text-xs text-gray-400 border-t transition-all duration-300 {}",
+                    if auth.is_logged_in.get() { "ml-16" } else { "" }
+                )>
                     "Locus"
                 </footer>
             </div>

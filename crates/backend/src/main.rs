@@ -7,6 +7,7 @@ mod auth;
 mod api;
 mod models;
 mod rate_limit;
+mod topics;
 
 use axum::{http::Method, Router};
 use tower_http::cors::CorsLayer;
@@ -44,6 +45,14 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("Database migrations completed");
 
+    // Initialize topic cache
+    let topic_cache = topics::TopicCache::new(pool.clone()).await?;
+    tracing::info!("Topic cache initialized");
+
+    // Spawn background refresh task
+    topic_cache.clone().spawn_refresh_task();
+    tracing::info!("Topic cache refresh task started");
+
     // Build HTTP client for OAuth
     let http_client = reqwest::Client::new();
 
@@ -66,6 +75,7 @@ async fn main() -> anyhow::Result<()> {
         config.github_client_id.clone(),
         config.github_client_secret.clone(),
         config.oauth_redirect_base.clone(),
+        topic_cache,
     );
 
     // Parse allowed origins for CORS

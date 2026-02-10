@@ -2,12 +2,29 @@
 
 use gloo_net::http::Request;
 use gloo_storage::{LocalStorage, Storage};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use locus_common::{
     AuthResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
     SetPasswordRequest, SubmitRequest, SubmitResponse, UserProfile, ApiError,
 };
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Topic {
+    pub id: String,
+    pub display_name: String,
+    pub sort_order: i32,
+    pub enabled: bool,
+    pub subtopics: Vec<Subtopic>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Subtopic {
+    pub id: String,
+    pub display_name: String,
+    pub sort_order: i32,
+    pub enabled: bool,
+}
 
 const API_BASE: &str = "/api";
 const TOKEN_KEY: &str = "locus_token";
@@ -46,7 +63,7 @@ pub fn clear_auth() {
 }
 
 /// API error type
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequestError {
     pub message: String,
 }
@@ -189,6 +206,14 @@ pub async fn submit_answer(
         time_taken_ms,
     };
     post_request("/submit", &req).await
+}
+
+// ============================================================================
+// Topics API
+// ============================================================================
+
+pub async fn get_topics() -> Result<Vec<Topic>, RequestError> {
+    get_request("/topics").await
 }
 
 // ============================================================================

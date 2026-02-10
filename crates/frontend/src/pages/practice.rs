@@ -2,7 +2,7 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use locus_common::{MainTopic, ProblemResponse};
+use locus_common::ProblemResponse;
 
 use crate::{
     api,
@@ -13,7 +13,7 @@ use crate::{
 #[component]
 pub fn Practice() -> impl IntoView {
     // Topic selection state
-    let (selected_topic, set_selected_topic) = signal(None::<MainTopic>);
+    let (selected_topic, set_selected_topic) = signal(None::<String>);
     let (selected_subtopics, set_selected_subtopics) = signal(Vec::<String>::new());
 
     // Problem state
@@ -34,7 +34,7 @@ pub fn Practice() -> impl IntoView {
         set_show_answer.set(false);
         set_problem.set(None); // Clear problem to unmount <Show> and destroy old MathInput
 
-        let topic = selected_topic.get().map(|t| t.as_str().to_string());
+        let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
 
         spawn_local(async move {
@@ -55,7 +55,7 @@ pub fn Practice() -> impl IntoView {
         });
     };
 
-    let on_topic_confirm = Callback::new(move |(topic, subtopics): (MainTopic, Vec<String>)| {
+    let on_topic_confirm = Callback::new(move |(topic, subtopics): (String, Vec<String>)| {
         set_selected_topic.set(Some(topic));
         set_selected_subtopics.set(subtopics);
         load_problem();
@@ -84,7 +84,7 @@ pub fn Practice() -> impl IntoView {
     view! {
         <div class="max-w-2xl mx-auto py-8">
             <div class="flex items-center justify-between mb-6">
-                <h1 class="text-xl font-medium text-gray-900">"Practice"</h1>
+                <h1 class="text-2xl font-semibold">"Practice"</h1>
                 {move || selected_topic.get().is_some().then(|| view! {
                     <button
                         class="text-sm text-gray-500 hover:text-gray-900"

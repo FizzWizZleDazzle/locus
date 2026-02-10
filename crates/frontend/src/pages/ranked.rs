@@ -3,7 +3,7 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
-use locus_common::{MainTopic, ProblemResponse};
+use locus_common::ProblemResponse;
 
 use crate::{
     api,
@@ -24,7 +24,7 @@ pub fn Ranked() -> impl IntoView {
     });
 
     // Topic selection state
-    let (selected_topic, set_selected_topic) = signal(None::<MainTopic>);
+    let (selected_topic, set_selected_topic) = signal(None::<String>);
     let (selected_subtopics, set_selected_subtopics) = signal(Vec::<String>::new());
 
     // Problem state
@@ -44,7 +44,7 @@ pub fn Ranked() -> impl IntoView {
         set_answer.set(String::new());
         set_result.set(None);
 
-        let topic = selected_topic.get().map(|t| t.as_str().to_string());
+        let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
 
         spawn_local(async move {
@@ -62,7 +62,7 @@ pub fn Ranked() -> impl IntoView {
         });
     };
 
-    let on_topic_confirm = Callback::new(move |(topic, subtopics): (MainTopic, Vec<String>)| {
+    let on_topic_confirm = Callback::new(move |(topic, subtopics): (String, Vec<String>)| {
         set_selected_topic.set(Some(topic));
         set_selected_subtopics.set(subtopics);
         load_problem();
