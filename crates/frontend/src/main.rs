@@ -2,6 +2,7 @@
 
 mod api;
 mod grader;
+mod oauth;
 mod pages;
 mod components;
 mod katex_bindings;
@@ -135,7 +136,7 @@ use leptos_router::{
     path,
 };
 
-use pages::{Home, Practice, Ranked, Leaderboard, Login, Register};
+use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings};
 use components::Navbar;
 
 fn main() {
@@ -169,6 +170,7 @@ fn App() -> impl IntoView {
                         <Route path=path!("/leaderboard") view=Leaderboard />
                         <Route path=path!("/login") view=Login />
                         <Route path=path!("/register") view=Register />
+                        <Route path=path!("/settings") view=Settings />
                     </Routes>
                 </main>
                 <footer class="py-6 text-center text-xs text-gray-400 border-t">

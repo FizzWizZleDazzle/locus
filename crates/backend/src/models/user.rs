@@ -5,19 +5,19 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use std::collections::HashMap;
 
-use locus_common::UserProfile;
+use locus_common::{UserProfile, constants::INITIAL_ELO};
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
     pub email: String,
-    pub password_hash: String,
+    pub password_hash: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
 impl User {
-    /// Create a new user
+    /// Create a new user with password
     pub async fn create(
         pool: &PgPool,
         username: &str,
@@ -36,6 +36,39 @@ impl User {
         .bind(password_hash)
         .fetch_one(pool)
         .await
+    }
+
+    /// Create a new user via OAuth (no password)
+    pub async fn create_oauth(
+        pool: &PgPool,
+        username: &str,
+        email: &str,
+    ) -> Result<Self, sqlx::Error> {
+        sqlx::query_as(
+            r#"
+            INSERT INTO users (username, email, password_hash)
+            VALUES ($1, $2, NULL)
+            RETURNING id, username, email, password_hash, created_at
+            "#,
+        )
+        .bind(username)
+        .bind(email)
+        .fetch_one(pool)
+        .await
+    }
+
+    /// Set or update the password hash for a user
+    pub async fn set_password_hash(
+        pool: &PgPool,
+        user_id: Uuid,
+        password_hash: &str,
+    ) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE users SET password_hash = $1 WHERE id = $2")
+            .bind(password_hash)
+            .bind(user_id)
+            .execute(pool)
+            .await?;
+        Ok(())
     }
 
     /// Find user by email
@@ -162,16 +195,71 @@ impl User {
             id: self.id,
             username: self.username.clone(),
             email: self.email.clone(),
-            elo_arithmetic: *elos.get("arithmetic").unwrap_or(&1500),
-            elo_algebra1: *elos.get("algebra1").unwrap_or(&1500),
-            elo_geometry: *elos.get("geometry").unwrap_or(&1500),
-            elo_algebra2: *elos.get("algebra2").unwrap_or(&1500),
-            elo_precalculus: *elos.get("precalculus").unwrap_or(&1500),
-            elo_calculus: *elos.get("calculus").unwrap_or(&1500),
-            elo_multivariable_calculus: *elos.get("multivariable_calculus").unwrap_or(&1500),
-            elo_linear_algebra: *elos.get("linear_algebra").unwrap_or(&1500),
+            elo_arithmetic: *elos.get("arithmetic").unwrap_or(&INITIAL_ELO),
+            elo_algebra1: *elos.get("algebra1").unwrap_or(&INITIAL_ELO),
+            elo_geometry: *elos.get("geometry").unwrap_or(&INITIAL_ELO),
+            elo_algebra2: *elos.get("algebra2").unwrap_or(&INITIAL_ELO),
+            elo_precalculus: *elos.get("precalculus").unwrap_or(&INITIAL_ELO),
+            elo_calculus: *elos.get("calculus").unwrap_or(&INITIAL_ELO),
+            elo_multivariable_calculus: *elos.get("multivariable_calculus").unwrap_or(&INITIAL_ELO),
+            elo_linear_algebra: *elos.get("linear_algebra").unwrap_or(&INITIAL_ELO),
+            has_password: self.password_hash.is_some(),
             created_at: self.created_at,
         })
+    }
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct OAuthAccount {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub provider: String,
+    pub provider_user_id: String,
+    pub provider_email: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+impl OAuthAccount {
+    /// Find an OAuth account by provider and provider user ID
+    pub async fn find_by_provider(
+        pool: &PgPool,
+        provider: &str,
+        provider_user_id: &str,
+    ) -> Result<Option<Self>, sqlx::Error> {
+        sqlx::query_as(
+            r#"
+            SELECT id, user_id, provider, provider_user_id, provider_email, created_at
+            FROM oauth_accounts
+            WHERE provider = $1 AND provider_user_id = $2
+            "#,
+        )
+        .bind(provider)
+        .bind(provider_user_id)
+        .fetch_optional(pool)
+        .await
+    }
+
+    /// Create a new OAuth account link
+    pub async fn create(
+        pool: &PgPool,
+        user_id: Uuid,
+        provider: &str,
+        provider_user_id: &str,
+        provider_email: Option<&str>,
+    ) -> Result<Self, sqlx::Error> {
+        sqlx::query_as(
+            r#"
+            INSERT INTO oauth_accounts (user_id, provider, provider_user_id, provider_email)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id, user_id, provider, provider_user_id, provider_email, created_at
+            "#,
+        )
+        .bind(user_id)
+        .bind(provider)
+        .bind(provider_user_id)
+        .bind(provider_email)
+        .fetch_one(pool)
+        .await
     }
 }
 

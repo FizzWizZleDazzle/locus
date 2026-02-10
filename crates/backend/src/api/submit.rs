@@ -6,11 +6,12 @@ use locus_common::{SubmitRequest, SubmitResponse};
 
 use crate::{
     auth::AuthUser,
-    elo::calculate_new_elo,
     grader::check_answer,
     models::{Attempt, Problem, User},
     AppError,
 };
+
+use locus_common::elo::calculate_new_elo;
 use super::AppState;
 
 /// Submit an answer for grading

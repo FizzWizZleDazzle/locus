@@ -41,6 +41,9 @@ pub fn Navbar() -> impl IntoView {
                                         <span class="text-sm text-gray-600">
                                             {move || auth.username.get().unwrap_or_default()}
                                         </span>
+                                        <A href="/settings" attr:class="text-sm hover:text-gray-600">
+                                            "Settings"
+                                        </A>
                                         <button
                                             on:click=logout
                                             class="text-sm hover:text-gray-600"

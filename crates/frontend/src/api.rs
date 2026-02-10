@@ -6,7 +6,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use locus_common::{
     AuthResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
-    SubmitRequest, SubmitResponse, UserProfile, ApiError,
+    SetPasswordRequest, SubmitRequest, SubmitResponse, UserProfile, ApiError,
 };
 
 const API_BASE: &str = "/api";
@@ -28,10 +28,15 @@ fn get_token() -> Option<String> {
     LocalStorage::get::<String>(TOKEN_KEY).ok()
 }
 
-/// Store auth data
+/// Store auth data (internal)
 fn store_auth(token: &str, username: &str) {
     let _ = LocalStorage::set(TOKEN_KEY, token);
     let _ = LocalStorage::set(USERNAME_KEY, username);
+}
+
+/// Store auth data from OAuth popup result
+pub fn store_oauth_auth(token: &str, username: &str) {
+    store_auth(token, username);
 }
 
 /// Clear auth data
@@ -142,6 +147,13 @@ pub fn logout() {
 
 pub async fn get_me() -> Result<UserProfile, RequestError> {
     get_request("/user/me").await
+}
+
+pub async fn set_password(password: &str) -> Result<UserProfile, RequestError> {
+    let req = SetPasswordRequest {
+        password: password.to_string(),
+    };
+    post_request("/auth/set-password", &req).await
 }
 
 // ============================================================================

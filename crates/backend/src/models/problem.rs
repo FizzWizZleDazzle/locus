@@ -3,7 +3,7 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use locus_common::{GradingMode, ProblemResponse};
+use locus_common::{GradingMode, ProblemResponse, constants::DEFAULT_DIFFICULTY};
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Problem {
@@ -24,7 +24,7 @@ impl Problem {
         main_topic: Option<&str>,
         subtopics: Option<&[String]>,
     ) -> Result<Option<Self>, sqlx::Error> {
-        let target = target_elo.unwrap_or(1500);
+        let target = target_elo.unwrap_or(DEFAULT_DIFFICULTY);
 
         // Build query based on filters
         match (main_topic, subtopics) {

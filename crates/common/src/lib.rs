@@ -225,7 +225,13 @@ pub struct UserProfile {
     pub elo_calculus: i32,
     pub elo_multivariable_calculus: i32,
     pub elo_linear_algebra: i32,
+    pub has_password: bool,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SetPasswordRequest {
+    pub password: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

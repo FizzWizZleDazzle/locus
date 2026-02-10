@@ -5,7 +5,7 @@ use axum::{
     Json,
 };
 
-use locus_common::{ProblemQuery, ProblemResponse};
+use locus_common::{ProblemQuery, ProblemResponse, constants::DEFAULT_DIFFICULTY};
 
 use crate::{auth::AuthUser, models::{Problem, User}, AppError};
 use super::AppState;
@@ -40,7 +40,7 @@ pub async fn get_problem(
             let elo = User::get_elo_for_topic(&state.pool, u.id, topic).await?;
             Some(elo)
         }
-        _ => Some(1500), // Default for practice mode without topic
+        _ => Some(DEFAULT_DIFFICULTY), // Default for practice mode without topic
     };
 
     // Get a random problem matching criteria

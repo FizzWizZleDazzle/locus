@@ -1,4 +1,6 @@
 //! ELO rating calculation
+//!
+//! Shared ELO logic used by both frontend (for prediction) and backend (for authoritative updates).
 
 /// K-factor for rating changes
 const K_FACTOR: f64 = 32.0;

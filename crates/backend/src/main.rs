@@ -44,8 +44,29 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("Database migrations completed");
 
+    // Build HTTP client for OAuth
+    let http_client = reqwest::Client::new();
+
+    // Log OAuth configuration
+    if config.google_client_id.is_some() {
+        tracing::info!("Google OAuth configured");
+    }
+    if config.github_client_id.is_some() {
+        tracing::info!("GitHub OAuth configured");
+    }
+
     // Build application state
-    let state = api::AppState::new(pool, config.jwt_secret.clone(), config.api_key_secret.clone());
+    let state = api::AppState::new(
+        pool,
+        config.jwt_secret.clone(),
+        config.api_key_secret.clone(),
+        http_client,
+        config.google_client_id.clone(),
+        config.google_client_secret.clone(),
+        config.github_client_id.clone(),
+        config.github_client_secret.clone(),
+        config.oauth_redirect_base.clone(),
+    );
 
     // Parse allowed origins for CORS
     let allowed_origins: Vec<_> = config

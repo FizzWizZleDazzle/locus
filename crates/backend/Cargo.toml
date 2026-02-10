@@ -40,3 +40,5 @@ governor = { workspace = true }
 validator = { workspace = true }
 regex = { workspace = true }
 lazy_static = { workspace = true }
+reqwest = { workspace = true }
+urlencoding = { workspace = true }

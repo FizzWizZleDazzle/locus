@@ -31,6 +31,11 @@ pub struct Config {
     pub api_key_secret: String,
     pub environment: Environment,
     pub allowed_origins: Vec<String>,
+    pub google_client_id: Option<String>,
+    pub google_client_secret: Option<String>,
+    pub github_client_id: Option<String>,
+    pub github_client_secret: Option<String>,
+    pub oauth_redirect_base: String,
 }
 
 impl Config {
@@ -91,6 +96,12 @@ impl Config {
             api_key_secret,
             environment,
             allowed_origins,
+            google_client_id: env::var("GOOGLE_CLIENT_ID").ok().filter(|s| !s.is_empty()),
+            google_client_secret: env::var("GOOGLE_CLIENT_SECRET").ok().filter(|s| !s.is_empty()),
+            github_client_id: env::var("GITHUB_CLIENT_ID").ok().filter(|s| !s.is_empty()),
+            github_client_secret: env::var("GITHUB_CLIENT_SECRET").ok().filter(|s| !s.is_empty()),
+            oauth_redirect_base: env::var("OAUTH_REDIRECT_BASE")
+                .unwrap_or_else(|_| "http://localhost:3000".to_string()),
         })
     }
 }

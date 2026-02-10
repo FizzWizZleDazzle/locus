@@ -29,6 +29,8 @@ web-sys = { workspace = true, features = [
     "HtmlInputElement",
     "HtmlDivElement",
     "KeyboardEvent",
+    "MessageEvent",
+    "Url",
     "console",
 ] }
 console_error_panic_hook = { workspace = true }

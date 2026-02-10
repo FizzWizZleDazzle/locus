@@ -5,6 +5,7 @@ mod problems;
 mod submit;
 mod leaderboard;
 mod factory;
+mod oauth;
 
 use axum::{
     routing::{get, post},
@@ -13,7 +14,6 @@ use axum::{
     http::StatusCode,
 };
 use sqlx::PgPool;
-use std::sync::Arc;
 
 use locus_common::ApiError;
 
@@ -23,11 +23,37 @@ pub struct AppState {
     pub pool: PgPool,
     pub jwt_secret: String,
     pub api_key: String,
+    pub http_client: reqwest::Client,
+    pub google_client_id: Option<String>,
+    pub google_client_secret: Option<String>,
+    pub github_client_id: Option<String>,
+    pub github_client_secret: Option<String>,
+    pub oauth_redirect_base: String,
 }
 
 impl AppState {
-    pub fn new(pool: PgPool, jwt_secret: String, api_key: String) -> Self {
-        Self { pool, jwt_secret, api_key }
+    pub fn new(
+        pool: PgPool,
+        jwt_secret: String,
+        api_key: String,
+        http_client: reqwest::Client,
+        google_client_id: Option<String>,
+        google_client_secret: Option<String>,
+        github_client_id: Option<String>,
+        github_client_secret: Option<String>,
+        oauth_redirect_base: String,
+    ) -> Self {
+        Self {
+            pool,
+            jwt_secret,
+            api_key,
+            http_client,
+            google_client_id,
+            google_client_secret,
+            github_client_id,
+            github_client_secret,
+            oauth_redirect_base,
+        }
     }
 }
 
@@ -39,6 +65,10 @@ pub fn router() -> Router<AppState> {
         // Auth routes
         .route("/auth/register", post(auth::register))
         .route("/auth/login", post(auth::login))
+        .route("/auth/set-password", post(auth::set_password))
+        // OAuth routes
+        .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
+        .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))
         // Problem routes
         .route("/problem", get(problems::get_problem))
         // Submit route

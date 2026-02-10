@@ -6,7 +6,7 @@ use argon2::{
 };
 use axum::{extract::State, Json};
 
-use locus_common::{AuthResponse, LoginRequest, RegisterRequest, UserProfile};
+use locus_common::{AuthResponse, LoginRequest, RegisterRequest, SetPasswordRequest, UserProfile};
 
 use crate::{
     auth::{create_token, AuthUser},
@@ -73,8 +73,14 @@ pub async fn login(
         .await?
         .ok_or_else(|| AppError::Auth("Invalid email or password".into()))?;
 
+    // Check if user has a password set
+    let password_hash = user.password_hash.as_deref()
+        .ok_or_else(|| AppError::Auth(
+            "This account uses social login. Sign in with Google or GitHub, or set a password in Settings.".into()
+        ))?;
+
     // Verify password
-    let parsed_hash = PasswordHash::new(&user.password_hash)
+    let parsed_hash = PasswordHash::new(password_hash)
         .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
 
     Argon2::default()
@@ -89,6 +95,34 @@ pub async fn login(
         token,
         user: user.to_profile(&state.pool).await?,
     }))
+}
+
+/// Set password for the current user (for OAuth users who want email+password login)
+pub async fn set_password(
+    State(state): State<AppState>,
+    auth_user: AuthUser,
+    Json(req): Json<SetPasswordRequest>,
+) -> Result<Json<UserProfile>, AppError> {
+    // Validate password complexity
+    validation::validate_password(&req.password)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    // Hash password
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_hash = argon2
+        .hash_password(req.password.as_bytes(), &salt)
+        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
+        .to_string();
+
+    // Update user
+    User::set_password_hash(&state.pool, auth_user.id, &password_hash).await?;
+
+    let user = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    Ok(Json(user.to_profile(&state.pool).await?))
 }
 
 /// Get current user profile
