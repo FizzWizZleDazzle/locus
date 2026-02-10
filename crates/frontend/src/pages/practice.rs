@@ -82,7 +82,7 @@ pub fn Practice() -> impl IntoView {
     };
 
     view! {
-        <div class="max-w-2xl mx-auto py-8">
+        <div class="max-w-2xl mx-auto px-4 py-8">
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-semibold">"Practice"</h1>
                 {move || selected_topic.get().is_some().then(|| view! {
