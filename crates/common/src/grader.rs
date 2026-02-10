@@ -5,6 +5,7 @@
 //! backend (SymEngine native or wasmtime).
 
 use crate::GradingMode;
+use crate::symengine::{Expr, ExprError};
 
 // Test points for numerical equivalence checking.
 // Chosen to avoid common edge cases (0, 1, pi/2, etc.)
@@ -111,6 +112,56 @@ pub fn check_answer<E: ExprEngine>(user_input: &str, answer_key: &str, mode: Gra
         }
     }
 }
+
+// ============================================================================
+// ExprEngine implementation for SymEngine FFI Expr
+// ============================================================================
+
+impl ExprEngine for Expr {
+    type Error = ExprError;
+
+    fn parse(input: &str) -> Result<Self, Self::Error> {
+        Expr::parse(input)
+    }
+
+    fn expand(&self) -> Self {
+        Expr::expand(self)
+    }
+
+    fn sub(&self, other: &Self) -> Self {
+        Expr::sub(self, other)
+    }
+
+    fn equals(&self, other: &Self) -> bool {
+        Expr::equals(self, other)
+    }
+
+    fn is_zero(&self) -> bool {
+        Expr::is_zero(self)
+    }
+
+    fn free_symbols(&self) -> Vec<String> {
+        Expr::free_symbols(self)
+    }
+
+    fn subs_float(&self, var_name: &str, val: f64) -> Self {
+        Expr::subs_float(self, var_name, val)
+    }
+
+    fn to_float(&self) -> Option<f64> {
+        Expr::to_float(self)
+    }
+}
+
+/// Convenience function: check answer using SymEngine (non-generic).
+///
+/// Both frontend (WASM) and backend (native) can call this directly
+/// without specifying the generic parameter.
+pub fn check_answer_expr(user_input: &str, answer_key: &str, mode: GradingMode) -> GradeResult {
+    check_answer::<Expr>(user_input, answer_key, mode)
+}
+
+// ============================================================================
 
 /// Two-stage equivalence check:
 /// 1. Symbolic: expand(a - b) == 0

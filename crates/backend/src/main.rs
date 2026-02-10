@@ -2,12 +2,10 @@
 
 mod config;
 mod db;
-mod elo;
 mod grader;
 mod auth;
 mod api;
 mod models;
-mod validation;
 mod rate_limit;
 
 use axum::{http::Method, Router};

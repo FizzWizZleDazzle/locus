@@ -1,6 +1,11 @@
 //! Common types shared between frontend and backend
 
 pub mod grader;
+pub mod symengine;
+pub mod elo;
+pub mod validation;
+pub mod latex;
+pub mod constants;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

@@ -11,9 +11,10 @@ use locus_common::{AuthResponse, LoginRequest, RegisterRequest, UserProfile};
 use crate::{
     auth::{create_token, AuthUser},
     models::User,
-    validation,
     AppError,
 };
+
+use locus_common::validation;
 use super::AppState;
 
 /// Register a new user
@@ -21,10 +22,9 @@ pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<AuthResponse>, AppError> {
-    // Validate input
-    if req.username.len() < 3 || req.username.len() > 50 {
-        return Err(AppError::BadRequest("Username must be 3-50 characters".into()));
-    }
+    // Validate username
+    validation::validate_username(&req.username)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
     // Validate password complexity
     validation::validate_password(&req.password)
