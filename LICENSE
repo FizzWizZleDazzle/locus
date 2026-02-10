@@ -1,21 +1,155 @@
-MIT License
+Internal Access and Use License (IAUL) – Version 2.2
 
-Copyright (c) 2026 FizzWizZleDazzle
+Copyright (c) 2026 FizzWizzleDazzle
+All Rights Reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. DEFINITIONS
+1.1. “Software” means all object code, source code,
+documentation, data, assets, designs, concepts,
+algorithms, configurations, compiled forms,
+intermediate builds, updates, patches, derivative
+works, and any output or result produced by the
+Software, in whole or in part.
+1.2. “Licensee” means the specific legal entity or
+individual expressly authorized by Licensor to
+receive and use the Software. License rights do not
+extend to affiliates, subsidiaries, parent companies,
+contractors, partners, or related entities unless
+explicitly listed in writing by Licensor.
+1.3. “Use” means any execution, access, modification,
+study, integration, API exposure, remote display,
+automation, testing, training, or incorporation of the
+Software or any part thereof.
+1.4. “Confidential Information” means all non-public
+information related to the Software or Licensor, in any
+form.
+1.5. “Third Party” means any person or entity other
+than Licensor and the specific Licensee named.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+2. GRANT OF LICENSE
+Licensor grants Licensee a limited, non-exclusive,
+non-transferable, revocable license to install and use
+the Software solely for internal, non-commercial,
+non-production purposes, within a secure environment
+under Licensee’s sole control. All storage locations,
+networks, and devices used must be pre-approved in
+writing by Licensor.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+3. RESTRICTIONS
+Licensee shall not, directly or indirectly:
+3.1. Distribute, sublicense, sell, rent, lease, lend,
+gift, disclose, publish, or make available the Software,
+or any access thereto, to any Third Party.
+3.2. Allow any non-authorized person to access, use,
+or view the Software, including via APIs, remote
+desktops, automated systems, or shared environments.
+3.3. Modify, adapt, translate, decompile, disassemble,
+reverse-engineer, re-implement, or create derivative
+works based on the Software or any ideas, algorithms,
+or structures contained therein.
+3.4. Use any portion of the Software, its outputs,
+datasets, or components in any other project, product,
+dataset, or service.
+3.5. Deploy the Software, in whole or part, to any
+cloud, network-exposed, internet-accessible, or
+multi-tenant environment without written approval.
+3.6. Use the Software to train, fine-tune, benchmark,
+or validate any AI, ML, DL, or LLM systems, whether
+directly or via intermediate outputs, APIs, data
+transformations, or wrappers.
+3.7. Circumvent or attempt to circumvent any license
+control, watermarking, telemetry, or access restriction
+implemented by Licensor.
+3.8. Store the Software on systems not explicitly
+listed and approved by Licensor in writing.
+3.9. Enable, assist, or permit any Third Party to
+perform any restricted action.
+
+4. CONFIDENTIALITY & SECURITY
+4.1. Licensee shall treat the Software as strictly
+confidential and implement protections at least as
+strong as those used for its most sensitive
+information, including encryption at rest and in
+transit, strict access controls, and activity logging.
+4.2. All persons with access to the Software must be
+bound by a written confidentiality agreement with
+terms no less protective than this License.
+4.3. Licensee shall notify Licensor within 24 hours of
+any suspected or actual unauthorized access, use, or
+disclosure.
+
+5. AUDIT & ENFORCEMENT
+5.1. Licensor may audit Licensee’s compliance on at
+least ten (10) business days’ notice.
+5.2. Licensee shall provide full cooperation, including
+access to facilities, systems, logs, and records.
+5.3. Licensor may embed watermarking, telemetry, or
+other monitoring mechanisms in the Software to detect
+unauthorized use, which Licensee shall not attempt to
+disable.
+5.4. If a breach is found, Licensee shall immediately
+cure, pay all enforcement costs, and be subject to
+termination.
+
+6. TERM & TERMINATION
+6.1. This License is effective upon delivery and
+continues until terminated.
+6.2. Licensor may terminate immediately for any breach.
+6.3. Upon termination, Licensee shall cease all use,
+permanently delete all copies, and certify destruction
+in writing within five (5) business days.
+6.4. Obligations in Sections 3, 4, 5, 7, 8, 9, 10, 11,
+and 12 survive termination.
+
+7. EXPORT CONTROLS
+Licensee shall comply with all export, re-export, and
+transfer laws. Licensee affirms it is not in or under
+the control of a prohibited jurisdiction or entity.
+
+8. INDEMNIFICATION
+Licensee shall defend, indemnify, and hold harmless
+Licensor and its affiliates from all claims, damages,
+and costs (including attorneys’ fees) arising from
+Licensee’s breach or unauthorized use.
+
+9. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED “AS IS” WITHOUT ANY WARRANTY.
+LICENSOR DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+INCLUDING MERCHANTABILITY, FITNESS, TITLE, AND NON-
+INFRINGEMENT.
+
+10. LIMITATION OF LIABILITY
+LICENSOR’S TOTAL LIABILITY SHALL NOT EXCEED LICENSE
+FEES PAID. LICENSOR IS NOT LIABLE FOR INDIRECT,
+INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.
+
+11. EQUITABLE RELIEF
+Breach of Sections 3 or 4 causes irreparable harm;
+Licensor may seek injunctive relief without bond.
+
+12. LIQUIDATED DAMAGES
+Licensee acknowledges that actual damages from breach
+may be difficult to determine and agrees that, for each
+separate breach of this License, Licensee shall pay
+Licensor liquidated damages of $50,000.00 USD per
+incident, in addition to any other remedies available
+at law or equity. This amount is a genuine pre-estimate
+of harm and not a penalty.
+
+13. NOTICES
+All notices must be in writing and sent to
+arturmisiurev@gmail.com unless Licensor updates in writing.
+
+14. GOVERNING LAW & JURISDICTION
+This License is governed by U.S. law. The parties
+consent to exclusive jurisdiction in U.S. courts.
+
+15. SEVERABILITY
+If any part is invalid, the rest remains enforceable.
+
+16. ENTIRE AGREEMENT; AMENDMENTS
+This is the entire agreement. Changes require signed
+written consent from both parties.
+
+17. NON-WAIVER
+Failure to enforce is not a waiver of future rights.
