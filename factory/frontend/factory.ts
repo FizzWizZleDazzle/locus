@@ -1,44 +1,185 @@
-// Locus Factory - Frontend Logic
+// Locus Factory - Frontend Logic (TypeScript)
+
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
+
+interface Problem {
+  id?: string;
+  question_latex: string;
+  answer_key: string;
+  difficulty: number;
+  main_topic: string;
+  subtopic: string;
+  grading_mode: string;
+  generated_at?: string;
+}
+
+interface Stats {
+  generated: number;
+  approved: number;
+  rejected: number;
+}
+
+type ToastType = 'info' | 'success' | 'error';
+
+interface ScriptResponse {
+  script: string;
+  message: string;
+}
+
+interface TestScriptResponse {
+  success: boolean;
+  problem?: Problem;
+  message?: string;
+  error?: string;
+  output?: string;
+}
+
+interface ScriptInfo {
+  name: string;
+  filename: string;
+  description: string;
+  created: string;
+}
+
+interface ScriptsResponse {
+  scripts: ScriptInfo[];
+  count: number;
+}
+
+interface RunScriptResponse {
+  success: boolean;
+  problems: Problem[];
+  count: number;
+  errors?: string[];
+}
+
+interface MassGenerateResponse {
+  success: boolean;
+  total_generated: number;
+  staged: number;
+  scripts_run: number;
+  per_script: Record<string, number>;
+  errors?: string[];
+  message: string;
+}
+
+interface StagedResponse {
+  problems: Problem[];
+  count: number;
+}
+
+interface ExportResponse {
+  format: string;
+  filename: string;
+  path: string;
+  count: number;
+  message: string;
+}
+
+interface ExportFile {
+  filename: string;
+  format: string;
+  size: number;
+  created: string;
+}
+
+interface ExportsResponse {
+  exports: ExportFile[];
+  count: number;
+}
+
+interface DownloadExportResponse {
+  filename: string;
+  content: string;
+  size: number;
+}
+
+interface LLMConfig {
+  endpoint: string;
+  api_key: string;
+  model: string;
+  configured: boolean;
+}
+
+interface LocusConfig {
+  backend_url: string;
+  api_key: string | null;
+}
+
+interface ConfigResponse {
+  llm: LLMConfig;
+  locus: LocusConfig;
+}
+
+// ============================================================================
+// State
+// ============================================================================
 
 const API = 'http://localhost:9090';
-let reviewProblems = [];
-let stats = { generated: 0, approved: 0, rejected: 0 };
+let reviewProblems: (Problem | null)[] = [];
+const stats: Stats = { generated: 0, approved: 0, rejected: 0 };
 
 // ============================================================================
 // Utilities
 // ============================================================================
 
-function toast(msg, type = 'info') {
+function toast(msg: string, type: ToastType = 'info'): void {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.textContent = msg;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => el.remove(), 3000);
+  const container = document.getElementById('toastContainer');
+  if (container) {
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
 }
 
-async function api(path, opts = {}) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+interface ApiOptions extends Omit<RequestInit, 'body'> {
+  body?: Record<string, unknown>;
+}
+
+async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
+  const fetchOpts: RequestInit = {
     ...opts,
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
-  });
+  };
+
+  const res = await fetch(`${API}${path}`, fetchOpts);
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    const err = await res.json().catch(() => ({ detail: res.statusText })) as { detail?: string };
     throw new Error(err.detail || 'Request failed');
   }
-  return res.json();
+
+  return res.json() as Promise<T>;
+}
+
+function getElement<T extends HTMLElement>(id: string): T | null {
+  return document.getElementById(id) as T | null;
+}
+
+function requireElement<T extends HTMLElement>(id: string): T {
+  const el = getElement<T>(id);
+  if (!el) throw new Error(`Element #${id} not found`);
+  return el;
 }
 
 // ============================================================================
 // Navigation
 // ============================================================================
 
-function switchTab(tabName) {
+function switchTab(tabName: string): void {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
 
-  document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
-  document.getElementById(`tab-${tabName}`).classList.add('active');
+  const tab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  const content = document.getElementById(`tab-${tabName}`);
+
+  if (tab) tab.classList.add('active');
+  if (content) content.classList.add('active');
 }
 
 // Setup tab click handlers
@@ -46,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const tabName = tab.getAttribute('data-tab');
-      switchTab(tabName);
+      if (tabName) switchTab(tabName);
     });
   });
 });
@@ -55,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Init
 // ============================================================================
 
-async function init() {
+async function init(): Promise<void> {
   setInterval(() => {
     const now = new Date().toLocaleTimeString('en-US', { hour12: false });
     document.title = `Factory ${now}`;
@@ -66,32 +207,50 @@ async function init() {
   await refreshStaging();
 }
 
-async function checkConn() {
+async function checkConn(): Promise<void> {
   try {
-    const d = await api('/');
-    document.getElementById('statusDot').classList.remove('offline');
-    document.getElementById('statusLabel').textContent = 'Connected';
+    await api('/');
+
+    const statusDot = getElement('statusDot');
+    const statusLabel = getElement('statusLabel');
+
+    if (statusDot) statusDot.classList.remove('offline');
+    if (statusLabel) statusLabel.textContent = 'Connected';
 
     // Load config
-    const cfg = await api('/config');
-    const statusEl = document.getElementById('configStatus');
+    const cfg = await api<ConfigResponse>('/config');
+    const statusEl = getElement('configStatus');
 
     if (cfg.llm.configured) {
-      document.getElementById('llmEndpoint').value = cfg.llm.endpoint || '';
-      document.getElementById('llmKey').placeholder = cfg.llm.api_key || 'Not set';
-      document.getElementById('llmModel').value = cfg.llm.model || '';
+      const llmEndpoint = getElement<HTMLInputElement>('llmEndpoint');
+      const llmKey = getElement<HTMLInputElement>('llmKey');
+      const llmModel = getElement<HTMLInputElement>('llmModel');
 
-      statusEl.className = 'status-box ok';
-      statusEl.textContent = `✓ Configured — ${cfg.llm.endpoint} | ${cfg.llm.model} | ${cfg.llm.api_key}`;
+      if (llmEndpoint) llmEndpoint.value = cfg.llm.endpoint || '';
+      if (llmKey) llmKey.placeholder = cfg.llm.api_key || 'Not set';
+      if (llmModel) llmModel.value = cfg.llm.model || '';
+
+      if (statusEl) {
+        statusEl.className = 'status-box ok';
+        statusEl.textContent = `✓ Configured — ${cfg.llm.endpoint} | ${cfg.llm.model} | ${cfg.llm.api_key}`;
+      }
     } else {
-      statusEl.className = 'status-box warn';
-      statusEl.textContent = '⚠ Not configured — Enter credentials below';
+      if (statusEl) {
+        statusEl.className = 'status-box warn';
+        statusEl.textContent = '⚠ Not configured — Enter credentials below';
+      }
     }
   } catch {
-    document.getElementById('statusDot').classList.add('offline');
-    document.getElementById('statusLabel').textContent = 'Offline';
-    document.getElementById('configStatus').className = 'status-box error';
-    document.getElementById('configStatus').textContent = '✗ Backend offline';
+    const statusDot = getElement('statusDot');
+    const statusLabel = getElement('statusLabel');
+    const statusEl = getElement('configStatus');
+
+    if (statusDot) statusDot.classList.add('offline');
+    if (statusLabel) statusLabel.textContent = 'Offline';
+    if (statusEl) {
+      statusEl.className = 'status-box error';
+      statusEl.textContent = '✗ Backend offline';
+    }
   }
 }
 
@@ -99,10 +258,10 @@ async function checkConn() {
 // Config
 // ============================================================================
 
-async function saveLLMConfig() {
-  const endpoint = document.getElementById('llmEndpoint').value;
-  const key = document.getElementById('llmKey').value;
-  const model = document.getElementById('llmModel').value;
+async function saveLLMConfig(): Promise<void> {
+  const endpoint = requireElement<HTMLInputElement>('llmEndpoint').value;
+  const key = requireElement<HTMLInputElement>('llmKey').value;
+  const model = requireElement<HTMLInputElement>('llmModel').value;
 
   if (!endpoint || !key || !model) {
     toast('All fields required', 'error');
@@ -117,7 +276,7 @@ async function saveLLMConfig() {
     toast('Config saved', 'success');
     await checkConn();
   } catch (e) {
-    toast('Save failed: ' + e.message, 'error');
+    toast('Save failed: ' + (e as Error).message, 'error');
   }
 }
 
@@ -125,49 +284,49 @@ async function saveLLMConfig() {
 // Script Generation
 // ============================================================================
 
-async function generateScript() {
-  const topic = document.getElementById('genTopic').value;
-  const subtopic = document.getElementById('genSubtopic').value;
-  const difficulty = document.getElementById('genDifficulty').value;
-  const mode = document.getElementById('genMode').value;
+async function generateScript(): Promise<void> {
+  const topic = requireElement<HTMLInputElement>('genTopic').value;
+  const subtopic = requireElement<HTMLInputElement>('genSubtopic').value;
+  const difficulty = requireElement<HTMLSelectElement>('genDifficulty').value;
+  const mode = requireElement<HTMLSelectElement>('genMode').value;
 
   if (!topic || !subtopic) {
     toast('Topic and subtopic required', 'error');
     return;
   }
 
-  const btn = document.getElementById('genBtn');
+  const btn = requireElement<HTMLButtonElement>('genBtn');
   btn.classList.add('loading');
   btn.textContent = 'Generating...';
 
   try {
-    const d = await api('/generate-script', {
+    const d = await api<ScriptResponse>('/generate-script', {
       method: 'POST',
       body: { main_topic: topic, subtopic, difficulty_level: difficulty, grading_mode: mode }
     });
 
-    document.getElementById('scriptEditor').value = d.script;
+    requireElement<HTMLTextAreaElement>('scriptEditor').value = d.script;
     toast('Script generated', 'success');
   } catch (e) {
-    toast('Failed: ' + e.message, 'error');
+    toast('Failed: ' + (e as Error).message, 'error');
   } finally {
     btn.classList.remove('loading');
     btn.textContent = 'Generate Script';
   }
 }
 
-async function testScript() {
-  const script = document.getElementById('scriptEditor').value;
+async function testScript(): Promise<void> {
+  const script = requireElement<HTMLTextAreaElement>('scriptEditor').value;
   if (!script) {
     toast('No script', 'error');
     return;
   }
 
   try {
-    const d = await api('/test-script', { method: 'POST', body: { script } });
-    const resultEl = document.getElementById('testResult');
+    const d = await api<TestScriptResponse>('/test-script', { method: 'POST', body: { script } });
+    const resultEl = requireElement('testResult');
 
-    if (d.success) {
+    if (d.success && d.problem) {
       resultEl.style.display = 'block';
       resultEl.innerHTML = `
         <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;padding:10px">
@@ -182,18 +341,18 @@ async function testScript() {
       resultEl.innerHTML = `
         <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:4px;padding:10px">
           <div style="font-family:var(--mono);font-size:11px;color:var(--red);margin-bottom:4px;font-weight:600">✗ Failed</div>
-          <pre style="font-size:10px;color:var(--text-muted);overflow:auto">${d.error}</pre>
+          <pre style="font-size:10px;color:var(--text-muted);overflow:auto">${d.error || 'Unknown error'}</pre>
         </div>
       `;
       toast('Test failed', 'error');
     }
   } catch (e) {
-    toast('Error: ' + e.message, 'error');
+    toast('Error: ' + (e as Error).message, 'error');
   }
 }
 
-function saveScriptDialog() {
-  const script = document.getElementById('scriptEditor').value;
+function saveScriptDialog(): void {
+  const script = requireElement<HTMLTextAreaElement>('scriptEditor').value;
   if (!script) {
     toast('No script', 'error');
     return;
@@ -203,35 +362,36 @@ function saveScriptDialog() {
   if (!name) return;
 
   const desc = prompt('Description (optional):', '');
-  saveScript(name, script, desc);
+  void saveScript(name, script, desc || '');
 }
 
-async function saveScript(name, script, desc) {
+async function saveScript(name: string, script: string, desc: string): Promise<void> {
   try {
     await api('/scripts/save', {
       method: 'POST',
-      body: { name, script, description: desc || '' }
+      body: { name, script, description: desc }
     });
     toast('Saved', 'success');
     await refreshScripts();
   } catch (e) {
-    toast('Save failed: ' + e.message, 'error');
+    toast('Save failed: ' + (e as Error).message, 'error');
   }
 }
 
-function clearScript() {
-  document.getElementById('scriptEditor').value = '';
-  document.getElementById('testResult').style.display = 'none';
+function clearScript(): void {
+  requireElement<HTMLTextAreaElement>('scriptEditor').value = '';
+  const testResult = getElement('testResult');
+  if (testResult) testResult.style.display = 'none';
 }
 
 // ============================================================================
 // Script Library
 // ============================================================================
 
-async function refreshScripts() {
+async function refreshScripts(): Promise<void> {
   try {
-    const d = await api('/scripts');
-    const list = document.getElementById('scriptList');
+    const d = await api<ScriptsResponse>('/scripts');
+    const list = requireElement('scriptList');
 
     if (d.count === 0) {
       list.innerHTML = '<div class="empty" style="padding:40px 10px"><div class="empty-icon">📜</div><p style="font-size:11px">No scripts</p></div>';
@@ -242,7 +402,7 @@ async function refreshScripts() {
     d.scripts.forEach(s => {
       const item = document.createElement('div');
       item.className = 'list-item';
-      item.onclick = () => loadScript(s.name);
+      item.onclick = () => void loadScript(s.name);
       item.innerHTML = `
         <div class="list-item-title">${s.name}</div>
         <div class="list-item-desc">${s.description}</div>
@@ -254,36 +414,36 @@ async function refreshScripts() {
       list.appendChild(item);
     });
   } catch (e) {
-    toast('Load failed: ' + e.message, 'error');
+    toast('Load failed: ' + (e as Error).message, 'error');
   }
 }
 
-async function loadScript(name) {
+async function loadScript(name: string): Promise<void> {
   try {
-    const d = await api(`/scripts/${name}`);
-    document.getElementById('scriptEditor').value = d.script;
+    const d = await api<{ script: string }>(`/scripts/${name}`);
+    requireElement<HTMLTextAreaElement>('scriptEditor').value = d.script;
     switchTab('generate');
     toast(`Loaded ${name}`, 'success');
   } catch (e) {
-    toast('Load failed: ' + e.message, 'error');
+    toast('Load failed: ' + (e as Error).message, 'error');
   }
 }
 
-function runScriptDialog(name) {
+function runScriptDialog(name: string): void {
   const count = prompt('How many problems? (1-50 for review, or type "mass" for 1000)', '10');
   if (!count) return;
 
   if (count.toLowerCase() === 'mass') {
-    massGenerate(name);
+    void massGenerateSingle(name);
   } else {
-    runScript(name, parseInt(count));
+    void runScript(name, parseInt(count));
   }
 }
 
-async function runScript(name, count) {
+async function runScript(name: string, count: number): Promise<void> {
   try {
     toast(`Running ${name}...`, 'info');
-    const d = await api('/run-script', {
+    const d = await api<RunScriptResponse>('/run-script', {
       method: 'POST',
       body: { script_name: name, count }
     });
@@ -298,12 +458,12 @@ async function runScript(name, count) {
       toast('Run failed', 'error');
     }
   } catch (e) {
-    toast('Error: ' + e.message, 'error');
+    toast('Error: ' + (e as Error).message, 'error');
   }
 }
 
-async function massGenerate(name) {
-  const count = parseInt(prompt('Mass generate count:', '1000'));
+async function massGenerateSingle(_name: string): Promise<void> {
+  const count = parseInt(prompt('Mass generate count:', '1000') || '0');
   if (!count || count < 100) {
     toast('Enter a number >= 100', 'error');
     return;
@@ -311,19 +471,19 @@ async function massGenerate(name) {
 
   try {
     toast(`Mass generating ${count} problems...`, 'info');
-    const d = await api('/mass-generate', {
+    const d = await api<MassGenerateResponse>('/mass-generate', {
       method: 'POST',
-      body: { script_name: name, count }
+      body: { count_per_script: count }
     });
 
     if (d.success) {
-      toast(`Generated ${d.generated}, ${d.staged} staged`, 'success');
+      toast(`Generated ${d.total_generated}, ${d.staged} staged`, 'success');
       await refreshStaging();
     } else {
       toast('Mass generation failed', 'error');
     }
   } catch (e) {
-    toast('Error: ' + e.message, 'error');
+    toast('Error: ' + (e as Error).message, 'error');
   }
 }
 
@@ -331,23 +491,25 @@ async function massGenerate(name) {
 // Problem Review
 // ============================================================================
 
-function renderProblems() {
-  const container = document.getElementById('problemsContainer');
-  const actions = document.getElementById('reviewActions');
-  const count = document.getElementById('reviewCount');
+function renderProblems(): void {
+  const container = requireElement('problemsContainer');
+  const actions = getElement('reviewActions');
+  const count = getElement('reviewCount');
 
   if (reviewProblems.length === 0) {
     container.innerHTML = '<div class="empty"><div class="empty-icon">?</div><p>Run a script to generate problems</p></div>';
-    actions.style.display = 'none';
-    count.textContent = '0';
+    if (actions) actions.style.display = 'none';
+    if (count) count.textContent = '0';
     return;
   }
 
-  actions.style.display = 'flex';
-  count.textContent = reviewProblems.length;
+  if (actions) actions.style.display = 'flex';
+  if (count) count.textContent = reviewProblems.length.toString();
   container.innerHTML = '';
 
   reviewProblems.forEach((p, i) => {
+    if (!p) return;
+
     const card = document.createElement('div');
     card.className = 'card';
     card.id = `card-${i}`;
@@ -375,10 +537,11 @@ function renderProblems() {
 
   // Render LaTeX
   requestAnimationFrame(() => {
-    reviewProblems.forEach((_, i) => {
+    reviewProblems.forEach((p, i) => {
+      if (!p) return;
       const el = document.getElementById(`q-${i}`);
-      if (el && window.renderMathInElement) {
-        renderMathInElement(el, {
+      if (el && (window as any).renderMathInElement) {
+        (window as any).renderMathInElement(el, {
           delimiters: [
             { left: '$$', right: '$$', display: true },
             { left: '$', right: '$', display: false }
@@ -390,7 +553,7 @@ function renderProblems() {
   });
 }
 
-async function approveProblem(i) {
+async function approveProblem(i: number): Promise<void> {
   const p = reviewProblems[i];
   if (!p) return;
 
@@ -400,7 +563,8 @@ async function approveProblem(i) {
       body: { problem: p, approved: true }
     });
 
-    document.getElementById(`card-${i}`).classList.add('approved');
+    const card = getElement(`card-${i}`);
+    if (card) card.classList.add('approved');
     reviewProblems[i] = null;
     stats.approved++;
     await refreshStaging();
@@ -410,12 +574,13 @@ async function approveProblem(i) {
       renderProblems();
     }, 300);
   } catch (e) {
-    toast('Approve failed: ' + e.message, 'error');
+    toast('Approve failed: ' + (e as Error).message, 'error');
   }
 }
 
-function rejectProblem(i) {
-  document.getElementById(`card-${i}`).classList.add('rejected');
+function rejectProblem(i: number): void {
+  const card = getElement(`card-${i}`);
+  if (card) card.classList.add('rejected');
   reviewProblems[i] = null;
   stats.rejected++;
 
@@ -425,8 +590,8 @@ function rejectProblem(i) {
   }, 300);
 }
 
-async function approveAll() {
-  const active = reviewProblems.filter(x => x);
+async function approveAll(): Promise<void> {
+  const active = reviewProblems.filter((x): x is Problem => x !== null);
   for (const p of active) {
     try {
       await api('/confirm-problem', {
@@ -443,7 +608,7 @@ async function approveAll() {
   toast(`Approved ${active.length}`, 'success');
 }
 
-function clearReview() {
+function clearReview(): void {
   stats.rejected += reviewProblems.filter(x => x).length;
   reviewProblems = [];
   renderProblems();
@@ -453,13 +618,17 @@ function clearReview() {
 // Staging
 // ============================================================================
 
-async function refreshStaging() {
+async function refreshStaging(): Promise<void> {
   try {
-    const d = await api('/staged');
-    document.getElementById('stagingCount').textContent = d.count;
-    document.getElementById('stagedBadge').textContent = `${d.count} staged`;
+    const d = await api<StagedResponse>('/staged');
 
-    const list = document.getElementById('stagingList');
+    const stagingCount = getElement('stagingCount');
+    const stagedBadge = getElement('stagedBadge');
+
+    if (stagingCount) stagingCount.textContent = d.count.toString();
+    if (stagedBadge) stagedBadge.textContent = `${d.count} staged`;
+
+    const list = requireElement('stagingList');
     if (d.count === 0) {
       list.innerHTML = '<div class="empty" style="padding:40px 10px"><p style="font-size:11px">No problems staged</p></div>';
     } else {
@@ -481,25 +650,25 @@ async function refreshStaging() {
   } catch { }
 }
 
-async function clearStaging() {
+async function clearStaging(): Promise<void> {
   try {
     await api('/staged', { method: 'DELETE' });
     await refreshStaging();
     toast('Cleared', 'success');
   } catch (e) {
-    toast('Clear failed: ' + e.message, 'error');
+    toast('Clear failed: ' + (e as Error).message, 'error');
   }
 }
 
-async function massGenerate(name) {
-  const count = parseInt(prompt('Problems per script (e.g., 100):', '100'));
+async function massGenerate(): Promise<void> {
+  const count = parseInt(prompt('Problems per script (e.g., 100):', '100') || '0');
   if (!count || count < 1) return;
 
   if (!confirm(`This will run ALL saved scripts ${count} times each. Continue?`)) return;
 
   try {
     toast('Mass generating...', 'info');
-    const d = await api('/mass-generate', {
+    const d = await api<MassGenerateResponse>('/mass-generate', {
       method: 'POST',
       body: { count_per_script: count }
     });
@@ -511,7 +680,7 @@ async function massGenerate(name) {
       toast('Mass generation failed', 'error');
     }
   } catch (e) {
-    toast('Error: ' + e.message, 'error');
+    toast('Error: ' + (e as Error).message, 'error');
   }
 }
 
@@ -519,19 +688,19 @@ async function massGenerate(name) {
 // Export
 // ============================================================================
 
-async function exportSQL() {
+async function exportSQL(): Promise<void> {
   try {
-    const d = await api('/export', { method: 'POST', body: { format: 'sql' } });
+    const d = await api<ExportResponse>('/export', { method: 'POST', body: { format: 'sql' } });
     toast(`Saved to ${d.filename}`, 'success');
     await refreshStaging();
   } catch (e) {
-    toast('Export failed: ' + e.message, 'error');
+    toast('Export failed: ' + (e as Error).message, 'error');
   }
 }
 
-async function viewExports() {
+async function viewExports(): Promise<void> {
   try {
-    const d = await api('/exports');
+    const d = await api<ExportsResponse>('/exports');
 
     if (d.count === 0) {
       toast('No exports yet', 'info');
@@ -568,13 +737,13 @@ async function viewExports() {
     document.body.appendChild(overlay);
 
   } catch (e) {
-    toast('Failed to load exports: ' + e.message, 'error');
+    toast('Failed to load exports: ' + (e as Error).message, 'error');
   }
 }
 
-async function downloadExport(filename) {
+async function downloadExport(filename: string): Promise<void> {
   try {
-    const d = await api(`/exports/${filename}`);
+    const d = await api<DownloadExportResponse>(`/exports/${filename}`);
     const blob = new Blob([d.content], { type: filename.endsWith('.sql') ? 'text/sql' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -584,16 +753,36 @@ async function downloadExport(filename) {
     URL.revokeObjectURL(url);
     toast('Downloaded', 'success');
   } catch (e) {
-    toast('Download failed: ' + e.message, 'error');
+    toast('Download failed: ' + (e as Error).message, 'error');
   }
 }
+
+// ============================================================================
+// Global functions (exposed to window for onclick handlers)
+// ============================================================================
+
+(window as any).saveLLMConfig = saveLLMConfig;
+(window as any).generateScript = generateScript;
+(window as any).testScript = testScript;
+(window as any).saveScriptDialog = saveScriptDialog;
+(window as any).clearScript = clearScript;
+(window as any).runScriptDialog = runScriptDialog;
+(window as any).approveProblem = approveProblem;
+(window as any).rejectProblem = rejectProblem;
+(window as any).approveAll = approveAll;
+(window as any).clearReview = clearReview;
+(window as any).massGenerate = massGenerate;
+(window as any).exportSQL = exportSQL;
+(window as any).viewExports = viewExports;
+(window as any).downloadExport = downloadExport;
+(window as any).clearStaging = clearStaging;
 
 // ============================================================================
 // Init on load
 // ============================================================================
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => void init());
 } else {
-  init();
+  void init();
 }

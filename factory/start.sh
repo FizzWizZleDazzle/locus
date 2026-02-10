@@ -18,6 +18,37 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
+# Check/compile TypeScript
+cd "$FACTORY_DIR/frontend"
+if [ -f "factory.ts" ]; then
+    echo "[*] Compiling TypeScript..."
+
+    # Try npx tsc first (local install)
+    if command -v npx &> /dev/null; then
+        if npx -y typescript@latest --version &> /dev/null; then
+            npx -y typescript@latest --project tsconfig.json
+            echo "[OK] TypeScript compiled"
+        else
+            echo "[WARN] npx typescript not available, trying global tsc..."
+            if command -v tsc &> /dev/null; then
+                tsc --project tsconfig.json
+                echo "[OK] TypeScript compiled"
+            else
+                echo "[ERROR] TypeScript not found. Install with: npm install -g typescript"
+                exit 1
+            fi
+        fi
+    # Try global tsc
+    elif command -v tsc &> /dev/null; then
+        tsc --project tsconfig.json
+        echo "[OK] TypeScript compiled"
+    else
+        echo "[ERROR] TypeScript not found. Install with: npm install -g typescript"
+        echo "[INFO] Or use npx: npx -y typescript@latest"
+        exit 1
+    fi
+fi
+
 # Setup backend
 cd "$FACTORY_DIR/backend"
 if [ ! -d "venv" ]; then
