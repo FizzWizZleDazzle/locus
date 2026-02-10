@@ -131,7 +131,7 @@ pub fn Ranked() -> impl IntoView {
 
             // Show topic selector if no topic selected
             {move || selected_topic.get().is_none().then(|| view! {
-                <div class="border p-6">
+                <div class="border border-gray-200 rounded p-6">
                     <TopicSelector on_confirm=on_topic_confirm />
                 </div>
             })}
