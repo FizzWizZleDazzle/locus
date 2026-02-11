@@ -6,7 +6,7 @@ use locus_common::ProblemResponse;
 
 use crate::{
     api,
-    components::{MathInput, ProblemCard, TopicSelector},
+    components::{ProblemInterface, TopicSelector},
     grader::{check_answer, preprocess_input, GradeResult},
 };
 
@@ -32,7 +32,6 @@ pub fn Practice() -> impl IntoView {
         set_answer.set(String::new());
         set_result.set(None);
         set_show_answer.set(false);
-        set_problem.set(None); // Clear problem to unmount <Show> and destroy old MathInput
 
         let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
@@ -71,8 +70,19 @@ pub fn Practice() -> impl IntoView {
         }
     };
 
+    // Copy signals for use in closures
+    let problem_for_check = problem;
+    let answer_for_check = answer;
+    let set_result_for_check = set_result;
+
     let on_submit = Callback::new(move |_| {
-        check();
+        if let Some(p) = problem_for_check.get() {
+            let user_input = preprocess_input(&answer_for_check.get());
+            if let Some(answer_key) = &p.answer_key {
+                let grade = check_answer(&user_input, answer_key, p.grading_mode);
+                set_result_for_check.set(Some(grade));
+            }
+        }
     });
 
     let reset_selection = move || {
@@ -113,64 +123,72 @@ pub fn Practice() -> impl IntoView {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
                     })}
 
-                    {move || problem.get().map(|p| {
-                        let answer_key = if show_answer.get() {
-                            p.answer_key.clone()
-                        } else {
-                            None
-                        };
-                        view! {
-                            <ProblemCard problem=p show_answer=answer_key />
-                        }
+                    // Show answer key if revealed
+                    {move || (show_answer.get() && problem.get().is_some()).then(|| {
+                        problem.get().and_then(|p| p.answer_key.clone()).map(|ans| view! {
+                            <div class="p-4 bg-blue-50 border border-blue-200 rounded">
+                                <div class="text-sm font-medium text-blue-900 mb-1">"Answer:"</div>
+                                <div class="text-blue-800">{ans}</div>
+                            </div>
+                        })
                     })}
 
-                    <Show when=move || problem.get().is_some()>
-                        <div class="space-y-4">
-                            <MathInput
-                                value=answer
-                                set_value=set_answer
-                                placeholder="Your answer"
-                                on_submit=on_submit
-                            />
-
-                                <div class="flex space-x-2">
-                                <button
-                                    class="flex-1 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
-                                    on:click=move |_| check()
-                                    disabled=move || answer.get().is_empty()
-                                >
-                                    "Check"
-                                </button>
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded hover:border-gray-400"
-                                    on:click=move |_| set_show_answer.set(true)
-                                >
-                                    "Reveal"
-                                </button>
-                            </div>
-
-                            {move || result.get().map(|r| {
-                                let (color, msg): (&str, String) = match r {
-                                    GradeResult::Correct => ("text-green-600", "Correct".to_string()),
-                                    GradeResult::Incorrect => ("text-red-600", "Incorrect".to_string()),
-                                    GradeResult::Invalid(m) => ("text-yellow-600", m),
-                                    GradeResult::Error(m) => ("text-red-600", m),
-                                };
-                                view! {
-                                    <div class=format!("text-sm {}", color)>{msg}</div>
+                    <ProblemInterface
+                        problem=problem
+                        answer=answer
+                        set_answer=set_answer
+                        on_submit=on_submit
+                        render_controls=move || {
+                            // Inline check logic to avoid capturing closures
+                            let check_inline = move || {
+                                if let Some(p) = problem.get() {
+                                    let user_input = preprocess_input(&answer.get());
+                                    if let Some(answer_key) = &p.answer_key {
+                                        let grade = check_answer(&user_input, answer_key, p.grading_mode);
+                                        set_result.set(Some(grade));
+                                    }
                                 }
-                            })}
+                            };
 
-                            {move || (result.get().map(|r| r.is_correct()).unwrap_or(false) || show_answer.get()).then(|| view! {
-                                <button
-                                    class="w-full px-4 py-2 border border-gray-300 rounded hover:border-gray-400"
-                                    on:click=move |_| load_problem()
-                                >
-                                    "Next Problem"
-                                </button>
-                            })}
-                        </div>
-                    </Show>
+                            view! {
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="flex-1 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
+                                        on:click=move |_| check_inline()
+                                        disabled=move || answer.get().is_empty()
+                                    >
+                                        "Check"
+                                    </button>
+                                    <button
+                                        class="px-4 py-2 border border-gray-300 rounded hover:border-gray-400"
+                                        on:click=move |_| set_show_answer.set(true)
+                                    >
+                                        "Reveal"
+                                    </button>
+                                </div>
+
+                                {move || (result.get().map(|r| r.is_correct()).unwrap_or(false) || show_answer.get()).then(|| view! {
+                                    <button
+                                        class="w-full px-4 py-2 mt-2 border border-gray-300 rounded hover:border-gray-400"
+                                        on:click=move |_| load_problem()
+                                    >
+                                        "Next Problem"
+                                    </button>
+                                })}
+                            }
+                        }
+                        render_result=move || result.get().map(|r| {
+                            let (color, msg): (&str, String) = match r {
+                                GradeResult::Correct => ("text-green-600", "Correct".to_string()),
+                                GradeResult::Incorrect => ("text-red-600", "Incorrect".to_string()),
+                                GradeResult::Invalid(m) => ("text-yellow-600", m),
+                                GradeResult::Error(m) => ("text-red-600", m),
+                            };
+                            view! {
+                                <div class=format!("text-sm {}", color)>{msg}</div>
+                            }
+                        })
+                    />
                 </div>
             })}
         </div>

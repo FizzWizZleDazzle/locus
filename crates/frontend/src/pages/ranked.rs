@@ -7,7 +7,7 @@ use locus_common::ProblemResponse;
 
 use crate::{
     api,
-    components::{MathInput, ProblemCard, TopicSelector},
+    components::{ProblemInterface, TopicSelector},
     grader::preprocess_input,
     AuthContext,
 };
@@ -143,28 +143,23 @@ pub fn Ranked() -> impl IntoView {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
                     })}
 
-                    {move || problem.get().map(|p| view! {
-                        <ProblemCard problem=p />
-                    })}
-
-                    {move || (problem.get().is_some() && result.get().is_none()).then(|| view! {
-                        <div class="space-y-4">
-                            <MathInput
-                                value=answer
-                                set_value=set_answer
-                                placeholder="Your answer"
-                                disabled=submitting.get()
-                                on_submit=on_submit
-                            />
-
-                            <button
-                                class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
-                                on:click=move |_| submit()
-                                disabled=move || answer.get().is_empty() || submitting.get()
-                            >
-                                {move || if submitting.get() { "Submitting..." } else { "Submit" }}
-                            </button>
-                        </div>
+                    {move || result.get().is_none().then(|| view! {
+                        <ProblemInterface
+                            problem=problem
+                            answer=answer
+                            set_answer=set_answer
+                            on_submit=on_submit
+                            render_controls=move || view! {
+                                <button
+                                    class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
+                                    on:click=move |_| submit()
+                                    disabled=move || answer.get().is_empty() || submitting.get()
+                                >
+                                    {move || if submitting.get() { "Submitting..." } else { "Submit" }}
+                                </button>
+                            }
+                            render_result=|| ()
+                        />
                     })}
 
                     {move || result.get().map(|r| {
@@ -172,7 +167,7 @@ pub fn Ranked() -> impl IntoView {
                         let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
 
                         view! {
-                            <div class="p-6 border">
+                            <div class="p-6 border rounded">
                                 <div class="text-lg mb-2">
                                     {if r.is_correct { "✓ Correct" } else { "✗ Incorrect" }}
                                 </div>
@@ -183,7 +178,7 @@ pub fn Ranked() -> impl IntoView {
                                     </span>
                                 </div>
                                 <button
-                                    class="w-full px-4 py-3 border hover:bg-gray-50"
+                                    class="w-full px-4 py-3 border hover:bg-gray-50 rounded"
                                     on:click=move |_| load_problem()
                                 >
                                     "Next Problem"

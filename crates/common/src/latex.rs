@@ -102,6 +102,66 @@ pub fn convert_latex_to_plain(input: &str) -> String {
     result = result.replace('{', "(");
     result = result.replace('}', ")");
 
+    // Add explicit multiplication for implicit multiplication cases
+    // This handles: )( -> )*(, )x -> )*x, 2( -> 2*(, x( -> x*(
+    result = add_explicit_multiplication(&result);
+
+    result
+}
+
+/// Add explicit multiplication operators where they're implied.
+///
+/// Handles cases like:
+/// - Adjacent parentheses: (x+1)(x-1) -> (x+1)*(x-1)
+/// - Number before paren: 2(x+1) -> 2*(x+1)
+/// - Single variable before paren: x(x+1) -> x*(x+1)
+/// - Paren before variable: (x+1)y -> (x+1)*y
+///
+/// Does NOT add multiplication after function names (sin, cos, sqrt, etc.)
+fn add_explicit_multiplication(input: &str) -> String {
+    const FUNCTIONS: &[&str] = &[
+        "sin", "cos", "tan", "sec", "csc", "cot",
+        "asin", "acos", "atan", "arcsin", "arccos", "arctan",
+        "sinh", "cosh", "tanh",
+        "ln", "log", "exp", "abs", "sqrt",
+    ];
+
+    let mut result = String::with_capacity(input.len() * 2);
+    let chars: Vec<char> = input.chars().collect();
+
+    for i in 0..chars.len() {
+        result.push(chars[i]);
+
+        // Check if we need to insert * after this character
+        if i + 1 < chars.len() {
+            let current = chars[i];
+            let next = chars[i + 1];
+
+            let needs_mult = match (current, next) {
+                // )( -> )*(
+                (')', '(') => true,
+                // digit followed by ( or letter
+                (c, '(') if c.is_numeric() => true,
+                (c, n) if c.is_numeric() && n.is_alphabetic() => true,
+                // ) followed by letter
+                (')', c) if c.is_alphabetic() => true,
+                // letter followed by ( -> check if it's a function name
+                (c, '(') if c.is_alphabetic() => {
+                    // Look backward to get the full word before (
+                    let word_start = result.rfind(|c: char| !c.is_alphabetic()).map(|p| p + 1).unwrap_or(0);
+                    let word = &result[word_start..];
+                    // Only add * if it's NOT a known function
+                    !FUNCTIONS.contains(&word)
+                }
+                _ => false,
+            };
+
+            if needs_mult {
+                result.push('*');
+            }
+        }
+    }
+
     result
 }
 
@@ -187,5 +247,30 @@ mod tests {
             convert_latex_to_plain("\\frac{\\frac{1}{2}}{3}"),
             "((1)/(2))/(3)"
         );
+    }
+
+    #[test]
+    fn test_implicit_multiplication_parentheses() {
+        assert_eq!(convert_latex_to_plain("(x+1)(x-1)"), "(x+1)*(x-1)");
+        assert_eq!(convert_latex_to_plain("(x+2)(x+3)"), "(x+2)*(x+3)");
+        assert_eq!(convert_latex_to_plain("(2x+1)(x+3)"), "(2*x+1)*(x+3)");
+    }
+
+    #[test]
+    fn test_implicit_multiplication_number_paren() {
+        assert_eq!(convert_latex_to_plain("2(x+1)"), "2*(x+1)");
+        assert_eq!(convert_latex_to_plain("3(a+b)"), "3*(a+b)");
+    }
+
+    #[test]
+    fn test_implicit_multiplication_paren_var() {
+        assert_eq!(convert_latex_to_plain("(x+1)y"), "(x+1)*y");
+        assert_eq!(convert_latex_to_plain("(a+b)c"), "(a+b)*c");
+    }
+
+    #[test]
+    fn test_implicit_multiplication_var_paren() {
+        assert_eq!(convert_latex_to_plain("x(y+1)"), "x*(y+1)");
+        assert_eq!(convert_latex_to_plain("a(b+c)"), "a*(b+c)");
     }
 }

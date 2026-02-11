@@ -13,7 +13,15 @@ pub fn check_answer(user_input: &str, answer_key: &str, mode: GradingMode) -> Gr
     locus_common::grader::check_answer_expr(user_input, answer_key, mode)
 }
 
-/// Preprocess user input for SymEngine: convert LaTeX to plain math notation.
+/// Preprocess user input for SymEngine: convert MathJSON or LaTeX to plain math notation.
 pub fn preprocess_input(input: &str) -> String {
+    // Try MathJSON first (input starts with '{')
+    if input.trim_start().starts_with('{') {
+        if let Ok(plain) = locus_common::mathjson::convert_mathjson_to_plain(input) {
+            return plain;
+        }
+    }
+
+    // Fallback to regex LaTeX converter (safety during transition)
     locus_common::latex::convert_latex_to_plain(input)
 }

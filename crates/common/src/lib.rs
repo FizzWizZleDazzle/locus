@@ -5,6 +5,7 @@ pub mod symengine;
 pub mod elo;
 pub mod validation;
 pub mod latex;
+pub mod mathjson;
 pub mod constants;
 
 use serde::{Deserialize, Serialize};
