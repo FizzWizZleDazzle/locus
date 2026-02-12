@@ -14,6 +14,7 @@ pub struct Attempt {
     pub elo_before: i32,
     pub elo_after: i32,
     pub time_taken_ms: Option<i32>,
+    pub main_topic: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -28,12 +29,13 @@ impl Attempt {
         elo_before: i32,
         elo_after: i32,
         time_taken_ms: Option<i32>,
+        main_topic: &str,
     ) -> Result<Self, sqlx::Error> {
         sqlx::query_as(
             r#"
-            INSERT INTO attempts (user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id, user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, created_at
+            INSERT INTO attempts (user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, main_topic)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING id, user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, main_topic, created_at
             "#,
         )
         .bind(user_id)
@@ -43,6 +45,7 @@ impl Attempt {
         .bind(elo_before)
         .bind(elo_after)
         .bind(time_taken_ms)
+        .bind(main_topic)
         .fetch_one(pool)
         .await
     }
@@ -55,7 +58,7 @@ impl Attempt {
     ) -> Result<Vec<Self>, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT id, user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, created_at
+            SELECT id, user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, main_topic, created_at
             FROM attempts
             WHERE user_id = $1
             ORDER BY created_at DESC

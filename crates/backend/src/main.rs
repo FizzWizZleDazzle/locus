@@ -8,6 +8,7 @@ mod api;
 mod models;
 mod rate_limit;
 mod topics;
+mod email;
 
 use axum::{http::Method, Router};
 use tower_http::cors::CorsLayer;
@@ -56,6 +57,19 @@ async fn main() -> anyhow::Result<()> {
     // Build HTTP client for OAuth
     let http_client = reqwest::Client::new();
 
+    // Initialize email service (email verification is optional/out of scope for MVP)
+    let email_service = email::EmailService::new(
+        config.resend_api_key.clone().unwrap_or_else(|| "not-configured".to_string()),
+        config.resend_from_email.clone(),
+        config.resend_from_name.clone(),
+        config.frontend_base_url.clone(),
+    );
+    if config.resend_api_key.is_some() {
+        tracing::info!("Email service initialized");
+    } else {
+        tracing::warn!("Email service not configured (RESEND_API_KEY not set) - email verification disabled");
+    }
+
     // Log OAuth configuration
     if config.google_client_id.is_some() {
         tracing::info!("Google OAuth configured");
@@ -76,6 +90,7 @@ async fn main() -> anyhow::Result<()> {
         config.github_client_secret.clone(),
         config.oauth_redirect_base.clone(),
         topic_cache,
+        email_service,
     );
 
     // Parse allowed origins for CORS

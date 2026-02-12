@@ -42,3 +42,5 @@ regex = { workspace = true }
 lazy_static = { workspace = true }
 reqwest = { workspace = true }
 urlencoding = { workspace = true }
+resend-rs = "0.7"
+hex = "0.4"

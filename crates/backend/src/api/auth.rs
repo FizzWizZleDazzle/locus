@@ -7,21 +7,29 @@ use argon2::{
 use axum::{extract::State, Json};
 
 use locus_common::{AuthResponse, LoginRequest, RegisterRequest, SetPasswordRequest, UserProfile};
+use serde::{Deserialize, Serialize};
 
 use crate::{
     auth::{create_token, AuthUser},
-    models::User,
+    models::{User, EmailVerificationToken},
     AppError,
 };
 
 use locus_common::validation;
 use super::AppState;
 
+#[derive(Serialize)]
+pub struct RegisterResponse {
+    pub success: bool,
+    pub message: String,
+    pub email: String,
+}
+
 /// Register a new user
 pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
-) -> Result<Json<AuthResponse>, AppError> {
+) -> Result<Json<RegisterResponse>, AppError> {
     // Validate username
     validation::validate_username(&req.username)
         .map_err(|e| AppError::BadRequest(e.to_string()))?;
@@ -50,16 +58,24 @@ pub async fn register(
         .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
         .to_string();
 
-    // Create user
+    // Create user (email_verified defaults to FALSE)
     let user = User::create(&state.pool, &req.username, &req.email, &password_hash).await?;
 
-    // Generate token
-    let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
-        .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
+    // Generate verification token
+    let verification_token = EmailVerificationToken::create(&state.pool, user.id).await?;
 
-    Ok(Json(AuthResponse {
-        token,
-        user: user.to_profile(&state.pool).await?,
+    // Send verification email
+    state.email_service
+        .send_verification_email(&user.email, &user.username, &verification_token.token)
+        .await?;
+
+    // Record email send for rate limiting
+    EmailVerificationToken::record_send(&state.pool, user.id).await?;
+
+    Ok(Json(RegisterResponse {
+        success: true,
+        message: "Registration successful! Check your email to verify your account.".to_string(),
+        email: user.email,
     }))
 }
 
@@ -86,6 +102,13 @@ pub async fn login(
     Argon2::default()
         .verify_password(req.password.as_bytes(), &parsed_hash)
         .map_err(|_| AppError::Auth("Invalid email or password".into()))?;
+
+    // Check if email is verified
+    if !user.email_verified {
+        return Err(AppError::Auth(
+            "Please verify your email address before logging in. Check your inbox for the verification link.".into()
+        ));
+    }
 
     // Generate token
     let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
@@ -135,4 +158,94 @@ pub async fn get_me(
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
     Ok(Json(user.to_profile(&state.pool).await?))
+}
+
+#[derive(Deserialize)]
+pub struct VerifyEmailRequest {
+    pub token: String,
+}
+
+#[derive(Serialize)]
+pub struct VerifyEmailResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Verify email with token
+pub async fn verify_email(
+    State(state): State<AppState>,
+    Json(req): Json<VerifyEmailRequest>,
+) -> Result<Json<VerifyEmailResponse>, AppError> {
+    // Find token
+    let token = EmailVerificationToken::find_by_token(&state.pool, &req.token)
+        .await?
+        .ok_or_else(|| AppError::BadRequest("Invalid verification token".into()))?;
+
+    // Check if token is valid (not expired, not used)
+    if !token.is_valid() {
+        if token.used_at.is_some() {
+            return Err(AppError::BadRequest("This verification link has already been used".into()));
+        } else {
+            return Err(AppError::BadRequest("This verification link has expired. Request a new one.".into()));
+        }
+    }
+
+    // Mark user as verified
+    User::mark_email_verified(&state.pool, token.user_id).await?;
+
+    // Mark token as used
+    token.mark_used(&state.pool).await?;
+
+    Ok(Json(VerifyEmailResponse {
+        success: true,
+        message: "Email verified! You can now log in.".to_string(),
+    }))
+}
+
+#[derive(Deserialize)]
+pub struct ResendVerificationRequest {
+    pub email: String,
+}
+
+#[derive(Serialize)]
+pub struct ResendVerificationResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Resend verification email
+pub async fn resend_verification(
+    State(state): State<AppState>,
+    Json(req): Json<ResendVerificationRequest>,
+) -> Result<Json<ResendVerificationResponse>, AppError> {
+    // Find user by email
+    let user = User::find_by_email(&state.pool, &req.email)
+        .await?
+        .ok_or_else(|| AppError::BadRequest("If this email is registered, a verification link will be sent".into()))?;
+
+    // Check if already verified
+    if user.email_verified {
+        return Err(AppError::BadRequest("Your email is already verified".into()));
+    }
+
+    // Check rate limit
+    if !EmailVerificationToken::can_send_email(&state.pool, user.id).await? {
+        return Err(AppError::BadRequest("Please wait 1 minute before requesting another verification email".into()));
+    }
+
+    // Generate new token
+    let verification_token = EmailVerificationToken::create(&state.pool, user.id).await?;
+
+    // Send verification email
+    state.email_service
+        .send_verification_email(&user.email, &user.username, &verification_token.token)
+        .await?;
+
+    // Record send time
+    EmailVerificationToken::record_send(&state.pool, user.id).await?;
+
+    Ok(Json(ResendVerificationResponse {
+        success: true,
+        message: "Verification email sent! Check your inbox.".to_string(),
+    }))
 }

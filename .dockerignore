@@ -1,0 +1,43 @@
+# Rust build artifacts
+target/
+**/target/
+
+# Frontend build artifacts
+crates/frontend/dist/
+
+# Git
+.git/
+.gitignore
+.gitmodules
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (secrets should come from K8s)
+.env
+.env.local
+.env.production
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Factory/scripts (not needed in runtime)
+factory/
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/

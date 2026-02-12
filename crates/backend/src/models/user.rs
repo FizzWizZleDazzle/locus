@@ -13,6 +13,8 @@ pub struct User {
     pub username: String,
     pub email: String,
     pub password_hash: Option<String>,
+    pub email_verified: bool,
+    pub email_verified_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -28,7 +30,7 @@ impl User {
             r#"
             INSERT INTO users (username, email, password_hash)
             VALUES ($1, $2, $3)
-            RETURNING id, username, email, password_hash, created_at
+            RETURNING id, username, email, password_hash, email_verified, email_verified_at, created_at
             "#,
         )
         .bind(username)
@@ -46,9 +48,9 @@ impl User {
     ) -> Result<Self, sqlx::Error> {
         sqlx::query_as(
             r#"
-            INSERT INTO users (username, email, password_hash)
-            VALUES ($1, $2, NULL)
-            RETURNING id, username, email, password_hash, created_at
+            INSERT INTO users (username, email, password_hash, email_verified, email_verified_at)
+            VALUES ($1, $2, NULL, TRUE, NOW())
+            RETURNING id, username, email, password_hash, email_verified, email_verified_at, created_at
             "#,
         )
         .bind(username)
@@ -75,7 +77,7 @@ impl User {
     pub async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Self>, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT id, username, email, password_hash, created_at
+            SELECT id, username, email, password_hash, email_verified, email_verified_at, created_at
             FROM users
             WHERE email = $1
             "#,
@@ -89,7 +91,7 @@ impl User {
     pub async fn find_by_id(pool: &PgPool, id: Uuid) -> Result<Option<Self>, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT id, username, email, password_hash, created_at
+            SELECT id, username, email, password_hash, email_verified, email_verified_at, created_at
             FROM users
             WHERE id = $1
             "#,
@@ -187,6 +189,17 @@ impl User {
         Ok(result.0 > 0)
     }
 
+    /// Mark user's email as verified
+    pub async fn mark_email_verified(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            "UPDATE users SET email_verified = TRUE, email_verified_at = NOW() WHERE id = $1"
+        )
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
+
     /// Convert to API response type with all ELO ratings
     pub async fn to_profile(&self, pool: &PgPool) -> Result<UserProfile, sqlx::Error> {
         let elos = Self::get_all_elos(pool, self.id).await?;
@@ -195,6 +208,7 @@ impl User {
             id: self.id,
             username: self.username.clone(),
             email: self.email.clone(),
+            email_verified: self.email_verified,
             elo_arithmetic: *elos.get("arithmetic").unwrap_or(&INITIAL_ELO),
             elo_algebra1: *elos.get("algebra1").unwrap_or(&INITIAL_ELO),
             elo_geometry: *elos.get("geometry").unwrap_or(&INITIAL_ELO),

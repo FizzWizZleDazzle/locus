@@ -218,6 +218,7 @@ pub struct UserProfile {
     pub id: Uuid,
     pub username: String,
     pub email: String,
+    pub email_verified: bool,
     pub elo_arithmetic: i32,
     pub elo_algebra1: i32,
     pub elo_geometry: i32,

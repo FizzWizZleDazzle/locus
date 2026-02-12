@@ -136,7 +136,7 @@ use leptos_router::{
     path,
 };
 
-use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings};
+use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail};
 use components::{Navbar, Sidebar};
 
 fn main() {
@@ -178,6 +178,7 @@ fn App() -> impl IntoView {
                         <Route path=path!("/leaderboard") view=Leaderboard />
                         <Route path=path!("/login") view=Login />
                         <Route path=path!("/register") view=Register />
+                        <Route path=path!("/verify-email") view=VerifyEmail />
                         <Route path=path!("/settings") view=Settings />
                     </Routes>
                 </main>

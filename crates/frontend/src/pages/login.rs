@@ -15,6 +15,8 @@ pub fn Login() -> impl IntoView {
     let (password, set_password) = signal(String::new());
     let (error, set_error) = signal(None::<String>);
     let (loading, set_loading) = signal(false);
+    let (show_resend, set_show_resend) = signal(false);
+    let (resending, set_resending) = signal(false);
 
     let submit = move |ev: web_sys::SubmitEvent| {
         ev.prevent_default();
@@ -33,7 +35,10 @@ pub fn Login() -> impl IntoView {
                     nav("/", Default::default());
                 }
                 Err(e) => {
-                    set_error.set(Some(e.message));
+                    let msg = e.message.clone();
+                    set_error.set(Some(msg.clone()));
+                    // Show resend button if error is about email verification
+                    set_show_resend.set(msg.contains("verify your email") || msg.contains("verification"));
                     set_loading.set(false);
                 }
             }
@@ -72,12 +77,45 @@ pub fn Login() -> impl IntoView {
         );
     };
 
+    let resend_verification = move |_| {
+        set_resending.set(true);
+        set_error.set(None);
+
+        let email_val = email.get();
+
+        spawn_local(async move {
+            match api::resend_verification(&email_val).await {
+                Ok(_) => {
+                    set_error.set(Some("Verification email sent! Check your inbox.".to_string()));
+                    set_show_resend.set(false);
+                    set_resending.set(false);
+                }
+                Err(e) => {
+                    set_error.set(Some(e.message));
+                    set_resending.set(false);
+                }
+            }
+        });
+    };
+
     view! {
         <div class="max-w-sm mx-auto py-16">
             <h1 class="text-xl font-medium text-gray-900 mb-6">"Login"</h1>
 
             {move || error.get().map(|e| view! {
                 <div class="text-red-600 text-sm mb-4">{e}</div>
+            })}
+
+            {move || show_resend.get().then(|| view! {
+                <div class="mb-4">
+                    <button
+                        on:click=resend_verification
+                        class="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                        disabled=resending
+                    >
+                        {move || if resending.get() { "Sending..." } else { "Resend verification email" }}
+                    </button>
+                </div>
             })}
 
             <div class="space-y-3 mb-6">

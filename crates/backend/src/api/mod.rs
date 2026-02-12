@@ -31,6 +31,7 @@ pub struct AppState {
     pub github_client_secret: Option<String>,
     pub oauth_redirect_base: String,
     pub topic_cache: crate::topics::TopicCache,
+    pub email_service: crate::email::EmailService,
 }
 
 impl AppState {
@@ -45,6 +46,7 @@ impl AppState {
         github_client_secret: Option<String>,
         oauth_redirect_base: String,
         topic_cache: crate::topics::TopicCache,
+        email_service: crate::email::EmailService,
     ) -> Self {
         Self {
             pool,
@@ -57,6 +59,7 @@ impl AppState {
             github_client_secret,
             oauth_redirect_base,
             topic_cache,
+            email_service,
         }
     }
 }
@@ -70,6 +73,8 @@ pub fn router() -> Router<AppState> {
         .route("/auth/register", post(auth::register))
         .route("/auth/login", post(auth::login))
         .route("/auth/set-password", post(auth::set_password))
+        .route("/auth/verify-email", post(auth::verify_email))
+        .route("/auth/resend-verification", post(auth::resend_verification))
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
         .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))

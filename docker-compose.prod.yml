@@ -1,0 +1,76 @@
+# Production-like Docker Compose for local testing
+# This demonstrates the full-stack setup similar to K8s deployment
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: locus-db-prod
+    environment:
+      POSTGRES_USER: locus
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-locus_secure_password}
+      POSTGRES_DB: locus
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U locus -d locus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - locus-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: locus-backend-prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Required environment variables
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://locus:${DB_PASSWORD:-locus_secure_password}@postgres:5432/locus
+      JWT_SECRET: ${JWT_SECRET:-please-generate-secure-secret-with-openssl-rand-base64-32}
+      API_KEY_SECRET: ${API_KEY_SECRET:-please-generate-secure-api-key-with-openssl-rand-base64-32}
+
+      # CORS and URLs
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:3000}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:8080}
+      OAUTH_REDIRECT_BASE: ${OAUTH_REDIRECT_BASE:-http://localhost:3000}
+
+      # OAuth (optional - set these if testing OAuth)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+
+      # Email (optional - not used in MVP)
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-no-reply@locus.dev}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-Locus}
+
+      # Server config
+      HOST: 0.0.0.0
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    networks:
+      - locus-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  locus-network:
+    driver: bridge

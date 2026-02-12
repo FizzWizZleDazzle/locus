@@ -68,6 +68,40 @@ pub struct RequestError {
     pub message: String,
 }
 
+/// Registration success response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RegisterResponse {
+    pub success: bool,
+    pub message: String,
+    pub email: String,
+}
+
+/// Verify email request
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VerifyEmailRequest {
+    pub token: String,
+}
+
+/// Verify email response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VerifyEmailResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Resend verification request
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResendVerificationRequest {
+    pub email: String,
+}
+
+/// Resend verification response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResendVerificationResponse {
+    pub success: bool,
+    pub message: String,
+}
+
 impl std::fmt::Display for RequestError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.message)
@@ -135,16 +169,31 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -
 // Auth API
 // ============================================================================
 
-pub async fn register(username: &str, email: &str, password: &str) -> Result<AuthResponse, RequestError> {
+pub async fn register(username: &str, email: &str, password: &str) -> Result<RegisterResponse, RequestError> {
     let req = RegisterRequest {
         username: username.to_string(),
         email: email.to_string(),
         password: password.to_string(),
     };
 
-    let resp: AuthResponse = post_request("/auth/register", &req).await?;
-    store_auth(&resp.token, &resp.user.username);
+    let resp: RegisterResponse = post_request("/auth/register", &req).await?;
     Ok(resp)
+}
+
+pub async fn verify_email(token: &str) -> Result<VerifyEmailResponse, RequestError> {
+    let req = VerifyEmailRequest {
+        token: token.to_string(),
+    };
+
+    post_request("/auth/verify-email", &req).await
+}
+
+pub async fn resend_verification(email: &str) -> Result<ResendVerificationResponse, RequestError> {
+    let req = ResendVerificationRequest {
+        email: email.to_string(),
+    };
+
+    post_request("/auth/resend-verification", &req).await
 }
 
 pub async fn login(email: &str, password: &str) -> Result<AuthResponse, RequestError> {

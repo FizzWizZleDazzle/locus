@@ -51,6 +51,7 @@ pub async fn submit_answer(
         elo_before,
         elo_after,
         req.time_taken_ms,
+        &problem.main_topic,
     )
     .await?;
 

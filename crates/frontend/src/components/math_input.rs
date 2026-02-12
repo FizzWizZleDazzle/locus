@@ -208,7 +208,8 @@ pub fn MathInput(
                 data-key=key.unwrap_or_default()
             />
 
-            // Show parsed value if different
+            // Show parsed value if different (debug mode only)
+            #[cfg(debug_assertions)]
             {move || {
                 let raw = value.get();
                 let processed = processed_value();
