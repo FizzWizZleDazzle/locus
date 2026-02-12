@@ -243,6 +243,7 @@ pub struct ProblemResponse {
     pub main_topic: String,
     pub subtopic: String,
     pub grading_mode: GradingMode,
+    pub calculator_allowed: String,
     /// Only included for practice mode
     #[serde(skip_serializing_if = "Option::is_none")]
     pub answer_key: Option<String>,
@@ -316,6 +317,7 @@ pub struct CreateProblemRequest {
     pub main_topic: String,
     pub subtopic: String,
     pub grading_mode: String,
+    pub calculator_allowed: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

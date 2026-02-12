@@ -8,6 +8,7 @@ use crate::{
     api,
     components::{ProblemInterface, TopicSelector},
     grader::{check_answer, preprocess_input, GradeResult},
+    katex_bindings::render_plain_math_to_string,
 };
 
 #[component]
@@ -125,11 +126,17 @@ pub fn Practice() -> impl IntoView {
 
                     // Show answer key if revealed
                     {move || (show_answer.get() && problem.get().is_some()).then(|| {
-                        problem.get().and_then(|p| p.answer_key.clone()).map(|ans| view! {
-                            <div class="p-4 bg-blue-50 border border-blue-200 rounded">
-                                <div class="text-sm font-medium text-blue-900 mb-1">"Answer:"</div>
-                                <div class="text-blue-800">{ans}</div>
-                            </div>
+                        problem.get().and_then(|p| p.answer_key.clone()).map(|ans| {
+                            // Convert plain math notation (SymPy format) to rendered LaTeX
+                            let rendered_answer = render_plain_math_to_string(&ans)
+                                .unwrap_or_else(|_| format!("<code>{}</code>", ans));
+
+                            view! {
+                                <div class="p-4 bg-blue-50 border border-blue-200 rounded">
+                                    <div class="text-sm font-medium text-blue-900 mb-1">"Answer:"</div>
+                                    <div class="text-blue-800 text-xl" inner_html=rendered_answer></div>
+                                </div>
+                            }
                         })
                     })}
 

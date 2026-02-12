@@ -43,6 +43,7 @@ pub async fn create_problem(
         &req.main_topic,
         &req.subtopic,
         grading_mode,
+        &req.calculator_allowed,
     )
     .await?;
 
@@ -105,6 +106,15 @@ fn validate_problem_request(req: &CreateProblemRequest) -> Result<(), AppError> 
         )));
     }
 
+    // Validate calculator_allowed
+    let valid_calculator_levels = ["none", "scientific", "graphing", "cas"];
+    if !valid_calculator_levels.contains(&req.calculator_allowed.as_str()) {
+        return Err(AppError::BadRequest(format!(
+            "Invalid calculator_allowed '{}'. Valid values: none, scientific, graphing, cas",
+            req.calculator_allowed
+        )));
+    }
+
     Ok(())
 }
 
@@ -121,6 +131,7 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            calculator_allowed: "none".to_string(),
         };
         assert!(validate_problem_request(&req).is_ok());
     }
@@ -134,6 +145,7 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            calculator_allowed: "none".to_string(),
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -147,6 +159,7 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            calculator_allowed: "none".to_string(),
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -160,6 +173,7 @@ mod tests {
             main_topic: "invalid_topic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            calculator_allowed: "none".to_string(),
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -173,6 +187,21 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "derivatives".to_string(),  // calculus subtopic
             grading_mode: "equivalent".to_string(),
+            calculator_allowed: "none".to_string(),
+        };
+        assert!(validate_problem_request(&req).is_err());
+    }
+
+    #[test]
+    fn test_validate_problem_request_invalid_calculator() {
+        let req = CreateProblemRequest {
+            question_latex: "2 + 2".to_string(),
+            answer_key: "4".to_string(),
+            difficulty: 1000,
+            main_topic: "arithmetic".to_string(),
+            subtopic: "addition_subtraction".to_string(),
+            grading_mode: "equivalent".to_string(),
+            calculator_allowed: "invalid".to_string(),
         };
         assert!(validate_problem_request(&req).is_err());
     }

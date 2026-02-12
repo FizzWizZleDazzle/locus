@@ -5,8 +5,12 @@ use tower_governor::{
 };
 
 /// Creates a rate limiter for authentication endpoints (register)
-/// Limit: 5 requests per 15 minutes per IP
+/// Limit: 5 requests per 15 minutes per IP (unlimited in debug builds)
 pub fn auth_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body> {
+    #[cfg(debug_assertions)]
+    let requests: u32 = 1_000_000; // Effectively unlimited in dev
+
+    #[cfg(not(debug_assertions))]
     let requests: u32 = std::env::var("RATE_LIMIT_AUTH_PER_15MIN")
         .ok()
         .and_then(|v| v.parse().ok())
@@ -23,8 +27,12 @@ pub fn auth_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, 
 }
 
 /// Creates a rate limiter for login endpoints
-/// Limit: 10 requests per 15 minutes per IP
+/// Limit: 10 requests per 15 minutes per IP (unlimited in debug builds)
 pub fn login_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body> {
+    #[cfg(debug_assertions)]
+    let requests: u32 = 1_000_000; // Effectively unlimited in dev
+
+    #[cfg(not(debug_assertions))]
     let requests: u32 = std::env::var("RATE_LIMIT_LOGIN_PER_15MIN")
         .ok()
         .and_then(|v| v.parse().ok())
@@ -41,8 +49,12 @@ pub fn login_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware,
 }
 
 /// Creates a general rate limiter for all other endpoints
-/// Limit: 1000 requests per minute per IP
+/// Limit: 1000 requests per minute per IP (unlimited in debug builds)
 pub fn general_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body> {
+    #[cfg(debug_assertions)]
+    let requests: u32 = 1_000_000; // Effectively unlimited in dev
+
+    #[cfg(not(debug_assertions))]
     let requests: u32 = std::env::var("RATE_LIMIT_GENERAL_PER_MIN")
         .ok()
         .and_then(|v| v.parse().ok())

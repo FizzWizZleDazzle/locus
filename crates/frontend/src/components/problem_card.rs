@@ -2,6 +2,7 @@
 
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
+use crate::katex_bindings::render_plain_math_to_string;
 
 #[component]
 pub fn ProblemCard(
@@ -20,11 +21,17 @@ pub fn ProblemCard(
                 <span inner_html=problem.question_latex.clone()></span>
             </div>
 
-            {show_answer.map(|answer| view! {
-                <div class="mt-4 pt-4 border-t text-sm">
-                    <span class="text-gray-500">"Answer: "</span>
-                    <code>{answer}</code>
-                </div>
+            {show_answer.map(|answer| {
+                // Convert plain math notation to rendered LaTeX
+                let rendered = render_plain_math_to_string(&answer)
+                    .unwrap_or_else(|_| format!("<code>{}</code>", answer));
+
+                view! {
+                    <div class="mt-4 pt-4 border-t">
+                        <span class="text-sm text-gray-500">"Answer: "</span>
+                        <span class="text-lg ml-2" inner_html=rendered></span>
+                    </div>
+                }
             })}
         </div>
     }
