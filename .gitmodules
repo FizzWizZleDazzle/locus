@@ -1,0 +1,3 @@
+[submodule "factory/backend/scripts"]
+	path = factory/backend/scripts
+	url = https://github.com/FizzWizZleDazzle/locus-scripts.git
