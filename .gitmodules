@@ -1,3 +1,6 @@
+[submodule "symengine.js"]
+	path = symengine.js
+	url = https://github.com/FizzWizZleDazzle/symengine.js
 [submodule "factory/backend/scripts"]
 	path = factory/backend/scripts
 	url = https://github.com/FizzWizZleDazzle/locus-scripts.git
