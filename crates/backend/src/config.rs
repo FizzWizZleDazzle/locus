@@ -36,7 +36,7 @@ pub struct Config {
     pub github_client_id: Option<String>,
     pub github_client_secret: Option<String>,
     pub oauth_redirect_base: String,
-    pub resend_api_key: Option<String>,
+    pub resend_api_key: String,
     pub resend_from_email: String,
     pub resend_from_name: String,
     pub frontend_base_url: String,
@@ -106,7 +106,8 @@ impl Config {
             github_client_secret: env::var("GITHUB_CLIENT_SECRET").ok().filter(|s| !s.is_empty()),
             oauth_redirect_base: env::var("OAUTH_REDIRECT_BASE")
                 .unwrap_or_else(|_| "http://localhost:3000".to_string()),
-            resend_api_key: env::var("RESEND_API_KEY").ok().filter(|s| !s.is_empty()),
+            resend_api_key: env::var("RESEND_API_KEY")
+                .map_err(|_| ConfigError::MissingEnv("RESEND_API_KEY"))?,
             resend_from_email: env::var("RESEND_FROM_EMAIL")
                 .unwrap_or_else(|_| "no-reply@auth.fizzwizzledazzle.dev".to_string()),
             resend_from_name: env::var("RESEND_FROM_NAME")

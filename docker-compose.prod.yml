@@ -1,5 +1,4 @@
 # Production-like Docker Compose for local testing
-# This demonstrates the full-stack setup similar to K8s deployment
 
 version: '3.8'
 
@@ -9,7 +8,7 @@ services:
     container_name: locus-db-prod
     environment:
       POSTGRES_USER: locus
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-locus_secure_password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: locus
     ports:
       - "5434:5432"
@@ -32,37 +31,37 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      # Required environment variables
-      ENVIRONMENT: production
-      DATABASE_URL: postgresql://locus:${DB_PASSWORD:-locus_secure_password}@postgres:5432/locus
-      JWT_SECRET: ${JWT_SECRET:-please-generate-secure-secret-with-openssl-rand-base64-32}
-      API_KEY_SECRET: ${API_KEY_SECRET:-please-generate-secure-api-key-with-openssl-rand-base64-32}
+      # Required
+      ENVIRONMENT: ${ENVIRONMENT}
+      DATABASE_URL: postgresql://locus:${DB_PASSWORD}@postgres:5432/locus
+      JWT_SECRET: ${JWT_SECRET}
+      API_KEY_SECRET: ${API_KEY_SECRET}
 
       # CORS and URLs
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:3000}
-      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:8080}
-      OAUTH_REDIRECT_BASE: ${OAUTH_REDIRECT_BASE:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      OAUTH_REDIRECT_BASE: ${OAUTH_REDIRECT_BASE}
 
-      # OAuth (optional - set these if testing OAuth)
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      # OAuth (required)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
 
-      # Email (optional - not used in MVP)
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-no-reply@locus.dev}
-      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-Locus}
+      # Email (required)
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME}
 
       # Server config
       HOST: 0.0.0.0
-      PORT: 3000
+      PORT: 28743
     ports:
-      - "3000:3000"
+      - "28743:28743"
     networks:
       - locus-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:28743/health"]
       interval: 30s
       timeout: 5s
       retries: 3

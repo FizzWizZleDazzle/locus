@@ -57,18 +57,14 @@ async fn main() -> anyhow::Result<()> {
     // Build HTTP client for OAuth
     let http_client = reqwest::Client::new();
 
-    // Initialize email service (email verification is optional/out of scope for MVP)
+    // Initialize email service
     let email_service = email::EmailService::new(
-        config.resend_api_key.clone().unwrap_or_else(|| "not-configured".to_string()),
+        config.resend_api_key.clone(),
         config.resend_from_email.clone(),
         config.resend_from_name.clone(),
         config.frontend_base_url.clone(),
     );
-    if config.resend_api_key.is_some() {
-        tracing::info!("Email service initialized");
-    } else {
-        tracing::warn!("Email service not configured (RESEND_API_KEY not set) - email verification disabled");
-    }
+    tracing::info!("Email service initialized");
 
     // Log OAuth configuration
     if config.google_client_id.is_some() {

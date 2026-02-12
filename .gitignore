@@ -41,3 +41,10 @@ content-gen/*.sql
 .vscode/
 *.swp
 *.swo
+
+.env.production
+
+*.log
+
+kubeconfig
+

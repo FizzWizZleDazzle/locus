@@ -31,7 +31,8 @@ cd crates/frontend
 rm -rf dist/
 
 # Build with trunk (release mode)
-trunk build --release
+# Set LOCUS_API_URL to point to your backend domain
+LOCUS_API_URL="${LOCUS_API_URL:-https://locus-b.fizzwizzledazzle.dev}" trunk build --release
 
 if [ ! -d "dist" ]; then
     echo "ERROR: Build failed! dist/ directory not found"
@@ -58,6 +59,11 @@ echo "Your site should be available at:"
 echo "   https://$PROJECT_NAME.pages.dev"
 echo ""
 echo "Next steps:"
-echo "   - Set custom domain in Cloudflare Pages dashboard"
-echo "   - Update ALLOWED_ORIGINS in backend to include your Pages URL"
-echo "   - Update FRONTEND_BASE_URL in backend .env"
+echo "   1. Set custom domain in Cloudflare Pages dashboard"
+echo "   2. Add BACKEND_URL environment variable in Pages settings:"
+echo "      Settings > Environment variables > Production"
+echo "      BACKEND_URL = https://your-backend-server:28743"
+echo "   3. Update backend .env.production:"
+echo "      ALLOWED_ORIGINS=https://$PROJECT_NAME.pages.dev"
+echo "      FRONTEND_BASE_URL=https://$PROJECT_NAME.pages.dev"
+echo "      OAUTH_REDIRECT_BASE=https://$PROJECT_NAME.pages.dev"

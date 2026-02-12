@@ -26,7 +26,15 @@ pub struct Subtopic {
     pub enabled: bool,
 }
 
-const API_BASE: &str = "/api";
+// API base URL - configurable at compile time
+// Set LOCUS_API_URL environment variable when building:
+//   LOCUS_API_URL=https://locus-b.fizzwizzledazzle.dev trunk build --release
+// Default to /api for local development
+const API_BASE: &str = match option_env!("LOCUS_API_URL") {
+    Some(url) => url,
+    None => "/api",
+};
+
 const TOKEN_KEY: &str = "locus_token";
 const USERNAME_KEY: &str = "locus_username";
 

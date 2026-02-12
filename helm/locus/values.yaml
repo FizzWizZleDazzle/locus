@@ -1,0 +1,120 @@
+# Default values for Locus Helm chart
+# Override these values using --set or a custom values.yaml file
+
+# Container image configuration
+image:
+  repository: your-registry.com/locus
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Number of backend replicas
+replicaCount: 3
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 28743
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: locus.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: locus-tls
+      hosts:
+        - locus.yourdomain.com
+
+# Backend configuration
+backend:
+  environment: production
+  host: 0.0.0.0
+  port: 28743
+  jwtExpiryHours: 24
+
+  # CORS and URLs
+  allowedOrigins: https://locus.yourdomain.com
+  frontendBaseUrl: https://locus.yourdomain.com
+  oauthRedirectBase: https://locus.yourdomain.com
+
+  # Resource limits
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 28743
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 28743
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  image: postgres:16-alpine
+
+  # Storage
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: ""
+
+  # Database credentials (will be stored in secrets)
+  auth:
+    database: locus
+    username: locus
+    # password: set via --set or secrets
+
+  # Resource limits
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Secrets (REQUIRED - must be provided)
+secrets:
+  # Generate with: openssl rand -base64 32
+  jwtSecret: ""
+  apiKeySecret: ""
+  databasePassword: ""
+
+  # OAuth credentials
+  googleClientId: ""
+  googleClientSecret: ""
+  githubClientId: ""
+  githubClientSecret: ""
+
+  # Email service (Resend)
+  resendApiKey: ""
+  resendFromEmail: "no-reply@yourdomain.com"
+  resendFromName: "Locus"
+
+# Autoscaling (optional)
+autoscaling:
+  enabled: false
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80

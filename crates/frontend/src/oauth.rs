@@ -4,6 +4,12 @@ use locus_common::AuthResponse;
 use wasm_bindgen::prelude::*;
 use web_sys::Window;
 
+// API base URL - must match api.rs
+const API_BASE: &str = match option_env!("LOCUS_API_URL") {
+    Some(url) => url,
+    None => "/api",
+};
+
 /// Open an OAuth popup and listen for the result via postMessage
 pub fn open_oauth_popup(
     provider: &str,
@@ -12,7 +18,7 @@ pub fn open_oauth_popup(
 ) {
     let window: Window = web_sys::window().expect("no global window");
 
-    let url = format!("/api/auth/oauth/{}", provider);
+    let url = format!("{}/auth/oauth/{}", API_BASE, provider);
     let popup = window.open_with_url_and_target_and_features(
         &url,
         "_blank",
