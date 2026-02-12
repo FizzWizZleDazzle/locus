@@ -87,7 +87,8 @@ Script Requirements:
 2. REVERSE ENGINEER: Pick clean answers first, construct problem backward
 3. Randomize parameters for variety
 4. ASSIGN ELO based on actual problem complexity (use guide above)
-5. Output ONLY valid JSON:
+5. DECIDE calculator level based on problem characteristics
+6. Output ONLY valid JSON:
 
 {{
     "question_latex": "...",  // LaTeX string
@@ -95,13 +96,47 @@ Script Requirements:
     "difficulty": 1234,       // ELO rating matching complexity
     "main_topic": "{main_topic}",
     "subtopic": "{subtopic}",
-    "grading_mode": "{grading_mode}"
+    "grading_mode": "{grading_mode}",
+    "calculator_allowed": "none"  // See calculator levels below
 }}
+
+Calculator Levels (choose based on what the problem tests):
+- "none" (default) - No calculators allowed. Use for:
+  * Pure algebraic manipulation problems
+  * Symbolic simplification
+  * Factoring, expanding expressions
+  * Problems testing mental math or basic arithmetic
+
+- "scientific" - Scientific calculator allowed (trig, log, exponents). Use for:
+  * Applied problems requiring numeric computation
+  * Trigonometry with specific angle values
+  * Logarithmic/exponential calculations
+  * Problems where calculation is NOT the focus
+
+- "graphing" - Graphing calculator allowed (includes scientific + plotting). Use for:
+  * Problems involving graph analysis
+  * Systems of equations best solved visually
+  * Function behavior and transformations
+  * Finding intersections or roots graphically
+
+- "cas" - Computer Algebra System allowed (symbolic solving). Use for:
+  * Very complex integration/differentiation
+  * Advanced symbolic manipulation
+  * Problems focusing on interpretation, not calculation
+  * Multi-step problems where CAS aids exploration
+
+Decision Guidelines:
+- Harder problems → restrict to lower calculator levels (test skill, not just computation)
+- Easier problems → may allow higher levels (focus on concepts, not mechanics)
+- Default to "none" unless there's a clear reason to allow calculators
+- If the problem tests algebraic skill, use "none"
+- If the problem tests conceptual understanding with heavy computation, allow calculators
 
 CRITICAL: Rate each generated problem accurately:
 - Count the steps needed to solve
 - Consider prerequisite knowledge required
 - Match ELO to similar problems in the examples above
+- Choose calculator level that tests the right skills
 
 Output: Self-contained Python script (imports: sympy, random, json). Print ONLY JSON.
 No markdown, no explanation, just the script code."""

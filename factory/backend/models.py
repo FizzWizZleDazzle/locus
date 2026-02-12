@@ -2,6 +2,15 @@
 
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
+from enum import Enum
+
+
+class CalculatorLevel(str, Enum):
+    """Calculator levels form a hierarchy: none < scientific < graphing < cas"""
+    NONE = "none"
+    SCIENTIFIC = "scientific"
+    GRAPHING = "graphing"
+    CAS = "cas"
 
 
 class LLMConfig(BaseModel):

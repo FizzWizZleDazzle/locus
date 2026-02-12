@@ -309,7 +309,7 @@ async def mass_generate_problems(client: httpx.AsyncClient, config: PipelineConf
         client, "POST", f"{config.factory_backend}/mass-generate",
         config, logger,
         json={"count_per_script": config.problems_per_script},
-        timeout=600.0  # 10 minutes for mass generation
+        timeout=3600.0  # 1 hour for mass generation (150 scripts × 100 runs)
     )
 
     result = response.json()
