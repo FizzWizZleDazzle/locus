@@ -1,0 +1,57 @@
+# Cloudflare Pages Configuration
+# https://developers.cloudflare.com/pages/
+
+name = "locus"
+compatibility_date = "2024-01-01"
+
+# Pages configuration
+pages_build_output_dir = "crates/frontend/dist"
+
+# Environment variables for build (if needed)
+# [env.production]
+# [env.production.vars]
+# API_URL = "https://api.yourdomain.com"
+
+# Custom domain (configure in Cloudflare dashboard)
+# Custom domains: yourdomain.com, www.yourdomain.com
+
+# Build settings (for Git integration)
+[build]
+command = "cd crates/frontend && trunk build --release"
+cwd = "."
+
+# Headers for security and caching
+[[headers]]
+for = "/*"
+[headers.values]
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "/*.wasm"
+[headers.values]
+Content-Type = "application/wasm"
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.js"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.css"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/index.html"
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"
+
+# Redirects (if needed)
+# [[redirects]]
+# from = "/old-path"
+# to = "/new-path"
+# status = 301
