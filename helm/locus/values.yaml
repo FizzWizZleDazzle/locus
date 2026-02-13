@@ -3,12 +3,12 @@
 
 # Container image configuration
 image:
-  repository: your-registry.com/locus
+  repository: ghcr.io/fizzwizzledazzle/locus
   tag: latest
   pullPolicy: IfNotPresent
 
 # Number of backend replicas
-replicaCount: 3
+replicaCount: 1
 
 # Service configuration
 service:
@@ -38,6 +38,7 @@ backend:
   host: 0.0.0.0
   port: 28743
   jwtExpiryHours: 24
+  skipMigrations: "false"
 
   # CORS and URLs
   allowedOrigins: https://locus.yourdomain.com
@@ -56,21 +57,21 @@ backend:
   # Health checks
   livenessProbe:
     httpGet:
-      path: /health
+      path: /api/health
       port: 28743
     initialDelaySeconds: 30
     periodSeconds: 10
 
   readinessProbe:
     httpGet:
-      path: /health
+      path: /api/health
       port: 28743
     initialDelaySeconds: 10
     periodSeconds: 5
 
 # PostgreSQL configuration
 postgresql:
-  enabled: true
+  enabled: false
   image: postgres:16-alpine
 
   # Storage
@@ -96,10 +97,12 @@ postgresql:
 
 # Secrets (REQUIRED - must be provided)
 secrets:
+  # Database URL (use your existing database)
+  databaseUrl: ""
+
   # Generate with: openssl rand -base64 32
   jwtSecret: ""
   apiKeySecret: ""
-  databasePassword: ""
 
   # OAuth credentials
   googleClientId: ""
@@ -111,6 +114,11 @@ secrets:
   resendApiKey: ""
   resendFromEmail: "no-reply@yourdomain.com"
   resendFromName: "Locus"
+
+# Cloudflare Tunnel configuration
+cloudflaredTunnel:
+  hostname: locusb.fizzwizzledazzle.dev
+  token: ""  # Get token from Cloudflare dashboard or: cloudflared tunnel token <tunnel-name>
 
 # Autoscaling (optional)
 autoscaling:

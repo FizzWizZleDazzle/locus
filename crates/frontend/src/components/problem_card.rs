@@ -18,7 +18,8 @@ pub fn ProblemCard(
             </div>
 
             <div class="text-xl text-center py-4">
-                <span inner_html=problem.question_latex.clone()></span>
+                // Use inner_html to reset content - auto-render will process it
+                <span inner_html={problem.question_latex.clone()}></span>
             </div>
 
             {show_answer.map(|answer| {

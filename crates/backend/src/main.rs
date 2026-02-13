@@ -39,12 +39,15 @@ async fn main() -> anyhow::Result<()> {
     // Connect to database
     let pool = db::create_pool(&config.database_url).await?;
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await?;
-
-    tracing::info!("Database migrations completed");
+    // Run migrations (unless SKIP_MIGRATIONS=true)
+    if std::env::var("SKIP_MIGRATIONS").unwrap_or_default() != "true" {
+        sqlx::migrate!("./migrations")
+            .run(&pool)
+            .await?;
+        tracing::info!("Database migrations completed");
+    } else {
+        tracing::warn!("Skipping migrations (SKIP_MIGRATIONS=true)");
+    }
 
     // Initialize topic cache
     let topic_cache = topics::TopicCache::new(pool.clone()).await?;

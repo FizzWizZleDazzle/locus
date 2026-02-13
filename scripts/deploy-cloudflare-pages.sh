@@ -31,8 +31,8 @@ cd crates/frontend
 rm -rf dist/
 
 # Build with trunk (release mode)
-# Set LOCUS_API_URL to point to your backend domain
-LOCUS_API_URL="${LOCUS_API_URL:-https://locus-b.fizzwizzledazzle.dev}" trunk build --release
+# Use /api for same-domain Cloudflare Tunnel setup
+trunk build --release
 
 if [ ! -d "dist" ]; then
     echo "ERROR: Build failed! dist/ directory not found"

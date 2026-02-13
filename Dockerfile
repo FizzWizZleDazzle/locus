@@ -4,14 +4,29 @@
 # ============================================
 # Stage 1: Build Backend
 # ============================================
-FROM rust:1.83-slim AS backend-builder
+FROM rust:1.93.0-slim AS backend-builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
     libgmp-dev \
+    cmake \
+    g++ \
+    git \
     && rm -rf /var/lib/apt/lists/*
+
+# Build and install SymEngine to /usr/local/lib
+RUN git clone https://github.com/symengine/symengine.git /tmp/symengine && \
+    cd /tmp/symengine && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=OFF \
+          -DCMAKE_INSTALL_PREFIX=/usr/local \
+          .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && rm -rf /tmp/symengine
 
 WORKDIR /build
 
@@ -23,40 +38,9 @@ COPY crates ./crates
 RUN cargo build --release -p locus-backend
 
 # ============================================
-# Stage 2: Build Frontend
+# Stage 2: Runtime
 # ============================================
-FROM rust:1.83-slim AS frontend-builder
-
-# Install dependencies for trunk and wasm
-RUN apt-get update && apt-get install -y \
-    curl \
-    pkg-config \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install trunk
-RUN cargo install --locked trunk
-
-# Install wasm target
-RUN rustup target add wasm32-unknown-unknown
-
-WORKDIR /build
-
-# Copy workspace files
-COPY Cargo.toml Cargo.lock ./
-COPY crates ./crates
-
-# Copy symengine.js submodule
-COPY symengine.js ./symengine.js
-
-# Build frontend
-WORKDIR /build/crates/frontend
-RUN trunk build --release
-
-# ============================================
-# Stage 3: Runtime
-# ============================================
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
@@ -75,9 +59,6 @@ WORKDIR /app
 
 # Copy backend binary from builder
 COPY --from=backend-builder /build/target/release/locus-backend ./locus-backend
-
-# Copy frontend static assets from builder
-COPY --from=frontend-builder /build/crates/frontend/dist ./dist
 
 # Copy migrations
 COPY crates/backend/migrations ./migrations

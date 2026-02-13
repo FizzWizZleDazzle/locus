@@ -209,8 +209,7 @@ pub fn MathInput(
             />
 
             // Show parsed value if different (debug mode only)
-            #[cfg(debug_assertions)]
-            {move || {
+            {cfg!(debug_assertions).then(|| move || {
                 let raw = value.get();
                 let processed = processed_value();
                 (!raw.is_empty() && raw != processed).then(|| view! {
@@ -218,7 +217,7 @@ pub fn MathInput(
                         "Parsed as: " <code class="bg-gray-100 px-1 py-0.5 rounded">{processed}</code>
                     </div>
                 })
-            }}
+            })}
         </div>
     }
 }

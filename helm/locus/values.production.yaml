@@ -4,12 +4,12 @@
 
 # Container image
 image:
-  repository: your-registry.com/locus
-  tag: "1.0.0"
-  pullPolicy: IfNotPresent
+  repository: ghcr.io/fizzwizzledazzle/locus
+  tag: "latest"
+  pullPolicy: Always
 
 # Scaling
-replicaCount: 3
+replicaCount: 1
 
 # Ingress
 ingress:
@@ -45,7 +45,7 @@ backend:
 
 # PostgreSQL
 postgresql:
-  enabled: true
+  enabled: false
   persistence:
     enabled: true
     size: 50Gi
@@ -61,7 +61,7 @@ postgresql:
 
 # Autoscaling
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 3
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70

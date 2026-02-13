@@ -1,9 +1,33 @@
 # Locus Deployment Quick Start
 
-## Step 1: Generate Secrets
+> **NEW:** We now have a consolidated Makefile-based deployment system!
+> See [RELEASE.md](RELEASE.md) for the complete guide.
+
+## Quick Deployment (Recommended)
 
 ```bash
-./generate-secrets.sh
+# 1. Generate secrets and configure
+make init
+# Edit .env.production with your OAuth keys and API tokens
+
+# 2. Set up Cloudflare Tunnel
+make tunnel
+# Add CLOUDFLARED_TUNNEL to .env.production
+
+# 3. Deploy everything
+make all
+```
+
+That's it! The Makefile handles building, deploying, and loading data.
+
+---
+
+## Manual Steps (Advanced)
+
+### Step 1: Generate Secrets
+
+```bash
+./scripts/generate-secrets.sh
 ```
 
 This creates `.env.production` with auto-generated JWT and database secrets.
@@ -27,38 +51,39 @@ Edit `.env.production` and update:
 
 ## Step 3: Deploy
 
-### Option A: Kubernetes with Helm
+### Option A: Complete Deployment (Recommended - Using Makefile)
+
+```bash
+# Build and deploy everything
+make all
+
+# Or deploy in stages:
+make build          # Build Docker image
+make push           # Push to registry
+make deploy         # Deploy backend + frontend
+make data           # Load problems
+make status         # Check health
+```
+
+### Option B: Kubernetes with Helm (Manual)
 
 ```bash
 # Deploy to K8s
-./deploy-helm.sh
+./scripts/deploy-helm.sh
 
 # Check status
 kubectl get pods -n locus
 kubectl logs -f deployment/locus-backend -n locus
 ```
 
-### Option B: Docker Compose
-
-```bash
-# Deploy locally
-docker compose --env-file .env.production -f docker-compose.prod.yml up -d
-
-# Check logs
-docker compose -f docker-compose.prod.yml logs -f
-
-# Verify health
-curl http://localhost:3000/health
-```
-
-### Option C: Cloudflare Pages (Frontend Only)
+### Option C: Frontend to Cloudflare Pages (Manual)
 
 ```bash
 # Deploy frontend to Cloudflare Pages
-./deploy-cloudflare-pages.sh
+./scripts/deploy-cloudflare-pages.sh
 
-# Then deploy backend to K8s/Docker
-# Update backend ALLOWED_ORIGINS to include Pages URL
+# Then deploy backend to K8s
+./scripts/deploy-helm.sh
 ```
 
 ## Step 4: Verify

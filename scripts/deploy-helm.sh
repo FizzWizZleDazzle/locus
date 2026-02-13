@@ -3,10 +3,25 @@
 
 set -e
 
+# Check for kubectl
+if ! command -v kubectl &> /dev/null; then
+    echo "ERROR: kubectl not found"
+    echo "Install with: curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    echo "Or: sudo apt install kubectl"
+    exit 1
+fi
+
+# Check for helm
+if ! command -v helm &> /dev/null; then
+    echo "ERROR: helm not found"
+    echo "Install with: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
+    exit 1
+fi
+
 # Configuration
 NAMESPACE="locus"
 RELEASE_NAME="${RELEASE_NAME:-locus}"
-VALUES_FILE="${VALUES_FILE:-values.production.yaml}"
+VALUES_FILE="${VALUES_FILE:-helm/locus/values.production.yaml}"
 
 echo "Deploying Locus to Kubernetes with Helm"
 echo "Namespace: $NAMESPACE"
@@ -52,12 +67,23 @@ kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f 
 echo "Installing/upgrading Locus with Helm..."
 echo ""
 
+# Check for Cloudflare Tunnel token
+if [ -z "$CLOUDFLARED_TUNNEL" ]; then
+    echo "WARNING: CLOUDFLARED_TUNNEL not set in .env.production"
+    echo "Get it from: cloudflared tunnel token locus-backend"
+    read -p "Continue without tunnel? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 # Deploy with Helm
 helm upgrade --install $RELEASE_NAME ./helm/locus \
     --namespace $NAMESPACE \
+    --set secrets.databaseUrl="$DATABASE_URL" \
     --set secrets.jwtSecret="$JWT_SECRET" \
     --set secrets.apiKeySecret="$API_KEY_SECRET" \
-    --set secrets.databasePassword="$DB_PASSWORD" \
     --set secrets.googleClientId="$GOOGLE_CLIENT_ID" \
     --set secrets.googleClientSecret="$GOOGLE_CLIENT_SECRET" \
     --set secrets.githubClientId="$GITHUB_CLIENT_ID" \
@@ -68,6 +94,7 @@ helm upgrade --install $RELEASE_NAME ./helm/locus \
     --set backend.allowedOrigins="$ALLOWED_ORIGINS" \
     --set backend.frontendBaseUrl="$FRONTEND_BASE_URL" \
     --set backend.oauthRedirectBase="$OAUTH_REDIRECT_BASE" \
+    --set cloudflaredTunnel.token="$CLOUDFLARED_TUNNEL" \
     ${VALUES_FILE:+--values $VALUES_FILE} \
     --wait
 

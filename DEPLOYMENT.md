@@ -1,11 +1,30 @@
 # Locus Deployment Guide
 
+> **NEW:** We have consolidated deployment scripts into a Makefile!
+> For the streamlined deployment process, see **[RELEASE.md](RELEASE.md)**
+
 ## Overview
 
 Locus consists of:
 - **Backend**: Rust/Axum API server (port 3000)
 - **Frontend**: Leptos WASM app served as static files
 - **Database**: PostgreSQL 16
+
+## Recommended Deployment Method
+
+Use the new Makefile-based system:
+
+```bash
+make init      # Generate secrets
+make tunnel    # Set up Cloudflare
+make all       # Complete deployment
+```
+
+See [RELEASE.md](RELEASE.md) for detailed instructions.
+
+---
+
+## Alternative Deployment Methods
 
 ## Quick Start (Docker Compose)
 

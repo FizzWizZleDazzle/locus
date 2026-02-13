@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/001_initial.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/003_topic_elo_table.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/004_seed_problems.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/005_oauth.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/006_dynamic_topics.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/007_calculator_allowed.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/crates/backend/migrations/008_email_verification.sql" dialect="PostgreSQL" />
+  </component>
+</project>

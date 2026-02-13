@@ -97,6 +97,8 @@ start_backend() {
 start_frontend() {
     log_info "Starting frontend on http://localhost:8080"
     cd crates/frontend
+    # Set API URL to use local proxy
+    export LOCUS_API_URL=/api
     # Pass wasm-bindgen flags to disable reference types (fixes "env" module errors)
     trunk serve &
     FRONTEND_PID=$!
