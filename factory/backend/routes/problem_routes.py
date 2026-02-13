@@ -7,17 +7,24 @@ from fastapi import APIRouter, HTTPException
 
 from models import ConfirmProblemRequest, ExportRequest
 from config import EXPORTS_DIR, staged_problems, locus_config
+from latex_formatter import normalize_latex
 
 router = APIRouter()
 
 
 @router.post("/confirm-problem")
 async def confirm_problem(request: ConfirmProblemRequest):
-    """Stage an approved problem"""
+    """Stage an approved problem with automatic LaTeX normalization"""
     if request.approved:
-        staged_problems.append(request.problem)
+        # Automatically normalize LaTeX to ensure proper $ delimiters
+        # This handles inconsistent AI-generated scripts
+        problem = request.problem.copy()
+        if 'question_latex' in problem:
+            problem['question_latex'] = normalize_latex(problem['question_latex'])
+
+        staged_problems.append(problem)
         return {
-            "message": "Problem staged",
+            "message": "Problem staged (LaTeX normalized)",
             "staged_count": len(staged_problems)
         }
     return {

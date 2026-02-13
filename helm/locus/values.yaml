@@ -117,7 +117,7 @@ secrets:
 
 # Cloudflare Tunnel configuration
 cloudflaredTunnel:
-  hostname: locusb.fizzwizzledazzle.dev
+  hostname: api.locusmath.org
   token: ""  # Get token from Cloudflare dashboard or: cloudflared tunnel token <tunnel-name>
 
 # Autoscaling (optional)

@@ -109,7 +109,7 @@ impl Config {
             resend_api_key: env::var("RESEND_API_KEY")
                 .map_err(|_| ConfigError::MissingEnv("RESEND_API_KEY"))?,
             resend_from_email: env::var("RESEND_FROM_EMAIL")
-                .unwrap_or_else(|_| "no-reply@auth.fizzwizzledazzle.dev".to_string()),
+                .unwrap_or_else(|_| "no-reply@locusmath.org".to_string()),
             resend_from_name: env::var("RESEND_FROM_NAME")
                 .unwrap_or_else(|_| "Locus".to_string()),
             frontend_base_url: env::var("FRONTEND_BASE_URL")

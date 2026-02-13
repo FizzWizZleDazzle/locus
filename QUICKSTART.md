@@ -6,13 +6,14 @@
 ## Quick Deployment (Recommended)
 
 ```bash
-# 1. Generate secrets and configure
+# 1. Generate secrets
 make init
-# Edit .env.production with your OAuth keys and API tokens
 
-# 2. Set up Cloudflare Tunnel
-make tunnel
-# Add CLOUDFLARED_TUNNEL to .env.production
+# 2. Edit .env.production with your credentials
+# - OAuth keys (Google/GitHub)
+# - Resend API key
+# - Frontend URLs
+# - Cloudflare Tunnel token (see: make tunnel-instructions)
 
 # 3. Deploy everything
 make all

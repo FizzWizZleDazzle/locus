@@ -7,13 +7,14 @@ This guide explains how to deploy Locus to production using the consolidated Mak
 For a complete first-time deployment:
 
 ```bash
-# 1. Initial setup (generate secrets and configure)
+# 1. Generate secrets
 make init
-# Edit .env.production with your OAuth keys and API tokens
 
-# 2. Set up Cloudflare Tunnel
-make tunnel
-# Add the CLOUDFLARED_TUNNEL token to .env.production
+# 2. Edit .env.production with:
+#    - OAuth credentials (Google/GitHub)
+#    - Resend API key
+#    - Frontend URLs
+#    - Cloudflare Tunnel token (run: make tunnel-instructions)
 
 # 3. Complete deployment
 make all
@@ -53,17 +54,16 @@ First-time setup that generates secure secrets in `.env.production`.
    psql -h YOUR_DB_HOST -U postgres -d locus -c "ALTER USER locus_srv PASSWORD 'generated_password';"
    ```
 
-#### `make tunnel`
-Sets up Cloudflare Tunnel for the backend.
+#### `make tunnel-instructions`
+Shows instructions for setting up Cloudflare Tunnel.
 
-**What it does:**
-- Logs into Cloudflare
-- Creates tunnel named `locus-backend`
-- Routes DNS for `locusb.fizzwizzledazzle.dev`
-- Generates tunnel token
+**What it shows:**
+- How to install cloudflared CLI
+- How to create and configure the tunnel
+- How to get the tunnel token
+- Where to add the token in `.env.production`
 
-**After running:**
-- Add the `CLOUDFLARED_TUNNEL` token to `.env.production`
+**Note:** The Cloudflare Tunnel runs as a sidecar container in Kubernetes (managed by Helm). You only need to get the token and add it to `.env.production`.
 
 ### Build Commands
 
@@ -193,9 +193,11 @@ make init
 
 # 2. Edit .env.production with your credentials
 nano .env.production
+# Configure: OAuth (Google/GitHub), Resend API key, Frontend URLs
 
-# 3. Set up Cloudflare Tunnel
-make tunnel
+# 3. Get Cloudflare Tunnel token
+make tunnel-instructions
+# Follow the instructions to get the token
 # Add CLOUDFLARED_TUNNEL to .env.production
 
 # 4. Update database password
@@ -359,10 +361,12 @@ Key variables in `.env.production`:
 
 ## Deployment Checklist
 
-- [ ] Run `make init` and configure `.env.production`
-- [ ] Set up OAuth apps (Google, GitHub)
-- [ ] Get Resend API key
-- [ ] Run `make tunnel` and add token to `.env.production`
+- [ ] Run `make init` to generate secrets
+- [ ] Configure `.env.production`:
+  - [ ] Set up OAuth apps (Google, GitHub)
+  - [ ] Get Resend API key
+  - [ ] Set frontend URLs
+  - [ ] Get Cloudflare Tunnel token (run `make tunnel-instructions`)
 - [ ] Update database user password
 - [ ] Run `make all` for complete deployment
 - [ ] Configure custom domain in Cloudflare Pages dashboard

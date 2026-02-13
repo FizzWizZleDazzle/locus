@@ -7,7 +7,7 @@ use web_sys::Window;
 // API base URL - must match api.rs
 const API_BASE: &str = match option_env!("LOCUS_API_URL") {
     Some(url) => url,
-    None => "https://locusb.fizzwizzledazzle.dev/api",
+    None => "https://api.locusmath.org/api",
 };
 
 /// Open an OAuth popup and listen for the result via postMessage

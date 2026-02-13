@@ -14,6 +14,7 @@ pub fn Register() -> impl IntoView {
     let (username, set_username) = signal(String::new());
     let (email, set_email) = signal(String::new());
     let (password, set_password) = signal(String::new());
+    let (confirm_password, set_confirm_password) = signal(String::new());
     let (error, set_error) = signal(None::<String>);
     let (loading, set_loading) = signal(false);
     let (success_email, set_success_email) = signal(None::<String>);
@@ -21,6 +22,13 @@ pub fn Register() -> impl IntoView {
 
     let submit = StoredValue::new(move |ev: web_sys::SubmitEvent| {
         ev.prevent_default();
+
+        // Check if passwords match
+        if password.get() != confirm_password.get() {
+            set_error.set(Some("Passwords do not match".to_string()));
+            return;
+        }
+
         set_loading.set(true);
         set_error.set(None);
 
@@ -162,6 +170,18 @@ pub fn Register() -> impl IntoView {
                                     required
                                 />
                                 <p class="text-xs text-gray-400 mt-1">"At least 8 characters"</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">"Confirm Password"</label>
+                                <input
+                                    type="password"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-900 focus:outline-none"
+                                    prop:value=confirm_password
+                                    on:input=move |ev| set_confirm_password.set(event_target_value(&ev))
+                                    minlength="8"
+                                    required
+                                />
                             </div>
 
                             <button

@@ -1,4 +1,4 @@
-.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help
+.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help tunnel-instructions restart-backend delete-secrets
 
 # Configuration
 REGISTRY := ghcr.io/fizzwizzledazzle
@@ -6,6 +6,11 @@ IMAGE_NAME := locus
 IMAGE_TAG := latest
 NAMESPACE := locus
 RELEASE_NAME := locus
+
+# Use local kubeconfig if it exists
+ifneq (,$(wildcard ./kubeconfig))
+    export KUBECONFIG := $(PWD)/kubeconfig
+endif
 
 # Default target
 .DEFAULT_GOAL := help
@@ -18,31 +23,34 @@ all: build push deploy data
 	@echo "============================================"
 	@$(MAKE) status
 
-# First-time setup (secrets + tunnel)
+# First-time setup (secrets)
 init:
 	@echo "Initializing Locus deployment..."
 	@echo ""
 	@if [ ! -f .env.production ]; then \
 		./scripts/generate-secrets.sh; \
-		echo ""; \
-		echo "Please edit .env.production and configure:"; \
-		echo "  - OAuth credentials (Google/GitHub)"; \
-		echo "  - Resend API key"; \
-		echo "  - Frontend URLs"; \
-		echo ""; \
-		echo "Then run: make tunnel"; \
 	else \
 		echo "✓ .env.production already exists"; \
 		echo ""; \
-		echo "Run: make tunnel"; \
+		echo "Edit .env.production and configure:"; \
+		echo "  - OAuth credentials (Google/GitHub)"; \
+		echo "  - Resend API key"; \
+		echo "  - Frontend URLs"; \
+		echo "  - Cloudflare Tunnel token (see: make tunnel-instructions)"; \
+		echo ""; \
+		echo "Then run: make all"; \
 	fi
 
-# Set up Cloudflare Tunnel
-tunnel:
-	@echo "Setting up Cloudflare Tunnel..."
-	@./scripts/setup-cloudflare-tunnel.sh
+# Show Cloudflare Tunnel setup (managed by Helm as sidecar)
+tunnel-instructions:
+	@echo "Get Cloudflare Tunnel token:"
+	@echo "  cloudflared tunnel login"
+	@echo "  cloudflared tunnel create locus-backend"
+	@echo "  cloudflared tunnel route dns locus-backend api.locusmath.org"
+	@echo "  cloudflared tunnel token locus-backend"
 	@echo ""
-	@echo "Don't forget to add CLOUDFLARED_TUNNEL to .env.production!"
+	@echo "Add token to .env.production: CLOUDFLARED_TUNNEL=<token>"
+	@echo "See RELEASE.md for detailed instructions."
 
 # Build Docker image
 build:
@@ -87,27 +95,32 @@ deploy: deploy-backend deploy-frontend
 
 # Load problems and clean duplicates
 data:
-	@echo "============================================"
-	@echo "Loading problem data..."
-	@echo "============================================"
-	@if [ ! -f factory/backend/exports/problems_import.sql ]; then \
-		echo "ERROR: factory/backend/exports/problems_import.sql not found"; \
-		echo "Run the factory to generate problems first."; \
-		exit 1; \
-	fi
 	@if [ ! -f .env.production ]; then \
-		echo "ERROR: .env.production not found"; \
-		echo "Run: make init"; \
+		echo "ERROR: .env.production not found. Run: make init"; \
 		exit 1; \
 	fi
-	@. .env.production && ./scripts/load-problems.sh
-	@. .env.production && ./scripts/remove-duplicates.sh
-	@echo ""
-	@echo "✓ Problem data loaded and cleaned"
+	@. .env.production && ./scripts/load-data.sh
 
 # Check deployment status
 status:
 	@./scripts/check-status.sh
+
+# Delete all backend pods (forces restart with latest image)
+restart-backend:
+	@echo "Deleting all pods in $(RELEASE_NAME)-backend deployment..."
+	@kubectl delete pods -n $(NAMESPACE) -l app=locus-backend || echo "No pods found or already deleted"
+	@echo ""
+	@echo "✓ Pods deleted. Kubernetes will recreate them automatically."
+	@echo ""
+	@echo "Watch status:"
+	@echo "  kubectl get pods -n $(NAMESPACE) -w"
+
+# Delete Kubernetes secrets (useful before redeploying with new credentials)
+delete-secrets:
+	@echo "Deleting secrets in $(NAMESPACE) namespace..."
+	@kubectl delete secret $(RELEASE_NAME)-secrets -n $(NAMESPACE) 2>/dev/null || echo "No secrets found"
+	@echo ""
+	@echo "✓ Secrets deleted. Run 'make deploy-backend' to recreate them."
 
 # Clean build artifacts (does not affect deployments)
 clean:
@@ -122,8 +135,8 @@ help:
 	@echo "============================================"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make init              First-time setup (generate secrets)"
-	@echo "  make tunnel            Set up Cloudflare Tunnel"
+	@echo "  make init                   First-time setup (generate secrets)"
+	@echo "  make tunnel-instructions    Show Cloudflare Tunnel setup steps"
 	@echo ""
 	@echo "Build & Deploy:"
 	@echo "  make build             Build Docker image"
@@ -140,11 +153,14 @@ help:
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make status            Check deployment health"
+	@echo "  make restart-backend   Delete backend pods (force restart)"
+	@echo "  make delete-secrets    Delete Kubernetes secrets"
 	@echo "  make clean             Clean build artifacts"
 	@echo "  make help              Show this help message"
 	@echo ""
 	@echo "Quick Start:"
-	@echo "  1. make init           (configure .env.production)"
-	@echo "  2. make tunnel         (set up Cloudflare)"
-	@echo "  3. make all            (complete deployment)"
+	@echo "  1. make init                      (generate secrets)"
+	@echo "  2. Edit .env.production           (add OAuth, Resend, URLs)"
+	@echo "  3. make tunnel-instructions       (get Cloudflare token)"
+	@echo "  4. make all                       (complete deployment)"
 	@echo ""

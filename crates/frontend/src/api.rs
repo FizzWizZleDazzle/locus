@@ -27,11 +27,11 @@ pub struct Subtopic {
 }
 
 // API base URL - configurable at compile time
-// Production: https://locusb.fizzwizzledazzle.dev/api
+// Production: https://api.locusmath.org/api
 // Local dev: /api (same domain)
 const API_BASE: &str = match option_env!("LOCUS_API_URL") {
     Some(url) => url,
-    None => "https://locusb.fizzwizzledazzle.dev/api",
+    None => "https://api.locusmath.org/api",
 };
 
 const TOKEN_KEY: &str = "locus_token";
