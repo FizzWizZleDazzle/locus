@@ -133,11 +133,11 @@ pub extern "C" fn __libc_realloc(ptr: *mut u8, size: usize) -> *mut u8 {
 
 use leptos::prelude::*;
 use leptos_router::{
-    components::{Router, Route, Routes},
+    components::{Router, Route, Routes, A},
     path,
 };
 
-use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail, ForgotPassword, ResetPassword};
+use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail, ForgotPassword, ResetPassword, PrivacyPolicy, TermsOfService};
 use components::{Navbar, Sidebar};
 
 fn main() {
@@ -183,12 +183,18 @@ fn App() -> impl IntoView {
                         <Route path=path!("/forgot-password") view=ForgotPassword />
                         <Route path=path!("/reset-password") view=ResetPassword />
                         <Route path=path!("/settings") view=Settings />
+                        <Route path=path!("/privacy-policy") view=PrivacyPolicy />
+                        <Route path=path!("/terms-of-service") view=TermsOfService />
                     </Routes>
                 </main>
                 <footer class=move || format!(
-                    "py-4 px-6 text-xs text-gray-400 border-t transition-all duration-300 flex justify-end {}",
+                    "py-4 px-6 text-xs text-gray-400 border-t transition-all duration-300 flex justify-between items-center {}",
                     if auth.is_logged_in.get() { "ml-16" } else { "" }
                 )>
+                    <div class="flex space-x-4">
+                        <A href="/privacy-policy" attr:class="hover:text-gray-600">"Privacy Policy"</A>
+                        <A href="/terms-of-service" attr:class="hover:text-gray-600">"Terms of Service"</A>
+                    </div>
                     <span>
                         {if cfg!(debug_assertions) {
                             format!("Locus - {} - {}", env!("CARGO_PKG_VERSION"), env!("BUILD_TIMESTAMP"))

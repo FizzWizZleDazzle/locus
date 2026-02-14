@@ -10,6 +10,8 @@ mod settings;
 mod verify_email;
 mod forgot_password;
 mod reset_password;
+mod privacy_policy;
+mod terms_of_service;
 
 pub use home::Home;
 pub use practice::Practice;
@@ -21,3 +23,5 @@ pub use settings::Settings;
 pub use verify_email::VerifyEmail;
 pub use forgot_password::ForgotPassword;
 pub use reset_password::ResetPassword;
+pub use privacy_policy::PrivacyPolicy;
+pub use terms_of_service::TermsOfService;
