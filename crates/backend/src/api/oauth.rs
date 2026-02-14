@@ -7,9 +7,10 @@ use axum::{
 use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use uuid::Uuid;
 
 use crate::{
-    auth::create_token,
+    auth::{create_token, verify_token},
     models::{User, OAuthAccount},
     AppError,
 };
@@ -27,20 +28,24 @@ struct OAuthStateClaims {
     exp: i64,
     /// Issued at
     iat: i64,
+    /// Optional user ID for linking (when user is already logged in)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    user_id: Option<String>,
 }
 
-fn create_state_token(provider: &str, secret: &str) -> Result<String, AppError> {
+fn create_state_token(provider: &str, secret: &str, user_id: Option<String>) -> Result<String, AppError> {
     let now = Utc::now().timestamp();
     let claims = OAuthStateClaims {
         provider: provider.to_string(),
         exp: now + 600, // 10 minutes
         iat: now,
+        user_id,
     };
     encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()))
         .map_err(|e| AppError::Internal(format!("Failed to create OAuth state: {}", e)))
 }
 
-fn verify_state_token(token: &str, expected_provider: &str, secret: &str) -> Result<(), AppError> {
+fn verify_state_token(token: &str, expected_provider: &str, secret: &str) -> Result<OAuthStateClaims, AppError> {
     let claims = decode::<OAuthStateClaims>(
         token,
         &DecodingKey::from_secret(secret.as_bytes()),
@@ -52,7 +57,7 @@ fn verify_state_token(token: &str, expected_provider: &str, secret: &str) -> Res
     if claims.provider != expected_provider {
         return Err(AppError::BadRequest("OAuth state provider mismatch".into()));
     }
-    Ok(())
+    Ok(claims)
 }
 
 // ============================================================================
@@ -71,11 +76,38 @@ pub async fn oauth_redirect(
     Path(provider): Path<String>,
 ) -> Result<Html<String>, AppError> {
     let url = match provider.as_str() {
-        "google" => google_auth_url(state).await?,
-        "github" => github_auth_url(state).await?,
+        "google" => google_auth_url(state, None).await?,
+        "github" => github_auth_url(state, None).await?,
         _ => return Err(AppError::BadRequest(format!("Unknown OAuth provider: {}", provider))),
     };
     // Use client-side redirect so dev proxies don't follow the redirect server-side
+    Ok(Html(format!(
+        r#"<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={url}"></head><body><script>window.location.href="{url}";</script></body></html>"#,
+        url = url
+    )))
+}
+
+#[derive(Deserialize)]
+pub struct LinkQueryParams {
+    token: String,
+}
+
+/// OAuth redirect for linking (requires authentication via token parameter)
+pub async fn oauth_redirect_link(
+    State(state): State<AppState>,
+    Path(provider): Path<String>,
+    Query(params): Query<LinkQueryParams>,
+) -> Result<Html<String>, AppError> {
+    // Verify the token and extract user ID
+    let user_id = verify_token(&params.token, &state.jwt_secret)
+        .map_err(|_| AppError::Auth("Invalid or expired token".into()))?
+        .sub;
+
+    let url = match provider.as_str() {
+        "google" => google_auth_url(state, Some(user_id.to_string())).await?,
+        "github" => github_auth_url(state, Some(user_id.to_string())).await?,
+        _ => return Err(AppError::BadRequest(format!("Unknown OAuth provider: {}", provider))),
+    };
     Ok(Html(format!(
         r#"<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={url}"></head><body><script>window.location.href="{url}";</script></body></html>"#,
         url = url
@@ -96,11 +128,12 @@ pub async fn oauth_callback(
     let csrf_state = params.state.as_deref()
         .ok_or_else(|| AppError::BadRequest("Missing state parameter".into()))?;
 
-    verify_state_token(csrf_state, &provider, &state.jwt_secret)?;
+    let claims = verify_state_token(csrf_state, &provider, &state.jwt_secret)?;
+    let link_user_id = claims.user_id.and_then(|id| id.parse().ok());
 
     match provider.as_str() {
-        "google" => google_callback(state, code).await,
-        "github" => github_callback(state, code).await,
+        "google" => google_callback(state, code, link_user_id).await,
+        "github" => github_callback(state, code, link_user_id).await,
         _ => Err(AppError::BadRequest(format!("Unknown OAuth provider: {}", provider))),
     }
 }
@@ -121,11 +154,11 @@ struct GoogleUserInfo {
     name: Option<String>,
 }
 
-async fn google_auth_url(state: AppState) -> Result<String, AppError> {
+async fn google_auth_url(state: AppState, user_id: Option<String>) -> Result<String, AppError> {
     let client_id = state.google_client_id.as_deref()
         .ok_or_else(|| AppError::BadRequest("Google OAuth not configured".into()))?;
 
-    let csrf = create_state_token("google", &state.jwt_secret)?;
+    let csrf = create_state_token("google", &state.jwt_secret, user_id)?;
     let redirect_uri = format!("{}/api/auth/oauth/google/callback", state.oauth_redirect_base);
 
     Ok(format!(
@@ -137,7 +170,7 @@ async fn google_auth_url(state: AppState) -> Result<String, AppError> {
     ))
 }
 
-async fn google_callback(state: AppState, code: &str) -> Result<Html<String>, AppError> {
+async fn google_callback(state: AppState, code: &str, link_user_id: Option<Uuid>) -> Result<Html<String>, AppError> {
     let client_id = state.google_client_id.as_deref()
         .ok_or_else(|| AppError::Internal("Google OAuth not configured".into()))?;
     let client_secret = state.google_client_secret.as_deref()
@@ -180,6 +213,7 @@ async fn google_callback(state: AppState, code: &str) -> Result<Html<String>, Ap
         &user_info.id,
         &user_info.email,
         display_name,
+        link_user_id,
     )
     .await
 }
@@ -207,11 +241,11 @@ struct GitHubEmail {
     verified: bool,
 }
 
-async fn github_auth_url(state: AppState) -> Result<String, AppError> {
+async fn github_auth_url(state: AppState, user_id: Option<String>) -> Result<String, AppError> {
     let client_id = state.github_client_id.as_deref()
         .ok_or_else(|| AppError::BadRequest("GitHub OAuth not configured".into()))?;
 
-    let csrf = create_state_token("github", &state.jwt_secret)?;
+    let csrf = create_state_token("github", &state.jwt_secret, user_id)?;
     let redirect_uri = format!("{}/api/auth/oauth/github/callback", state.oauth_redirect_base);
 
     Ok(format!(
@@ -223,7 +257,7 @@ async fn github_auth_url(state: AppState) -> Result<String, AppError> {
     ))
 }
 
-async fn github_callback(state: AppState, code: &str) -> Result<Html<String>, AppError> {
+async fn github_callback(state: AppState, code: &str, link_user_id: Option<Uuid>) -> Result<Html<String>, AppError> {
     let client_id = state.github_client_id.as_deref()
         .ok_or_else(|| AppError::Internal("GitHub OAuth not configured".into()))?;
     let client_secret = state.github_client_secret.as_deref()
@@ -285,6 +319,7 @@ async fn github_callback(state: AppState, code: &str) -> Result<Html<String>, Ap
         &gh_user.id.to_string(),
         &email,
         display_name,
+        link_user_id,
     )
     .await
 }
@@ -299,7 +334,38 @@ async fn oauth_login_or_register(
     provider_user_id: &str,
     email: &str,
     display_name: &str,
+    link_user_id: Option<Uuid>,
 ) -> Result<Html<String>, AppError> {
+    // LINKING MODE: User is already logged in and wants to link their OAuth account
+    if let Some(user_id) = link_user_id {
+        // Verify user exists
+        let user = User::find_by_id(&state.pool, user_id)
+            .await?
+            .ok_or_else(|| AppError::Internal("User not found for linking".into()))?;
+
+        // Check if this OAuth account is already linked to someone
+        if let Some(oauth_account) = OAuthAccount::find_by_provider(&state.pool, provider, provider_user_id).await? {
+            if oauth_account.user_id == user_id {
+                return Ok(build_callback_html_error("This account is already linked to your profile."));
+            } else {
+                return Ok(build_callback_html_error(
+                    &format!("This {} account is already linked to another user.", provider)
+                ));
+            }
+        }
+
+        // Link the OAuth account
+        OAuthAccount::create(&state.pool, user_id, provider, provider_user_id, Some(email)).await?;
+
+        let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
+            .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
+
+        let profile = user.to_profile(&state.pool).await?;
+        return Ok(build_callback_html_success(&token, &profile));
+    }
+
+    // LOGIN/REGISTER MODE: Normal OAuth flow
+
     // 1. Check if OAuth account already exists → login
     if let Some(oauth_account) = OAuthAccount::find_by_provider(&state.pool, provider, provider_user_id).await? {
         let user = User::find_by_id(&state.pool, oauth_account.user_id)

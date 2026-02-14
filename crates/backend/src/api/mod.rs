@@ -88,6 +88,8 @@ pub fn router() -> Router<AppState> {
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
         .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))
+        // OAuth linking routes (requires authentication)
+        .route("/auth/oauth/link/{provider}", get(oauth::oauth_redirect_link))
         // Problem routes
         .route("/problem", get(problems::get_problem))
         // Topics

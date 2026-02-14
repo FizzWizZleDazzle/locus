@@ -1,10 +1,11 @@
 use leptos::prelude::*;
-use leptos_router::components::A;
+use leptos_router::{components::A, hooks::use_navigate};
 use crate::{api, AuthContext};
 
 #[component]
 pub fn Sidebar() -> impl IntoView {
     let auth = expect_context::<AuthContext>();
+    let navigate = use_navigate();
     let (is_expanded, set_is_expanded) = signal(false);
 
     let on_mouse_enter = move |_| set_is_expanded.set(true);
@@ -14,6 +15,7 @@ pub fn Sidebar() -> impl IntoView {
         api::logout();
         auth.set_logged_in.set(false);
         auth.set_username.set(None);
+        navigate("/", Default::default());
     };
 
     view! {

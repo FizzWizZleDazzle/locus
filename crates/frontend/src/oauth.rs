@@ -11,16 +11,16 @@ const API_BASE: &str = match option_env!("LOCUS_API_URL") {
 };
 
 /// Open an OAuth popup and listen for the result via postMessage
+///
+/// `url` should be the full OAuth URL (e.g., "https://api.locusmath.org/api/auth/oauth/google")
 pub fn open_oauth_popup(
-    provider: &str,
+    url: &str,
     on_success: impl Fn(AuthResponse) + 'static,
     on_error: impl Fn(String) + 'static,
 ) {
     let window: Window = web_sys::window().expect("no global window");
-
-    let url = format!("{}/auth/oauth/{}", API_BASE, provider);
     let popup = window.open_with_url_and_target_and_features(
-        &url,
+        url,
         "_blank",
         "width=500,height=600,popup=yes",
     );
@@ -73,4 +73,38 @@ pub fn open_oauth_popup(
     // Leak the closure so it lives for the duration of the page
     // (one per OAuth attempt; acceptable since users don't spam OAuth logins)
     closure.forget();
+}
+
+/// Open an OAuth popup for login (shortcut for provider name)
+pub fn open_oauth_login_popup(
+    provider: &str,
+    on_success: impl Fn(AuthResponse) + 'static,
+    on_error: impl Fn(String) + 'static,
+) {
+    let url = format!("{}/auth/oauth/{}", API_BASE, provider);
+    open_oauth_popup(&url, on_success, on_error);
+}
+
+/// Open an OAuth popup for linking (shortcut for provider name)
+pub fn open_oauth_link_popup(
+    provider: &str,
+    on_success: impl Fn(AuthResponse) + 'static,
+    on_error: impl Fn(String) + 'static,
+) {
+    use gloo_storage::{LocalStorage, Storage};
+    use wasm_bindgen::JsValue;
+
+    // Get the current auth token
+    let token = match LocalStorage::get::<String>("locus_token") {
+        Ok(token) => token,
+        Err(_) => {
+            on_error("Not authenticated. Please log in first.".to_string());
+            return;
+        }
+    };
+
+    // URL encode the token using JavaScript's encodeURIComponent
+    let encoded_token = js_sys::encode_uri_component(&token);
+    let url = format!("{}/auth/oauth/link/{}?token={}", API_BASE, provider, encoded_token);
+    open_oauth_popup(&url, on_success, on_error);
 }
