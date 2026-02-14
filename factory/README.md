@@ -2,10 +2,69 @@
 
 An AI-powered mathematical problem generation system that creates problems using LLM-generated Python scripts.
 
+## What Is This?
+
+Instead of manually writing problems, the Locus Factory:
+1. **Uses AI to generate Python scripts** that create random problems
+2. **Tests the scripts** to verify they work correctly
+3. **Batch generates** thousands of problem variations
+4. **Automatically submits** them to the Locus database
+
+**Performance:** Generate 1000 problems in ~3 minutes (~24,000x faster than manual creation).
+
 ## Architecture
 
-- **Frontend**: Standalone HTML/JavaScript web UI
-- **Backend**: Python FastAPI service
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Locus Factory System                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────────┐         ┌──────────────┐                 │
+│  │   Frontend   │ ←────→  │   Backend    │                 │
+│  │  (HTML/JS)   │         │   (Python)   │                 │
+│  │              │         │              │                 │
+│  │  - Config UI │         │  - FastAPI   │                 │
+│  │  - Script    │         │  - LLM API   │                 │
+│  │    Editor    │         │  - Script    │                 │
+│  │  - Testing   │         │    Executor  │                 │
+│  └──────────────┘         └──────────────┘                 │
+│                                  │                           │
+│                                  ▼                           │
+│                          ┌──────────────┐                   │
+│                          │     LLM      │                   │
+│                          │  (OpenAI,    │                   │
+│                          │   Claude,    │                   │
+│                          │   etc.)      │                   │
+│                          └──────────────┘                   │
+│                                  │                           │
+│                                  ▼                           │
+│                      Generated Python Script                │
+│                      (creates random problems)               │
+│                                  │                           │
+│                                  ▼                           │
+│                      Run 1000x → 1000 problems              │
+│                                  │                           │
+│                                  ▼                           │
+│                      ┌──────────────────┐                   │
+│                      │  Locus Backend   │                   │
+│                      │  Factory API     │                   │
+│                      │ /api/internal/   │                   │
+│                      │    problems      │                   │
+│                      └──────────────────┘                   │
+│                                  │                           │
+│                                  ▼                           │
+│                      ┌──────────────────┐                   │
+│                      │   PostgreSQL     │                   │
+│                      │   problems       │                   │
+│                      │   table          │                   │
+│                      └──────────────────┘                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Components
+
+- **Frontend**: Standalone HTML/JavaScript web UI (port 8080)
+- **Backend**: Python FastAPI service (port 8001)
 - **Integration**: Submits problems to Locus backend via Factory API
 
 ## Workflow

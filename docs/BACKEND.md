@@ -540,6 +540,432 @@ argon2.verify_password(password.as_bytes(), &parsed_hash)
 
 ---
 
+## Email System
+
+### SMTP Configuration
+
+**File:** `crates/backend/src/config.rs`
+
+The email system uses SMTP for sending verification and password reset emails.
+
+**Environment Variables:**
+```bash
+SMTP_HOST=smtp.gmail.com          # SMTP server
+SMTP_PORT=587                     # TLS port (587 or 465)
+SMTP_USERNAME=your@email.com      # SMTP username
+SMTP_PASSWORD=your-app-password   # SMTP password
+FRONTEND_URL=http://localhost:8080 # For email links
+```
+
+**Supported Providers:**
+- Gmail (smtp.gmail.com:587)
+- SendGrid (smtp.sendgrid.net:587)
+- Mailgun (smtp.mailgun.org:587)
+- Custom SMTP servers
+
+### Email Templates
+
+**File:** `crates/backend/src/email.rs`
+
+#### Email Verification
+
+```rust
+pub fn send_verification_email(
+    to: &str,
+    username: &str,
+    token: &str
+) -> Result<(), EmailError> {
+    let verify_url = format!(
+        "{}/verify-email?token={}",
+        env::var("FRONTEND_URL")?,
+        token
+    );
+
+    let subject = "Verify your Locus account";
+    let body = format!(
+        "Hi {},\n\n\
+        Please verify your email by clicking:\n{}\n\n\
+        This link expires in 1 hour.\n\n\
+        If you didn't create this account, ignore this email.",
+        username, verify_url
+    );
+
+    send_email(to, subject, &body)
+}
+```
+
+**Flow:**
+1. User registers → Backend generates verification token
+2. Backend inserts token into `email_verifications` table
+3. Backend sends email with verification link
+4. User clicks link → Frontend calls `/api/auth/verify-email/{token}`
+5. Backend validates token, marks email as verified, deletes token
+
+#### Password Reset
+
+```rust
+pub fn send_password_reset_email(
+    to: &str,
+    username: &str,
+    token: &str
+) -> Result<(), EmailError> {
+    let reset_url = format!(
+        "{}/reset-password?token={}",
+        env::var("FRONTEND_URL")?,
+        token
+    );
+
+    let subject = "Reset your Locus password";
+    let body = format!(
+        "Hi {},\n\n\
+        You requested a password reset. Click here to reset:\n{}\n\n\
+        This link expires in 1 hour.\n\n\
+        If you didn't request this, ignore this email.",
+        username, reset_url
+    );
+
+    send_email(to, subject, &body)
+}
+```
+
+**Flow:**
+1. User requests reset → Backend generates reset token
+2. Backend inserts token into `password_resets` table (1h expiry)
+3. Backend sends email with reset link
+4. User clicks link → Frontend shows password reset form
+5. User submits new password → Backend validates token, updates password, deletes token
+
+### Token Management
+
+**Token Generation:**
+```rust
+use rand::Rng;
+
+fn generate_token() -> String {
+    let mut rng = rand::thread_rng();
+    let bytes: Vec<u8> = (0..32).map(|_| rng.gen()).collect();
+    hex::encode(bytes) // 64-character hex string
+}
+```
+
+**Token Storage:**
+```sql
+-- Email verifications
+CREATE TABLE email_verifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  email VARCHAR(255) NOT NULL,
+  token VARCHAR(64) UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Password resets
+CREATE TABLE password_resets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token VARCHAR(64) UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+**Token Validation:**
+```rust
+// Check token exists and not expired (1 hour)
+let verification = sqlx::query_as::<_, EmailVerification>(
+    "SELECT * FROM email_verifications
+     WHERE token = $1 AND created_at > NOW() - INTERVAL '1 hour'"
+)
+.bind(&token)
+.fetch_one(&pool)
+.await?;
+```
+
+### Error Handling
+
+**Email Send Failures:**
+- Log error but don't fail registration (graceful degradation)
+- User can request resend via `/api/auth/resend-verification`
+- Monitor email sending in production logs
+
+**Token Expiry:**
+- Tokens expire after 1 hour
+- User sees clear error message
+- Can request new token via resend endpoint
+
+### Security Considerations
+
+**Token Security:**
+- 256-bit random tokens (64 hex chars)
+- Single-use (deleted after verification/reset)
+- Time-limited (1 hour expiry)
+- HTTPS-only links in production
+
+**Email Validation:**
+- Check email format before sending
+- Prevent email enumeration (same response for valid/invalid)
+- Rate limit resend requests (3 per 15 minutes)
+
+**SMTP Security:**
+- Use TLS (port 587) or SSL (port 465)
+- Store SMTP credentials in environment variables
+- Never log passwords or tokens
+- Use app-specific passwords for Gmail
+
+### Testing Email System
+
+**Local Development (No Real Emails):**
+```rust
+// Mock email sender for development
+#[cfg(debug_assertions)]
+fn send_email(to: &str, subject: &str, body: &str) -> Result<(), EmailError> {
+    println!("=== EMAIL ===");
+    println!("To: {}", to);
+    println!("Subject: {}", subject);
+    println!("Body:\n{}", body);
+    println!("=============");
+    Ok(())
+}
+```
+
+**Production (Real SMTP):**
+```rust
+#[cfg(not(debug_assertions))]
+fn send_email(to: &str, subject: &str, body: &str) -> Result<(), EmailError> {
+    let smtp_host = env::var("SMTP_HOST")?;
+    let smtp_port = env::var("SMTP_PORT")?.parse()?;
+    let username = env::var("SMTP_USERNAME")?;
+    let password = env::var("SMTP_PASSWORD")?;
+
+    // Use lettre crate for actual SMTP
+    // ... implementation
+}
+```
+
+**Testing Checklist:**
+- Verify email received within 1 minute
+- Check link format correct
+- Test token expiry (wait 1 hour)
+- Test resend functionality
+- Verify spam folder if not in inbox
+
+---
+
+## Rate Limiting
+
+### tower-governor Implementation
+
+**File:** `crates/backend/src/main.rs`
+
+Rate limiting protects authentication endpoints from brute-force attacks and abuse.
+
+**Configuration:**
+```rust
+use tower_governor::{
+    governor::GovernorConfigBuilder,
+    key_extractor::SmartIpKeyExtractor,
+    GovernorLayer,
+};
+
+// Registration: 5 requests per 15 minutes
+let register_config = GovernorConfigBuilder::default()
+    .per_second(1)
+    .burst_size(5)
+    .key_extractor(SmartIpKeyExtractor)
+    .finish()
+    .unwrap();
+
+// Login: 10 requests per 15 minutes
+let login_config = GovernorConfigBuilder::default()
+    .per_second(1)
+    .burst_size(10)
+    .key_extractor(SmartIpKeyExtractor)
+    .finish()
+    .unwrap();
+
+// Password reset: 5 requests per 15 minutes
+let reset_config = GovernorConfigBuilder::default()
+    .per_second(1)
+    .burst_size(5)
+    .key_extractor(SmartIpKeyExtractor)
+    .finish()
+    .unwrap();
+```
+
+### Per-Endpoint Limits
+
+**Auth Endpoints:**
+```rust
+Router::new()
+    .route("/api/auth/register", post(register_handler))
+    .layer(GovernorLayer { config: Arc::clone(&register_config) })
+
+    .route("/api/auth/login", post(login_handler))
+    .layer(GovernorLayer { config: Arc::clone(&login_config) })
+
+    .route("/api/auth/request-password-reset", post(request_reset_handler))
+    .layer(GovernorLayer { config: Arc::clone(&reset_config) })
+
+    .route("/api/auth/resend-verification", post(resend_handler))
+    .layer(GovernorLayer { config: Arc::clone(&resend_config) })
+```
+
+**Rate Limit Table:**
+
+| Endpoint | Limit | Window | Purpose |
+|----------|-------|--------|---------|
+| `/api/auth/register` | 5 req | 15 min | Prevent spam accounts |
+| `/api/auth/login` | 10 req | 15 min | Prevent brute-force |
+| `/api/auth/request-password-reset` | 5 req | 15 min | Prevent email bombing |
+| `/api/auth/resend-verification` | 3 req | 15 min | Prevent email spam |
+| `/api/submit` | 60 req | 1 min | Prevent answer farming |
+| `/api/problem` | 100 req | 1 min | Prevent scraping |
+
+### Key Extraction Strategy
+
+**SmartIpKeyExtractor:**
+- Extracts client IP from request
+- Checks `X-Forwarded-For` header (proxy support)
+- Falls back to socket address
+- Handles IPv4 and IPv6
+
+**Considerations:**
+- Users behind NAT share same IP (may hit limits together)
+- VPN users may change IPs (bypass limits)
+- Future: Consider user-based rate limiting for authenticated endpoints
+
+### Response Format
+
+**Rate Limited Response:**
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 900
+X-RateLimit-Limit: 5
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1640995200
+
+{
+  "error": "Too many requests. Please try again in 15 minutes."
+}
+```
+
+**Headers:**
+- `Retry-After`: Seconds until limit resets
+- `X-RateLimit-Limit`: Total requests allowed
+- `X-RateLimit-Remaining`: Requests remaining
+- `X-RateLimit-Reset`: Unix timestamp when limit resets
+
+### Monitoring Rate Limits
+
+**Logging:**
+```rust
+// Log rate limit hits
+tracing::warn!(
+    ip = %ip_addr,
+    endpoint = %req.uri(),
+    "Rate limit exceeded"
+);
+```
+
+**Metrics (Future):**
+- Count of 429 responses per endpoint
+- Distribution of requests per IP
+- Alert on unusual spike in rate limit hits
+
+### Bypassing Limits (Admin/Testing)
+
+**Whitelist IPs (Future):**
+```rust
+const WHITELIST_IPS: &[&str] = &[
+    "127.0.0.1",  // Localhost
+    "10.0.0.1",   // Internal admin
+];
+
+fn is_whitelisted(ip: &IpAddr) -> bool {
+    WHITELIST_IPS.contains(&ip.to_string().as_str())
+}
+```
+
+**Disable in Development:**
+```rust
+#[cfg(debug_assertions)]
+let rate_limit_enabled = false;
+
+#[cfg(not(debug_assertions))]
+let rate_limit_enabled = true;
+
+if rate_limit_enabled {
+    router.layer(GovernorLayer { config });
+}
+```
+
+### Tuning Rate Limits
+
+**Increase Limits:**
+- High-traffic production environment
+- Legitimate users hitting limits
+- After implementing user-based limiting
+
+**Decrease Limits:**
+- Under attack or abuse
+- Resource constraints
+- Suspicious activity patterns
+
+**Per-User Limits (Future):**
+```rust
+// Authenticated users get higher limits
+let user_config = GovernorConfigBuilder::default()
+    .per_second(2)
+    .burst_size(20)
+    .key_extractor(UserIdKeyExtractor)  // Use user_id instead of IP
+    .finish()
+    .unwrap();
+```
+
+### Testing Rate Limiting
+
+**Manual Testing:**
+```bash
+# Exceed login limit (10 requests)
+for i in {1..15}; do
+  curl -X POST http://localhost:3000/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"wrong"}' \
+    -w "\nStatus: %{http_code}\n"
+done
+
+# Should see 429 after 10 requests
+```
+
+**Automated Testing:**
+```rust
+#[tokio::test]
+async fn test_rate_limiting() {
+    let app = create_test_app().await;
+
+    // Send 11 requests (limit is 10)
+    for i in 0..11 {
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/auth/login")
+                    .body(Body::from(r#"{"email":"test@test.com","password":"test"}"#))
+                    .unwrap()
+            )
+            .await
+            .unwrap();
+
+        if i < 10 {
+            assert_ne!(response.status(), StatusCode::TOO_MANY_REQUESTS);
+        } else {
+            assert_eq!(response.status(), StatusCode::TOO_MANY_REQUESTS);
+        }
+    }
+}
+```
+
+---
+
 ## ELO System
 
 ### elo.rs
@@ -1043,13 +1469,17 @@ Future:
 - Parameterized SQL queries
 - CORS configuration
 - UUID primary keys
+- Rate limiting (tower-governor)
+- Email verification
+- Password reset tokens (1h expiry)
 
 **Future:**
-- Rate limiting
-- Input validation
+- Enhanced input validation
 - CSRF protection
 - HTTPS enforcement
-- Security headers
+- Security headers (CSP, HSTS)
+- SQL injection prevention audit
+- XSS protection audit
 
 ---
 
@@ -1091,7 +1521,9 @@ CMD ["locus-backend"]
 
 - **WebSocket Support** - Real-time features
 - **Redis Caching** - Performance optimization
-- **Rate Limiting** - DDoS protection
 - **Admin Panel** - Problem management
 - **Analytics** - User behavior tracking
-- **Notifications** - Email/push notifications
+- **Push Notifications** - Real-time alerts
+- **User-based Rate Limiting** - More granular control
+- **Email Templates** - HTML emails with styling
+- **2FA/MFA** - Multi-factor authentication

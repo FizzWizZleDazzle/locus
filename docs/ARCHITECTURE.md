@@ -116,19 +116,12 @@ This document describes the high-level architecture of the Locus platform.
 - Problem bank storage
 - Attempt history tracking
 - Leaderboard queries
+- OAuth account linking
+- Email verification
 
-**Key Features:**
-- UUID primary keys for security
-- Per-topic ELO in separate table
-- PostgreSQL functions for ELO management
-- Indexes on frequently queried columns
-- Migrations for schema versioning
+PostgreSQL 16 with 7 core tables: users, user_topic_elo, problems, attempts, oauth_accounts, email_verifications, password_resets.
 
-**Tables:**
-- `users` - User accounts
-- `user_topic_elo` - Per-topic ratings (8 topics)
-- `problems` - Problem bank with metadata
-- `attempts` - User submission history
+See [Database Schema](DATABASE.md) for complete table definitions, indexes, and migrations.
 
 ### Common Crate
 
@@ -220,49 +213,13 @@ All subsequent requests include: Authorization: Bearer {token}
 
 ## ELO System Architecture
 
-### Per-Topic Ratings
+Each user maintains separate ELO ratings for 8 math topics (Arithmetic, Algebra 1, Geometry, Algebra 2, Precalculus, Calculus, Multivariable Calculus, Linear Algebra).
 
-Each user has 8 separate ELO ratings (one per topic):
-- Arithmetic
-- Algebra 1
-- Geometry
-- Algebra 2
-- Precalculus
-- Calculus
-- Multivariable Calculus
-- Linear Algebra
-
-### Rating Storage
-
-**Table: `user_topic_elo`**
-```sql
-(user_id, topic) PRIMARY KEY
-elo INTEGER DEFAULT 1500
-updated_at TIMESTAMPTZ
-```
-
-**PostgreSQL Functions:**
-```sql
-get_user_elo(user_id UUID, topic TEXT) RETURNS INTEGER
-  -- Returns ELO for topic, creates with 1500 if not exists
-
-update_user_elo(user_id UUID, topic TEXT, new_elo INTEGER) RETURNS VOID
-  -- Updates ELO for topic, creates if not exists
-```
-
-### ELO Calculation
-
-```rust
-// Expected score
-E = 1 / (1 + 10^((opponent_elo - player_elo) / 400))
-
-// New rating
-new_elo = old_elo + K * (actual_score - expected_score)
-
-// K-factor: 32 (standard for online games)
-// actual_score: 1.0 (correct) or 0.0 (incorrect)
-// opponent_elo: problem.difficulty
-```
+- **Calculation:** See [ELO Implementation](BACKEND.md#elo-system) for formulas and algorithm
+- **Storage:** See [user_topic_elo table](DATABASE.md#user_topic_elo) for schema and PostgreSQL functions
+- **K-factor:** 32 (per topic)
+- **Time bonus:** 1.0x-1.5x multiplier for fast solves (no penalties)
+- **opponent_elo:** Uses problem.difficulty for calculation
 
 ## Grading Architecture
 
@@ -291,40 +248,24 @@ new_elo = old_elo + K * (actual_score - expected_score)
 
 ## Security Architecture
 
-### Authentication
+- **Authentication:** JWT tokens (HS256, 24h expiry) + Argon2id password hashing
+  - See [Authentication Guide](AUTHENTICATION.md) for complete flows
+  - See [JWT Implementation](BACKEND.md#authentication) for code details
 
-**JWT Tokens:**
-- Signed with HS256
-- Contains: user_id, username, exp
-- Stored in localStorage (frontend)
-- Sent in Authorization header
-- Expires after 24 hours (configurable)
+- **OAuth:** Google and GitHub providers with account linking
+  - See [OAuth Flows](AUTHENTICATION.md#oauth-flows) for diagrams
 
-**Password Security:**
-- Hashed with Argon2id
-- Salt automatically generated
-- Never stored or transmitted in plaintext
+- **Email Verification:** Required for new accounts (1h token expiry)
+  - See [Email Verification](AUTHENTICATION.md#email-verification) for flow
 
-### Authorization
+- **Password Reset:** Secure token-based reset with 1h expiry
+  - See [Password Reset](AUTHENTICATION.md#password-reset) for flow
 
-**Protected Routes:**
-- `/api/submit` - Requires valid JWT
-- `/api/user/me` - Requires valid JWT
-- Ranked mode problems - Requires JWT to hide answer
+- **Rate Limiting:** Per-endpoint limits via tower-governor
+  - Auth: 5 req/15min (register), 10 req/15min (login)
+  - See [Rate Limiting](BACKEND.md#rate-limiting) for configuration
 
-**Public Routes:**
-- `/api/auth/register`
-- `/api/auth/login`
-- `/api/problem` (practice mode)
-- `/api/leaderboard`
-
-### CORS
-
-**Configuration:**
-- Frontend dev server: http://localhost:8080
-- Backend API: http://localhost:3000
-- CORS enabled for cross-origin requests in development
-- Production should use same origin or proper CORS config
+- **CORS:** Configured per environment (dev: localhost:8080, prod: same-origin)
 
 ## Scalability Considerations
 
