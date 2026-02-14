@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     auth::{create_token, AuthUser},
-    models::{User, EmailVerificationToken},
+    models::{User, EmailVerificationToken, PasswordResetToken},
     AppError,
 };
 
@@ -247,5 +247,153 @@ pub async fn resend_verification(
     Ok(Json(ResendVerificationResponse {
         success: true,
         message: "Verification email sent! Check your inbox.".to_string(),
+    }))
+}
+
+#[derive(Deserialize)]
+pub struct ForgotPasswordRequest {
+    pub email: String,
+}
+
+#[derive(Serialize)]
+pub struct ForgotPasswordResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Request password reset (sends email)
+pub async fn forgot_password(
+    State(state): State<AppState>,
+    Json(req): Json<ForgotPasswordRequest>,
+) -> Result<Json<ForgotPasswordResponse>, AppError> {
+    // SECURITY: Always return success to prevent email enumeration
+    let generic_response = Json(ForgotPasswordResponse {
+        success: true,
+        message: "If this email is registered, you will receive a password reset link.".to_string(),
+    });
+
+    // Validate email format
+    if validation::validate_email(&req.email).is_err() {
+        return Ok(generic_response);
+    }
+
+    // Find user by email (silently fail if not found)
+    let user = match User::find_by_email(&state.pool, &req.email).await? {
+        Some(user) => user,
+        None => return Ok(generic_response),
+    };
+
+    // Check rate limit (1 email per minute)
+    if !PasswordResetToken::can_send_email(&state.pool, user.id).await? {
+        return Err(AppError::BadRequest("Please wait 1 minute before requesting another reset link".into()));
+    }
+
+    // Generate reset token (30-minute expiry)
+    let reset_token = PasswordResetToken::create(&state.pool, user.id).await?;
+
+    // Send reset email
+    state.email_service
+        .send_password_reset_email(&user.email, &user.username, &reset_token.token)
+        .await?;
+
+    // Record send time
+    PasswordResetToken::record_send(&state.pool, user.id).await?;
+
+    Ok(generic_response)
+}
+
+#[derive(Deserialize)]
+pub struct ValidateResetTokenRequest {
+    pub token: String,
+}
+
+#[derive(Serialize)]
+pub struct ValidateResetTokenResponse {
+    pub valid: bool,
+    pub message: Option<String>,
+}
+
+/// Validate password reset token
+pub async fn validate_reset_token(
+    State(state): State<AppState>,
+    Json(req): Json<ValidateResetTokenRequest>,
+) -> Result<Json<ValidateResetTokenResponse>, AppError> {
+    // Find token
+    let token = PasswordResetToken::find_by_token(&state.pool, &req.token).await?;
+
+    let response = match token {
+        Some(token) if token.is_valid() => ValidateResetTokenResponse {
+            valid: true,
+            message: None,
+        },
+        Some(token) if token.used_at.is_some() => ValidateResetTokenResponse {
+            valid: false,
+            message: Some("This reset link has already been used".to_string()),
+        },
+        Some(_) => ValidateResetTokenResponse {
+            valid: false,
+            message: Some("This reset link has expired".to_string()),
+        },
+        None => ValidateResetTokenResponse {
+            valid: false,
+            message: Some("Invalid reset link".to_string()),
+        },
+    };
+
+    Ok(Json(response))
+}
+
+#[derive(Deserialize)]
+pub struct ResetPasswordRequest {
+    pub token: String,
+    pub new_password: String,
+}
+
+#[derive(Serialize)]
+pub struct ResetPasswordResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Reset password with token
+pub async fn reset_password(
+    State(state): State<AppState>,
+    Json(req): Json<ResetPasswordRequest>,
+) -> Result<Json<ResetPasswordResponse>, AppError> {
+    // Validate password complexity
+    validation::validate_password(&req.new_password)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    // Find token
+    let token = PasswordResetToken::find_by_token(&state.pool, &req.token)
+        .await?
+        .ok_or_else(|| AppError::BadRequest("Invalid reset token".into()))?;
+
+    // Check if token is valid
+    if !token.is_valid() {
+        if token.used_at.is_some() {
+            return Err(AppError::BadRequest("This reset link has already been used".into()));
+        } else {
+            return Err(AppError::BadRequest("This reset link has expired. Request a new one.".into()));
+        }
+    }
+
+    // Hash new password
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_hash = argon2
+        .hash_password(req.new_password.as_bytes(), &salt)
+        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
+        .to_string();
+
+    // Update user's password
+    User::set_password_hash(&state.pool, token.user_id, &password_hash).await?;
+
+    // Mark token as used
+    token.mark_used(&state.pool).await?;
+
+    Ok(Json(ResetPasswordResponse {
+        success: true,
+        message: "Password reset successful! You can now log in with your new password.".to_string(),
     }))
 }

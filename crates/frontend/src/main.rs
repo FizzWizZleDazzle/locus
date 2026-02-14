@@ -136,7 +136,7 @@ use leptos_router::{
     path,
 };
 
-use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail};
+use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail, ForgotPassword, ResetPassword};
 use components::{Navbar, Sidebar};
 
 fn main() {
@@ -179,14 +179,22 @@ fn App() -> impl IntoView {
                         <Route path=path!("/login") view=Login />
                         <Route path=path!("/register") view=Register />
                         <Route path=path!("/verify-email") view=VerifyEmail />
+                        <Route path=path!("/forgot-password") view=ForgotPassword />
+                        <Route path=path!("/reset-password") view=ResetPassword />
                         <Route path=path!("/settings") view=Settings />
                     </Routes>
                 </main>
                 <footer class=move || format!(
-                    "py-6 text-center text-xs text-gray-400 border-t transition-all duration-300 {}",
+                    "py-4 px-6 text-xs text-gray-400 border-t transition-all duration-300 flex justify-end {}",
                     if auth.is_logged_in.get() { "ml-16" } else { "" }
                 )>
-                    "Locus"
+                    <span>
+                        {if cfg!(debug_assertions) {
+                            format!("Locus - {} - {}", env!("CARGO_PKG_VERSION"), env!("BUILD_TIMESTAMP"))
+                        } else {
+                            format!("Locus - {}", env!("CARGO_PKG_VERSION"))
+                        }}
+                    </span>
                 </footer>
             </div>
         </Router>

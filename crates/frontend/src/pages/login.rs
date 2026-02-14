@@ -152,7 +152,10 @@ pub fn Login() -> impl IntoView {
                 </div>
 
                 <div>
-                    <label class="block text-sm text-gray-600 mb-1">"Password"</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-sm text-gray-600">"Password"</label>
+                        <A href="/forgot-password" attr:class="text-xs text-gray-500 hover:text-gray-700">"Forgot?"</A>
+                    </div>
                     <input
                         type="password"
                         class="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-900 focus:outline-none"

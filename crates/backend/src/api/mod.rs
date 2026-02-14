@@ -75,6 +75,9 @@ pub fn router() -> Router<AppState> {
         .route("/auth/set-password", post(auth::set_password))
         .route("/auth/verify-email", post(auth::verify_email))
         .route("/auth/resend-verification", post(auth::resend_verification))
+        .route("/auth/forgot-password", post(auth::forgot_password))
+        .route("/auth/validate-reset-token", post(auth::validate_reset_token))
+        .route("/auth/reset-password", post(auth::reset_password))
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
         .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))

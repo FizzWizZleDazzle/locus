@@ -109,6 +109,46 @@ pub struct ResendVerificationResponse {
     pub message: String,
 }
 
+/// Forgot password request
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ForgotPasswordRequest {
+    pub email: String,
+}
+
+/// Forgot password response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ForgotPasswordResponse {
+    pub success: bool,
+    pub message: String,
+}
+
+/// Validate reset token request
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidateResetTokenRequest {
+    pub token: String,
+}
+
+/// Validate reset token response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidateResetTokenResponse {
+    pub valid: bool,
+    pub message: Option<String>,
+}
+
+/// Reset password request
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResetPasswordRequest {
+    pub token: String,
+    pub new_password: String,
+}
+
+/// Reset password response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResetPasswordResponse {
+    pub success: bool,
+    pub message: String,
+}
+
 impl std::fmt::Display for RequestError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.message)
@@ -201,6 +241,31 @@ pub async fn resend_verification(email: &str) -> Result<ResendVerificationRespon
     };
 
     post_request("/auth/resend-verification", &req).await
+}
+
+pub async fn forgot_password(email: &str) -> Result<ForgotPasswordResponse, RequestError> {
+    let req = ForgotPasswordRequest {
+        email: email.to_string(),
+    };
+
+    post_request("/auth/forgot-password", &req).await
+}
+
+pub async fn validate_reset_token(token: &str) -> Result<ValidateResetTokenResponse, RequestError> {
+    let req = ValidateResetTokenRequest {
+        token: token.to_string(),
+    };
+
+    post_request("/auth/validate-reset-token", &req).await
+}
+
+pub async fn reset_password(token: &str, new_password: &str) -> Result<ResetPasswordResponse, RequestError> {
+    let req = ResetPasswordRequest {
+        token: token.to_string(),
+        new_password: new_password.to_string(),
+    };
+
+    post_request("/auth/reset-password", &req).await
 }
 
 pub async fn login(email: &str, password: &str) -> Result<AuthResponse, RequestError> {
