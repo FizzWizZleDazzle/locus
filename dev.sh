@@ -36,6 +36,7 @@ check_deps() {
     command -v cargo >/dev/null || missing+=("cargo")
     command -v docker >/dev/null || missing+=("docker")
     command -v trunk >/dev/null || missing+=("trunk (cargo install trunk)")
+    command -v cargo-watch >/dev/null || missing+=("cargo-watch (cargo install cargo-watch)")
 
     if [ ${#missing[@]} -ne 0 ]; then
         log_error "Missing dependencies: ${missing[*]}"
@@ -128,10 +129,10 @@ start_db() {
     fi
 }
 
-# Build and run backend
+# Build and run backend (with hot reload)
 start_backend() {
-    log_info "Starting backend on http://localhost:3000"
-    cargo run -p locus-backend &
+    log_info "Starting backend on http://localhost:3000 (hot reload)"
+    cargo watch -w crates/backend/src -w crates/common/src -x 'run -p locus-backend' &
     BACKEND_PID=$!
     sleep 2
 }

@@ -27,8 +27,8 @@ RUN git clone https://github.com/symengine/symengine.git /tmp/symengine && \
     make install && \
     cd / && rm -rf /tmp/symengine
 
-# Install trunk for frontend dev server
-RUN cargo install trunk
+# Install trunk (frontend dev server) and cargo-watch (backend hot reload)
+RUN cargo install trunk cargo-watch
 
 # Add WASM target for frontend compilation
 RUN rustup target add wasm32-unknown-unknown
