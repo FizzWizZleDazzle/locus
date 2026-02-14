@@ -2,13 +2,22 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
+use leptos_router::hooks::use_query_map;
 use locus_common::{LeaderboardEntry, MainTopic};
 
-use crate::api;
+use crate::{api, utils::update_url};
 
 #[component]
 pub fn Leaderboard() -> impl IntoView {
-    let (selected_topic, set_selected_topic) = signal("calculus".to_string());
+    let query = use_query_map();
+
+    // Initialize topic from URL or default to calculus
+    let initial_topic = query.read()
+        .get("topic")
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| "calculus".to_string());
+
+    let (selected_topic, set_selected_topic) = signal(initial_topic);
     let (entries, set_entries) = signal(Vec::<LeaderboardEntry>::new());
     let (loading, set_loading) = signal(false);
     let (error, set_error) = signal(None::<String>);
@@ -47,7 +56,11 @@ pub fn Leaderboard() -> impl IntoView {
                 <select
                     class="text-sm border border-gray-300 rounded px-3 py-1.5"
                     on:change=move |ev| {
-                        set_selected_topic.set(event_target_value(&ev));
+                        let new_topic = event_target_value(&ev);
+                        set_selected_topic.set(new_topic.clone());
+
+                        // Update URL so users can copy and share it
+                        update_url(&format!("/leaderboard?topic={}", new_topic));
                     }
                     prop:value=selected_topic
                 >

@@ -9,9 +9,23 @@ use crate::api::{self, Topic};
 pub fn TopicSelector(
     /// Callback when user confirms selection
     on_confirm: Callback<(String, Vec<String>)>,
+    /// Optional callback when topic changes
+    #[prop(optional)]
+    on_topic_change: Option<Callback<String>>,
+    /// Optional callback when subtopics change
+    #[prop(optional)]
+    on_subtopics_change: Option<Callback<Vec<String>>>,
+    /// Optional initial topic to pre-select
+    #[prop(into, default = None)]
+    initial_topic: Option<String>,
+    /// Optional initial subtopics to pre-select
+    #[prop(into, default = Vec::new())]
+    initial_subtopics: Vec<String>,
 ) -> impl IntoView {
-    let (selected_topic_id, set_selected_topic_id) = signal(None::<String>);
-    let (selected_subtopics, set_selected_subtopics) = signal(HashSet::<String>::new());
+    let (selected_topic_id, set_selected_topic_id) = signal(initial_topic);
+    let (selected_subtopics, set_selected_subtopics) = signal::<HashSet<String>>(
+        initial_subtopics.into_iter().collect()
+    );
 
     // Fetch topics from API
     let (topics, set_topics) = signal(None::<Vec<Topic>>);
@@ -42,6 +56,12 @@ pub fn TopicSelector(
                 set.insert(subtopic);
             }
         });
+
+        // Notify parent of subtopic change
+        if let Some(callback) = on_subtopics_change {
+            let subtopics: Vec<String> = selected_subtopics.get().into_iter().collect();
+            callback.run(subtopics);
+        }
     };
 
     let confirm = move || {
@@ -88,6 +108,15 @@ pub fn TopicSelector(
                                             on:click=move |_| {
                                                 set_selected_topic_id.set(Some(topic_id.clone()));
                                                 set_selected_subtopics.set(HashSet::new());
+
+                                                // Notify parent of topic change
+                                                if let Some(callback) = on_topic_change {
+                                                    callback.run(topic_id.clone());
+                                                }
+                                                // Notify parent that subtopics were cleared
+                                                if let Some(callback) = on_subtopics_change {
+                                                    callback.run(Vec::new());
+                                                }
                                             }
                                         >
                                             {display_name}
@@ -107,7 +136,6 @@ pub fn TopicSelector(
                                                 </h3>
                                                 <div class="space-y-1">
                                                     {topic.subtopics.iter().map(|subtopic| {
-                                                        let st_id = subtopic.id.clone();
                                                         let st_id_check = subtopic.id.clone();
                                                         let st_id_toggle = subtopic.id.clone();
                                                         let st_display = subtopic.display_name.clone();

@@ -2,17 +2,21 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use locus_common::ProblemResponse;
+use leptos_router::hooks::use_query_map;
+use locus_common::{MainTopic, ProblemResponse};
 
 use crate::{
     api,
     components::{ProblemInterface, TopicSelector},
     grader::{check_answer, preprocess_input, GradeResult},
     katex_bindings::render_plain_math_to_string,
+    utils::{update_url, push_url_playing, setup_popstate_listener},
 };
 
 #[component]
 pub fn Practice() -> impl IntoView {
+    let query = use_query_map();
+
     // Topic selection state
     let (selected_topic, set_selected_topic) = signal(None::<String>);
     let (selected_subtopics, set_selected_subtopics) = signal(Vec::<String>::new());
@@ -55,21 +59,102 @@ pub fn Practice() -> impl IntoView {
         });
     };
 
+    let on_topic_change = Callback::new(move |topic: String| {
+        set_selected_topic.set(Some(topic.clone()));
+        set_selected_subtopics.set(Vec::new());
+
+        // Update URL immediately when topic is selected
+        update_url(&format!("/practice?topic={}", topic));
+    });
+
+    let on_subtopics_change = Callback::new(move |subtopics: Vec<String>| {
+        set_selected_subtopics.set(subtopics.clone());
+
+        // Update URL immediately when subtopics change
+        if let Some(topic) = selected_topic.get() {
+            let url = if subtopics.is_empty() {
+                format!("/practice?topic={}", topic)
+            } else {
+                let subtopic_str = subtopics.join(",");
+                format!("/practice?topic={}&subtopics={}", topic, subtopic_str)
+            };
+            update_url(&url);
+        }
+    });
+
     let on_topic_confirm = Callback::new(move |(topic, subtopics): (String, Vec<String>)| {
-        set_selected_topic.set(Some(topic));
-        set_selected_subtopics.set(subtopics);
+        set_selected_topic.set(Some(topic.clone()));
+        set_selected_subtopics.set(subtopics.clone());
+
+        // Create a history entry with 'playing' state so back button can return to topic selector
+        let url = if subtopics.is_empty() {
+            format!("/practice?topic={}", topic)
+        } else {
+            let subtopic_str = subtopics.join(",");
+            format!("/practice?topic={}&subtopics={}", topic, subtopic_str)
+        };
+        push_url_playing(&url);
+
         load_problem();
     });
 
-    let check = move || {
-        if let Some(p) = problem.get() {
-            let user_input = preprocess_input(&answer.get());
-            if let Some(answer_key) = &p.answer_key {
-                let grade = check_answer(&user_input, answer_key, p.grading_mode);
-                set_result.set(Some(grade));
+    // Parse URL params on mount to get initial values
+    let (initial_topic, set_initial_topic) = signal(None::<String>);
+    let (initial_subtopics, set_initial_subtopics) = signal(None::<Vec<String>>);
+
+    // Watch for URL changes (including browser back/forward)
+    Effect::new(move |_| {
+        let topic_param = query.read().get("topic");
+        let subtopics_param = query.read().get("subtopics");
+
+        if let Some(topic_val) = topic_param {
+            if !topic_val.is_empty() {
+                // Validate topic exists - silently ignore if invalid
+                let main_topic = match MainTopic::from_str(&topic_val) {
+                    Some(t) => t,
+                    None => return, // Invalid topic, ignore params
+                };
+
+                // Parse subtopics from comma-separated string
+                let subtopics = if let Some(st) = subtopics_param {
+                    st.split(',')
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<String>>()
+                } else {
+                    Vec::new()
+                };
+
+                // Validate subtopics belong to topic - filter out invalid ones
+                let valid_subtopic_list = main_topic.subtopics();
+                let filtered_subtopics: Vec<String> = subtopics.into_iter()
+                    .filter(|st| valid_subtopic_list.contains(&st.as_str()))
+                    .collect();
+
+                // Set initial values for TopicSelector
+                set_initial_topic.set(Some(topic_val.clone()));
+                set_initial_subtopics.set(Some(filtered_subtopics.clone()));
+
+                // Also set parent state so callbacks work correctly
+                set_selected_topic.set(Some(topic_val));
+                set_selected_subtopics.set(filtered_subtopics);
             }
+        } else {
+            // No topic in URL - clear everything to show topic selector
+            set_initial_topic.set(None);
+            set_initial_subtopics.set(None);
+            set_selected_topic.set(None);
+            set_selected_subtopics.set(Vec::new());
+            set_problem.set(None);
         }
-    };
+    });
+
+    // Listen for popstate events (back/forward navigation)
+    Effect::new(move |_| {
+        setup_popstate_listener(move || {
+            set_problem.set(None);
+        });
+    });
 
     // Copy signals for use in closures
     let problem_for_check = problem;
@@ -96,7 +181,7 @@ pub fn Practice() -> impl IntoView {
         <div class="max-w-2xl mx-auto px-4 py-8">
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-semibold">"Practice"</h1>
-                {move || selected_topic.get().is_some().then(|| view! {
+                {move || problem.get().is_some().then(|| view! {
                     <button
                         class="text-sm text-gray-500 hover:text-gray-900"
                         on:click=move |_| reset_selection()
@@ -110,15 +195,21 @@ pub fn Practice() -> impl IntoView {
                 <div class="text-red-600 text-sm mb-4">{e}</div>
             })}
 
-            // Show topic selector if no topic selected
-            {move || selected_topic.get().is_none().then(|| view! {
+            // Show topic selector if no problem loaded
+            {move || problem.get().is_none().then(|| view! {
                 <div class="border border-gray-200 rounded p-6">
-                    <TopicSelector on_confirm=on_topic_confirm />
+                    <TopicSelector
+                        on_confirm=on_topic_confirm
+                        on_topic_change=on_topic_change
+                        on_subtopics_change=on_subtopics_change
+                        initial_topic=initial_topic.get()
+                        initial_subtopics=initial_subtopics.get().unwrap_or_default()
+                    />
                 </div>
             })}
 
-            // Show problem once topic is selected
-            {move || selected_topic.get().is_some().then(|| view! {
+            // Show problem once loaded
+            {move || problem.get().is_some().then(|| view! {
                 <div class="space-y-6">
                     {move || loading.get().then(|| view! {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
