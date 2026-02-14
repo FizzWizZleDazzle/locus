@@ -1,6 +1,7 @@
 //! Locus Frontend - Competitive Math Platform
 
 mod api;
+mod env;
 mod grader;
 mod oauth;
 mod pages;

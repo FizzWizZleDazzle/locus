@@ -1,0 +1,98 @@
+#!/bin/bash
+# Pre-commit hook to prevent hardcoded production URLs and sensitive information
+
+# ANSI color codes
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Running pre-commit checks...${NC}"
+
+# Check for hardcoded production URLs in Rust files
+# Exclude: comments, env.rs (which has intentional fallbacks)
+FORBIDDEN_PATTERNS=(
+    'https://api\.locusmath\.org'
+    'https://locusmath\.org'
+)
+
+# Patterns for sensitive information
+SENSITIVE_PATTERNS=(
+    'password\s*=\s*["\047][^"\047]{8,}'  # password = "..."
+    'api[_-]?key\s*=\s*["\047][^"\047]{16,}'  # api_key = "..."
+    'secret\s*=\s*["\047][^"\047]{16,}'  # secret = "..."
+    'token\s*=\s*["\047][^"\047]{20,}'  # token = "..."
+    'private[_-]?key\s*=\s*["\047]'  # private_key = "..."
+    'AKIA[0-9A-Z]{16}'  # AWS access key
+    'AIza[0-9A-Za-z_-]{35}'  # Google API key
+    'sk_live_[0-9a-zA-Z]{24,}'  # Stripe live key
+    'ghp_[0-9a-zA-Z]{36}'  # GitHub personal access token
+)
+
+FOUND_ISSUES=0
+
+for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+    # Search staged .rs files (excluding env.rs, build.rs, and comments)
+    MATCHES=$(git diff --cached --name-only --diff-filter=ACM | \
+        grep '\.rs$' | \
+        grep -v 'env\.rs$' | \
+        grep -v 'build\.rs$' | \
+        xargs -I {} sh -c "grep -n '$pattern' {} 2>/dev/null | grep -v '^\s*//' || true")
+
+    if [ -n "$MATCHES" ]; then
+        FOUND_ISSUES=1
+        echo -e "${RED}ERROR: Found hardcoded production URL pattern: $pattern${NC}"
+        echo "$MATCHES"
+        echo ""
+    fi
+done
+
+# Check for sensitive information in all files
+echo ""
+echo -e "${BLUE}Checking for sensitive information...${NC}"
+
+for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+    # Search all staged files (excluding .env.example which has dummy values)
+    MATCHES=$(git diff --cached --name-only --diff-filter=ACM | \
+        grep -v '\.env\.example$' | \
+        grep -v '\.githooks/' | \
+        xargs -I {} sh -c "grep -niE '$pattern' {} 2>/dev/null || true")
+
+    if [ -n "$MATCHES" ]; then
+        FOUND_ISSUES=1
+        echo -e "${RED}WARNING: Potential sensitive information detected:${NC}"
+        echo "$MATCHES" | head -10  # Limit output to first 10 matches
+        echo ""
+    fi
+done
+
+if [ $FOUND_ISSUES -eq 1 ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}COMMIT BLOCKED: Security issues detected${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Environment Configuration Rules:${NC}"
+    echo ""
+    echo "  WRONG: format!(\"https://api.locusmath.org/api/auth/{}\", path)"
+    echo "  RIGHT: format!(\"{}/auth/{}\", crate::env::api_base(), path)"
+    echo ""
+    echo "  Frontend API calls should use:"
+    echo "    - crate::env::api_base()       for API URLs"
+    echo "    - crate::env::frontend_base()  for frontend URLs"
+    echo ""
+    echo -e "${YELLOW}Security Guidelines:${NC}"
+    echo ""
+    echo "  - Never commit passwords, API keys, tokens, or secrets"
+    echo "  - Use .env files for local development (already gitignored)"
+    echo "  - Use environment variables in production"
+    echo "  - Store sensitive config in .env.example as placeholder values only"
+    echo ""
+    echo "  See CONTRIBUTING.md for full guidelines."
+    echo ""
+    exit 1
+fi
+
+echo -e "${BLUE}[PASS] No hardcoded production URLs found${NC}"
+echo -e "${BLUE}[PASS] No sensitive information detected${NC}"
+echo ""
+exit 0

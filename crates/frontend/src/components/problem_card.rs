@@ -10,7 +10,10 @@ pub fn ProblemCard(
     problem: ProblemResponse,
     #[prop(default = None)]
     show_answer: Option<String>,
+    #[prop(optional)]
+    key: Option<String>,
 ) -> impl IntoView {
+    let _ = key; // Suppress unused warning - key is used by Leptos for identity
     view! {
         <div class="border p-6">
             <div class="flex justify-between text-sm text-gray-500 mb-4">
@@ -19,7 +22,10 @@ pub fn ProblemCard(
             </div>
 
             <div class="text-xl text-center py-4">
-                <span>{problem.question_latex.clone()}</span>
+                <LatexRenderer
+                    content=problem.question_latex.clone()
+                    render_key=key.clone().unwrap_or_else(|| problem.id.to_string())
+                />
             </div>
 
             {show_answer.map(|answer| {

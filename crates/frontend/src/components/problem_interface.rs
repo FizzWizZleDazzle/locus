@@ -36,10 +36,12 @@ where
         <Show when=move || problem.get().is_some()>
             {move || problem.get().map(|p| {
                 let problem_id = p.id.to_string();
+                let problem_id_clone = problem_id.clone();
                 view! {
                     <div class="space-y-6">
-                        // Problem card
-                        <ProblemCard problem=p.clone() />
+                        // Problem card with key for forced remounting
+                        // CRITICAL: key={problem.id} ensures complete destruction/recreation
+                        <ProblemCard key=problem_id_clone problem=p.clone() />
 
                         // Answer input with forced remounting via key
                         // CRITICAL: key={problem.id} ensures complete destruction/recreation

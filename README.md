@@ -61,6 +61,8 @@ trunk serve
 
 ### Environment Variables
 
+#### Backend (Runtime)
+
 Copy `.env.example` to `.env` and adjust as needed:
 
 ```bash
@@ -71,6 +73,30 @@ Key variables:
 - `DATABASE_URL`: PostgreSQL connection string
 - `JWT_SECRET`: Secret for JWT token signing (change in production!)
 - `PORT`: Backend server port (default: 3000)
+- `SMTP_*`: Email configuration (Resend, SendGrid, etc.)
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: OAuth credentials (optional)
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`: OAuth credentials (optional)
+
+#### Frontend (Build-time)
+
+The frontend uses compile-time environment variables that are baked into the WASM binary:
+
+- `LOCUS_API_URL`: API base URL (e.g., `http://localhost:3000/api` for dev)
+- `LOCUS_FRONTEND_URL`: Frontend base URL (e.g., `http://localhost:8080` for dev)
+- `LOCUS_ENV`: Environment name (e.g., `development` or `production`)
+
+**Development**: These are automatically set by `./dev.sh`
+
+**Production**: Set before building:
+```bash
+export LOCUS_API_URL=https://api.locusmath.org/api
+export LOCUS_FRONTEND_URL=https://locusmath.org
+export LOCUS_ENV=production
+cd crates/frontend
+trunk build --release
+```
+
+**Important**: Never hardcode production URLs in code. Always use `crate::env::api_base()` and `crate::env::frontend_base()`. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Project Structure
 

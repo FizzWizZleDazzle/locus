@@ -60,6 +60,49 @@ ensure_env() {
     fi
 }
 
+# Print development environment configuration
+print_config() {
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Development Environment Configuration${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "  Frontend URL:    http://localhost:8080"
+    echo "  Backend URL:     http://localhost:3000"
+    echo "  Database:        localhost:5432"
+    echo "  API Base:        http://localhost:3000/api (LOCUS_API_URL)"
+    echo "  Frontend Base:   http://localhost:8080 (LOCUS_FRONTEND_URL)"
+    echo ""
+
+    # Check for default/insecure secrets
+    if [ -f .env ]; then
+        if grep -q "JWT_SECRET=your-secret-key-here" .env 2>/dev/null; then
+            log_warn "Using default JWT_SECRET from .env.example"
+            log_warn "Generate a secure secret for production!"
+        fi
+    fi
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+}
+
+# Validate development environment
+validate_env() {
+    local issues=0
+
+    # Check if .env exists
+    if [ ! -f .env ]; then
+        log_error ".env file not found!"
+        issues=$((issues + 1))
+    fi
+
+    # Check if database is accessible
+    if ! docker ps --format '{{.Names}}' | grep -q "^locus-db$"; then
+        log_warn "Database container not running (will be started)"
+    fi
+
+    return $issues
+}
+
 # Start PostgreSQL
 start_db() {
     log_info "Starting PostgreSQL..."
@@ -97,8 +140,10 @@ start_backend() {
 start_frontend() {
     log_info "Starting frontend on http://localhost:8080"
     cd crates/frontend
-    # Set API URL to backend
+    # Set environment variables for development
     export LOCUS_API_URL=http://localhost:3000/api
+    export LOCUS_FRONTEND_URL=http://localhost:8080
+    export LOCUS_ENV=development
     # Pass wasm-bindgen flags to disable reference types (fixes "env" module errors)
     trunk serve &
     FRONTEND_PID=$!
@@ -115,15 +160,14 @@ main() {
 
     check_deps
     ensure_env
+    validate_env || exit 1
+    print_config
     start_db
     start_backend
     start_frontend
 
     echo ""
-    log_success "Development servers running:"
-    echo "  Frontend: http://localhost:8080"
-    echo "  Backend:  http://localhost:3000"
-    echo "  Database: localhost:5432"
+    log_success "Development servers running!"
     echo ""
     log_info "Press Ctrl+C to stop all servers"
     echo ""

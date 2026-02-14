@@ -4,15 +4,13 @@ use locus_common::AuthResponse;
 use wasm_bindgen::prelude::*;
 use web_sys::Window;
 
-// API base URL - must match api.rs
-const API_BASE: &str = match option_env!("LOCUS_API_URL") {
-    Some(url) => url,
-    None => "https://api.locusmath.org/api",
-};
+// Import centralized environment configuration
+// CRITICAL: Never hardcode production URLs - always use crate::env functions
+use crate::env;
 
 /// Open an OAuth popup and listen for the result via postMessage
 ///
-/// `url` should be the full OAuth URL (e.g., "https://api.locusmath.org/api/auth/oauth/google")
+/// `url` should be the full OAuth URL (e.g., "{API_BASE}/auth/oauth/google")
 pub fn open_oauth_popup(
     url: &str,
     on_success: impl Fn(AuthResponse) + 'static,
@@ -81,7 +79,7 @@ pub fn open_oauth_login_popup(
     on_success: impl Fn(AuthResponse) + 'static,
     on_error: impl Fn(String) + 'static,
 ) {
-    let url = format!("{}/auth/oauth/{}", API_BASE, provider);
+    let url = format!("{}/auth/oauth/{}", env::api_base(), provider);
     open_oauth_popup(&url, on_success, on_error);
 }
 
@@ -105,6 +103,6 @@ pub fn open_oauth_link_popup(
 
     // URL encode the token using JavaScript's encodeURIComponent
     let encoded_token = js_sys::encode_uri_component(&token);
-    let url = format!("{}/auth/oauth/link/{}?token={}", API_BASE, provider, encoded_token);
+    let url = format!("{}/auth/oauth/link/{}?token={}", env::api_base(), provider, encoded_token);
     open_oauth_popup(&url, on_success, on_error);
 }

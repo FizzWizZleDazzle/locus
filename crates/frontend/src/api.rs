@@ -7,6 +7,8 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use locus_common::{
     AuthResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
     SetPasswordRequest, SubmitRequest, SubmitResponse, UserProfile, ApiError,
+    ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
+    UnlinkOAuthRequest, SuccessResponse,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,13 +28,9 @@ pub struct Subtopic {
     pub enabled: bool,
 }
 
-// API base URL - configurable at compile time
-// Production: https://api.locusmath.org/api
-// Local dev: /api (same domain)
-const API_BASE: &str = match option_env!("LOCUS_API_URL") {
-    Some(url) => url,
-    None => "https://api.locusmath.org/api",
-};
+// Import centralized environment configuration
+// CRITICAL: Never hardcode production URLs - always use crate::env functions
+use crate::env;
 
 const TOKEN_KEY: &str = "locus_token";
 const USERNAME_KEY: &str = "locus_username";
@@ -157,7 +155,7 @@ impl std::fmt::Display for RequestError {
 
 /// Make an authenticated GET request
 async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError> {
-    let url = format!("{}{}", API_BASE, path);
+    let url = format!("{}{}", env::api_base(), path);
 
     let mut req = Request::get(&url);
 
@@ -181,7 +179,7 @@ async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError>
 
 /// Make an authenticated POST request with JSON body
 async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -> Result<T, RequestError> {
-    let url = format!("{}{}", API_BASE, path);
+    let url = format!("{}{}", env::api_base(), path);
 
     let mut req = Request::post(&url)
         .header("Content-Type", "application/json");
@@ -292,6 +290,41 @@ pub async fn set_password(password: &str) -> Result<UserProfile, RequestError> {
         password: password.to_string(),
     };
     post_request("/auth/set-password", &req).await
+}
+
+pub async fn change_password(old_password: &str, new_password: &str) -> Result<SuccessResponse, RequestError> {
+    let req = ChangePasswordRequest {
+        old_password: old_password.to_string(),
+        new_password: new_password.to_string(),
+    };
+    post_request("/auth/change-password", &req).await
+}
+
+pub async fn change_username(new_username: &str) -> Result<UserProfile, RequestError> {
+    let req = ChangeUsernameRequest {
+        new_username: new_username.to_string(),
+    };
+    let profile: UserProfile = post_request("/auth/change-username", &req).await?;
+    // Update stored username
+    let _ = LocalStorage::set(USERNAME_KEY, &profile.username);
+    Ok(profile)
+}
+
+pub async fn delete_account(password: Option<&str>) -> Result<SuccessResponse, RequestError> {
+    let req = DeleteAccountRequest {
+        password: password.map(|s| s.to_string()),
+    };
+    let resp: SuccessResponse = post_request("/auth/delete-account", &req).await?;
+    // Clear auth data after successful deletion
+    clear_auth();
+    Ok(resp)
+}
+
+pub async fn unlink_oauth(provider: &str) -> Result<UserProfile, RequestError> {
+    let req = UnlinkOAuthRequest {
+        provider: provider.to_string(),
+    };
+    post_request("/auth/unlink-oauth", &req).await
 }
 
 // ============================================================================
