@@ -17,6 +17,7 @@ use axum::{
 use sqlx::PgPool;
 
 use locus_common::ApiError;
+use crate::rate_limit;
 
 /// Shared application state
 #[derive(Clone)]
@@ -69,10 +70,16 @@ pub fn router() -> Router<AppState> {
     Router::new()
         // Health check
         .route("/health", get(health))
-        // Auth routes
+        // Auth routes (with specific rate limiting)
         .route("/auth/register", post(auth::register))
+            .layer(rate_limit::auth_rate_limiter())
         .route("/auth/login", post(auth::login))
+            .layer(rate_limit::login_rate_limiter())
         .route("/auth/set-password", post(auth::set_password))
+        .route("/auth/change-password", post(auth::change_password))
+        .route("/auth/change-username", post(auth::change_username))
+        .route("/auth/delete-account", post(auth::delete_account))
+        .route("/auth/unlink-oauth", post(auth::unlink_oauth))
         .route("/auth/verify-email", post(auth::verify_email))
         .route("/auth/resend-verification", post(auth::resend_verification))
         .route("/auth/forgot-password", post(auth::forgot_password))
