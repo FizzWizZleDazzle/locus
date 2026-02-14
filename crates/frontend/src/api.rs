@@ -214,11 +214,12 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -
 // Auth API
 // ============================================================================
 
-pub async fn register(username: &str, email: &str, password: &str) -> Result<RegisterResponse, RequestError> {
+pub async fn register(username: &str, email: &str, password: &str, accepted_tos: bool) -> Result<RegisterResponse, RequestError> {
     let req = RegisterRequest {
         username: username.to_string(),
         email: email.to_string(),
         password: password.to_string(),
+        accepted_tos,
     };
 
     let resp: RegisterResponse = post_request("/auth/register", &req).await?;

@@ -199,6 +199,7 @@ pub struct RegisterRequest {
     pub username: String,
     pub email: String,
     pub password: String,
+    pub accepted_tos: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -228,12 +229,40 @@ pub struct UserProfile {
     pub elo_multivariable_calculus: i32,
     pub elo_linear_algebra: i32,
     pub has_password: bool,
+    pub oauth_providers: Vec<String>,
     pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SetPasswordRequest {
     pub password: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChangePasswordRequest {
+    pub old_password: String,
+    pub new_password: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChangeUsernameRequest {
+    pub new_username: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeleteAccountRequest {
+    pub password: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UnlinkOAuthRequest {
+    pub provider: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SuccessResponse {
+    pub success: bool,
+    pub message: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

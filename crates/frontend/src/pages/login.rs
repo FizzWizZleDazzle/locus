@@ -49,7 +49,7 @@ pub fn Login() -> impl IntoView {
     let on_google = move |_| {
         set_error.set(None);
         let nav = nav_google.clone();
-        oauth::open_oauth_popup(
+        oauth::open_oauth_login_popup(
             "google",
             move |resp| {
                 api::store_oauth_auth(&resp.token, &resp.user.username);
@@ -65,7 +65,7 @@ pub fn Login() -> impl IntoView {
     let on_github = move |_| {
         set_error.set(None);
         let nav = nav_github.clone();
-        oauth::open_oauth_popup(
+        oauth::open_oauth_login_popup(
             "github",
             move |resp| {
                 api::store_oauth_auth(&resp.token, &resp.user.username);

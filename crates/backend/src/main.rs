@@ -10,7 +10,7 @@ mod rate_limit;
 mod topics;
 mod email;
 
-use axum::{http::Method, Router};
+use axum::{http::Method, routing::get, Router};
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -101,7 +101,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Build router
     let app = Router::new()
-        .nest("/api", api::router())
+        // Health endpoint (no rate limiting for Kubernetes probes)
+        .route("/api/health", get(api::health))
+        // API routes (with rate limiting)
+        .nest("/api", api::router().layer(rate_limit::general_rate_limiter()))
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_origins)
@@ -112,7 +115,6 @@ async fn main() -> anyhow::Result<()> {
                 ]),
         )
         .layer(TraceLayer::new_for_http())
-        .layer(rate_limit::general_rate_limiter())
         .with_state(state);
 
     // Start server

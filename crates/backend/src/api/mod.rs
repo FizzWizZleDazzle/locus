@@ -68,8 +68,6 @@ impl AppState {
 /// Build the API router
 pub fn router() -> Router<AppState> {
     Router::new()
-        // Health check
-        .route("/health", get(health))
         // Auth routes (with specific rate limiting)
         .route("/auth/register", post(auth::register))
             .layer(rate_limit::auth_rate_limiter())
@@ -105,7 +103,7 @@ pub fn router() -> Router<AppState> {
 }
 
 /// Health check endpoint
-async fn health() -> &'static str {
+pub async fn health() -> &'static str {
     "OK"
 }
 

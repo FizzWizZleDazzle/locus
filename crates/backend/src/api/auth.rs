@@ -34,6 +34,11 @@ pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<RegisterResponse>, AppError> {
+    // Validate TOS acceptance
+    if !req.accepted_tos {
+        return Err(AppError::BadRequest("You must accept the Terms of Service and Privacy Policy to register".into()));
+    }
+
     // Validate username
     validation::validate_username(&req.username)
         .map_err(|e| AppError::BadRequest(e.to_string()))?;

@@ -37,7 +37,8 @@ pub fn Register() -> impl IntoView {
         let password_val = password.get();
 
         spawn_local(async move {
-            match api::register(&username_val, &email_val, &password_val).await {
+            // Implied consent: by clicking "Create Account", user agrees to TOS
+            match api::register(&username_val, &email_val, &password_val, true).await {
                 Ok(resp) => {
                     set_success_email.set(Some(resp.email));
                     set_loading.set(false);
@@ -54,7 +55,8 @@ pub fn Register() -> impl IntoView {
     let on_google = StoredValue::new(move |_| {
         set_error.set(None);
         let nav = nav_google.clone();
-        oauth::open_oauth_popup(
+        // Implied consent: by clicking OAuth button, user agrees to TOS
+        oauth::open_oauth_login_popup(
             "google",
             move |resp| {
                 api::store_oauth_auth(&resp.token, &resp.user.username);
@@ -70,7 +72,8 @@ pub fn Register() -> impl IntoView {
     let on_github = StoredValue::new(move |_| {
         set_error.set(None);
         let nav = nav_github.clone();
-        oauth::open_oauth_popup(
+        // Implied consent: by clicking OAuth button, user agrees to TOS
+        oauth::open_oauth_login_popup(
             "github",
             move |resp| {
                 api::store_oauth_auth(&resp.token, &resp.user.username);
@@ -107,7 +110,14 @@ pub fn Register() -> impl IntoView {
                 when=move || success_email.get().is_some()
                 fallback=move || view! {
                     <>
-                        <h1 class="text-xl font-medium text-gray-900 mb-6">"Sign Up"</h1>
+                        <h1 class="text-xl font-medium text-gray-900 mb-3">"Sign Up"</h1>
+
+                        <p class="text-xs text-gray-500 mb-6 text-center">
+                            "By signing up, you agree to our "
+                            <A href="/terms" target="_blank" attr:class="text-gray-900 hover:underline">"Terms of Service"</A>
+                            " and "
+                            <A href="/privacy" target="_blank" attr:class="text-gray-900 hover:underline">"Privacy Policy"</A>
+                        </p>
 
                         {move || error.get().map(|e| view! {
                             <div class="text-red-600 text-sm mb-4">{e}</div>

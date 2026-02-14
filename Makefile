@@ -41,16 +41,6 @@ init:
 		echo "Then run: make all"; \
 	fi
 
-# Show Cloudflare Tunnel setup (managed by Helm as sidecar)
-tunnel-instructions:
-	@echo "Get Cloudflare Tunnel token:"
-	@echo "  cloudflared tunnel login"
-	@echo "  cloudflared tunnel create locus-backend"
-	@echo "  cloudflared tunnel route dns locus-backend api.locusmath.org"
-	@echo "  cloudflared tunnel token locus-backend"
-	@echo ""
-	@echo "Add token to .env.production: CLOUDFLARED_TUNNEL=<token>"
-	@echo "See RELEASE.md for detailed instructions."
 
 # Build Docker image
 build:
@@ -136,7 +126,6 @@ help:
 	@echo ""
 	@echo "Setup:"
 	@echo "  make init                   First-time setup (generate secrets)"
-	@echo "  make tunnel-instructions    Show Cloudflare Tunnel setup steps"
 	@echo ""
 	@echo "Build & Deploy:"
 	@echo "  make build             Build Docker image"

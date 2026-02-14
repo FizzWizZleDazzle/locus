@@ -200,9 +200,41 @@ impl User {
         Ok(())
     }
 
+    /// Get list of OAuth providers linked to this user
+    pub async fn get_oauth_providers(pool: &PgPool, user_id: Uuid) -> Result<Vec<String>, sqlx::Error> {
+        let rows: Vec<(String,)> = sqlx::query_as(
+            "SELECT provider FROM oauth_accounts WHERE user_id = $1 ORDER BY provider"
+        )
+        .bind(user_id)
+        .fetch_all(pool)
+        .await?;
+
+        Ok(rows.into_iter().map(|(provider,)| provider).collect())
+    }
+
+    /// Update username (with uniqueness check done by caller)
+    pub async fn update_username(pool: &PgPool, user_id: Uuid, new_username: &str) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE users SET username = $1 WHERE id = $2")
+            .bind(new_username)
+            .bind(user_id)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+
+    /// Delete user account (cascades to oauth_accounts, attempts, etc.)
+    pub async fn delete_account(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
+        sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(user_id)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+
     /// Convert to API response type with all ELO ratings
     pub async fn to_profile(&self, pool: &PgPool) -> Result<UserProfile, sqlx::Error> {
         let elos = Self::get_all_elos(pool, self.id).await?;
+        let oauth_providers = Self::get_oauth_providers(pool, self.id).await?;
 
         Ok(UserProfile {
             id: self.id,
@@ -218,6 +250,7 @@ impl User {
             elo_multivariable_calculus: *elos.get("multivariable_calculus").unwrap_or(&INITIAL_ELO),
             elo_linear_algebra: *elos.get("linear_algebra").unwrap_or(&INITIAL_ELO),
             has_password: self.password_hash.is_some(),
+            oauth_providers,
             created_at: self.created_at,
         })
     }
@@ -274,6 +307,31 @@ impl OAuthAccount {
         .bind(provider_email)
         .fetch_one(pool)
         .await
+    }
+
+    /// Delete OAuth account by user ID and provider
+    pub async fn delete_by_user_and_provider(
+        pool: &PgPool,
+        user_id: Uuid,
+        provider: &str,
+    ) -> Result<(), sqlx::Error> {
+        sqlx::query("DELETE FROM oauth_accounts WHERE user_id = $1 AND provider = $2")
+            .bind(user_id)
+            .bind(provider)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+
+    /// Count OAuth accounts for a user
+    pub async fn count_by_user(pool: &PgPool, user_id: Uuid) -> Result<i64, sqlx::Error> {
+        let result: (i64,) = sqlx::query_as(
+            "SELECT COUNT(*) FROM oauth_accounts WHERE user_id = $1"
+        )
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?;
+        Ok(result.0)
     }
 }
 
