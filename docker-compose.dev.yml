@@ -1,0 +1,53 @@
+# Docker Compose for Locus development (replaces dev.sh)
+# Usage: docker compose -f docker-compose.dev.yml up
+#
+# First run builds the dev image (~10 min for SymEngine).
+# Subsequent starts are fast thanks to cached volumes.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: locus-dev-db
+    environment:
+      POSTGRES_USER: locus
+      POSTGRES_PASSWORD: locus_dev_password
+      POSTGRES_DB: locus
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U locus -d locus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: locus-dev
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    volumes:
+      - .:/workspace
+      - cargo-registry:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - target-cache:/workspace/target
+    environment:
+      DATABASE_URL: postgres://locus:locus_dev_password@db:5432/locus
+      HOST: 0.0.0.0
+      PORT: "3000"
+      LOCUS_API_URL: http://localhost:3000/api
+      LOCUS_FRONTEND_URL: http://localhost:8080
+      LOCUS_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  cargo-registry:
+  cargo-git:
+  target-cache:

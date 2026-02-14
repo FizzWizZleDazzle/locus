@@ -1,0 +1,44 @@
+# Development Dockerfile for Locus
+# Provides a full Rust dev environment with SymEngine pre-built.
+# Usage: docker compose -f docker-compose.dev.yml up
+
+FROM rust:1.93.0-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    libgmp-dev \
+    cmake \
+    g++ \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build and install SymEngine (static library)
+RUN git clone https://github.com/symengine/symengine.git /tmp/symengine && \
+    cd /tmp/symengine && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=OFF \
+          -DCMAKE_INSTALL_PREFIX=/usr/local \
+          .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && rm -rf /tmp/symengine
+
+# Install trunk for frontend dev server
+RUN cargo install trunk
+
+# Add WASM target for frontend compilation
+RUN rustup target add wasm32-unknown-unknown
+
+WORKDIR /workspace
+
+EXPOSE 3000 8080
+
+# Bake entrypoint script into the image
+COPY docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint.dev.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.dev.sh"]

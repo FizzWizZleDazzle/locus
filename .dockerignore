@@ -24,7 +24,9 @@ crates/frontend/dist/
 # Docker
 .dockerignore
 Dockerfile
+Dockerfile.dev
 docker-compose.yml
+docker-compose.dev.yml
 
 # Logs
 *.log
