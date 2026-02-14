@@ -201,4 +201,4 @@ cargo test
 
 ## License
 
-MIT
+IAUL - Custom license (see LICENSE file)
