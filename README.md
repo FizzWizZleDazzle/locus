@@ -120,10 +120,14 @@ locus/
 │   ├── values.yaml               # Default values
 │   └── values.production.yaml    # Production overrides
 │
-├── docs/                         # Documentation
-│   ├── RELEASE.md               # Complete deployment guide
-│   ├── QUICKSTART.md            # Quick start guide
-│   └── DEPLOYMENT.md            # Detailed deployment docs
+├── docs/                         # Comprehensive documentation
+│   ├── SUMMARY.md               # Documentation index
+│   ├── ARCHITECTURE.md          # System architecture
+│   ├── TESTING.md               # Test strategy
+│   ├── GRADING.md               # Grading system details
+│   ├── AUTHENTICATION.md        # Auth & OAuth flows
+│   ├── SYMENGINE_FFI.md         # SymEngine safety guide
+│   └── ... (17 documentation files total)
 │
 ├── crates/                       # Rust workspace
 │   ├── common/                   # Shared types + SymEngine FFI
@@ -219,11 +223,51 @@ Then load with:
 make data
 ```
 
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+**Getting Started:**
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md) - Local development setup
+- [SUMMARY.md](docs/SUMMARY.md) - Complete documentation index
+
+**Architecture & Design:**
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture and data flow
+- [GRADING.md](docs/GRADING.md) - Two-stage grading system
+- [AUTHENTICATION.md](docs/AUTHENTICATION.md) - Auth flows (email, OAuth)
+
+**Implementation Guides:**
+- [BACKEND.md](docs/BACKEND.md) - Backend implementation (email, rate limiting, ELO)
+- [FRONTEND.md](docs/FRONTEND.md) - Frontend components and pages
+- [LEPTOS_PATTERNS.md](docs/LEPTOS_PATTERNS.md) - Leptos state management
+- [SYMENGINE_FFI.md](docs/SYMENGINE_FFI.md) - SymEngine safety guide (CRITICAL)
+
+**Reference:**
+- [API.md](docs/API.md) - Complete API endpoint reference
+- [DATABASE.md](docs/DATABASE.md) - Database schema and migrations
+- [TESTING.md](docs/TESTING.md) - Testing strategy and examples
+
+**Production:**
+- [DEPLOYMENT.md](docs/DEPLOYMENT.md) - Production deployment guide
+- [RELEASE.md](RELEASE.md) - Makefile-based deployment process
+
+**Contributing:**
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Code contribution guidelines
+- [CONTRIBUTING_DOCS.md](docs/CONTRIBUTING_DOCS.md) - Documentation guidelines
+
+**Factory (Problem Generation):**
+- [factory/README.md](factory/README.md) - Factory system overview
+- [factory/DEVELOPER_GUIDE.md](factory/DEVELOPER_GUIDE.md) - Creating custom generators
+
+**Total:** 17 documentation files, ~15,000 lines
+
 ## Testing
 
 ```bash
 cargo test
 ```
+
+See [TESTING.md](docs/TESTING.md) for comprehensive test strategy and examples.
 
 ## License
 
