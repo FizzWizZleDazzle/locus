@@ -313,18 +313,18 @@ async fn oauth_login_or_register(
         return Ok(build_callback_html_success(&token, &profile));
     }
 
-    // 2. Check if a user with this email exists → link OAuth account
-    if let Some(user) = User::find_by_email(&state.pool, email).await? {
-        OAuthAccount::create(&state.pool, user.id, provider, provider_user_id, Some(email)).await?;
-
-        let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
-            .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
-
-        let profile = user.to_profile(&state.pool).await?;
-        return Ok(build_callback_html_success(&token, &profile));
+    // 2. SECURITY FIX: Block auto-linking if email already exists
+    if User::find_by_email(&state.pool, email).await?.is_some() {
+        return Ok(build_callback_html_error(
+            &format!(
+                "An account with email {} already exists. Please log in with your password first, \
+                then link your {} account in Settings.",
+                email, provider
+            )
+        ));
     }
 
-    // 3. Create new user
+    // 3. Create new user (email doesn't exist yet)
     let username = generate_unique_username(&state.pool, display_name, email).await?;
     let user = User::create_oauth(&state.pool, &username, email).await?;
     OAuthAccount::create(&state.pool, user.id, provider, provider_user_id, Some(email)).await?;

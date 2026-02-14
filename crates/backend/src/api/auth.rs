@@ -6,12 +6,16 @@ use argon2::{
 };
 use axum::{extract::State, Json};
 
-use locus_common::{AuthResponse, LoginRequest, RegisterRequest, SetPasswordRequest, UserProfile};
+use locus_common::{
+    AuthResponse, LoginRequest, RegisterRequest, SetPasswordRequest, UserProfile,
+    ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
+    UnlinkOAuthRequest, SuccessResponse,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     auth::{create_token, AuthUser},
-    models::{User, EmailVerificationToken, PasswordResetToken},
+    models::{User, EmailVerificationToken, PasswordResetToken, OAuthAccount},
     AppError,
 };
 
@@ -396,4 +400,166 @@ pub async fn reset_password(
         success: true,
         message: "Password reset successful! You can now log in with your new password.".to_string(),
     }))
+}
+
+/// Change password for authenticated user (requires old password verification)
+pub async fn change_password(
+    State(state): State<AppState>,
+    auth_user: AuthUser,
+    Json(req): Json<ChangePasswordRequest>,
+) -> Result<Json<SuccessResponse>, AppError> {
+    // Get user
+    let user = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    // Check if user has a password set
+    let password_hash = user.password_hash.as_deref()
+        .ok_or_else(|| AppError::BadRequest(
+            "This account does not have a password set. Use 'Set Password' instead.".into()
+        ))?;
+
+    // Verify old password
+    let parsed_hash = PasswordHash::new(password_hash)
+        .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
+
+    Argon2::default()
+        .verify_password(req.old_password.as_bytes(), &parsed_hash)
+        .map_err(|_| AppError::Auth("Incorrect old password".into()))?;
+
+    // Validate new password complexity
+    validation::validate_password(&req.new_password)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    // Hash new password
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let new_password_hash = argon2
+        .hash_password(req.new_password.as_bytes(), &salt)
+        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
+        .to_string();
+
+    // Update password
+    User::set_password_hash(&state.pool, auth_user.id, &new_password_hash).await?;
+
+    Ok(Json(SuccessResponse {
+        success: true,
+        message: Some("Password changed successfully".to_string()),
+    }))
+}
+
+/// Change username for authenticated user
+pub async fn change_username(
+    State(state): State<AppState>,
+    auth_user: AuthUser,
+    Json(req): Json<ChangeUsernameRequest>,
+) -> Result<Json<UserProfile>, AppError> {
+    // Validate username format
+    validation::validate_username(&req.new_username)
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    // Check uniqueness (exclude current user)
+    let existing = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    if existing.username == req.new_username {
+        return Err(AppError::BadRequest("New username is the same as current username".into()));
+    }
+
+    // Update username - database UNIQUE constraint handles race conditions
+    match User::update_username(&state.pool, auth_user.id, &req.new_username).await {
+        Ok(_) => {
+            let user = User::find_by_id(&state.pool, auth_user.id)
+                .await?
+                .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+            Ok(Json(user.to_profile(&state.pool).await?))
+        }
+        Err(sqlx::Error::Database(db_err)) => {
+            // Check for unique constraint violation
+            if let Some(constraint) = db_err.constraint() {
+                if constraint == "users_username_key" {
+                    return Err(AppError::BadRequest("Username already taken".into()));
+                }
+            }
+            Err(AppError::Database(sqlx::Error::Database(db_err)))
+        }
+        Err(e) => Err(AppError::Database(e)),
+    }
+}
+
+/// Delete user account
+pub async fn delete_account(
+    State(state): State<AppState>,
+    auth_user: AuthUser,
+    Json(req): Json<DeleteAccountRequest>,
+) -> Result<Json<SuccessResponse>, AppError> {
+    let user = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    // If user has password, verify it
+    if let Some(password_hash) = user.password_hash.as_deref() {
+        let provided_password = req.password.as_deref()
+            .ok_or_else(|| AppError::BadRequest("Password required to delete account".into()))?;
+
+        let parsed_hash = PasswordHash::new(password_hash)
+            .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
+
+        Argon2::default()
+            .verify_password(provided_password.as_bytes(), &parsed_hash)
+            .map_err(|_| AppError::Auth("Incorrect password".into()))?;
+    }
+
+    // Delete user (cascades to oauth_accounts, attempts, etc.)
+    User::delete_account(&state.pool, auth_user.id).await?;
+
+    Ok(Json(SuccessResponse {
+        success: true,
+        message: Some("Account deleted successfully".to_string()),
+    }))
+}
+
+/// Validate OAuth provider name
+fn validate_oauth_provider(provider: &str) -> Result<(), AppError> {
+    match provider {
+        "google" | "github" => Ok(()),
+        _ => Err(AppError::BadRequest(
+            format!("Invalid OAuth provider: {}. Supported providers: google, github", provider)
+        )),
+    }
+}
+
+/// Unlink OAuth provider
+pub async fn unlink_oauth(
+    State(state): State<AppState>,
+    auth_user: AuthUser,
+    Json(req): Json<UnlinkOAuthRequest>,
+) -> Result<Json<UserProfile>, AppError> {
+    // Validate provider name
+    validate_oauth_provider(&req.provider)?;
+
+    let user = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    // Check if user has password OR another OAuth account (prevent lockout)
+    let has_password = user.password_hash.is_some();
+    let oauth_count = OAuthAccount::count_by_user(&state.pool, auth_user.id).await?;
+
+    if !has_password && oauth_count <= 1 {
+        return Err(AppError::BadRequest(
+            "Cannot unlink your only authentication method. Set a password or link another account first.".into()
+        ));
+    }
+
+    // Unlink the OAuth account
+    OAuthAccount::delete_by_user_and_provider(&state.pool, auth_user.id, &req.provider).await?;
+
+    // Return updated profile
+    let user = User::find_by_id(&state.pool, auth_user.id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    Ok(Json(user.to_profile(&state.pool).await?))
 }
