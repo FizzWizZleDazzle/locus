@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Locus</title>
 
-    <!-- Favicon -->
+    <!-- Favicons - copy all icons -->
     <link data-trunk rel="copy-file" href="favicon.png" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link data-trunk rel="copy-file" href="imgs/asterisk.png" />
+    <link data-trunk rel="copy-file" href="imgs/exposure_plus_1.png" />
+    <link data-trunk rel="copy-file" href="imgs/exposure_plus_2.png" />
+    <link data-trunk rel="copy-file" href="imgs/function.png" />
+    <link data-trunk rel="copy-file" href="imgs/functions.png" />
+    <link data-trunk rel="copy-file" href="imgs/percent.png" />
+    <link id="favicon" rel="icon" type="image/png" href="/favicon.png" />
 
     <!-- KaTeX for math rendering (static content) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -57,6 +63,33 @@
     </style>
 
     <link data-trunk rel="rust" data-wasm-opt="z" />
+
+    <!-- Random favicon selector -->
+    <script>
+        (function() {
+            const favicons = [
+                '/favicon.png',
+                '/asterisk.png',
+                '/exposure_plus_1.png',
+                '/exposure_plus_2.png',
+                '/function.png',
+                '/functions.png',
+                '/percent.png'
+            ];
+
+            // Pick a random favicon
+            const randomFavicon = favicons[Math.floor(Math.random() * favicons.length)];
+
+            // Add cache-busting timestamp
+            const cacheBuster = '?v=' + Date.now();
+
+            // Update favicon immediately
+            const faviconLink = document.getElementById('favicon');
+            if (faviconLink) {
+                faviconLink.href = randomFavicon + cacheBuster;
+            }
+        })();
+    </script>
 </head>
 <body class="bg-white min-h-screen">
     <div id="app"></div>
