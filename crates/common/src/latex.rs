@@ -98,9 +98,21 @@ pub fn convert_latex_to_plain(input: &str) -> String {
         }
     }
 
+    // Protect explicit brace/bracket commands (sets, intervals, etc.) from brace-to-paren conversion
+    result = result.replace("\\lbrace", "\x01LBRACE\x01");
+    result = result.replace("\\rbrace", "\x01RBRACE\x01");
+    result = result.replace("\\lbrack", "\x01LBRACK\x01");
+    result = result.replace("\\rbrack", "\x01RBRACK\x01");
+
     // Convert any remaining unmatched braces to parens (for grouping)
     result = result.replace('{', "(");
     result = result.replace('}', ")");
+
+    // Restore explicit braces and brackets
+    result = result.replace("\x01LBRACE\x01", "{");
+    result = result.replace("\x01RBRACE\x01", "}");
+    result = result.replace("\x01LBRACK\x01", "[");
+    result = result.replace("\x01RBRACK\x01", "]");
 
     // Add explicit multiplication for implicit multiplication cases
     // This handles: )( -> )*(, )x -> )*x, 2( -> 2*(, x( -> x*(

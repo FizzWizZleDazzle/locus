@@ -249,6 +249,7 @@ impl User {
             elo_calculus: *elos.get("calculus").unwrap_or(&INITIAL_ELO),
             elo_multivariable_calculus: *elos.get("multivariable_calculus").unwrap_or(&INITIAL_ELO),
             elo_linear_algebra: *elos.get("linear_algebra").unwrap_or(&INITIAL_ELO),
+            elo_test: *elos.get("test").unwrap_or(&INITIAL_ELO),
             has_password: self.password_hash.is_some(),
             oauth_providers,
             created_at: self.created_at,

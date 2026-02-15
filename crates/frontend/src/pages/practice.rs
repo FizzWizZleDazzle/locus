@@ -3,15 +3,138 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_query_map;
-use locus_common::{MainTopic, ProblemResponse};
+use locus_common::{ProblemResponse, AnswerType};
 
 use crate::{
     api,
     components::{ProblemInterface, TopicSelector},
     grader::{check_answer, preprocess_input, GradeResult},
-    katex_bindings::render_plain_math_to_string,
+    katex_bindings::{render_plain_math_to_string, render_math_to_string},
     utils::{update_url, push_url_playing, setup_popstate_listener},
 };
+
+/// Format answer_key for display based on answer_type
+fn format_answer_for_display(answer_key: &str, answer_type: AnswerType) -> Result<String, String> {
+    match answer_type {
+        AnswerType::Interval => {
+            // Parse internal format: "open:1,closed:7" -> "(1, 7]"
+            let parts: Vec<&str> = answer_key.split(',').collect();
+            if parts.len() != 2 {
+                return Ok(format!("<code>{}</code>", answer_key));
+            }
+
+            let (left_bracket, left_val) = if let Some(val) = parts[0].strip_prefix("open:") {
+                ("(", val)
+            } else if let Some(val) = parts[0].strip_prefix("closed:") {
+                ("[", val)
+            } else {
+                return Ok(format!("<code>{}</code>", answer_key));
+            };
+
+            let (right_val, right_bracket) = if let Some(val) = parts[1].strip_prefix("open:") {
+                (val, ")")
+            } else if let Some(val) = parts[1].strip_prefix("closed:") {
+                (val, "]")
+            } else {
+                return Ok(format!("<code>{}</code>", answer_key));
+            };
+
+            let latex = format!("{}{}, {}{}", left_bracket, left_val, right_val, right_bracket);
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::Set => {
+            // "2, 3" -> "{2, 3}"
+            // Render as LaTeX with \lbrace \rbrace
+            let latex = format!("\\lbrace {} \\rbrace", answer_key);
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::Tuple => {
+            // "3, 2" -> "(3, 2)"
+            let latex = format!("({})", answer_key);
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::List => {
+            // "-2, 2" -> "[-2, 2]"
+            let latex = format!("[{}]", answer_key);
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::MultiPart => {
+            // "tuple:5,-4|||numeric:4" -> render each part as math
+            let parts: Vec<&str> = answer_key.split("|||").collect();
+            let formatted_parts: Result<Vec<String>, String> = parts.iter().enumerate().map(|(i, part)| {
+                if let Some((type_str, value)) = part.split_once(':') {
+                    let latex = match type_str {
+                        "tuple" => format!("({})", value),
+                        "set" => format!("\\lbrace {} \\rbrace", value),
+                        "list" => format!("[{}]", value),
+                        _ => value.to_string(),
+                    };
+                    let rendered = render_math_to_string(&latex, false)?;
+                    Ok(format!("<div><strong>Part {}:</strong> {}</div>", i + 1, rendered))
+                } else {
+                    Ok(format!("<div><strong>Part {}:</strong> <code>{}</code></div>", i + 1, part))
+                }
+            }).collect();
+
+            Ok(formatted_parts?.join(""))
+        }
+        AnswerType::Boolean => {
+            // "true" or "false" - just display as-is
+            Ok(format!("<code>{}</code>", answer_key))
+        }
+        AnswerType::Word => {
+            // Display word as-is
+            Ok(format!("<code>{}</code>", answer_key))
+        }
+        AnswerType::Inequality => {
+            // "x > -4" - convert to LaTeX without Nerdamer (it evaluates comparisons to boolean)
+            let latex = answer_key
+                .replace("**", "^")
+                .replace(">=", r"\geq ")
+                .replace("<=", r"\leq ")
+                .replace(">", r" > ")
+                .replace("<", r" < ");
+
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::Matrix => {
+            // "[[3, 4], [5, 6]]" - convert to LaTeX matrix
+            // Remove outer brackets and split by rows
+            let inner = answer_key.trim()
+                .strip_prefix("[[").and_then(|s| s.strip_suffix("]]"))
+                .unwrap_or(answer_key);
+
+            // Split into rows by "], ["
+            let rows: Vec<&str> = inner.split("], [").collect();
+
+            // Convert each row: "3, 4" -> "3 & 4"
+            let latex_rows: Vec<String> = rows.iter()
+                .map(|row| row.replace(",", " &"))
+                .collect();
+
+            let matrix_latex = format!(
+                "\\begin{{bmatrix}} {} \\end{{bmatrix}}",
+                latex_rows.join(" \\\\ ")
+            );
+
+            render_math_to_string(&matrix_latex, false)
+        }
+        AnswerType::Equation => {
+            // For equations, convert plain notation to LaTeX manually to avoid Nerdamer expanding
+            // Convert ** to ^ and render directly as LaTeX
+            let latex = answer_key
+                .replace("**", "^")
+                .replace("*", "\\cdot ");
+
+            // Render the LaTeX directly without Nerdamer processing
+            render_math_to_string(&latex, false)
+        }
+        AnswerType::Expression | AnswerType::Numeric => {
+            // Render as math
+            render_plain_math_to_string(answer_key)
+        }
+    }
+}
 
 #[component]
 pub fn Practice() -> impl IntoView {
@@ -109,35 +232,23 @@ pub fn Practice() -> impl IntoView {
 
         if let Some(topic_val) = topic_param {
             if !topic_val.is_empty() {
-                // Validate topic exists - silently ignore if invalid
-                let main_topic = match MainTopic::from_str(&topic_val) {
-                    Some(t) => t,
-                    None => return, // Invalid topic, ignore params
-                };
-
                 // Parse subtopics from comma-separated string
-                let subtopics = if let Some(st) = subtopics_param {
+                let subtopics: Vec<String> = if let Some(st) = subtopics_param {
                     st.split(',')
                         .map(|s| s.trim().to_string())
                         .filter(|s| !s.is_empty())
-                        .collect::<Vec<String>>()
+                        .collect()
                 } else {
                     Vec::new()
                 };
 
-                // Validate subtopics belong to topic - filter out invalid ones
-                let valid_subtopic_list = main_topic.subtopics();
-                let filtered_subtopics: Vec<String> = subtopics.into_iter()
-                    .filter(|st| valid_subtopic_list.contains(&st.as_str()))
-                    .collect();
-
                 // Set initial values for TopicSelector
                 set_initial_topic.set(Some(topic_val.clone()));
-                set_initial_subtopics.set(Some(filtered_subtopics.clone()));
+                set_initial_subtopics.set(Some(subtopics.clone()));
 
                 // Also set parent state so callbacks work correctly
                 set_selected_topic.set(Some(topic_val));
-                set_selected_subtopics.set(filtered_subtopics);
+                set_selected_subtopics.set(subtopics);
             }
         } else {
             // No topic in URL - clear everything to show topic selector
@@ -165,7 +276,7 @@ pub fn Practice() -> impl IntoView {
         if let Some(p) = problem_for_check.get() {
             let user_input = preprocess_input(&answer_for_check.get());
             if let Some(answer_key) = &p.answer_key {
-                let grade = check_answer(&user_input, answer_key, p.grading_mode);
+                let grade = check_answer(&user_input, answer_key, p.grading_mode, p.answer_type);
                 set_result_for_check.set(Some(grade));
             }
         }
@@ -217,17 +328,20 @@ pub fn Practice() -> impl IntoView {
 
                     // Show answer key if revealed
                     {move || (show_answer.get() && problem.get().is_some()).then(|| {
-                        problem.get().and_then(|p| p.answer_key.clone()).map(|ans| {
-                            // Convert plain math notation (SymPy format) to rendered LaTeX
-                            let rendered_answer = render_plain_math_to_string(&ans)
+                        problem.get().and_then(|p| {
+                            let ans = p.answer_key.clone()?;
+                            let answer_type = p.answer_type;
+
+                            // Format answer based on its type
+                            let rendered_answer = format_answer_for_display(&ans, answer_type)
                                 .unwrap_or_else(|_| format!("<code>{}</code>", ans));
 
-                            view! {
+                            Some(view! {
                                 <div class="p-4 bg-blue-50 border border-blue-200 rounded">
                                     <div class="text-sm font-medium text-blue-900 mb-1">"Answer:"</div>
                                     <div class="text-blue-800 text-xl" inner_html=rendered_answer></div>
                                 </div>
-                            }
+                            })
                         })
                     })}
 
@@ -242,7 +356,7 @@ pub fn Practice() -> impl IntoView {
                                 if let Some(p) = problem.get() {
                                     let user_input = preprocess_input(&answer.get());
                                     if let Some(answer_key) = &p.answer_key {
-                                        let grade = check_answer(&user_input, answer_key, p.grading_mode);
+                                        let grade = check_answer(&user_input, answer_key, p.grading_mode, p.answer_type);
                                         set_result.set(Some(grade));
                                     }
                                 }

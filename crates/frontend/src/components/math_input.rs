@@ -131,11 +131,12 @@ pub fn MathInput(
                 &shortcuts
             );
 
-            // Set up input event listener
+            // Set up input event listener - store LaTeX in signal
             let set_value_clone = set_value;
             let math_field_clone = math_field_html.clone();
             let input_closure = Closure::wrap(Box::new(move |_: web_sys::Event| {
-                let new_value = get_math_field_json(&math_field_clone);
+                // Get LaTeX from MathLive and store in signal
+                let new_value = get_math_field_value(&math_field_clone);
                 set_value_clone.set(new_value);
             }) as Box<dyn FnMut(_)>);
 
@@ -161,11 +162,8 @@ pub fn MathInput(
                 keydown_closure.forget();
             }
 
-            // Set initial value WITHOUT tracking
-            let initial = value.get_untracked();
-            if !initial.is_empty() {
-                set_math_field_value(&math_field_html, &initial);
-            }
+            // Don't set initial value from signal — it might be MathJSON which setValue can't handle.
+            // The field starts empty and user typing will populate it fresh via the input listener.
 
             // Focus the field initially
             let _ = math_field_html.focus();
@@ -186,8 +184,9 @@ pub fn MathInput(
                     return; // MathLive not ready yet, skip this update
                 }
 
-                // Get current value from MathLive
-                let current = get_math_field_value(&math_field_html);
+                // Get current value from MathLive in the same format the input handler stores
+                // (MathJSON when Compute Engine is loaded, LaTeX fallback otherwise)
+                let current = get_math_field_json(&math_field_html);
 
                 // Only update if different (prevents circular updates)
                 if current != new_value {

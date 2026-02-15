@@ -27,6 +27,7 @@ pub enum MainTopic {
     Calculus,
     MultivariableCalculus,
     LinearAlgebra,
+    Test,
 }
 
 impl MainTopic {
@@ -40,6 +41,7 @@ impl MainTopic {
             Self::Calculus => "Calculus",
             Self::MultivariableCalculus => "Multivariable Calculus",
             Self::LinearAlgebra => "Linear Algebra",
+            Self::Test => "Test",
         }
     }
 
@@ -111,6 +113,20 @@ impl MainTopic {
                 "eigenvalues_eigenvectors",
                 "linear_transformations",
             ],
+            Self::Test => &[
+                "expressions",
+                "numerics",
+                "sets",
+                "tuples",
+                "lists",
+                "intervals",
+                "inequalities",
+                "equations",
+                "booleans",
+                "words",
+                "matrices",
+                "multipart",
+            ],
         }
     }
 
@@ -124,6 +140,7 @@ impl MainTopic {
             Self::Calculus,
             Self::MultivariableCalculus,
             Self::LinearAlgebra,
+            Self::Test,
         ]
     }
 
@@ -137,6 +154,7 @@ impl MainTopic {
             "calculus" => Some(Self::Calculus),
             "multivariable_calculus" => Some(Self::MultivariableCalculus),
             "linear_algebra" => Some(Self::LinearAlgebra),
+            "test" => Some(Self::Test),
             _ => None,
         }
     }
@@ -151,6 +169,7 @@ impl MainTopic {
             Self::Calculus => "calculus",
             Self::MultivariableCalculus => "multivariable_calculus",
             Self::LinearAlgebra => "linear_algebra",
+            Self::Test => "test",
         }
     }
 }
@@ -187,6 +206,78 @@ pub enum GradingMode {
 impl Default for GradingMode {
     fn default() -> Self {
         Self::Equivalent
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum AnswerType {
+    #[default]
+    Expression,
+    Numeric,
+    Set,
+    Tuple,
+    List,
+    Interval,
+    Inequality,
+    Equation,
+    Boolean,
+    Word,
+    Matrix,
+    MultiPart,
+}
+
+impl AnswerType {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "expression" => Some(Self::Expression),
+            "numeric" => Some(Self::Numeric),
+            "set" => Some(Self::Set),
+            "tuple" => Some(Self::Tuple),
+            "list" => Some(Self::List),
+            "interval" => Some(Self::Interval),
+            "inequality" => Some(Self::Inequality),
+            "equation" => Some(Self::Equation),
+            "boolean" => Some(Self::Boolean),
+            "word" => Some(Self::Word),
+            "matrix" => Some(Self::Matrix),
+            "multi_part" => Some(Self::MultiPart),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Expression => "expression",
+            Self::Numeric => "numeric",
+            Self::Set => "set",
+            Self::Tuple => "tuple",
+            Self::List => "list",
+            Self::Interval => "interval",
+            Self::Inequality => "inequality",
+            Self::Equation => "equation",
+            Self::Boolean => "boolean",
+            Self::Word => "word",
+            Self::Matrix => "matrix",
+            Self::MultiPart => "multi_part",
+        }
+    }
+
+    /// Returns an answer format hint for the frontend to display, or None if no hint needed.
+    pub fn hint(&self) -> Option<&'static str> {
+        match self {
+            Self::Expression | Self::Numeric => None,
+            Self::Set => Some("Enter as a set, e.g. {1, 2, 3}"),
+            Self::Tuple => Some("Enter as an ordered pair, e.g. (3, 5)"),
+            Self::List => Some("Enter as a list, e.g. [-3, -1]"),
+            Self::Interval => Some("Use interval notation, e.g. (1, 7] or [-2, 4)"),
+            Self::Inequality => Some("Enter an inequality, e.g. x > -4"),
+            Self::Equation => Some("Enter an equation, e.g. y = 2x + 3"),
+            Self::Boolean => Some("Answer: true or false"),
+            Self::Word => Some("Type your answer as a word"),
+            Self::Matrix => Some("Enter as [[row1], [row2]], e.g. [[1, 2], [3, 4]]"),
+            Self::MultiPart => Some("Separate parts with |||"),
+        }
     }
 }
 
@@ -228,6 +319,7 @@ pub struct UserProfile {
     pub elo_calculus: i32,
     pub elo_multivariable_calculus: i32,
     pub elo_linear_algebra: i32,
+    pub elo_test: i32,
     pub has_password: bool,
     pub oauth_providers: Vec<String>,
     pub created_at: DateTime<Utc>,
@@ -273,6 +365,7 @@ pub struct ProblemResponse {
     pub main_topic: String,
     pub subtopic: String,
     pub grading_mode: GradingMode,
+    pub answer_type: AnswerType,
     pub calculator_allowed: String,
     /// Only included for practice mode
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -347,6 +440,7 @@ pub struct CreateProblemRequest {
     pub main_topic: String,
     pub subtopic: String,
     pub grading_mode: String,
+    pub answer_type: String,
     pub calculator_allowed: String,
 }
 
