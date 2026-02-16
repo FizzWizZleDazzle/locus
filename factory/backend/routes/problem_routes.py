@@ -67,7 +67,7 @@ async def export_problems(request: ExportRequest):
             f"-- Generated at: {datetime.utcnow().isoformat()}",
             f"-- Problem count: {len(staged_problems)}",
             "",
-            "INSERT INTO problems (question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode) VALUES"
+            "INSERT INTO problems (question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed) VALUES"
         ]
 
         values = []
@@ -77,8 +77,10 @@ async def export_problems(request: ExportRequest):
             mt = p['main_topic'].replace("'", "''")
             st = p['subtopic'].replace("'", "''")
             gm = p['grading_mode'].replace("'", "''")
+            at = p.get('answer_type', 'expression').replace("'", "''")
+            ca = p.get('calculator_allowed', 'none').replace("'", "''")
             d = p['difficulty']
-            values.append(f"('{q}', '{a}', {d}, '{mt}', '{st}', '{gm}')")
+            values.append(f"('{q}', '{a}', {d}, '{mt}', '{st}', '{gm}', '{at}', '{ca}')")
 
         sql_lines.append(",\n".join(values) + ";")
         content = "\n".join(sql_lines)

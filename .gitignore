@@ -37,6 +37,9 @@ venv/
 # Generated SQL files
 content-gen/*.sql
 
+# Factory generated exports
+factory/backend/exports/
+
 # Editor
 .vscode/
 *.swp

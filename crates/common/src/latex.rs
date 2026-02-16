@@ -98,17 +98,48 @@ pub fn convert_latex_to_plain(input: &str) -> String {
         }
     }
 
-    // Protect explicit brace/bracket commands (sets, intervals, etc.) from brace-to-paren conversion
+    // ========================================================================
+    // DELIMITER PROTECTION ALGORITHM
+    // ========================================================================
+    // Problem: LaTeX commands like \lbrace must produce literal { in output,
+    //          but braces are also used for grouping (e.g., x^{2})
+    //
+    // Solution: Three-pass replacement using control character placeholders
+    //
+    // Pass 1: Protect explicit delimiters
+    //   Replace \lbrace → \x01LBRACE\x01 (protect from next step)
+    //   Replace \rbrace → \x01RBRACE\x01
+    //   Replace \lbrack → \x01LBRACK\x01
+    //   Replace \rbrack → \x01RBRACK\x01
+    //
+    // Pass 2: Convert grouping braces to parentheses
+    //   All remaining { → ( (for exponent grouping, etc.)
+    //   All remaining } → )
+    //   Example: x^{2} → x^(2)
+    //
+    // Pass 3: Restore explicit delimiters
+    //   \x01LBRACE\x01 → { (explicit brace for sets)
+    //   \x01RBRACE\x01 → }
+    //   \x01LBRACK\x01 → [ (explicit bracket for lists)
+    //   \x01RBRACK\x01 → ]
+    //
+    // This ensures:
+    //   \lbrace 2, 3 \rbrace  →  {2, 3}     (set notation)
+    //   x^{2}                 →  x^(2)       (exponent grouping)
+    //   \frac{1}{x}           →  (1)/(x)     (fraction grouping)
+    // ========================================================================
+
+    // Pass 1: Protect explicit brace/bracket commands from conversion
     result = result.replace("\\lbrace", "\x01LBRACE\x01");
     result = result.replace("\\rbrace", "\x01RBRACE\x01");
     result = result.replace("\\lbrack", "\x01LBRACK\x01");
     result = result.replace("\\rbrack", "\x01RBRACK\x01");
 
-    // Convert any remaining unmatched braces to parens (for grouping)
+    // Pass 2: Convert any remaining unmatched braces to parens (for grouping)
     result = result.replace('{', "(");
     result = result.replace('}', ")");
 
-    // Restore explicit braces and brackets
+    // Pass 3: Restore explicit braces and brackets
     result = result.replace("\x01LBRACE\x01", "{");
     result = result.replace("\x01RBRACE\x01", "}");
     result = result.replace("\x01LBRACK\x01", "[");

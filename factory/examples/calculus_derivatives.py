@@ -56,7 +56,9 @@ problem = {
     "difficulty": difficulty,
     "main_topic": "calculus",
     "subtopic": "derivatives",
-    "grading_mode": "equivalent"
+    "grading_mode": "equivalent",
+    "answer_type": "expression",
+    "calculator_allowed": "none"
 }
 
 # Output JSON

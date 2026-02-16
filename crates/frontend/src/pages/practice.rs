@@ -3,138 +3,17 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_query_map;
-use locus_common::{ProblemResponse, AnswerType};
+use locus_common::ProblemResponse;
 
 use crate::{
     api,
     components::{ProblemInterface, TopicSelector},
     grader::{check_answer, preprocess_input, GradeResult},
-    katex_bindings::{render_plain_math_to_string, render_math_to_string},
+    formatters::format_answer_for_display,
     utils::{update_url, push_url_playing, setup_popstate_listener},
 };
 
-/// Format answer_key for display based on answer_type
-fn format_answer_for_display(answer_key: &str, answer_type: AnswerType) -> Result<String, String> {
-    match answer_type {
-        AnswerType::Interval => {
-            // Parse internal format: "open:1,closed:7" -> "(1, 7]"
-            let parts: Vec<&str> = answer_key.split(',').collect();
-            if parts.len() != 2 {
-                return Ok(format!("<code>{}</code>", answer_key));
-            }
-
-            let (left_bracket, left_val) = if let Some(val) = parts[0].strip_prefix("open:") {
-                ("(", val)
-            } else if let Some(val) = parts[0].strip_prefix("closed:") {
-                ("[", val)
-            } else {
-                return Ok(format!("<code>{}</code>", answer_key));
-            };
-
-            let (right_val, right_bracket) = if let Some(val) = parts[1].strip_prefix("open:") {
-                (val, ")")
-            } else if let Some(val) = parts[1].strip_prefix("closed:") {
-                (val, "]")
-            } else {
-                return Ok(format!("<code>{}</code>", answer_key));
-            };
-
-            let latex = format!("{}{}, {}{}", left_bracket, left_val, right_val, right_bracket);
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::Set => {
-            // "2, 3" -> "{2, 3}"
-            // Render as LaTeX with \lbrace \rbrace
-            let latex = format!("\\lbrace {} \\rbrace", answer_key);
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::Tuple => {
-            // "3, 2" -> "(3, 2)"
-            let latex = format!("({})", answer_key);
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::List => {
-            // "-2, 2" -> "[-2, 2]"
-            let latex = format!("[{}]", answer_key);
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::MultiPart => {
-            // "tuple:5,-4|||numeric:4" -> render each part as math
-            let parts: Vec<&str> = answer_key.split("|||").collect();
-            let formatted_parts: Result<Vec<String>, String> = parts.iter().enumerate().map(|(i, part)| {
-                if let Some((type_str, value)) = part.split_once(':') {
-                    let latex = match type_str {
-                        "tuple" => format!("({})", value),
-                        "set" => format!("\\lbrace {} \\rbrace", value),
-                        "list" => format!("[{}]", value),
-                        _ => value.to_string(),
-                    };
-                    let rendered = render_math_to_string(&latex, false)?;
-                    Ok(format!("<div><strong>Part {}:</strong> {}</div>", i + 1, rendered))
-                } else {
-                    Ok(format!("<div><strong>Part {}:</strong> <code>{}</code></div>", i + 1, part))
-                }
-            }).collect();
-
-            Ok(formatted_parts?.join(""))
-        }
-        AnswerType::Boolean => {
-            // "true" or "false" - just display as-is
-            Ok(format!("<code>{}</code>", answer_key))
-        }
-        AnswerType::Word => {
-            // Display word as-is
-            Ok(format!("<code>{}</code>", answer_key))
-        }
-        AnswerType::Inequality => {
-            // "x > -4" - convert to LaTeX without Nerdamer (it evaluates comparisons to boolean)
-            let latex = answer_key
-                .replace("**", "^")
-                .replace(">=", r"\geq ")
-                .replace("<=", r"\leq ")
-                .replace(">", r" > ")
-                .replace("<", r" < ");
-
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::Matrix => {
-            // "[[3, 4], [5, 6]]" - convert to LaTeX matrix
-            // Remove outer brackets and split by rows
-            let inner = answer_key.trim()
-                .strip_prefix("[[").and_then(|s| s.strip_suffix("]]"))
-                .unwrap_or(answer_key);
-
-            // Split into rows by "], ["
-            let rows: Vec<&str> = inner.split("], [").collect();
-
-            // Convert each row: "3, 4" -> "3 & 4"
-            let latex_rows: Vec<String> = rows.iter()
-                .map(|row| row.replace(",", " &"))
-                .collect();
-
-            let matrix_latex = format!(
-                "\\begin{{bmatrix}} {} \\end{{bmatrix}}",
-                latex_rows.join(" \\\\ ")
-            );
-
-            render_math_to_string(&matrix_latex, false)
-        }
-        AnswerType::Equation => {
-            // For equations, convert plain notation to LaTeX manually to avoid Nerdamer expanding
-            // Convert ** to ^ and render directly as LaTeX
-            let latex = answer_key
-                .replace("**", "^")
-                .replace("*", "\\cdot ");
-
-            // Render the LaTeX directly without Nerdamer processing
-            render_math_to_string(&latex, false)
-        }
-        AnswerType::Expression | AnswerType::Numeric => {
-            // Render as math
-            render_plain_math_to_string(answer_key)
-        }
-    }
-}
+// format_answer_for_display moved to crate::formatters module
 
 #[component]
 pub fn Practice() -> impl IntoView {

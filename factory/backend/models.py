@@ -29,6 +29,8 @@ class GenerateScriptRequest(BaseModel):
     subtopic: str
     difficulty_level: str = "medium"  # "easy", "medium", "hard"
     grading_mode: str = "equivalent"
+    answer_type: str = "expression"
+    calculator_allowed: str = "none"
     prompt_template: Optional[str] = None
 
 

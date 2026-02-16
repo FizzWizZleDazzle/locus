@@ -10,6 +10,8 @@ async def generate_script_with_llm(
     subtopic: str,
     difficulty_level: str,
     grading_mode: str,
+    answer_type: str = "expression",
+    calculator_allowed: str = "none",
     prompt_template: str = None
 ) -> str:
     """Generate a Python script using LLM"""
@@ -97,8 +99,29 @@ Script Requirements:
     "main_topic": "{main_topic}",
     "subtopic": "{subtopic}",
     "grading_mode": "{grading_mode}",
+    "answer_type": "expression",  // See answer types below
     "calculator_allowed": "none"  // See calculator levels below
 }}
+
+Answer Types (choose based on what form the answer takes):
+- "expression" (default) - Algebraic expressions: x^2 + 3*x - 4
+- "numeric" - Numbers only: 42, 3.14, -7
+- "set" - Sets: {{1, 2, 3}}
+- "tuple" - Ordered pairs: (3, 5)
+- "list" - Lists: [-2, 2]
+- "interval" - Interval notation: (1, 7] or [-2, 4)
+- "inequality" - Inequalities: x > -4
+- "equation" - Equations: y = 2*x + 3
+- "boolean" - True/false answers
+- "word" - Text word answers
+- "matrix" - Matrices: [[1, 2], [3, 4]]
+- "multi_part" - Multiple answers separated by |||
+
+Answer Type Guidelines:
+- Most algebra/calculus problems use "expression" or "numeric"
+- Use specific types when the answer MUST be in that exact format
+- Sets, tuples, lists, intervals have strict formatting requirements
+- Equations test ability to write complete equations, not just solve them
 
 Calculator Levels (choose based on what the problem tests):
 - "none" (default) - No calculators allowed. Use for:

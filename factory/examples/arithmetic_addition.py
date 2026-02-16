@@ -33,7 +33,9 @@ problem = {
     "difficulty": difficulty,
     "main_topic": "arithmetic",
     "subtopic": "addition_subtraction",
-    "grading_mode": "equivalent"
+    "grading_mode": "equivalent",
+    "answer_type": "numeric",
+    "calculator_allowed": "none"
 }
 
 # Output JSON

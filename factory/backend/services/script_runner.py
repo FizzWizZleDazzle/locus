@@ -76,6 +76,32 @@ def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
                     "output": result.stdout,
                 }
 
+            # Add defaults for new fields (backwards compatibility)
+            if "answer_type" not in problem:
+                problem["answer_type"] = "expression"
+            if "calculator_allowed" not in problem:
+                problem["calculator_allowed"] = "none"
+
+            # Validate answer_type value
+            valid_answer_types = ["expression", "numeric", "set", "tuple", "list",
+                                 "interval", "inequality", "equation", "boolean",
+                                 "word", "matrix", "multi_part"]
+            if problem["answer_type"] not in valid_answer_types:
+                return {
+                    "success": False,
+                    "error": f"Invalid answer_type '{problem['answer_type']}'. Must be one of: {', '.join(valid_answer_types)}",
+                    "output": result.stdout,
+                }
+
+            # Validate calculator_allowed value
+            valid_calculator_levels = ["none", "scientific", "graphing", "cas"]
+            if problem["calculator_allowed"] not in valid_calculator_levels:
+                return {
+                    "success": False,
+                    "error": f"Invalid calculator_allowed '{problem['calculator_allowed']}'. Must be one of: {', '.join(valid_calculator_levels)}",
+                    "output": result.stdout,
+                }
+
             return {
                 "success": True,
                 "problem": problem,

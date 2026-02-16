@@ -8,6 +8,7 @@ mod pages;
 mod components;
 mod katex_bindings;
 mod utils;
+mod formatters;
 
 // ---------------------------------------------------------------------------
 // C-compatible allocator bridge

@@ -31,6 +31,8 @@ async def generate_script(request: GenerateScriptRequest):
         request.subtopic,
         request.difficulty_level,
         request.grading_mode,
+        request.answer_type,
+        request.calculator_allowed,
         request.prompt_template
     )
 
