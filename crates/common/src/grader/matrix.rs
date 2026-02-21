@@ -3,8 +3,8 @@
 //! Format: `[[a, b], [c, d]]` — outer brackets contain rows,
 //! each row is `[element, element, ...]`.
 
-use super::{ExprEngine, GradeResult, are_equivalent};
 use super::parse::split_top_level;
+use super::{ExprEngine, GradeResult, are_equivalent};
 
 /// Parse a matrix string like `[[1, 2], [3, 4]]` into a 2D grid of strings.
 fn parse_matrix(input: &str) -> Result<Vec<Vec<String>>, String> {
@@ -57,11 +57,15 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
         for (j, (exp_s, usr_s)) in exp_row.iter().zip(usr_row.iter()).enumerate() {
             let exp = match E::parse(exp_s.trim()) {
                 Ok(e) => e,
-                Err(e) => return GradeResult::Error(format!("Invalid answer key [{},{}]: {}", i, j, e)),
+                Err(e) => {
+                    return GradeResult::Error(format!("Invalid answer key [{},{}]: {}", i, j, e));
+                }
             };
             let usr = match E::parse(usr_s.trim()) {
                 Ok(e) => e,
-                Err(_) => return GradeResult::Invalid(format!("Could not parse element [{},{}]", i, j)),
+                Err(_) => {
+                    return GradeResult::Invalid(format!("Could not parse element [{},{}]", i, j));
+                }
             };
             if !are_equivalent(&exp, &usr) {
                 return GradeResult::Incorrect;

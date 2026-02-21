@@ -23,12 +23,12 @@
 use locus_common::AnswerType;
 
 mod common;
-mod interval;
-mod set;
-mod matrix;
-mod multi_part;
 mod equation;
 mod inequality;
+mod interval;
+mod matrix;
+mod multi_part;
+mod set;
 
 #[cfg(test)]
 mod tests;
@@ -39,7 +39,10 @@ use common::{render_code, render_plain};
 ///
 /// This is the main entry point for answer formatting. It delegates to
 /// type-specific formatters and handles fallback cases.
-pub fn format_answer_for_display(answer_key: &str, answer_type: AnswerType) -> Result<String, String> {
+pub fn format_answer_for_display(
+    answer_key: &str,
+    answer_type: AnswerType,
+) -> Result<String, String> {
     match answer_type {
         AnswerType::Interval => interval::format_interval(answer_key),
         AnswerType::Set => set::format_set(answer_key),

@@ -12,7 +12,8 @@ pub fn Leaderboard() -> impl IntoView {
     let query = use_query_map();
 
     // Initialize topic from URL or default to calculus
-    let initial_topic = query.read()
+    let initial_topic = query
+        .read()
         .get("topic")
         .filter(|t| !t.is_empty())
         .unwrap_or_else(|| "calculus".to_string());

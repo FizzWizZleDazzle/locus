@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::{components::A, hooks::use_navigate};
 
-use crate::{api, oauth, AuthContext};
+use crate::{AuthContext, api, oauth};
 
 #[component]
 pub fn Login() -> impl IntoView {
@@ -38,7 +38,8 @@ pub fn Login() -> impl IntoView {
                     let msg = e.message.clone();
                     set_error.set(Some(msg.clone()));
                     // Show resend button if error is about email verification
-                    set_show_resend.set(msg.contains("verify your email") || msg.contains("verification"));
+                    set_show_resend
+                        .set(msg.contains("verify your email") || msg.contains("verification"));
                     set_loading.set(false);
                 }
             }
@@ -86,7 +87,9 @@ pub fn Login() -> impl IntoView {
         spawn_local(async move {
             match api::resend_verification(&email_val).await {
                 Ok(_) => {
-                    set_error.set(Some("Verification email sent! Check your inbox.".to_string()));
+                    set_error.set(Some(
+                        "Verification email sent! Check your inbox.".to_string(),
+                    ));
                     set_show_resend.set(false);
                     set_resending.set(false);
                 }

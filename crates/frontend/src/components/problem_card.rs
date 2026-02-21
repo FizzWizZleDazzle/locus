@@ -1,19 +1,16 @@
 //! Problem card component
 
+use crate::components::{LatexRenderer, Timer};
+use crate::katex_bindings::render_plain_math_to_string;
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
-use crate::katex_bindings::render_plain_math_to_string;
-use crate::components::{LatexRenderer, Timer};
 
 #[component]
 pub fn ProblemCard(
     problem: ProblemResponse,
-    #[prop(default = None)]
-    show_answer: Option<String>,
-    #[prop(optional)]
-    key: Option<String>,
-    #[prop(default = None)]
-    time_limit_seconds: Option<i32>,
+    #[prop(default = None)] show_answer: Option<String>,
+    #[prop(optional)] key: Option<String>,
+    #[prop(default = None)] time_limit_seconds: Option<i32>,
 ) -> impl IntoView {
     let _ = key; // Suppress unused warning - key is used by Leptos for identity
     view! {

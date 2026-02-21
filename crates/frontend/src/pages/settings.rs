@@ -4,8 +4,8 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
 
-use crate::{api, AuthContext, oauth};
-use locus_common::{UserProfile, SuccessResponse};
+use crate::{AuthContext, api, oauth};
+use locus_common::{SuccessResponse, UserProfile};
 
 #[component]
 pub fn Settings() -> impl IntoView {
@@ -170,7 +170,10 @@ pub fn Settings() -> impl IntoView {
         oauth::open_oauth_link_popup(
             &provider,
             move |auth_response| {
-                set_success.set(Some(format!("{} account linked successfully", provider_clone)));
+                set_success.set(Some(format!(
+                    "{} account linked successfully",
+                    provider_clone
+                )));
                 set_profile.set(Some(auth_response.user));
             },
             move |error| {

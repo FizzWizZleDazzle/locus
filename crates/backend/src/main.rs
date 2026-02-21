@@ -1,16 +1,16 @@
 //! Locus Backend Server
 
+mod api;
+mod auth;
 mod config;
 mod db;
+mod email;
 mod grader;
-mod auth;
-mod api;
 mod models;
 mod rate_limit;
 mod topics;
-mod email;
 
-use axum::{http::Method, routing::get, Router};
+use axum::{Router, http::Method, routing::get};
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -22,8 +22,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize tracing
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| "locus_backend=debug,tower_http=debug".into()))
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "locus_backend=debug,tower_http=debug".into()),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -41,9 +43,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Run migrations (unless SKIP_MIGRATIONS=true)
     if std::env::var("SKIP_MIGRATIONS").unwrap_or_default() != "true" {
-        sqlx::migrate!("./migrations")
-            .run(&pool)
-            .await?;
+        sqlx::migrate!("./migrations").run(&pool).await?;
         tracing::info!("Database migrations completed");
     } else {
         tracing::warn!("Skipping migrations (SKIP_MIGRATIONS=true)");
@@ -104,7 +104,10 @@ async fn main() -> anyhow::Result<()> {
         // Health endpoint (no rate limiting for Kubernetes probes)
         .route("/api/health", get(api::health))
         // API routes (with rate limiting)
-        .nest("/api", api::router().layer(rate_limit::general_rate_limiter()))
+        .nest(
+            "/api",
+            api::router().layer(rate_limit::general_rate_limiter()),
+        )
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_origins)
@@ -153,4 +156,3 @@ pub enum AppError {
     #[error("Internal error: {0}")]
     Internal(String),
 }
-

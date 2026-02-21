@@ -1,14 +1,12 @@
 //! Factory content submission endpoint
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 
-use crate::{
-    auth::ApiKeyAuth,
-    models::Problem,
-    AppError,
-};
 use crate::api::AppState;
-use locus_common::{AnswerType, CreateProblemRequest, CreateProblemResponse, GradingMode, MainTopic};
+use crate::{AppError, auth::ApiKeyAuth, models::Problem};
+use locus_common::{
+    AnswerType, CreateProblemRequest, CreateProblemResponse, GradingMode, MainTopic,
+};
 
 /// Create a new problem (Factory endpoint)
 ///
@@ -16,7 +14,7 @@ use locus_common::{AnswerType, CreateProblemRequest, CreateProblemResponse, Grad
 /// problems to the Locus backend. It requires API key authentication.
 pub async fn create_problem(
     State(state): State<AppState>,
-    _auth: ApiKeyAuth,  // Validates API key automatically
+    _auth: ApiKeyAuth, // Validates API key automatically
     Json(req): Json<CreateProblemRequest>,
 ) -> Result<(StatusCode, Json<CreateProblemResponse>), AppError> {
     // Validate request fields
@@ -222,7 +220,7 @@ mod tests {
             answer_key: "4".to_string(),
             difficulty: 1000,
             main_topic: "arithmetic".to_string(),
-            subtopic: "derivatives".to_string(),  // calculus subtopic
+            subtopic: "derivatives".to_string(), // calculus subtopic
             grading_mode: "equivalent".to_string(),
             answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),

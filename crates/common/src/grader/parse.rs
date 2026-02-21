@@ -51,8 +51,17 @@ pub fn split_equation(input: &str) -> Result<(String, String), String> {
             '=' if depth == 0 => {
                 // Check it's not <=, >=, or ==
                 let prev = if i > 0 { Some(chars[i - 1]) } else { None };
-                let next = if i + 1 < chars.len() { Some(chars[i + 1]) } else { None };
-                if prev != Some('<') && prev != Some('>') && prev != Some('!') && prev != Some('=') && next != Some('=') {
+                let next = if i + 1 < chars.len() {
+                    Some(chars[i + 1])
+                } else {
+                    None
+                };
+                if prev != Some('<')
+                    && prev != Some('>')
+                    && prev != Some('!')
+                    && prev != Some('=')
+                    && next != Some('=')
+                {
                     eq_positions.push(i);
                 }
             }
@@ -69,7 +78,11 @@ pub fn split_equation(input: &str) -> Result<(String, String), String> {
 
     let pos = eq_positions[0];
     let lhs = chars[..pos].iter().collect::<String>().trim().to_string();
-    let rhs = chars[pos + 1..].iter().collect::<String>().trim().to_string();
+    let rhs = chars[pos + 1..]
+        .iter()
+        .collect::<String>()
+        .trim()
+        .to_string();
 
     if lhs.is_empty() || rhs.is_empty() {
         return Err("Empty side in equation".into());

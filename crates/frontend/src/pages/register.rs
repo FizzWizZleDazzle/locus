@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::{components::A, hooks::use_navigate};
 
-use crate::{api, oauth, AuthContext};
+use crate::{AuthContext, api, oauth};
 
 #[component]
 pub fn Register() -> impl IntoView {

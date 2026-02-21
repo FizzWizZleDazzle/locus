@@ -40,13 +40,23 @@ impl std::fmt::Display for ValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ValidationError::PasswordTooShort => {
-                write!(f, "Password must be at least {} characters long", MIN_PASSWORD_LEN)
+                write!(
+                    f,
+                    "Password must be at least {} characters long",
+                    MIN_PASSWORD_LEN
+                )
             }
             ValidationError::PasswordNoUppercase => {
-                write!(f, "Password must contain at least one uppercase letter (A-Z)")
+                write!(
+                    f,
+                    "Password must contain at least one uppercase letter (A-Z)"
+                )
             }
             ValidationError::PasswordNoLowercase => {
-                write!(f, "Password must contain at least one lowercase letter (a-z)")
+                write!(
+                    f,
+                    "Password must contain at least one lowercase letter (a-z)"
+                )
             }
             ValidationError::PasswordNoNumber => {
                 write!(f, "Password must contain at least one number (0-9)")
@@ -61,13 +71,24 @@ impl std::fmt::Display for ValidationError {
                 write!(f, "Invalid email address format")
             }
             ValidationError::UsernameTooShort => {
-                write!(f, "Username must be at least {} characters long", MIN_USERNAME_LEN)
+                write!(
+                    f,
+                    "Username must be at least {} characters long",
+                    MIN_USERNAME_LEN
+                )
             }
             ValidationError::UsernameTooLong => {
-                write!(f, "Username must be at most {} characters long", MAX_USERNAME_LEN)
+                write!(
+                    f,
+                    "Username must be at most {} characters long",
+                    MAX_USERNAME_LEN
+                )
             }
             ValidationError::UsernameInvalidChars => {
-                write!(f, "Username can only contain letters, numbers, underscores, and hyphens")
+                write!(
+                    f,
+                    "Username can only contain letters, numbers, underscores, and hyphens"
+                )
             }
         }
     }
@@ -210,10 +231,7 @@ mod tests {
             validate_email("double@@domain.com"),
             Err(ValidationError::InvalidEmail)
         );
-        assert_eq!(
-            validate_email(""),
-            Err(ValidationError::InvalidEmail)
-        );
+        assert_eq!(validate_email(""), Err(ValidationError::InvalidEmail));
         assert_eq!(
             validate_email("no-at-sign.com"),
             Err(ValidationError::InvalidEmail)

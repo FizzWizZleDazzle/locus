@@ -50,8 +50,7 @@ impl Problem {
                     ORDER BY ABS(difficulty - ${}) + (RANDOM() * 200)
                     LIMIT 1
                     "#,
-                    subtopic_placeholders,
-                    target_placeholder
+                    subtopic_placeholders, target_placeholder
                 );
 
                 let mut query = sqlx::query_as(&query_str).bind(mt);

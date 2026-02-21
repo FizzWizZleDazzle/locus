@@ -1,27 +1,27 @@
 //! Page components
 
+mod forgot_password;
 mod home;
-mod practice;
-mod ranked;
 mod leaderboard;
 mod login;
-mod register;
-mod settings;
-mod verify_email;
-mod forgot_password;
-mod reset_password;
+mod practice;
 mod privacy_policy;
+mod ranked;
+mod register;
+mod reset_password;
+mod settings;
 mod terms_of_service;
+mod verify_email;
 
+pub use forgot_password::ForgotPassword;
 pub use home::Home;
-pub use practice::Practice;
-pub use ranked::Ranked;
 pub use leaderboard::Leaderboard;
 pub use login::Login;
-pub use register::Register;
-pub use settings::Settings;
-pub use verify_email::VerifyEmail;
-pub use forgot_password::ForgotPassword;
-pub use reset_password::ResetPassword;
+pub use practice::Practice;
 pub use privacy_policy::PrivacyPolicy;
+pub use ranked::Ranked;
+pub use register::Register;
+pub use reset_password::ResetPassword;
+pub use settings::Settings;
 pub use terms_of_service::TermsOfService;
+pub use verify_email::VerifyEmail;

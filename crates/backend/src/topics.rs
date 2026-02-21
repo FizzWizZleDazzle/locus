@@ -3,10 +3,10 @@
 //! Provides cached access to topics and subtopics from the database.
 //! Cache is refreshed on startup and daily via background task.
 
+use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use sqlx::PgPool;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Topic {
@@ -57,7 +57,9 @@ impl TopicCache {
 
     /// Get enabled topics only
     pub async fn get_enabled(&self) -> Vec<Topic> {
-        self.inner.read().await
+        self.inner
+            .read()
+            .await
             .iter()
             .filter(|t| t.enabled)
             .map(|t| {
@@ -86,14 +88,14 @@ impl TopicCache {
 async fn load_topics(pool: &PgPool) -> Result<Vec<Topic>, sqlx::Error> {
     // Load all topics
     let topic_rows: Vec<(String, String, i32, bool)> = sqlx::query_as(
-        "SELECT id, display_name, sort_order, enabled FROM topics ORDER BY sort_order"
+        "SELECT id, display_name, sort_order, enabled FROM topics ORDER BY sort_order",
     )
     .fetch_all(pool)
     .await?;
 
     // Load all subtopics
     let subtopic_rows: Vec<(String, String, String, i32, bool)> = sqlx::query_as(
-        "SELECT topic_id, id, display_name, sort_order, enabled FROM subtopics ORDER BY sort_order"
+        "SELECT topic_id, id, display_name, sort_order, enabled FROM subtopics ORDER BY sort_order",
     )
     .fetch_all(pool)
     .await?;
@@ -104,12 +106,14 @@ async fn load_topics(pool: &PgPool) -> Result<Vec<Topic>, sqlx::Error> {
         let subtopics: Vec<Subtopic> = subtopic_rows
             .iter()
             .filter(|(topic_id, _, _, _, _)| topic_id == &id)
-            .map(|(_, sub_id, sub_display_name, sub_sort_order, sub_enabled)| Subtopic {
-                id: sub_id.clone(),
-                display_name: sub_display_name.clone(),
-                sort_order: *sub_sort_order,
-                enabled: *sub_enabled,
-            })
+            .map(
+                |(_, sub_id, sub_display_name, sub_sort_order, sub_enabled)| Subtopic {
+                    id: sub_id.clone(),
+                    display_name: sub_display_name.clone(),
+                    sort_order: *sub_sort_order,
+                    enabled: *sub_enabled,
+                },
+            )
             .collect();
 
         topics.push(Topic {

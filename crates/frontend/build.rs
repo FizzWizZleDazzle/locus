@@ -19,8 +19,8 @@ fn main() {
     let api_url = option_env!("LOCUS_API_URL")
         .unwrap_or("https://api.locusmath.org/api (hardcoded fallback)");
 
-    let frontend_url = option_env!("LOCUS_FRONTEND_URL")
-        .unwrap_or("https://locusmath.org (hardcoded fallback)");
+    let frontend_url =
+        option_env!("LOCUS_FRONTEND_URL").unwrap_or("https://locusmath.org (hardcoded fallback)");
 
     println!("cargo:warning=━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("cargo:warning=Frontend Build Configuration");

@@ -1,23 +1,22 @@
 //! API routes and handlers
 
 mod auth;
+mod factory;
+mod leaderboard;
+mod oauth;
 mod problems;
 mod submit;
-mod leaderboard;
-mod factory;
-mod oauth;
 mod topics;
 
 use axum::{
-    routing::{get, post},
-    Router,
-    Json,
+    Json, Router,
     http::StatusCode,
+    routing::{get, post},
 };
 use sqlx::PgPool;
 
-use locus_common::ApiError;
 use crate::rate_limit;
+use locus_common::ApiError;
 
 /// Shared application state
 #[derive(Clone)]
@@ -70,9 +69,9 @@ pub fn router() -> Router<AppState> {
     Router::new()
         // Auth routes (with specific rate limiting)
         .route("/auth/register", post(auth::register))
-            .layer(rate_limit::auth_rate_limiter())
+        .layer(rate_limit::auth_rate_limiter())
         .route("/auth/login", post(auth::login))
-            .layer(rate_limit::login_rate_limiter())
+        .layer(rate_limit::login_rate_limiter())
         .route("/auth/set-password", post(auth::set_password))
         .route("/auth/change-password", post(auth::change_password))
         .route("/auth/change-username", post(auth::change_username))
@@ -81,13 +80,22 @@ pub fn router() -> Router<AppState> {
         .route("/auth/verify-email", post(auth::verify_email))
         .route("/auth/resend-verification", post(auth::resend_verification))
         .route("/auth/forgot-password", post(auth::forgot_password))
-        .route("/auth/validate-reset-token", post(auth::validate_reset_token))
+        .route(
+            "/auth/validate-reset-token",
+            post(auth::validate_reset_token),
+        )
         .route("/auth/reset-password", post(auth::reset_password))
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
-        .route("/auth/oauth/{provider}/callback", get(oauth::oauth_callback))
+        .route(
+            "/auth/oauth/{provider}/callback",
+            get(oauth::oauth_callback),
+        )
         // OAuth linking routes (requires authentication)
-        .route("/auth/oauth/link/{provider}", get(oauth::oauth_redirect_link))
+        .route(
+            "/auth/oauth/link/{provider}",
+            get(oauth::oauth_redirect_link),
+        )
         // Problem routes
         .route("/problem", get(problems::get_problem))
         // Topics
@@ -113,14 +121,20 @@ impl axum::response::IntoResponse for crate::AppError {
         let (status, message) = match &self {
             crate::AppError::Database(e) => {
                 tracing::error!("Database error: {:?}", e);
-                (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string())
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Database error".to_string(),
+                )
             }
             crate::AppError::Auth(msg) => (StatusCode::UNAUTHORIZED, msg.clone()),
             crate::AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
             crate::AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
             crate::AppError::Internal(msg) => {
                 tracing::error!("Internal error: {}", msg);
-                (StatusCode::INTERNAL_SERVER_ERROR, "Internal error".to_string())
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal error".to_string(),
+                )
             }
         };
 

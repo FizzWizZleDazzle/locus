@@ -62,8 +62,7 @@ pub fn render_math_to_string(tex: &str, display_mode: bool) -> Result<String, St
         json_parse(r#"{"throwOnError": false, "displayMode": false}"#)
     };
 
-    renderToString(tex, &options)
-        .map_err(|e| format!("KaTeX error: {:?}", e))
+    renderToString(tex, &options).map_err(|e| format!("KaTeX error: {:?}", e))
 }
 
 /// Convert plain math notation (SymPy format) to LaTeX and render it
@@ -74,7 +73,8 @@ pub fn render_plain_math_to_string(plain_math: &str) -> Result<String, String> {
     let expr = nerdamer_parse(plain_math)
         .map_err(|e| format!("Failed to parse math expression: {:?}", e))?;
 
-    let mut latex = expr.to_tex()
+    let mut latex = expr
+        .to_tex()
         .map_err(|e| format!("Failed to convert to LaTeX: {:?}", e))?;
 
     // Remove explicit multiplication symbols for cleaner display

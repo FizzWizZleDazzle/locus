@@ -18,7 +18,7 @@
 pub const fn api_base() -> &'static str {
     match option_env!("LOCUS_API_URL") {
         Some(url) => url,
-        None => "https://api.locusmath.org/api",  // Fallback for production builds
+        None => "https://api.locusmath.org/api", // Fallback for production builds
     }
 }
 
@@ -32,7 +32,7 @@ pub const fn api_base() -> &'static str {
 pub const fn frontend_base() -> &'static str {
     match option_env!("LOCUS_FRONTEND_URL") {
         Some(url) => url,
-        None => "https://locusmath.org",  // Fallback for production builds
+        None => "https://locusmath.org", // Fallback for production builds
     }
 }
 

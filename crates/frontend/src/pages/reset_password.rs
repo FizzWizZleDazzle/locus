@@ -2,7 +2,10 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_router::{components::A, hooks::{use_navigate, use_query_map}};
+use leptos_router::{
+    components::A,
+    hooks::{use_navigate, use_query_map},
+};
 
 use crate::api;
 

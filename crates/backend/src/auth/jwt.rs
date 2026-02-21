@@ -1,7 +1,7 @@
 //! JWT token handling
 
 use chrono::{Duration, Utc};
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -31,7 +31,12 @@ impl Claims {
 }
 
 /// Create a new JWT token
-pub fn create_token(user_id: Uuid, username: &str, secret: &str, expiry_hours: i64) -> Result<String, JwtError> {
+pub fn create_token(
+    user_id: Uuid,
+    username: &str,
+    secret: &str,
+    expiry_hours: i64,
+) -> Result<String, JwtError> {
     let claims = Claims::new(user_id, username.to_string(), expiry_hours);
 
     encode(

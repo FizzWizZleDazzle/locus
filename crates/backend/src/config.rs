@@ -58,7 +58,9 @@ impl Config {
                 return Err(ConfigError::JwtSecretTooShort);
             }
         } else if jwt_secret == "development-secret-change-in-production" {
-            tracing::warn!("Using default JWT secret in development mode. This is insecure for production!");
+            tracing::warn!(
+                "Using default JWT secret in development mode. This is insecure for production!"
+            );
         }
 
         let api_key_secret = env::var("API_KEY_SECRET")
@@ -73,7 +75,9 @@ impl Config {
                 return Err(ConfigError::ApiKeyTooShort);
             }
         } else if api_key_secret == "development-factory-key-change-in-production" {
-            tracing::warn!("Using default API key in development mode. This is insecure for production!");
+            tracing::warn!(
+                "Using default API key in development mode. This is insecure for production!"
+            );
         }
 
         // Parse allowed origins
@@ -101,17 +105,20 @@ impl Config {
             environment,
             allowed_origins,
             google_client_id: env::var("GOOGLE_CLIENT_ID").ok().filter(|s| !s.is_empty()),
-            google_client_secret: env::var("GOOGLE_CLIENT_SECRET").ok().filter(|s| !s.is_empty()),
+            google_client_secret: env::var("GOOGLE_CLIENT_SECRET")
+                .ok()
+                .filter(|s| !s.is_empty()),
             github_client_id: env::var("GITHUB_CLIENT_ID").ok().filter(|s| !s.is_empty()),
-            github_client_secret: env::var("GITHUB_CLIENT_SECRET").ok().filter(|s| !s.is_empty()),
+            github_client_secret: env::var("GITHUB_CLIENT_SECRET")
+                .ok()
+                .filter(|s| !s.is_empty()),
             oauth_redirect_base: env::var("OAUTH_REDIRECT_BASE")
                 .unwrap_or_else(|_| "http://localhost:3000".to_string()),
             resend_api_key: env::var("RESEND_API_KEY")
                 .map_err(|_| ConfigError::MissingEnv("RESEND_API_KEY"))?,
             resend_from_email: env::var("RESEND_FROM_EMAIL")
                 .unwrap_or_else(|_| "no-reply@locusmath.org".to_string()),
-            resend_from_name: env::var("RESEND_FROM_NAME")
-                .unwrap_or_else(|_| "Locus".to_string()),
+            resend_from_name: env::var("RESEND_FROM_NAME").unwrap_or_else(|_| "Locus".to_string()),
             frontend_base_url: env::var("FRONTEND_BASE_URL")
                 .unwrap_or_else(|_| "http://localhost:8080".to_string()),
         })
@@ -126,13 +133,17 @@ pub enum ConfigError {
     #[error("Invalid port number")]
     InvalidPort,
 
-    #[error("JWT secret cannot be the default development secret in production. Generate a secure secret with: openssl rand -base64 32")]
+    #[error(
+        "JWT secret cannot be the default development secret in production. Generate a secure secret with: openssl rand -base64 32"
+    )]
     InsecureJwtSecret,
 
     #[error("JWT secret must be at least 32 characters long in production")]
     JwtSecretTooShort,
 
-    #[error("API key cannot be the default development key in production. Generate a secure key with: openssl rand -base64 32")]
+    #[error(
+        "API key cannot be the default development key in production. Generate a secure key with: openssl rand -base64 32"
+    )]
     InsecureApiKey,
 
     #[error("API key must be at least 32 characters long in production")]

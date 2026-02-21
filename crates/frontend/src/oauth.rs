@@ -32,37 +32,41 @@ pub fn open_oauth_popup(
     }
 
     // Listen for postMessage from the popup
-    let closure = Closure::<dyn FnMut(web_sys::MessageEvent)>::new(move |event: web_sys::MessageEvent| {
-        // Only process messages with the expected oauth type (CSRF is validated server-side)
-        let data = event.data();
-        let js_string = match js_sys::JSON::stringify(&data) {
-            Ok(s) => String::from(s),
-            Err(_) => return,
-        };
+    let closure =
+        Closure::<dyn FnMut(web_sys::MessageEvent)>::new(move |event: web_sys::MessageEvent| {
+            // Only process messages with the expected oauth type (CSRF is validated server-side)
+            let data = event.data();
+            let js_string = match js_sys::JSON::stringify(&data) {
+                Ok(s) => String::from(s),
+                Err(_) => return,
+            };
 
-        // Parse the message
-        if let Ok(msg) = serde_json::from_str::<serde_json::Value>(&js_string) {
-            if let Some(msg_type) = msg.get("type").and_then(|t| t.as_str()) {
-                match msg_type {
-                    "oauth_success" => {
-                        if let Some(data) = msg.get("data") {
-                            if let Ok(auth) = serde_json::from_value::<AuthResponse>(data.clone()) {
-                                on_success(auth);
+            // Parse the message
+            if let Ok(msg) = serde_json::from_str::<serde_json::Value>(&js_string) {
+                if let Some(msg_type) = msg.get("type").and_then(|t| t.as_str()) {
+                    match msg_type {
+                        "oauth_success" => {
+                            if let Some(data) = msg.get("data") {
+                                if let Ok(auth) =
+                                    serde_json::from_value::<AuthResponse>(data.clone())
+                                {
+                                    on_success(auth);
+                                }
                             }
                         }
+                        "oauth_error" => {
+                            let error = msg
+                                .get("error")
+                                .and_then(|e| e.as_str())
+                                .unwrap_or("OAuth sign-in failed")
+                                .to_string();
+                            on_error(error);
+                        }
+                        _ => {}
                     }
-                    "oauth_error" => {
-                        let error = msg.get("error")
-                            .and_then(|e| e.as_str())
-                            .unwrap_or("OAuth sign-in failed")
-                            .to_string();
-                        on_error(error);
-                    }
-                    _ => {}
                 }
             }
-        }
-    });
+        });
 
     window
         .add_event_listener_with_callback("message", closure.as_ref().unchecked_ref())
@@ -103,6 +107,11 @@ pub fn open_oauth_link_popup(
 
     // URL encode the token using JavaScript's encodeURIComponent
     let encoded_token = js_sys::encode_uri_component(&token);
-    let url = format!("{}/auth/oauth/link/{}?token={}", env::api_base(), provider, encoded_token);
+    let url = format!(
+        "{}/auth/oauth/link/{}?token={}",
+        env::api_base(),
+        provider,
+        encoded_token
+    );
     open_oauth_popup(&url, on_success, on_error);
 }

@@ -74,7 +74,12 @@ unsafe extern "C" {
     fn basic_diff(result: *mut CBasic, expr: *const CBasic, sym: *const CBasic) -> c_int;
 
     // Substitution & evaluation
-    fn basic_subs2(result: *mut CBasic, expr: *const CBasic, from: *const CBasic, to: *const CBasic) -> c_int;
+    fn basic_subs2(
+        result: *mut CBasic,
+        expr: *const CBasic,
+        from: *const CBasic,
+        to: *const CBasic,
+    ) -> c_int;
     fn basic_evalf(result: *mut CBasic, expr: *const CBasic, bits: c_ulong, real: c_int) -> c_int;
 
     // Free symbols
@@ -103,7 +108,8 @@ impl Expr {
         se_lock!();
         unsafe {
             let ptr = basic_new_heap();
-            let c_str = CString::new(input).map_err(|_| ExprError::ParseError("Invalid string".to_string()))?;
+            let c_str = CString::new(input)
+                .map_err(|_| ExprError::ParseError("Invalid string".to_string()))?;
 
             let result = basic_parse(ptr, c_str.as_ptr());
             if result != 0 {
@@ -159,9 +165,7 @@ impl Expr {
     /// Check structural equality with another expression
     pub fn equals(&self, other: &Self) -> bool {
         se_lock!();
-        unsafe {
-            basic_eq(self.ptr, other.ptr) != 0
-        }
+        unsafe { basic_eq(self.ptr, other.ptr) != 0 }
     }
 
     /// Check if expression is the number zero.
@@ -169,17 +173,13 @@ impl Expr {
     /// in native SymEngine builds.
     pub fn is_zero(&self) -> bool {
         se_lock!();
-        unsafe {
-            is_a_Number(self.ptr) != 0 && number_is_zero(self.ptr) != 0
-        }
+        unsafe { is_a_Number(self.ptr) != 0 && number_is_zero(self.ptr) != 0 }
     }
 
     /// Check if expression is a number (integer, rational, or real)
     pub fn is_number(&self) -> bool {
         se_lock!();
-        unsafe {
-            is_a_Number(self.ptr) != 0
-        }
+        unsafe { is_a_Number(self.ptr) != 0 }
     }
 
     /// Substitute a named variable with a float value
@@ -265,7 +265,8 @@ impl Expr {
         se_lock!();
         unsafe {
             let var_ptr = basic_new_heap();
-            let c_var = CString::new(var).map_err(|_| ExprError::ParseError("Invalid variable".to_string()))?;
+            let c_var = CString::new(var)
+                .map_err(|_| ExprError::ParseError("Invalid variable".to_string()))?;
 
             symbol_set(var_ptr, c_var.as_ptr());
 

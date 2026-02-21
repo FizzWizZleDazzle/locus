@@ -2,8 +2,8 @@
 //!
 //! Handles: `x > -4`, `x <= 1`, `-2 < x <= 5`, and flipped forms like `-4 < x`.
 
-use super::{ExprEngine, GradeResult};
 use super::interval;
+use super::{ExprEngine, GradeResult};
 
 /// Convert an inequality string to interval answer key format, then delegate to interval grader.
 pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
@@ -89,9 +89,15 @@ fn try_parse_compound(s: &str) -> Option<Result<String, String>> {
                     // For `left > var >= right`: left is open upper, right is closed lower (reversed)
                     let is_ascending = *op1 == "<" || *op1 == "<=";
                     if is_ascending {
-                        return Some(Ok(format!("{}:{},{}:{}", left_bound, left, right_bound, right)));
+                        return Some(Ok(format!(
+                            "{}:{},{}:{}",
+                            left_bound, left, right_bound, right
+                        )));
                     } else {
-                        return Some(Ok(format!("{}:{},{}:{}", right_bound, right, left_bound, left)));
+                        return Some(Ok(format!(
+                            "{}:{},{}:{}",
+                            right_bound, right, left_bound, left
+                        )));
                     }
                 }
             }

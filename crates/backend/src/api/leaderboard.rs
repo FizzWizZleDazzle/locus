@@ -1,12 +1,15 @@
 //! Leaderboard endpoint
 
-use axum::{extract::{Query, State}, Json};
+use axum::{
+    Json,
+    extract::{Query, State},
+};
 use serde::Deserialize;
 
 use locus_common::{LeaderboardEntry, LeaderboardResponse};
 
-use crate::{models::User, AppError};
 use super::AppState;
+use crate::{AppError, models::User};
 
 #[derive(Debug, Deserialize)]
 pub struct LeaderboardQuery {

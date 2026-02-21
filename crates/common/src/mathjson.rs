@@ -2,8 +2,7 @@ use serde_json::Value;
 
 /// Convert MathJSON to SymEngine-compatible plain text notation
 pub fn convert_mathjson_to_plain(json_str: &str) -> Result<String, String> {
-    let json: Value = serde_json::from_str(json_str)
-        .map_err(|e| format!("Invalid JSON: {}", e))?;
+    let json: Value = serde_json::from_str(json_str).map_err(|e| format!("Invalid JSON: {}", e))?;
     node_to_symengine(&json)
 }
 
@@ -245,10 +244,7 @@ mod tests {
             {"fn": "Add", "args": [{"sym": "x"}, {"num": "2"}]},
             {"fn": "Add", "args": [{"sym": "x"}, {"num": "3"}]}
         ]}"#;
-        assert_eq!(
-            convert_mathjson_to_plain(json).unwrap(),
-            "((x+2)*(x+3))"
-        );
+        assert_eq!(convert_mathjson_to_plain(json).unwrap(), "((x+2)*(x+3))");
     }
 
     #[test]

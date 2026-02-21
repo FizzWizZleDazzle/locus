@@ -1,6 +1,6 @@
+use crate::{AuthContext, api};
 use leptos::prelude::*;
 use leptos_router::{components::A, hooks::use_navigate};
-use crate::{api, AuthContext};
 
 #[component]
 pub fn Sidebar() -> impl IntoView {

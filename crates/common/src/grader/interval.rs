@@ -40,11 +40,20 @@ fn parse_key_interval(s: &str) -> Result<Interval, String> {
 
 fn parse_key_bound(s: &str) -> Result<Bound, String> {
     if let Some(val) = s.strip_prefix("open:") {
-        Ok(Bound { kind: BoundType::Open, value: val.trim().to_string() })
+        Ok(Bound {
+            kind: BoundType::Open,
+            value: val.trim().to_string(),
+        })
     } else if let Some(val) = s.strip_prefix("closed:") {
-        Ok(Bound { kind: BoundType::Closed, value: val.trim().to_string() })
+        Ok(Bound {
+            kind: BoundType::Closed,
+            value: val.trim().to_string(),
+        })
     } else {
-        Err(format!("Expected 'open:value' or 'closed:value', got: {}", s))
+        Err(format!(
+            "Expected 'open:value' or 'closed:value', got: {}",
+            s
+        ))
     }
 }
 
@@ -61,13 +70,23 @@ fn parse_user_interval(s: &str) -> Result<Interval, String> {
     let left_type = match first_char {
         '(' => BoundType::Open,
         '[' => BoundType::Closed,
-        _ => return Err(format!("Interval must start with '(' or '[', got '{}'", first_char)),
+        _ => {
+            return Err(format!(
+                "Interval must start with '(' or '[', got '{}'",
+                first_char
+            ));
+        }
     };
 
     let right_type = match last_char {
         ')' => BoundType::Open,
         ']' => BoundType::Closed,
-        _ => return Err(format!("Interval must end with ')' or ']', got '{}'", last_char)),
+        _ => {
+            return Err(format!(
+                "Interval must end with ')' or ']', got '{}'",
+                last_char
+            ));
+        }
     };
 
     // Strip delimiters
@@ -95,8 +114,14 @@ fn parse_user_interval(s: &str) -> Result<Interval, String> {
     let right_val = inner[comma_pos + 1..].trim().to_string();
 
     Ok(Interval {
-        left: Bound { kind: left_type, value: normalize_inf(&left_val) },
-        right: Bound { kind: right_type, value: normalize_inf(&right_val) },
+        left: Bound {
+            kind: left_type,
+            value: normalize_inf(&left_val),
+        },
+        right: Bound {
+            kind: right_type,
+            value: normalize_inf(&right_val),
+        },
     })
 }
 
@@ -151,7 +176,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
     let user_str = user_input.trim();
     let user_parts: Vec<&str> = if user_str.contains(" U ") || user_str.contains(" union ") {
         // Split on " U " or " union "
-        let re_split: Vec<&str> = user_str.split(" U ")
+        let re_split: Vec<&str> = user_str
+            .split(" U ")
             .flat_map(|s| s.split(" union "))
             .collect();
         re_split

@@ -19,7 +19,12 @@ use locus_common::{AnswerType, GradingMode};
 pub use locus_common::grader::GradeResult;
 
 /// Check if a user's answer matches the expected answer.
-pub fn check_answer(user_input: &str, answer_key: &str, mode: GradingMode, answer_type: AnswerType) -> GradeResult {
+pub fn check_answer(
+    user_input: &str,
+    answer_key: &str,
+    mode: GradingMode,
+    answer_type: AnswerType,
+) -> GradeResult {
     locus_common::grader::grade_answer(user_input, answer_key, answer_type, mode)
 }
 

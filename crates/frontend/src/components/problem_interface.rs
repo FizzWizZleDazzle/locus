@@ -1,6 +1,6 @@
+use crate::components::{MathInput, ProblemCard};
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
-use crate::components::{MathInput, ProblemCard};
 
 /// Unified problem display component used by both Practice and Ranked modes.
 ///

@@ -2,7 +2,7 @@
 //!
 //! Converts internal format (open:1,closed:7) to display notation: (1, 7]
 
-use super::common::{render_latex, render_code};
+use super::common::{render_code, render_latex};
 
 /// Format interval from internal notation to display
 ///
@@ -38,6 +38,9 @@ pub fn format_interval(answer_key: &str) -> Result<String, String> {
         return Ok(render_code(answer_key));
     };
 
-    let latex = format!("{}{}, {}{}", left_bracket, left_val, right_val, right_bracket);
+    let latex = format!(
+        "{}{}, {}{}",
+        left_bracket, left_val, right_val, right_bracket
+    );
     render_latex(&latex)
 }

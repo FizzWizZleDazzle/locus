@@ -28,10 +28,10 @@ pub fn time_multiplier(time_ms: i32, difficulty: i32, time_limit_seconds: Option
         (limit as f64) * 1000.0
     } else {
         match difficulty {
-            0..=1200 => 30_000.0,      // 30 seconds for easy problems
-            1201..=1400 => 60_000.0,   // 1 minute for medium problems
-            1401..=1600 => 120_000.0,  // 2 minutes for hard problems
-            _ => 180_000.0,            // 3 minutes for expert problems
+            0..=1200 => 30_000.0,     // 30 seconds for easy problems
+            1201..=1400 => 60_000.0,  // 1 minute for medium problems
+            1401..=1600 => 120_000.0, // 2 minutes for hard problems
+            _ => 180_000.0,           // 3 minutes for expert problems
         }
     };
 
@@ -79,7 +79,7 @@ pub fn calculate_new_elo(
     let k_factor = if let Some(time_ms) = time_taken_ms {
         K_FACTOR * time_multiplier(time_ms, problem_difficulty, time_limit_seconds)
     } else {
-        K_FACTOR  // No bonus if time not tracked
+        K_FACTOR // No bonus if time not tracked
     };
 
     let change = k_factor * (actual - expected);
@@ -95,7 +95,13 @@ pub fn calculate_elo_change(
     time_taken_ms: Option<i32>,
     time_limit_seconds: Option<i32>,
 ) -> i32 {
-    calculate_new_elo(player_elo, problem_difficulty, won, time_taken_ms, time_limit_seconds) - player_elo
+    calculate_new_elo(
+        player_elo,
+        problem_difficulty,
+        won,
+        time_taken_ms,
+        time_limit_seconds,
+    ) - player_elo
 }
 
 #[cfg(test)]
@@ -136,28 +142,44 @@ mod tests {
     fn test_time_multiplier_fast_solve() {
         // Solve in half expected time → 1.5x multiplier
         let mult = time_multiplier(15_000, 1000, None);
-        assert!((mult - 1.5).abs() < 0.01, "Expected 1.5x multiplier for fast solve, got {}", mult);
+        assert!(
+            (mult - 1.5).abs() < 0.01,
+            "Expected 1.5x multiplier for fast solve, got {}",
+            mult
+        );
     }
 
     #[test]
     fn test_time_multiplier_expected_time() {
         // Solve in expected time → 1.0x multiplier
         let mult = time_multiplier(30_000, 1000, None);
-        assert!((mult - 1.0).abs() < 0.01, "Expected 1.0x multiplier for expected time, got {}", mult);
+        assert!(
+            (mult - 1.0).abs() < 0.01,
+            "Expected 1.0x multiplier for expected time, got {}",
+            mult
+        );
     }
 
     #[test]
     fn test_time_multiplier_slow_solve() {
         // Solve in 2x expected time → 1.0x multiplier (no penalty)
         let mult = time_multiplier(60_000, 1000, None);
-        assert!((mult - 1.0).abs() < 0.01, "Expected 1.0x multiplier for slow solve (no penalty), got {}", mult);
+        assert!(
+            (mult - 1.0).abs() < 0.01,
+            "Expected 1.0x multiplier for slow solve (no penalty), got {}",
+            mult
+        );
     }
 
     #[test]
     fn test_time_multiplier_very_slow_solve() {
         // Solve in 10x expected time → 1.0x multiplier (no penalty)
         let mult = time_multiplier(300_000, 1000, None);
-        assert!((mult - 1.0).abs() < 0.01, "Expected 1.0x multiplier for very slow solve (no penalty), got {}", mult);
+        assert!(
+            (mult - 1.0).abs() < 0.01,
+            "Expected 1.0x multiplier for very slow solve (no penalty), got {}",
+            mult
+        );
     }
 
     #[test]
@@ -165,7 +187,10 @@ mod tests {
         // Fast solve should give more points
         let elo_with_bonus = calculate_new_elo(1500, 1500, true, Some(15_000), None);
         let elo_no_bonus = calculate_new_elo(1500, 1500, true, None, None);
-        assert!(elo_with_bonus > elo_no_bonus, "Fast solve should give more ELO");
+        assert!(
+            elo_with_bonus > elo_no_bonus,
+            "Fast solve should give more ELO"
+        );
     }
 
     #[test]
@@ -173,22 +198,37 @@ mod tests {
         // Slow solve should not be penalized
         let elo_slow = calculate_new_elo(1500, 1500, true, Some(120_000), None);
         let elo_no_time = calculate_new_elo(1500, 1500, true, None, None);
-        assert!((elo_slow - elo_no_time).abs() < 1, "Slow solve should not be penalized");
+        assert!(
+            (elo_slow - elo_no_time).abs() < 1,
+            "Slow solve should not be penalized"
+        );
     }
 
     #[test]
     fn test_time_multiplier_custom_limit() {
         // With a 60s custom limit, solving in 30s (half) should give 1.5x
         let mult = time_multiplier(30_000, 1000, Some(60));
-        assert!((mult - 1.5).abs() < 0.01, "Expected 1.5x for half custom limit, got {}", mult);
+        assert!(
+            (mult - 1.5).abs() < 0.01,
+            "Expected 1.5x for half custom limit, got {}",
+            mult
+        );
 
         // Solving in 60s (full) should give 1.0x
         let mult = time_multiplier(60_000, 1000, Some(60));
-        assert!((mult - 1.0).abs() < 0.01, "Expected 1.0x at custom limit, got {}", mult);
+        assert!(
+            (mult - 1.0).abs() < 0.01,
+            "Expected 1.0x at custom limit, got {}",
+            mult
+        );
 
         // Custom limit overrides difficulty-based default
         // difficulty 1000 normally has 30s expected, but custom 120s changes it
         let mult = time_multiplier(60_000, 1000, Some(120));
-        assert!(mult > 1.0, "60s solve with 120s limit should get bonus, got {}", mult);
+        assert!(
+            mult > 1.0,
+            "60s solve with 120s limit should get bonus, got {}",
+            mult
+        );
     }
 }

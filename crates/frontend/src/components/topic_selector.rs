@@ -1,9 +1,9 @@
 //! Topic and subtopic selection component
 
+use crate::api::{self, Topic};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use std::collections::HashSet;
-use crate::api::{self, Topic};
 
 #[component]
 pub fn TopicSelector(
@@ -23,9 +23,8 @@ pub fn TopicSelector(
     initial_subtopics: Vec<String>,
 ) -> impl IntoView {
     let (selected_topic_id, set_selected_topic_id) = signal(initial_topic);
-    let (selected_subtopics, set_selected_subtopics) = signal::<HashSet<String>>(
-        initial_subtopics.into_iter().collect()
-    );
+    let (selected_subtopics, set_selected_subtopics) =
+        signal::<HashSet<String>>(initial_subtopics.into_iter().collect());
 
     // Fetch topics from API
     let (topics, set_topics) = signal(None::<Vec<Topic>>);

@@ -1,14 +1,14 @@
 //! Locus Frontend - Competitive Math Platform
 
 mod api;
+mod components;
 mod env;
+mod formatters;
 mod grader;
+mod katex_bindings;
 mod oauth;
 mod pages;
-mod components;
-mod katex_bindings;
 mod utils;
-mod formatters;
 
 // ---------------------------------------------------------------------------
 // C-compatible allocator bridge
@@ -133,13 +133,16 @@ pub extern "C" fn __libc_realloc(ptr: *mut u8, size: usize) -> *mut u8 {
     realloc(ptr, size)
 }
 
+use components::{Navbar, Sidebar};
 use leptos::prelude::*;
 use leptos_router::{
-    components::{Router, Route, Routes, A},
+    components::{A, Route, Router, Routes},
     path,
 };
-use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail, ForgotPassword, ResetPassword, PrivacyPolicy, TermsOfService};
-use components::{Navbar, Sidebar};
+use pages::{
+    ForgotPassword, Home, Leaderboard, Login, Practice, PrivacyPolicy, Ranked, Register,
+    ResetPassword, Settings, TermsOfService, VerifyEmail,
+};
 
 fn main() {
     console_error_panic_hook::set_once();
@@ -185,14 +188,17 @@ fn App() -> impl IntoView {
             }
         }
 
-        if let Some(storage) = leptos::web_sys::window()
-            .and_then(|w| w.local_storage().ok().flatten())
+        if let Some(storage) =
+            leptos::web_sys::window().and_then(|w| w.local_storage().ok().flatten())
         {
             let _ = storage.set_item("theme", if new_dark { "dark" } else { "light" });
         }
     });
 
-    provide_context(ThemeContext { is_dark, toggle_theme });
+    provide_context(ThemeContext {
+        is_dark,
+        toggle_theme,
+    });
 
     let auth = expect_context::<AuthContext>();
 

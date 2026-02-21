@@ -1,7 +1,7 @@
 //! Email verification token model
 
 use chrono::{DateTime, Duration, Utc};
-use rand::{rng, Rng};
+use rand::{Rng, rng};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -64,12 +64,10 @@ impl EmailVerificationToken {
 
     /// Mark token as used
     pub async fn mark_used(&self, pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            "UPDATE email_verification_tokens SET used_at = NOW() WHERE id = $1"
-        )
-        .bind(self.id)
-        .execute(pool)
-        .await?;
+        sqlx::query("UPDATE email_verification_tokens SET used_at = NOW() WHERE id = $1")
+            .bind(self.id)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 
@@ -94,12 +92,10 @@ impl EmailVerificationToken {
 
     /// Record that a verification email was sent
     pub async fn record_send(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            "INSERT INTO email_verification_sends (user_id) VALUES ($1)"
-        )
-        .bind(user_id)
-        .execute(pool)
-        .await?;
+        sqlx::query("INSERT INTO email_verification_sends (user_id) VALUES ($1)")
+            .bind(user_id)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 }

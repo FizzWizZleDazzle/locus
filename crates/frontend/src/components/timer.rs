@@ -9,7 +9,11 @@ pub fn Timer(seconds: i32) -> impl IntoView {
 
     use_interval_fn(
         move || {
-            set_remaining.update(|r| if *r > 0 { *r -= 1 });
+            set_remaining.update(|r| {
+                if *r > 0 {
+                    *r -= 1
+                }
+            });
         },
         1000,
     );

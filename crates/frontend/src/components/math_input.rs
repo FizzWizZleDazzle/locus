@@ -1,24 +1,20 @@
 //! Math input component with inline rendering (like Desmos)
 
-use leptos::prelude::*;
-use leptos::html::Div;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::{HtmlElement, Document, Window};
 use crate::grader::preprocess_input;
+use leptos::html::Div;
+use leptos::prelude::*;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
+use web_sys::{Document, HtmlElement, Window};
 
 #[component]
 pub fn MathInput(
-    #[prop(optional)]
-    key: Option<String>,
+    #[prop(optional)] key: Option<String>,
     value: ReadSignal<String>,
     set_value: WriteSignal<String>,
-    #[prop(default = "Enter your answer...")]
-    placeholder: &'static str,
-    #[prop(default = false)]
-    disabled: bool,
-    #[prop(optional)]
-    on_submit: Option<Callback<()>>,
+    #[prop(default = "Enter your answer...")] placeholder: &'static str,
+    #[prop(default = false)] disabled: bool,
+    #[prop(optional)] on_submit: Option<Callback<()>>,
 ) -> impl IntoView {
     let container_ref = NodeRef::<Div>::new();
     let initialized = StoredValue::new(false);
@@ -26,7 +22,7 @@ pub fn MathInput(
     // Cleanup MathLive when component unmounts
     on_cleanup(move || {
         if let Some(elem) = container_ref.get_untracked() {
-            elem.set_inner_html("");  // Destroys MathLive instance
+            elem.set_inner_html(""); // Destroys MathLive instance
         }
     });
 
@@ -59,7 +55,7 @@ pub fn MathInput(
                  border: 1px solid #d1d5db; \
                  border-radius: 4px; \
                  min-height: 48px; \
-                 width: 100%;"
+                 width: 100%;",
             );
 
             // Disable virtual keyboard to avoid conflicts with typing
@@ -79,7 +75,7 @@ pub fn MathInput(
             let _ = js_sys::Reflect::set(
                 &math_field_html,
                 &JsValue::from_str("mathVirtualKeyboardPolicy"),
-                &JsValue::from_str("manual")
+                &JsValue::from_str("manual"),
             );
 
             // Set an empty menu to hide the menu button
@@ -87,7 +83,7 @@ pub fn MathInput(
             let _ = js_sys::Reflect::set(
                 &math_field_html,
                 &JsValue::from_str("menuItems"),
-                &empty_array
+                &empty_array,
             );
 
             // Configure inline shortcuts - keep functions, remove problematic conversions
@@ -128,7 +124,7 @@ pub fn MathInput(
             let _ = js_sys::Reflect::set(
                 &math_field_html,
                 &JsValue::from_str("inlineShortcuts"),
-                &shortcuts
+                &shortcuts,
             );
 
             // Set up input event listener - store LaTeX in signal
@@ -140,10 +136,8 @@ pub fn MathInput(
                 set_value_clone.set(new_value);
             }) as Box<dyn FnMut(_)>);
 
-            let _ = math_field_html.add_event_listener_with_callback(
-                "input",
-                input_closure.as_ref().unchecked_ref()
-            );
+            let _ = math_field_html
+                .add_event_listener_with_callback("input", input_closure.as_ref().unchecked_ref());
             input_closure.forget();
 
             // Set up Enter key listener
@@ -157,7 +151,7 @@ pub fn MathInput(
 
                 let _ = math_field_html.add_event_listener_with_callback(
                     "keydown",
-                    keydown_closure.as_ref().unchecked_ref()
+                    keydown_closure.as_ref().unchecked_ref(),
                 );
                 keydown_closure.forget();
             }
@@ -237,8 +231,8 @@ fn is_mathlive_ready(element: &HtmlElement) -> bool {
 
 fn get_math_field_value(element: &HtmlElement) -> String {
     use wasm_bindgen::JsValue;
-    let value = js_sys::Reflect::get(element, &JsValue::from_str("value"))
-        .unwrap_or(JsValue::from_str(""));
+    let value =
+        js_sys::Reflect::get(element, &JsValue::from_str("value")).unwrap_or(JsValue::from_str(""));
     value.as_string().unwrap_or_default()
 }
 
@@ -260,8 +254,8 @@ fn get_math_field_json(element: &HtmlElement) -> String {
     }
 
     // Fallback to LaTeX if MathJSON not available
-    let value = js_sys::Reflect::get(element, &JsValue::from_str("value"))
-        .unwrap_or(JsValue::from_str(""));
+    let value =
+        js_sys::Reflect::get(element, &JsValue::from_str("value")).unwrap_or(JsValue::from_str(""));
     value.as_string().unwrap_or_default()
 }
 
@@ -282,7 +276,9 @@ fn try_set_math_field_value(element: &HtmlElement, value: &str) -> bool {
     };
 
     // Call the function
-    set_value_fn.call1(element, &JsValue::from_str(value)).is_ok()
+    set_value_fn
+        .call1(element, &JsValue::from_str(value))
+        .is_ok()
 }
 
 fn set_math_field_value(element: &HtmlElement, value: &str) {

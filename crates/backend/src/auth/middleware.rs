@@ -2,11 +2,11 @@
 
 use axum::{
     extract::FromRequestParts,
-    http::{header::AUTHORIZATION, request::Parts, StatusCode},
+    http::{StatusCode, header::AUTHORIZATION, request::Parts},
 };
 use uuid::Uuid;
 
-use super::jwt::{verify_token, Claims};
+use super::jwt::{Claims, verify_token};
 use crate::api::AppState;
 
 /// Authenticated user extractor

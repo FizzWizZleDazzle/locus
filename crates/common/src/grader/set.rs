@@ -1,7 +1,7 @@
 //! Set grader — unordered element-wise comparison.
 
-use super::{ExprEngine, GradeResult, are_equivalent};
 use super::parse::split_top_level;
+use super::{ExprEngine, GradeResult, are_equivalent};
 
 /// Strip optional `{` `}` braces from input.
 fn strip_braces(input: &str) -> &str {

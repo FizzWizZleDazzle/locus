@@ -1,7 +1,7 @@
 //! Modular LaTeX renderer that handles multiple input formats
 
-use leptos::prelude::*;
 use leptos::html::Div;
+use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -35,13 +35,16 @@ pub fn LatexRenderer(
             element.set_inner_html(&processed);
 
             // Apply KaTeX auto-render
-            let options = js_sys::JSON::parse(r#"{
+            let options = js_sys::JSON::parse(
+                r#"{
                 "delimiters": [
                     {"left": "$$", "right": "$$", "display": true},
                     {"left": "$", "right": "$", "display": false}
                 ],
                 "throwOnError": false
-            }"#).unwrap();
+            }"#,
+            )
+            .unwrap();
 
             render_math_in_element(&element, &options);
         }

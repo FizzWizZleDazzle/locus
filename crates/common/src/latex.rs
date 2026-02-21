@@ -163,10 +163,8 @@ pub fn convert_latex_to_plain(input: &str) -> String {
 /// Does NOT add multiplication after function names (sin, cos, sqrt, etc.)
 fn add_explicit_multiplication(input: &str) -> String {
     const FUNCTIONS: &[&str] = &[
-        "sin", "cos", "tan", "sec", "csc", "cot",
-        "asin", "acos", "atan", "arcsin", "arccos", "arctan",
-        "sinh", "cosh", "tanh",
-        "ln", "log", "exp", "abs", "sqrt",
+        "sin", "cos", "tan", "sec", "csc", "cot", "asin", "acos", "atan", "arcsin", "arccos",
+        "arctan", "sinh", "cosh", "tanh", "ln", "log", "exp", "abs", "sqrt",
     ];
 
     let mut result = String::with_capacity(input.len() * 2);
@@ -191,7 +189,10 @@ fn add_explicit_multiplication(input: &str) -> String {
                 // letter followed by ( -> check if it's a function name
                 (c, '(') if c.is_alphabetic() => {
                     // Look backward to get the full word before (
-                    let word_start = result.rfind(|c: char| !c.is_alphabetic()).map(|p| p + 1).unwrap_or(0);
+                    let word_start = result
+                        .rfind(|c: char| !c.is_alphabetic())
+                        .map(|p| p + 1)
+                        .unwrap_or(0);
                     let word = &result[word_start..];
                     // Only add * if it's NOT a known function
                     !FUNCTIONS.contains(&word)

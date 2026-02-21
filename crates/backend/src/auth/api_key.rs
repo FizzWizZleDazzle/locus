@@ -1,9 +1,9 @@
 //! API key authentication for service-to-service communication
 
 use axum::{
-    extract::FromRequestParts,
-    http::{request::Parts, StatusCode},
     Json,
+    extract::FromRequestParts,
+    http::{StatusCode, request::Parts},
 };
 
 use crate::api::AppState;

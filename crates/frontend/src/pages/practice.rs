@@ -7,10 +7,10 @@ use locus_common::ProblemResponse;
 
 use crate::{
     api,
-    components::{ProblemInterface, TopicSelector, LatexRenderer},
-    grader::{check_answer, preprocess_input, GradeResult},
+    components::{LatexRenderer, ProblemInterface, TopicSelector},
     formatters::format_answer_for_display,
-    utils::{update_url, push_url_playing, setup_popstate_listener},
+    grader::{GradeResult, check_answer, preprocess_input},
+    utils::{push_url_playing, setup_popstate_listener, update_url},
 };
 
 // format_answer_for_display moved to crate::formatters module
@@ -44,11 +44,7 @@ pub fn Practice() -> impl IntoView {
         let subtopics = selected_subtopics.get();
 
         spawn_local(async move {
-            match api::get_problem(
-                true,
-                topic.as_deref(),
-                Some(&subtopics),
-            ).await {
+            match api::get_problem(true, topic.as_deref(), Some(&subtopics)).await {
                 Ok(p) => {
                     set_problem.set(Some(p));
                     set_loading.set(false);

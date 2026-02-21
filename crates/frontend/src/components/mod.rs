@@ -1,19 +1,19 @@
 //! UI Components
 
-mod navbar;
-mod sidebar;
+mod latex_renderer;
 mod math_input;
+mod navbar;
 mod problem_card;
 mod problem_interface;
-mod topic_selector;
-mod latex_renderer;
+mod sidebar;
 mod timer;
+mod topic_selector;
 
-pub use navbar::Navbar;
-pub use sidebar::Sidebar;
+pub use latex_renderer::LatexRenderer;
 pub use math_input::MathInput;
+pub use navbar::Navbar;
 pub use problem_card::ProblemCard;
 pub use problem_interface::ProblemInterface;
-pub use topic_selector::TopicSelector;
-pub use latex_renderer::LatexRenderer;
+pub use sidebar::Sidebar;
 pub use timer::Timer;
+pub use topic_selector::TopicSelector;

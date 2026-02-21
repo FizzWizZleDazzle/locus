@@ -1,17 +1,17 @@
 //! Common types shared between frontend and backend
 
-pub mod grader;
-pub mod symengine;
+pub mod constants;
 pub mod elo;
-pub mod validation;
+pub mod grader;
 pub mod latex;
 pub mod mathjson;
-pub mod constants;
 pub mod svg_compress;
+pub mod symengine;
+pub mod validation;
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 // ============================================================================
 // Topics and Subtopics
@@ -176,7 +176,8 @@ impl MainTopic {
 }
 
 pub fn subtopic_display_name(subtopic: &str) -> String {
-    subtopic.replace("_", " ")
+    subtopic
+        .replace("_", " ")
         .split(' ')
         .map(|word| {
             let mut c = word.chars();
@@ -431,7 +432,9 @@ pub struct ApiError {
 
 impl ApiError {
     pub fn new(error: impl Into<String>) -> Self {
-        Self { error: error.into() }
+        Self {
+            error: error.into(),
+        }
     }
 }
 

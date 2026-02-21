@@ -18,9 +18,7 @@ use super::common::render_latex;
 pub fn format_equation(answer_key: &str) -> Result<String, String> {
     // For equations, convert plain notation to LaTeX manually to avoid Nerdamer expanding
     // Convert ** to ^ and render directly as LaTeX
-    let latex = answer_key
-        .replace("**", "^")
-        .replace("*", "\\cdot ");
+    let latex = answer_key.replace("**", "^").replace("*", "\\cdot ");
 
     // Render the LaTeX directly without Nerdamer processing
     render_latex(&latex)

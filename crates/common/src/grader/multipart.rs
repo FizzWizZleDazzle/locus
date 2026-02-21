@@ -3,8 +3,8 @@
 //! Answer key format: `tuple:5,-4|||numeric:4`
 //! User input format: `(5, -4)|||4`
 
-use crate::{AnswerType, GradingMode};
 use super::GradeResult;
+use crate::{AnswerType, GradingMode};
 
 pub fn grade(user_input: &str, answer_key: &str) -> GradeResult {
     let key_parts: Vec<&str> = answer_key.split("|||").collect();
@@ -23,7 +23,13 @@ pub fn grade(user_input: &str, answer_key: &str) -> GradeResult {
             Some((t, v)) => {
                 let answer_type = match AnswerType::from_str(t) {
                     Some(at) => at,
-                    None => return GradeResult::Error(format!("Unknown type '{}' in part {}", t, i + 1)),
+                    None => {
+                        return GradeResult::Error(format!(
+                            "Unknown type '{}' in part {}",
+                            t,
+                            i + 1
+                        ));
+                    }
                 };
                 (answer_type, v)
             }
@@ -39,8 +45,12 @@ pub fn grade(user_input: &str, answer_key: &str) -> GradeResult {
         match result {
             GradeResult::Correct => continue,
             GradeResult::Incorrect => return GradeResult::Incorrect,
-            GradeResult::Invalid(msg) => return GradeResult::Invalid(format!("Part {}: {}", i + 1, msg)),
-            GradeResult::Error(msg) => return GradeResult::Error(format!("Part {}: {}", i + 1, msg)),
+            GradeResult::Invalid(msg) => {
+                return GradeResult::Invalid(format!("Part {}: {}", i + 1, msg));
+            }
+            GradeResult::Error(msg) => {
+                return GradeResult::Error(format!("Part {}: {}", i + 1, msg));
+            }
         }
     }
 

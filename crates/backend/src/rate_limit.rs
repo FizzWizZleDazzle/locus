@@ -1,7 +1,7 @@
 use governor::middleware::NoOpMiddleware;
 use std::time::Duration;
 use tower_governor::{
-    governor::GovernorConfigBuilder, key_extractor::PeerIpKeyExtractor, GovernorLayer,
+    GovernorLayer, governor::GovernorConfigBuilder, key_extractor::PeerIpKeyExtractor,
 };
 
 /// Creates a rate limiter for authentication endpoints (register)
@@ -50,7 +50,8 @@ pub fn login_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware,
 
 /// Creates a general rate limiter for all other endpoints
 /// Limit: 1000 requests per minute per IP (unlimited in debug builds)
-pub fn general_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body> {
+pub fn general_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body>
+{
     #[cfg(debug_assertions)]
     let requests: u32 = 1_000_000; // Effectively unlimited in dev
 

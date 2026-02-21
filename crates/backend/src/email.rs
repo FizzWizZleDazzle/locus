@@ -1,8 +1,8 @@
 //! Email service using Resend
 
+use crate::AppError;
 use resend_rs::Resend;
 use resend_rs::types::CreateEmailBaseOptions;
-use crate::AppError;
 
 #[derive(Clone)]
 pub struct EmailService {
@@ -14,7 +14,12 @@ pub struct EmailService {
 
 impl EmailService {
     /// Create a new email service
-    pub fn new(api_key: String, from_email: String, from_name: String, frontend_base_url: String) -> Self {
+    pub fn new(
+        api_key: String,
+        from_email: String,
+        from_name: String,
+        frontend_base_url: String,
+    ) -> Self {
         let client = Resend::new(&api_key);
         Self {
             client,
@@ -124,13 +129,9 @@ Locus Team"#,
 
         let from = format!("{} <{}>", self.from_name, self.from_email);
 
-        let email = CreateEmailBaseOptions::new(
-            &from,
-            [to_email],
-            "Verify your email for Locus",
-        )
-        .with_html(&html_body)
-        .with_text(&text_body);
+        let email = CreateEmailBaseOptions::new(&from, [to_email], "Verify your email for Locus")
+            .with_html(&html_body)
+            .with_text(&text_body);
 
         self.client
             .emails
@@ -245,13 +246,9 @@ Locus Team"#,
 
         let from = format!("{} <{}>", self.from_name, self.from_email);
 
-        let email = CreateEmailBaseOptions::new(
-            &from,
-            [to_email],
-            "Reset your Locus password",
-        )
-        .with_html(&html_body)
-        .with_text(&text_body);
+        let email = CreateEmailBaseOptions::new(&from, [to_email], "Reset your Locus password")
+            .with_html(&html_body)
+            .with_text(&text_body);
 
         self.client
             .emails

@@ -26,20 +26,32 @@ pub fn format_multi_part(answer_key: &str) -> Result<String, String> {
     // "tuple:5,-4|||numeric:4" -> render each part as math
     let parts: Vec<&str> = answer_key.split("|||").collect();
 
-    let formatted_parts: Result<Vec<String>, String> = parts.iter().enumerate().map(|(i, part)| {
-        if let Some((type_str, value)) = part.split_once(':') {
-            let latex = match type_str {
-                "tuple" => format!("({})", value),
-                "set" => format!("\\lbrace {} \\rbrace", value),
-                "list" => format!("[{}]", value),
-                _ => value.to_string(),
-            };
-            let rendered = render_latex(&latex)?;
-            Ok(format!("<div><strong>Part {}:</strong> {}</div>", i + 1, rendered))
-        } else {
-            Ok(format!("<div><strong>Part {}:</strong> <code>{}</code></div>", i + 1, part))
-        }
-    }).collect();
+    let formatted_parts: Result<Vec<String>, String> = parts
+        .iter()
+        .enumerate()
+        .map(|(i, part)| {
+            if let Some((type_str, value)) = part.split_once(':') {
+                let latex = match type_str {
+                    "tuple" => format!("({})", value),
+                    "set" => format!("\\lbrace {} \\rbrace", value),
+                    "list" => format!("[{}]", value),
+                    _ => value.to_string(),
+                };
+                let rendered = render_latex(&latex)?;
+                Ok(format!(
+                    "<div><strong>Part {}:</strong> {}</div>",
+                    i + 1,
+                    rendered
+                ))
+            } else {
+                Ok(format!(
+                    "<div><strong>Part {}:</strong> <code>{}</code></div>",
+                    i + 1,
+                    part
+                ))
+            }
+        })
+        .collect();
 
     Ok(formatted_parts?.join(""))
 }

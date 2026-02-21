@@ -1,14 +1,18 @@
 //! Problem endpoints
 
 use axum::{
-    extract::{Query, State},
     Json,
+    extract::{Query, State},
 };
 
 use locus_common::{ProblemQuery, ProblemResponse, constants::DEFAULT_DIFFICULTY};
 
-use crate::{auth::AuthUser, models::{Problem, User}, AppError};
 use super::AppState;
+use crate::{
+    AppError,
+    auth::AuthUser,
+    models::{Problem, User},
+};
 
 /// Get a problem
 ///
@@ -21,7 +25,9 @@ pub async fn get_problem(
 ) -> Result<Json<ProblemResponse>, AppError> {
     // For ranked mode, require authentication
     if !query.practice && user.is_none() {
-        return Err(AppError::Auth("Authentication required for ranked mode".into()));
+        return Err(AppError::Auth(
+            "Authentication required for ranked mode".into(),
+        ));
     }
 
     // Parse subtopics from comma-separated string

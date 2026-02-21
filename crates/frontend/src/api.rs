@@ -2,13 +2,12 @@
 
 use gloo_net::http::Request;
 use gloo_storage::{LocalStorage, Storage};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use locus_common::{
-    AuthResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
-    SetPasswordRequest, SubmitRequest, SubmitResponse, UserProfile, ApiError,
-    ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
-    UnlinkOAuthRequest, SuccessResponse,
+    ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
+    LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest, SetPasswordRequest,
+    SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest, UserProfile,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -173,16 +172,20 @@ async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError>
         })
     } else {
         let error: ApiError = resp.json().await.unwrap_or(ApiError::new("Unknown error"));
-        Err(RequestError { message: error.error })
+        Err(RequestError {
+            message: error.error,
+        })
     }
 }
 
 /// Make an authenticated POST request with JSON body
-async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -> Result<T, RequestError> {
+async fn post_request<T: DeserializeOwned, B: Serialize>(
+    path: &str,
+    body: &B,
+) -> Result<T, RequestError> {
     let url = format!("{}{}", env::api_base(), path);
 
-    let mut req = Request::post(&url)
-        .header("Content-Type", "application/json");
+    let mut req = Request::post(&url).header("Content-Type", "application/json");
 
     if let Some(token) = get_token() {
         req = req.header("Authorization", &format!("Bearer {}", token));
@@ -206,7 +209,9 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -
         })
     } else {
         let error: ApiError = resp.json().await.unwrap_or(ApiError::new("Unknown error"));
-        Err(RequestError { message: error.error })
+        Err(RequestError {
+            message: error.error,
+        })
     }
 }
 
@@ -214,7 +219,12 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(path: &str, body: &B) -
 // Auth API
 // ============================================================================
 
-pub async fn register(username: &str, email: &str, password: &str, accepted_tos: bool) -> Result<RegisterResponse, RequestError> {
+pub async fn register(
+    username: &str,
+    email: &str,
+    password: &str,
+    accepted_tos: bool,
+) -> Result<RegisterResponse, RequestError> {
     let req = RegisterRequest {
         username: username.to_string(),
         email: email.to_string(),
@@ -258,7 +268,10 @@ pub async fn validate_reset_token(token: &str) -> Result<ValidateResetTokenRespo
     post_request("/auth/validate-reset-token", &req).await
 }
 
-pub async fn reset_password(token: &str, new_password: &str) -> Result<ResetPasswordResponse, RequestError> {
+pub async fn reset_password(
+    token: &str,
+    new_password: &str,
+) -> Result<ResetPasswordResponse, RequestError> {
     let req = ResetPasswordRequest {
         token: token.to_string(),
         new_password: new_password.to_string(),
@@ -293,7 +306,10 @@ pub async fn set_password(password: &str) -> Result<UserProfile, RequestError> {
     post_request("/auth/set-password", &req).await
 }
 
-pub async fn change_password(old_password: &str, new_password: &str) -> Result<SuccessResponse, RequestError> {
+pub async fn change_password(
+    old_password: &str,
+    new_password: &str,
+) -> Result<SuccessResponse, RequestError> {
     let req = ChangePasswordRequest {
         old_password: old_password.to_string(),
         new_password: new_password.to_string(),

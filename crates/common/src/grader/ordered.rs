@@ -1,14 +1,12 @@
 //! Ordered grader — element-wise ordered comparison (Tuple + List).
 
-use super::{ExprEngine, GradeResult, are_equivalent};
 use super::parse::split_top_level;
+use super::{ExprEngine, GradeResult, are_equivalent};
 
 /// Strip optional `(` `)` or `[` `]` from input.
 fn strip_delimiters(input: &str) -> &str {
     let s = input.trim();
-    if (s.starts_with('(') && s.ends_with(')'))
-        || (s.starts_with('[') && s.ends_with(']'))
-    {
+    if (s.starts_with('(') && s.ends_with(')')) || (s.starts_with('[') && s.ends_with(']')) {
         &s[1..s.len() - 1]
     } else {
         s
@@ -34,7 +32,9 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
     for (i, (exp_s, usr_s)) in expected_parts.iter().zip(user_parts.iter()).enumerate() {
         let exp = match E::parse(exp_s.trim()) {
             Ok(e) => e,
-            Err(e) => return GradeResult::Error(format!("Invalid answer key element {}: {}", i + 1, e)),
+            Err(e) => {
+                return GradeResult::Error(format!("Invalid answer key element {}: {}", i + 1, e));
+            }
         };
 
         let usr = match E::parse(usr_s.trim()) {

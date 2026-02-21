@@ -2,8 +2,8 @@
 
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
-use uuid::Uuid;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 use locus_common::{UserProfile, constants::INITIAL_ELO};
 
@@ -107,7 +107,11 @@ impl User {
     }
 
     /// Get user's ELO for a specific topic (uses PostgreSQL function)
-    pub async fn get_elo_for_topic(pool: &PgPool, user_id: Uuid, topic: &str) -> Result<i32, sqlx::Error> {
+    pub async fn get_elo_for_topic(
+        pool: &PgPool,
+        user_id: Uuid,
+        topic: &str,
+    ) -> Result<i32, sqlx::Error> {
         let result: (i32,) = sqlx::query_as("SELECT get_user_elo($1, $2)")
             .bind(user_id)
             .bind(topic)
@@ -133,13 +137,15 @@ impl User {
     }
 
     /// Get all ELO ratings for a user
-    pub async fn get_all_elos(pool: &PgPool, user_id: Uuid) -> Result<HashMap<String, i32>, sqlx::Error> {
-        let rows: Vec<(String, i32)> = sqlx::query_as(
-            "SELECT topic, elo FROM user_topic_elo WHERE user_id = $1"
-        )
-        .bind(user_id)
-        .fetch_all(pool)
-        .await?;
+    pub async fn get_all_elos(
+        pool: &PgPool,
+        user_id: Uuid,
+    ) -> Result<HashMap<String, i32>, sqlx::Error> {
+        let rows: Vec<(String, i32)> =
+            sqlx::query_as("SELECT topic, elo FROM user_topic_elo WHERE user_id = $1")
+                .bind(user_id)
+                .fetch_all(pool)
+                .await?;
 
         Ok(rows.into_iter().collect())
     }
@@ -169,30 +175,26 @@ impl User {
 
     /// Check if username exists
     pub async fn username_exists(pool: &PgPool, username: &str) -> Result<bool, sqlx::Error> {
-        let result: (i64,) = sqlx::query_as(
-            "SELECT COUNT(*) FROM users WHERE username = $1",
-        )
-        .bind(username)
-        .fetch_one(pool)
-        .await?;
+        let result: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM users WHERE username = $1")
+            .bind(username)
+            .fetch_one(pool)
+            .await?;
         Ok(result.0 > 0)
     }
 
     /// Check if email exists
     pub async fn email_exists(pool: &PgPool, email: &str) -> Result<bool, sqlx::Error> {
-        let result: (i64,) = sqlx::query_as(
-            "SELECT COUNT(*) FROM users WHERE email = $1",
-        )
-        .bind(email)
-        .fetch_one(pool)
-        .await?;
+        let result: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM users WHERE email = $1")
+            .bind(email)
+            .fetch_one(pool)
+            .await?;
         Ok(result.0 > 0)
     }
 
     /// Mark user's email as verified
     pub async fn mark_email_verified(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "UPDATE users SET email_verified = TRUE, email_verified_at = NOW() WHERE id = $1"
+            "UPDATE users SET email_verified = TRUE, email_verified_at = NOW() WHERE id = $1",
         )
         .bind(user_id)
         .execute(pool)
@@ -201,9 +203,12 @@ impl User {
     }
 
     /// Get list of OAuth providers linked to this user
-    pub async fn get_oauth_providers(pool: &PgPool, user_id: Uuid) -> Result<Vec<String>, sqlx::Error> {
+    pub async fn get_oauth_providers(
+        pool: &PgPool,
+        user_id: Uuid,
+    ) -> Result<Vec<String>, sqlx::Error> {
         let rows: Vec<(String,)> = sqlx::query_as(
-            "SELECT provider FROM oauth_accounts WHERE user_id = $1 ORDER BY provider"
+            "SELECT provider FROM oauth_accounts WHERE user_id = $1 ORDER BY provider",
         )
         .bind(user_id)
         .fetch_all(pool)
@@ -213,7 +218,11 @@ impl User {
     }
 
     /// Update username (with uniqueness check done by caller)
-    pub async fn update_username(pool: &PgPool, user_id: Uuid, new_username: &str) -> Result<(), sqlx::Error> {
+    pub async fn update_username(
+        pool: &PgPool,
+        user_id: Uuid,
+        new_username: &str,
+    ) -> Result<(), sqlx::Error> {
         sqlx::query("UPDATE users SET username = $1 WHERE id = $2")
             .bind(new_username)
             .bind(user_id)
@@ -326,12 +335,11 @@ impl OAuthAccount {
 
     /// Count OAuth accounts for a user
     pub async fn count_by_user(pool: &PgPool, user_id: Uuid) -> Result<i64, sqlx::Error> {
-        let result: (i64,) = sqlx::query_as(
-            "SELECT COUNT(*) FROM oauth_accounts WHERE user_id = $1"
-        )
-        .bind(user_id)
-        .fetch_one(pool)
-        .await?;
+        let result: (i64,) =
+            sqlx::query_as("SELECT COUNT(*) FROM oauth_accounts WHERE user_id = $1")
+                .bind(user_id)
+                .fetch_one(pool)
+                .await?;
         Ok(result.0)
     }
 }

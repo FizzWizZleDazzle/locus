@@ -3,21 +3,21 @@
 //! The grading algorithm dispatches to type-specific graders based on `AnswerType`.
 //! `GradingMode` (Factor/Expand) only applies to Expression type.
 
-mod expression;
-mod numeric;
-mod set;
-mod ordered;
-mod interval;
-mod inequality;
-mod equation;
 mod boolean;
-mod word;
+mod equation;
+mod expression;
+mod inequality;
+mod interval;
 mod matrix;
 mod multipart;
+mod numeric;
+mod ordered;
 pub mod parse;
+mod set;
+mod word;
 
-use crate::{AnswerType, GradingMode};
 use crate::symengine::{Expr, ExprError};
+use crate::{AnswerType, GradingMode};
 
 // Test points for numerical equivalence checking.
 // Chosen to avoid common edge cases (0, 1, pi/2, etc.)
@@ -123,19 +123,24 @@ impl ExprEngine for Expr {
 /// the appropriate type-specific grader based on `answer_type`.
 ///
 /// `GradingMode` only applies to `Expression` type; ignored for all others.
-pub fn grade_answer(user: &str, expected: &str, answer_type: AnswerType, mode: GradingMode) -> GradeResult {
+pub fn grade_answer(
+    user: &str,
+    expected: &str,
+    answer_type: AnswerType,
+    mode: GradingMode,
+) -> GradeResult {
     match answer_type {
         AnswerType::Expression => expression::grade::<Expr>(user, expected, mode),
-        AnswerType::Numeric    => numeric::grade::<Expr>(user, expected),
-        AnswerType::Set        => set::grade::<Expr>(user, expected),
+        AnswerType::Numeric => numeric::grade::<Expr>(user, expected),
+        AnswerType::Set => set::grade::<Expr>(user, expected),
         AnswerType::Tuple | AnswerType::List => ordered::grade::<Expr>(user, expected),
-        AnswerType::Interval   => interval::grade::<Expr>(user, expected),
+        AnswerType::Interval => interval::grade::<Expr>(user, expected),
         AnswerType::Inequality => inequality::grade::<Expr>(user, expected),
-        AnswerType::Equation   => equation::grade::<Expr>(user, expected),
-        AnswerType::Boolean    => boolean::grade(user, expected),
-        AnswerType::Word       => word::grade(user, expected),
-        AnswerType::Matrix     => matrix::grade::<Expr>(user, expected),
-        AnswerType::MultiPart  => multipart::grade(user, expected),
+        AnswerType::Equation => equation::grade::<Expr>(user, expected),
+        AnswerType::Boolean => boolean::grade(user, expected),
+        AnswerType::Word => word::grade(user, expected),
+        AnswerType::Matrix => matrix::grade::<Expr>(user, expected),
+        AnswerType::MultiPart => multipart::grade(user, expected),
     }
 }
 
@@ -147,7 +152,11 @@ pub fn check_answer_expr(user_input: &str, answer_key: &str, mode: GradingMode) 
 }
 
 /// Backward-compatible generic check_answer (Expression type only).
-pub fn check_answer<E: ExprEngine>(user_input: &str, answer_key: &str, mode: GradingMode) -> GradeResult {
+pub fn check_answer<E: ExprEngine>(
+    user_input: &str,
+    answer_key: &str,
+    mode: GradingMode,
+) -> GradeResult {
     expression::grade::<E>(user_input, answer_key, mode)
 }
 

@@ -1,26 +1,25 @@
 //! Authentication endpoints
 
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 
 use locus_common::{
-    AuthResponse, LoginRequest, RegisterRequest, SetPasswordRequest, UserProfile,
-    ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
-    UnlinkOAuthRequest, SuccessResponse,
+    AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest, LoginRequest,
+    RegisterRequest, SetPasswordRequest, SuccessResponse, UnlinkOAuthRequest, UserProfile,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    auth::{create_token, AuthUser},
-    models::{User, EmailVerificationToken, PasswordResetToken, OAuthAccount},
     AppError,
+    auth::{AuthUser, create_token},
+    models::{EmailVerificationToken, OAuthAccount, PasswordResetToken, User},
 };
 
-use locus_common::validation;
 use super::AppState;
+use locus_common::validation;
 
 #[derive(Serialize)]
 pub struct RegisterResponse {
@@ -36,7 +35,9 @@ pub async fn register(
 ) -> Result<Json<RegisterResponse>, AppError> {
     // Validate TOS acceptance
     if !req.accepted_tos {
-        return Err(AppError::BadRequest("You must accept the Terms of Service and Privacy Policy to register".into()));
+        return Err(AppError::BadRequest(
+            "You must accept the Terms of Service and Privacy Policy to register".into(),
+        ));
     }
 
     // Validate username
@@ -48,8 +49,7 @@ pub async fn register(
         .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
     // Validate email format
-    validation::validate_email(&req.email)
-        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+    validation::validate_email(&req.email).map_err(|e| AppError::BadRequest(e.to_string()))?;
 
     // Check if username or email already exists
     if User::username_exists(&state.pool, &req.username).await? {
@@ -74,7 +74,8 @@ pub async fn register(
     let verification_token = EmailVerificationToken::create(&state.pool, user.id).await?;
 
     // Send verification email
-    state.email_service
+    state
+        .email_service
         .send_verification_email(&user.email, &user.username, &verification_token.token)
         .await?;
 
@@ -193,9 +194,13 @@ pub async fn verify_email(
     // Check if token is valid (not expired, not used)
     if !token.is_valid() {
         if token.used_at.is_some() {
-            return Err(AppError::BadRequest("This verification link has already been used".into()));
+            return Err(AppError::BadRequest(
+                "This verification link has already been used".into(),
+            ));
         } else {
-            return Err(AppError::BadRequest("This verification link has expired. Request a new one.".into()));
+            return Err(AppError::BadRequest(
+                "This verification link has expired. Request a new one.".into(),
+            ));
         }
     }
 
@@ -230,23 +235,32 @@ pub async fn resend_verification(
     // Find user by email
     let user = User::find_by_email(&state.pool, &req.email)
         .await?
-        .ok_or_else(|| AppError::BadRequest("If this email is registered, a verification link will be sent".into()))?;
+        .ok_or_else(|| {
+            AppError::BadRequest(
+                "If this email is registered, a verification link will be sent".into(),
+            )
+        })?;
 
     // Check if already verified
     if user.email_verified {
-        return Err(AppError::BadRequest("Your email is already verified".into()));
+        return Err(AppError::BadRequest(
+            "Your email is already verified".into(),
+        ));
     }
 
     // Check rate limit
     if !EmailVerificationToken::can_send_email(&state.pool, user.id).await? {
-        return Err(AppError::BadRequest("Please wait 1 minute before requesting another verification email".into()));
+        return Err(AppError::BadRequest(
+            "Please wait 1 minute before requesting another verification email".into(),
+        ));
     }
 
     // Generate new token
     let verification_token = EmailVerificationToken::create(&state.pool, user.id).await?;
 
     // Send verification email
-    state.email_service
+    state
+        .email_service
         .send_verification_email(&user.email, &user.username, &verification_token.token)
         .await?;
 
@@ -294,14 +308,17 @@ pub async fn forgot_password(
 
     // Check rate limit (1 email per minute)
     if !PasswordResetToken::can_send_email(&state.pool, user.id).await? {
-        return Err(AppError::BadRequest("Please wait 1 minute before requesting another reset link".into()));
+        return Err(AppError::BadRequest(
+            "Please wait 1 minute before requesting another reset link".into(),
+        ));
     }
 
     // Generate reset token (30-minute expiry)
     let reset_token = PasswordResetToken::create(&state.pool, user.id).await?;
 
     // Send reset email
-    state.email_service
+    state
+        .email_service
         .send_password_reset_email(&user.email, &user.username, &reset_token.token)
         .await?;
 
@@ -381,9 +398,13 @@ pub async fn reset_password(
     // Check if token is valid
     if !token.is_valid() {
         if token.used_at.is_some() {
-            return Err(AppError::BadRequest("This reset link has already been used".into()));
+            return Err(AppError::BadRequest(
+                "This reset link has already been used".into(),
+            ));
         } else {
-            return Err(AppError::BadRequest("This reset link has expired. Request a new one.".into()));
+            return Err(AppError::BadRequest(
+                "This reset link has expired. Request a new one.".into(),
+            ));
         }
     }
 
@@ -403,7 +424,8 @@ pub async fn reset_password(
 
     Ok(Json(ResetPasswordResponse {
         success: true,
-        message: "Password reset successful! You can now log in with your new password.".to_string(),
+        message: "Password reset successful! You can now log in with your new password."
+            .to_string(),
     }))
 }
 
@@ -419,10 +441,11 @@ pub async fn change_password(
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
     // Check if user has a password set
-    let password_hash = user.password_hash.as_deref()
-        .ok_or_else(|| AppError::BadRequest(
-            "This account does not have a password set. Use 'Set Password' instead.".into()
-        ))?;
+    let password_hash = user.password_hash.as_deref().ok_or_else(|| {
+        AppError::BadRequest(
+            "This account does not have a password set. Use 'Set Password' instead.".into(),
+        )
+    })?;
 
     // Verify old password
     let parsed_hash = PasswordHash::new(password_hash)
@@ -469,7 +492,9 @@ pub async fn change_username(
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
     if existing.username == req.new_username {
-        return Err(AppError::BadRequest("New username is the same as current username".into()));
+        return Err(AppError::BadRequest(
+            "New username is the same as current username".into(),
+        ));
     }
 
     // Update username - database UNIQUE constraint handles race conditions
@@ -505,7 +530,9 @@ pub async fn delete_account(
 
     // If user has password, verify it
     if let Some(password_hash) = user.password_hash.as_deref() {
-        let provided_password = req.password.as_deref()
+        let provided_password = req
+            .password
+            .as_deref()
             .ok_or_else(|| AppError::BadRequest("Password required to delete account".into()))?;
 
         let parsed_hash = PasswordHash::new(password_hash)
@@ -529,9 +556,10 @@ pub async fn delete_account(
 fn validate_oauth_provider(provider: &str) -> Result<(), AppError> {
     match provider {
         "google" | "github" => Ok(()),
-        _ => Err(AppError::BadRequest(
-            format!("Invalid OAuth provider: {}. Supported providers: google, github", provider)
-        )),
+        _ => Err(AppError::BadRequest(format!(
+            "Invalid OAuth provider: {}. Supported providers: google, github",
+            provider
+        ))),
     }
 }
 

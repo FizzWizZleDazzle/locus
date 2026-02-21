@@ -1,7 +1,7 @@
 //! Expression grader — symbolic equivalence with optional Factor/Expand form checks.
 
-use crate::GradingMode;
 use super::{ExprEngine, GradeResult, are_equivalent};
+use crate::GradingMode;
 
 /// Grade an expression answer with Factor/Expand mode support.
 pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str, mode: GradingMode) -> GradeResult {

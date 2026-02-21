@@ -6,11 +6,10 @@ use leptos_router::hooks::{use_navigate, use_query_map};
 use locus_common::{MainTopic, ProblemResponse};
 
 use crate::{
-    api,
+    AuthContext, api,
     components::{ProblemInterface, TopicSelector},
     grader::preprocess_input,
-    utils::{update_url, push_url_playing, setup_popstate_listener},
-    AuthContext,
+    utils::{push_url_playing, setup_popstate_listener, update_url},
 };
 
 #[component]
@@ -133,7 +132,8 @@ pub fn Ranked() -> impl IntoView {
 
                 // Validate subtopics belong to topic - filter out invalid ones
                 let valid_subtopic_list = main_topic.subtopics();
-                let filtered_subtopics: Vec<String> = subtopics.into_iter()
+                let filtered_subtopics: Vec<String> = subtopics
+                    .into_iter()
                     .filter(|st| valid_subtopic_list.contains(&st.as_str()))
                     .collect();
 
@@ -170,9 +170,9 @@ pub fn Ranked() -> impl IntoView {
             set_error.set(None);
 
             let user_input = preprocess_input(&answer.get());
-            let time_taken = start_time.get().map(|start| {
-                (js_sys::Date::now() - start) as i32
-            });
+            let time_taken = start_time
+                .get()
+                .map(|start| (js_sys::Date::now() - start) as i32);
 
             spawn_local(async move {
                 match api::submit_answer(p.id, &user_input, time_taken).await {

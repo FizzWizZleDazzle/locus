@@ -4,8 +4,8 @@
 //! 1. Direct equivalence of (LHS - RHS) expressions
 //! 2. Proportionality: user_diff / expected_diff is a constant (scalar multiple)
 
-use super::{ExprEngine, GradeResult, are_equivalent, are_proportional};
 use super::parse::split_equation;
+use super::{ExprEngine, GradeResult, are_equivalent, are_proportional};
 
 pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
     // Parse expected equation
