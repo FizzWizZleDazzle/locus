@@ -7,6 +7,7 @@ pub mod validation;
 pub mod latex;
 pub mod mathjson;
 pub mod constants;
+pub mod svg_compress;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -370,6 +371,12 @@ pub struct ProblemResponse {
     /// Only included for practice mode
     #[serde(skip_serializing_if = "Option::is_none")]
     pub answer_key: Option<String>,
+    #[serde(default)]
+    pub solution_latex: String,
+    #[serde(default)]
+    pub question_image: String,
+    #[serde(default)]
+    pub time_limit_seconds: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -442,6 +449,12 @@ pub struct CreateProblemRequest {
     pub grading_mode: String,
     pub answer_type: String,
     pub calculator_allowed: String,
+    #[serde(default)]
+    pub solution_latex: String,
+    #[serde(default)]
+    pub question_image: String,
+    #[serde(default)]
+    pub time_limit_seconds: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

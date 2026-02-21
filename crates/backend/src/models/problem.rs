@@ -3,7 +3,7 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use locus_common::{GradingMode, ProblemResponse, constants::DEFAULT_DIFFICULTY};
+use locus_common::{AnswerType, GradingMode, ProblemResponse, constants::DEFAULT_DIFFICULTY};
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Problem {
@@ -14,7 +14,11 @@ pub struct Problem {
     pub main_topic: String,
     pub subtopic: String,
     pub grading_mode: String,
+    pub answer_type: String,
     pub calculator_allowed: String,
+    pub solution_latex: String,
+    pub question_image: String,
+    pub time_limit_seconds: Option<i32>,
 }
 
 impl Problem {
@@ -40,7 +44,7 @@ impl Problem {
 
                 let query_str = format!(
                     r#"
-                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
                     FROM problems
                     WHERE main_topic = $1 AND subtopic IN ({})
                     ORDER BY ABS(difficulty - ${}) + (RANDOM() * 200)
@@ -61,7 +65,7 @@ impl Problem {
                 // Filter by main_topic only
                 sqlx::query_as(
                     r#"
-                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
                     FROM problems
                     WHERE main_topic = $1
                     ORDER BY ABS(difficulty - $2) + (RANDOM() * 200)
@@ -77,7 +81,7 @@ impl Problem {
                 // No filter, any problem
                 sqlx::query_as(
                     r#"
-                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
                     FROM problems
                     ORDER BY ABS(difficulty - $1) + (RANDOM() * 200)
                     LIMIT 1
@@ -94,7 +98,7 @@ impl Problem {
     pub async fn find_by_id(pool: &PgPool, id: Uuid) -> Result<Option<Self>, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed
+            SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
             FROM problems
             WHERE id = $1
             "#,
@@ -113,7 +117,11 @@ impl Problem {
         main_topic: &str,
         subtopic: &str,
         grading_mode: GradingMode,
+        answer_type: AnswerType,
         calculator_allowed: &str,
+        solution_latex: &str,
+        question_image: &str,
+        time_limit_seconds: Option<i32>,
     ) -> Result<Self, sqlx::Error> {
         let mode_str = match grading_mode {
             GradingMode::Equivalent => "equivalent",
@@ -123,9 +131,9 @@ impl Problem {
 
         sqlx::query_as(
             r#"
-            INSERT INTO problems (question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, calculator_allowed
+            INSERT INTO problems (question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            RETURNING id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
             "#,
         )
         .bind(question_latex)
@@ -134,7 +142,11 @@ impl Problem {
         .bind(main_topic)
         .bind(subtopic)
         .bind(mode_str)
+        .bind(answer_type.as_str())
         .bind(calculator_allowed)
+        .bind(solution_latex)
+        .bind(question_image)
+        .bind(time_limit_seconds)
         .fetch_one(pool)
         .await
     }
@@ -148,6 +160,11 @@ impl Problem {
         }
     }
 
+    /// Get answer type enum
+    pub fn get_answer_type(&self) -> AnswerType {
+        AnswerType::from_str(&self.answer_type).unwrap_or_default()
+    }
+
     /// Convert to API response (with or without answer)
     pub fn to_response(&self, include_answer: bool) -> ProblemResponse {
         ProblemResponse {
@@ -157,12 +174,20 @@ impl Problem {
             main_topic: self.main_topic.clone(),
             subtopic: self.subtopic.clone(),
             grading_mode: self.get_grading_mode(),
+            answer_type: self.get_answer_type(),
             calculator_allowed: self.calculator_allowed.clone(),
             answer_key: if include_answer {
                 Some(self.answer_key.clone())
             } else {
                 None
             },
+            solution_latex: if include_answer {
+                self.solution_latex.clone()
+            } else {
+                String::new()
+            },
+            question_image: self.question_image.clone(),
+            time_limit_seconds: self.time_limit_seconds,
         }
     }
 }

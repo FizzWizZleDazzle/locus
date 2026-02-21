@@ -30,6 +30,8 @@ def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
 
         try:
             problem = json.loads(result.stdout.strip())
+            problem.setdefault("answer_type", "expression")
+            problem.setdefault("calculator_allowed", "none")
             return True, problem
         except json.JSONDecodeError as e:
             return False, f"Invalid JSON: {str(e)}"
@@ -66,7 +68,8 @@ def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
             problem = json.loads(result.stdout.strip())
 
             required_fields = ["question_latex", "answer_key", "difficulty",
-                             "main_topic", "subtopic", "grading_mode"]
+                             "main_topic", "subtopic", "grading_mode",
+                             "solution_latex"]
             missing = [f for f in required_fields if f not in problem]
 
             if missing:
@@ -164,7 +167,8 @@ def mass_generate(
     staged_problems: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
     """Run ALL saved scripts N times each and auto-stage all problems"""
-    scripts = [s for s in scripts_dir.glob("*.py") if s.name != "temp_test.py"]
+    skip = {"temp_test.py", "problem_utils.py", "svg_utils.py"}
+    scripts = [s for s in scripts_dir.glob("*.py") if s.name not in skip]
 
     total_generated = 0
     errors = []

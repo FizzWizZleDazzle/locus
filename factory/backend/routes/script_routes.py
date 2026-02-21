@@ -30,9 +30,6 @@ async def generate_script(request: GenerateScriptRequest):
         request.main_topic,
         request.subtopic,
         request.difficulty_level,
-        request.grading_mode,
-        request.answer_type,
-        request.calculator_allowed,
         request.prompt_template
     )
 
@@ -47,6 +44,8 @@ async def list_scripts():
     """List all saved scripts"""
     scripts = []
     for script_file in SCRIPTS_DIR.glob("*.py"):
+        if script_file.name in ("problem_utils.py", "svg_utils.py"):
+            continue
         # Read metadata from docstring if present
         content = script_file.read_text()
         lines = content.split('\n')

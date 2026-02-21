@@ -41,7 +41,7 @@ where
                     <div class="space-y-6">
                         // Problem card with key for forced remounting
                         // CRITICAL: key={problem.id} ensures complete destruction/recreation
-                        <ProblemCard key=problem_id_clone problem=p.clone() />
+                        <ProblemCard key=problem_id_clone problem=p.clone() time_limit_seconds=p.time_limit_seconds />
 
                         // Answer input with forced remounting via key
                         // CRITICAL: key={problem.id} ensures complete destruction/recreation
@@ -52,6 +52,11 @@ where
                             on_submit=Callback::new(move |_| on_submit.run(answer.get()))
                             placeholder="Your answer"
                         />
+
+                        // Answer type hint
+                        {p.answer_type.hint().map(|hint| view! {
+                            <p class="text-xs text-gray-400 -mt-4 italic">{hint}</p>
+                        })}
 
                         // Mode-specific controls (passed as prop)
                         {(render_controls)()}

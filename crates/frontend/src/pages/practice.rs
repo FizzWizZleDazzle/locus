@@ -7,7 +7,7 @@ use locus_common::ProblemResponse;
 
 use crate::{
     api,
-    components::{ProblemInterface, TopicSelector},
+    components::{ProblemInterface, TopicSelector, LatexRenderer},
     grader::{check_answer, preprocess_input, GradeResult},
     formatters::format_answer_for_display,
     utils::{update_url, push_url_playing, setup_popstate_listener},
@@ -215,11 +215,20 @@ pub fn Practice() -> impl IntoView {
                             let rendered_answer = format_answer_for_display(&ans, answer_type)
                                 .unwrap_or_else(|_| format!("<code>{}</code>", ans));
 
+                            let solution = p.solution_latex.clone();
                             Some(view! {
                                 <div class="p-4 bg-blue-50 border border-blue-200 rounded">
                                     <div class="text-sm font-medium text-blue-900 mb-1">"Answer:"</div>
                                     <div class="text-blue-800 text-xl" inner_html=rendered_answer></div>
                                 </div>
+                                {(!solution.is_empty()).then(|| view! {
+                                    <div class="p-4 bg-blue-50 border border-blue-200 rounded mt-2">
+                                        <div class="text-sm font-medium text-blue-900 mb-1">"Solution:"</div>
+                                        <div class="text-blue-800">
+                                            <LatexRenderer content=solution />
+                                        </div>
+                                    </div>
+                                })}
                             })
                         })
                     })}

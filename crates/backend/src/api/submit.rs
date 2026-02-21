@@ -32,10 +32,10 @@ pub async fn submit_answer(
     let elo_before = User::get_elo_for_topic(&state.pool, user.id, &problem.main_topic).await?;
 
     // Grade the answer
-    let is_correct = check_answer(&req.user_input, &problem.answer_key, problem.get_grading_mode());
+    let is_correct = check_answer(&req.user_input, &problem.answer_key, problem.get_grading_mode(), problem.get_answer_type());
 
     // Calculate new ELO
-    let elo_after = calculate_new_elo(elo_before, problem.difficulty, is_correct, req.time_taken_ms);
+    let elo_after = calculate_new_elo(elo_before, problem.difficulty, is_correct, req.time_taken_ms, problem.time_limit_seconds);
     let elo_change = elo_after - elo_before;
 
     // Update user's ELO for this topic

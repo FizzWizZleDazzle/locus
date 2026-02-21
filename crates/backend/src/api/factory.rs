@@ -8,7 +8,7 @@ use crate::{
     AppError,
 };
 use crate::api::AppState;
-use locus_common::{CreateProblemRequest, CreateProblemResponse, GradingMode, MainTopic};
+use locus_common::{AnswerType, CreateProblemRequest, CreateProblemResponse, GradingMode, MainTopic};
 
 /// Create a new problem (Factory endpoint)
 ///
@@ -34,6 +34,14 @@ pub async fn create_problem(
         }
     };
 
+    // Parse answer type
+    let answer_type = AnswerType::from_str(&req.answer_type).ok_or_else(|| {
+        AppError::BadRequest(format!(
+            "Invalid answer_type '{}'. Valid types: expression, numeric, set, tuple, list, interval, inequality, equation, boolean, word, matrix, multi_part",
+            req.answer_type
+        ))
+    })?;
+
     // Insert problem into database
     let problem = Problem::create(
         &state.pool,
@@ -43,7 +51,11 @@ pub async fn create_problem(
         &req.main_topic,
         &req.subtopic,
         grading_mode,
+        answer_type,
         &req.calculator_allowed,
+        &req.solution_latex,
+        &req.question_image,
+        req.time_limit_seconds,
     )
     .await?;
 
@@ -115,6 +127,15 @@ fn validate_problem_request(req: &CreateProblemRequest) -> Result<(), AppError> 
         )));
     }
 
+    // Validate time_limit_seconds range when present
+    if let Some(tl) = req.time_limit_seconds {
+        if tl < 1 || tl > 3600 {
+            return Err(AppError::BadRequest(
+                "time_limit_seconds must be between 1 and 3600".to_string(),
+            ));
+        }
+    }
+
     Ok(())
 }
 
@@ -131,7 +152,11 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_ok());
     }
@@ -145,7 +170,11 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -159,7 +188,11 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -173,7 +206,11 @@ mod tests {
             main_topic: "invalid_topic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -187,7 +224,11 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "derivatives".to_string(),  // calculus subtopic
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_err());
     }
@@ -201,7 +242,11 @@ mod tests {
             main_topic: "arithmetic".to_string(),
             subtopic: "addition_subtraction".to_string(),
             grading_mode: "equivalent".to_string(),
+            answer_type: "expression".to_string(),
             calculator_allowed: "invalid".to_string(),
+            solution_latex: String::new(),
+            question_image: String::new(),
+            time_limit_seconds: None,
         };
         assert!(validate_problem_request(&req).is_err());
     }

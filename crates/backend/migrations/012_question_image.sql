@@ -1,0 +1,1 @@
+ALTER TABLE problems ADD COLUMN question_image TEXT NOT NULL DEFAULT '';

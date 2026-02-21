@@ -1,0 +1,1 @@
+ALTER TABLE problems ADD COLUMN time_limit_seconds INTEGER DEFAULT NULL;

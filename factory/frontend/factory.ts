@@ -288,7 +288,6 @@ async function generateScript(): Promise<void> {
   const topic = requireElement<HTMLInputElement>('genTopic').value;
   const subtopic = requireElement<HTMLInputElement>('genSubtopic').value;
   const difficulty = requireElement<HTMLSelectElement>('genDifficulty').value;
-  const mode = requireElement<HTMLSelectElement>('genMode').value;
 
   if (!topic || !subtopic) {
     toast('Topic and subtopic required', 'error');
@@ -302,7 +301,7 @@ async function generateScript(): Promise<void> {
   try {
     const d = await api<ScriptResponse>('/generate-script', {
       method: 'POST',
-      body: { main_topic: topic, subtopic, difficulty_level: difficulty, grading_mode: mode }
+      body: { main_topic: topic, subtopic, difficulty_level: difficulty }
     });
 
     requireElement<HTMLTextAreaElement>('scriptEditor').value = d.script;

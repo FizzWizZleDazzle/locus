@@ -230,6 +230,25 @@ fn App() -> impl IntoView {
                         <A href="/privacy-policy" attr:class="hover:text-gray-600">"Privacy Policy"</A>
                         <A href="/terms-of-service" attr:class="hover:text-gray-600">"Terms of Service"</A>
                     </div>
+                    <button
+                        on:click=move |_| toggle_theme.run(())
+                        class="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                        title=move || if is_dark.get() { "Switch to light mode" } else { "Switch to dark mode" }
+                    >
+                        {move || if is_dark.get() {
+                            view! {
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                            }
+                        } else {
+                            view! {
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                </svg>
+                            }
+                        }}
+                    </button>
                     <span>
                         {if cfg!(debug_assertions) {
                             format!("Locus - {} - {}", env!("CARGO_PKG_VERSION"), env!("BUILD_TIMESTAMP"))

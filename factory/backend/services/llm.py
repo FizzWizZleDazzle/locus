@@ -9,9 +9,6 @@ async def generate_script_with_llm(
     main_topic: str,
     subtopic: str,
     difficulty_level: str,
-    grading_mode: str,
-    answer_type: str = "expression",
-    calculator_allowed: str = "none",
     prompt_template: str = None
 ) -> str:
     """Generate a Python script using LLM"""
@@ -75,94 +72,117 @@ Geometry Triangles:
         "hard": "HARDER problems for this subtopic (1600-1900 ELO range)"
     }
 
-    default_prompt = f"""Generate a Python script that creates random mathematical problems.
+    default_prompt = f"""Generate a Python script that creates random math problems.
 
 {elo_guide}
 
 Topic: {main_topic}
 Subtopic: {subtopic}
 Target: {difficulty_targets.get(difficulty_level, difficulty_targets['medium'])}
-Grading: {grading_mode}
 
-Script Requirements:
-1. Use SymPy for symbolic math
-2. REVERSE ENGINEER: Pick clean answers first, construct problem backward
-3. Randomize parameters for variety
-4. ASSIGN ELO based on actual problem complexity (use guide above)
-5. DECIDE calculator level based on problem characteristics
-6. Output ONLY valid JSON:
+The script must start with `from problem_utils import *` which provides:
 
-{{
-    "question_latex": "...",  // LaTeX string
-    "answer_key": "...",      // SymPy expression as string
-    "difficulty": 1234,       // ELO rating matching complexity
-    "main_topic": "{main_topic}",
-    "subtopic": "{subtopic}",
-    "grading_mode": "{grading_mode}",
-    "answer_type": "expression",  // See answer types below
-    "calculator_allowed": "none"  // See calculator levels below
-}}
+ALREADY IMPORTED: All standard SymPy functions (latex, solve, simplify, expand, factor,
+diff, integrate, sqrt, sin, cos, tan, exp, log, Rational, Matrix, FiniteSet, Eq, etc.)
+and random helpers (randint, choice, uniform).
 
-Answer Types (choose based on what form the answer takes):
-- "expression" (default) - Algebraic expressions: x^2 + 3*x - 4
-- "numeric" - Numbers only: 42, 3.14, -7
-- "set" - Sets: {{1, 2, 3}}
-- "tuple" - Ordered pairs: (3, 5)
-- "list" - Lists: [-2, 2]
-- "interval" - Interval notation: (1, 7] or [-2, 4)
-- "inequality" - Inequalities: x > -4
-- "equation" - Equations: y = 2*x + 3
-- "boolean" - True/false answers
-- "word" - Text word answers
-- "matrix" - Matrices: [[1, 2], [3, 4]]
-- "multi_part" - Multiple answers separated by |||
+PRE-DECLARED SYMBOLS: x, y, z, t, n, m, k, a, b, c, d
 
-Answer Type Guidelines:
-- Most algebra/calculus problems use "expression" or "numeric"
-- Use specific types when the answer MUST be in that exact format
-- Sets, tuples, lists, intervals have strict formatting requirements
-- Equations test ability to write complete equations, not just solve them
+HELPERS:
+- problem(question, answer, difficulty, topic, solution, *, grading_mode, answer_type, calculator) -> dict
+  - question: LaTeX string
+  - answer: any Python/SymPy value (auto-converted to string)
+  - difficulty: int or (lo, hi) tuple for random ELO
+  - topic: "main/sub" e.g. "calculus/derivatives"
+  - solution: step-by-step LaTeX (use steps() helper)
+  - grading_mode: "equivalent" (default), "factor", "expand"
+  - answer_type: auto-detected if omitted (bool->boolean, int/Number->numeric,
+    Matrix->matrix, FiniteSet->set, tuple->tuple, list->list, Eq->equation, else->expression)
+  - calculator: "none" (default), "scientific", "graphing", "cas"
+- emit(dict) — prints JSON to stdout
+- steps(*strings) — joins with <br> for solution_latex
+- SVG diagrams: `from svg_utils import Diagram, Graph` (optional)
+  - Diagram: geometry (polygon, circle, angle_arc, right_angle, segment_label, tick_marks)
+  - Graph: coordinate plots (plot SymPy expr, point, vline, hline)
+  - Pass rendered SVG to problem(..., image=d.render())
+- nonzero(lo, hi) — random int in [lo,hi] excluding 0
+- fmt_set, fmt_tuple, fmt_list, fmt_matrix — format answer strings for special types
+- fmt_interval(left, right, left_open, right_open) — "open:1,closed:7" format
+- fmt_equation(lhs, rhs) — "lhs = rhs"
+- fmt_multipart(*parts) — "part1|||part2"
 
-Calculator Levels (choose based on what the problem tests):
-- "none" (default) - No calculators allowed. Use for:
-  * Pure algebraic manipulation problems
-  * Symbolic simplification
-  * Factoring, expanding expressions
-  * Problems testing mental math or basic arithmetic
+EXAMPLE 1 (expression answer):
+```
+from problem_utils import *
 
-- "scientific" - Scientific calculator allowed (trig, log, exponents). Use for:
-  * Applied problems requiring numeric computation
-  * Trigonometry with specific angle values
-  * Logarithmic/exponential calculations
-  * Problems where calculation is NOT the focus
+def generate():
+    n = randint(2, 5)
+    coeff = nonzero(-3, 3)
+    expr = coeff * x**n
+    ans = diff(expr, x)
+    return problem(
+        question=f"\\\\frac{{{{d}}}}{{{{dx}}}}\\\\left[{{latex(expr)}}\\\\right]",
+        answer=ans,
+        difficulty=(1000, 1200),
+        topic="calculus/derivatives",
+        solution=steps(
+            f"Apply power rule to ${{latex(expr)}}$",
+            f"${{latex(ans)}}$",
+        ),
+    )
 
-- "graphing" - Graphing calculator allowed (includes scientific + plotting). Use for:
-  * Problems involving graph analysis
-  * Systems of equations best solved visually
-  * Function behavior and transformations
-  * Finding intersections or roots graphically
+emit(generate())
+```
 
-- "cas" - Computer Algebra System allowed (symbolic solving). Use for:
-  * Very complex integration/differentiation
-  * Advanced symbolic manipulation
-  * Problems focusing on interpretation, not calculation
-  * Multi-step problems where CAS aids exploration
+EXAMPLE 2 (numeric answer):
+```
+from problem_utils import *
 
-Decision Guidelines:
-- Harder problems → restrict to lower calculator levels (test skill, not just computation)
-- Easier problems → may allow higher levels (focus on concepts, not mechanics)
-- Default to "none" unless there's a clear reason to allow calculators
-- If the problem tests algebraic skill, use "none"
-- If the problem tests conceptual understanding with heavy computation, allow calculators
+def generate():
+    a_val, b_val = nonzero(-5, 5), nonzero(-5, 5)
+    ans = a_val + b_val
+    return problem(
+        question=f"${{{a_val}}} + {{{b_val}}} = ?$",
+        answer=ans,
+        difficulty=(1000, 1100),
+        topic="arithmetic/addition_subtraction",
+        solution=f"${{{a_val}}} + {{{b_val}}} = {{{ans}}}$",
+    )
 
-CRITICAL: Rate each generated problem accurately:
-- Count the steps needed to solve
-- Consider prerequisite knowledge required
-- Match ELO to similar problems in the examples above
-- Choose calculator level that tests the right skills
+emit(generate())
+```
 
-Output: Self-contained Python script (imports: sympy, random, json). Print ONLY JSON.
-No markdown, no explanation, just the script code."""
+EXAMPLE 3 (factored form):
+```
+from problem_utils import *
+
+def generate():
+    r1, r2 = nonzero(-6, 6), nonzero(-6, 6)
+    expr = expand((x - r1) * (x - r2))
+    ans = factor(expr)
+    return problem(
+        question=f"Factor ${{latex(expr)}}$",
+        answer=ans,
+        difficulty=(1200, 1400),
+        topic="algebra1/factoring",
+        grading_mode="factor",
+        solution=steps(
+            f"Find two numbers that multiply to ${{r1*r2}}$ and add to ${{-(r1+r2)}}$",
+            f"${{latex(ans)}}$",
+        ),
+    )
+
+emit(generate())
+```
+
+RULES:
+1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
+2. Randomize parameters for variety
+3. Always include a solution using steps()
+4. ELO must match actual complexity (see ELO guide above)
+5. Default calculator to "none" unless computation is heavy and not the focus
+
+Output ONLY the Python script. No markdown fences, no explanation."""
 
     prompt = prompt_template or default_prompt
 
@@ -183,7 +203,7 @@ No markdown, no explanation, just the script code."""
                     json={
                         "model": llm_config["model"],
                         "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 2000,
+                        "max_tokens": 4096,
                     },
                 )
             else:
@@ -197,7 +217,7 @@ No markdown, no explanation, just the script code."""
                     json={
                         "model": llm_config["model"],
                         "messages": [{"role": "user", "content": prompt}],
-                        "max_tokens": 2000,
+                        "max_tokens": 4096,
                         "temperature": 0.7,
                     },
                 )
