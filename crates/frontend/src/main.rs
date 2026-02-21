@@ -138,7 +138,6 @@ use leptos_router::{
     components::{Router, Route, Routes, A},
     path,
 };
-
 use pages::{Home, Practice, Ranked, Leaderboard, Login, Register, Settings, VerifyEmail, ForgotPassword, ResetPassword, PrivacyPolicy, TermsOfService};
 use components::{Navbar, Sidebar};
 
@@ -160,6 +159,40 @@ fn App() -> impl IntoView {
         username,
         set_username,
     });
+
+    // Theme state — read initial value from <html> class (set by inline script)
+    let initial_dark = leptos::web_sys::window()
+        .and_then(|w| w.document())
+        .and_then(|d| d.document_element())
+        .map(|el| el.class_list().contains("dark"))
+        .unwrap_or(false);
+
+    let (is_dark, set_is_dark) = signal(initial_dark);
+
+    let toggle_theme = Callback::new(move |_: ()| {
+        let new_dark = !is_dark.get_untracked();
+        set_is_dark.set(new_dark);
+
+        if let Some(doc) = leptos::web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.document_element())
+        {
+            let class_list = doc.class_list();
+            if new_dark {
+                let _ = class_list.add_1("dark");
+            } else {
+                let _ = class_list.remove_1("dark");
+            }
+        }
+
+        if let Some(storage) = leptos::web_sys::window()
+            .and_then(|w| w.local_storage().ok().flatten())
+        {
+            let _ = storage.set_item("theme", if new_dark { "dark" } else { "light" });
+        }
+    });
+
+    provide_context(ThemeContext { is_dark, toggle_theme });
 
     let auth = expect_context::<AuthContext>();
 
@@ -217,4 +250,11 @@ pub struct AuthContext {
     pub set_logged_in: WriteSignal<bool>,
     pub username: ReadSignal<Option<String>>,
     pub set_username: WriteSignal<Option<String>>,
+}
+
+/// Global theme context
+#[derive(Clone, Copy)]
+pub struct ThemeContext {
+    pub is_dark: ReadSignal<bool>,
+    pub toggle_theme: Callback<()>,
 }
