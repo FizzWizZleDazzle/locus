@@ -1,11 +1,22 @@
 """Script execution service"""
 
 import json
+import os
 import subprocess
 import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+
+# Factory backend root — problem_utils.py and svg_utils.py live here
+_BACKEND_DIR = str(Path(__file__).resolve().parent.parent)
+
+
+def _script_env() -> dict:
+    """Env for script subprocesses: adds factory backend to PYTHONPATH."""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = _BACKEND_DIR + os.pathsep + env.get("PYTHONPATH", "")
+    return env
 
 
 def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
@@ -23,6 +34,7 @@ def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
             text=True,
             timeout=10,
             cwd=str(cwd),
+            env=_script_env(),
         )
 
         if result.returncode != 0:
@@ -55,6 +67,7 @@ def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
             text=True,
             timeout=10,
             cwd=str(scripts_dir),
+            env=_script_env(),
         )
 
         if result.returncode != 0:
@@ -167,7 +180,7 @@ def mass_generate(
     staged_problems: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
     """Run ALL saved scripts N times each and auto-stage all problems"""
-    skip = {"temp_test.py", "problem_utils.py", "svg_utils.py"}
+    skip = {"temp_test.py"}
     scripts = [s for s in scripts_dir.glob("*.py") if s.name not in skip]
 
     total_generated = 0

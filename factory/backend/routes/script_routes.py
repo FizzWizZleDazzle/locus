@@ -44,8 +44,6 @@ async def list_scripts():
     """List all saved scripts"""
     scripts = []
     for script_file in SCRIPTS_DIR.glob("*.py"):
-        if script_file.name in ("problem_utils.py", "svg_utils.py"):
-            continue
         # Read metadata from docstring if present
         content = script_file.read_text()
         lines = content.split('\n')
