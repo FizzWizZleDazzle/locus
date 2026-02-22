@@ -12,6 +12,8 @@ interface Problem {
   main_topic: string;
   subtopic: string;
   grading_mode: string;
+  solution_latex?: string;
+  question_image?: string;
   generated_at?: string;
 }
 
@@ -165,6 +167,64 @@ function requireElement<T extends HTMLElement>(id: string): T {
   const el = getElement<T>(id);
   if (!el) throw new Error(`Element #${id} not found`);
   return el;
+}
+
+// ============================================================================
+// SVG decompression
+// ============================================================================
+
+const SVG_DICT: [string, string][] = [
+  ['~X', 'xmlns="http://www.w3.org/2000/svg"'],
+  ['~D', 'dominant-baseline="central"'],
+  ['~s', 'stroke="currentColor"'],
+  ['~f', 'fill="currentColor"'],
+  ['~n', 'fill="none"'],
+  ['~m', 'text-anchor="middle"'],
+  ['~e', 'text-anchor="end"'],
+  ['~d', 'stroke-dasharray="6,4"'],
+  ['~o', 'stroke-opacity="'],
+  ['~i', 'font-style="italic"'],
+  ['~F', 'fill-opacity="0.15"'],
+  ['~w', 'stroke-width="'],
+  ['~z', 'font-size="'],
+  ['~v', 'viewBox="'],
+  ['~M', 'style="max-width:'],
+  ['~L', '<line '],
+  ['~T', '<text '],
+  ['~C', '<circle '],
+  ['~P', '<path d="'],
+  ['~Q', '<polyline points="'],
+  ['~G', '<polygon points="'],
+  ['~E', '</text>'],
+  ['~g', 'class="g"'],
+  ['~a', 'class="a"'],
+  ['~t', 'class="t"'],
+];
+
+function decompressSvg(s: string): string {
+  if (!s) return '';
+  const body = s.startsWith('s1:') ? s.slice(3) : s;
+  let out = body;
+  for (const [token, expansion] of SVG_DICT) {
+    out = out.split(token).join(expansion);
+  }
+  return out;
+}
+
+// ============================================================================
+// KaTeX
+// ============================================================================
+
+function renderKatex(el: HTMLElement): void {
+  if ((window as any).renderMathInElement) {
+    (window as any).renderMathInElement(el, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+      ],
+      throwOnError: false,
+    });
+  }
 }
 
 // ============================================================================
@@ -327,13 +387,28 @@ async function testScript(): Promise<void> {
 
     if (d.success && d.problem) {
       resultEl.style.display = 'block';
+      const imageHtml = d.problem.question_image
+        ? `<div style="margin:8px 0;text-align:center">${decompressSvg(d.problem.question_image)}</div>`
+        : '';
+      const solutionHtml = d.problem.solution_latex
+        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(16,185,129,.2)">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Solution</div>
+            <div style="font-size:11px;line-height:1.6" id="testSolution">${d.problem.solution_latex.replace(/<br\s*\/?>/g, '<br>')}</div>
+          </div>`
+        : '';
       resultEl.innerHTML = `
         <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;padding:10px">
           <div style="font-family:var(--mono);font-size:11px;color:var(--green);margin-bottom:6px;font-weight:600">✓ Test Passed</div>
-          <div style="font-size:12px;margin-bottom:4px">${d.problem.question_latex}</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">Answer: <code>${d.problem.answer_key}</code></div>
+          <div style="font-size:12px;margin-bottom:4px" id="testQuestion">${d.problem.question_latex}</div>
+          ${imageHtml}
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">Answer: <span id="testAnswer">${d.problem.answer_key}</span></div>
+          ${solutionHtml}
         </div>
       `;
+      renderKatex(document.getElementById('testQuestion')!);
+      renderKatex(document.getElementById('testAnswer')!);
+      const testSol = document.getElementById('testSolution');
+      if (testSol) renderKatex(testSol);
       toast('Test passed', 'success');
     } else {
       resultEl.style.display = 'block';
@@ -515,6 +590,13 @@ function renderProblems(): void {
 
     const diffClass = p.difficulty < 1300 ? 'diff-easy' : p.difficulty < 1600 ? 'diff-med' : 'diff-hard';
 
+    const imageSection = p.question_image
+      ? `<div style="margin:8px 0;text-align:center">${decompressSvg(p.question_image)}</div>`
+      : '';
+    const solutionSection = p.solution_latex
+      ? `<div class="solution" id="s-${i}" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;line-height:1.6;color:var(--text-dim)">${p.solution_latex.replace(/<br\s*\/?>/g, '<br>')}</div>`
+      : '';
+
     card.innerHTML = `
       <div class="card-header">
         <div class="tags">
@@ -525,7 +607,9 @@ function renderProblems(): void {
         <span class="diff ${diffClass}">${p.difficulty}</span>
       </div>
       <div class="question" id="q-${i}">${p.question_latex}</div>
-      <div class="answer">Answer: <code>${p.answer_key}</code></div>
+      ${imageSection}
+      <div class="answer">Answer: <span id="a-${i}">${p.answer_key}</span></div>
+      ${solutionSection}
       <div class="actions">
         <button class="btn btn-danger btn-sm" onclick="rejectProblem(${i})">Reject</button>
         <button class="btn btn-success btn-sm" onclick="approveProblem(${i})">Approve</button>
@@ -538,16 +622,12 @@ function renderProblems(): void {
   requestAnimationFrame(() => {
     reviewProblems.forEach((p, i) => {
       if (!p) return;
-      const el = document.getElementById(`q-${i}`);
-      if (el && (window as any).renderMathInElement) {
-        (window as any).renderMathInElement(el, {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false }
-          ],
-          throwOnError: false
-        });
-      }
+      const q = document.getElementById(`q-${i}`);
+      const a = document.getElementById(`a-${i}`);
+      const s = document.getElementById(`s-${i}`);
+      if (q) renderKatex(q);
+      if (a) renderKatex(a);
+      if (s) renderKatex(s);
     });
   });
 }

@@ -80,7 +80,7 @@ Topic: {main_topic}
 Subtopic: {subtopic}
 Target: {difficulty_targets.get(difficulty_level, difficulty_targets['medium'])}
 
-The script must start with `from problem_utils import *` which provides:
+""" + r"""The script must start with `from problem_utils import *` which provides:
 
 ALREADY IMPORTED: All standard SymPy functions (latex, solve, simplify, expand, factor,
 diff, integrate, sqrt, sin, cos, tan, exp, log, Rational, Matrix, FiniteSet, Eq, etc.)
@@ -109,7 +109,6 @@ HELPERS:
 - fmt_set, fmt_tuple, fmt_list, fmt_matrix — format answer strings for special types
 - fmt_interval(left, right, left_open, right_open) — "open:1,closed:7" format
 - fmt_equation(lhs, rhs) — "lhs = rhs"
-- fmt_multipart(*parts) — "part1|||part2"
 
 EXAMPLE 1 (expression answer):
 ```
@@ -121,13 +120,13 @@ def generate():
     expr = coeff * x**n
     ans = diff(expr, x)
     return problem(
-        question=f"\\\\frac{{{{d}}}}{{{{dx}}}}\\\\left[{{latex(expr)}}\\\\right]",
+        question=f"\\frac{{d}}{{dx}}\\left[{latex(expr)}\\right]",
         answer=ans,
         difficulty=(1000, 1200),
         topic="calculus/derivatives",
         solution=steps(
-            f"Apply power rule to ${{latex(expr)}}$",
-            f"${{latex(ans)}}$",
+            f"Apply power rule to ${latex(expr)}$",
+            f"${latex(ans)}$",
         ),
     )
 
@@ -161,14 +160,14 @@ def generate():
     expr = expand((x - r1) * (x - r2))
     ans = factor(expr)
     return problem(
-        question=f"Factor ${{latex(expr)}}$",
+        question=f"Factor ${latex(expr)}$",
         answer=ans,
         difficulty=(1200, 1400),
         topic="algebra1/factoring",
         grading_mode="factor",
         solution=steps(
-            f"Find two numbers that multiply to ${{r1*r2}}$ and add to ${{-(r1+r2)}}$",
-            f"${{latex(ans)}}$",
+            f"Find two numbers that multiply to ${r1*r2}$ and add to ${-(r1+r2)}$",
+            f"${latex(ans)}$",
         ),
     )
 

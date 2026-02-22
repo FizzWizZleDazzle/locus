@@ -71,8 +71,8 @@ fi
 
 # Start backend
 echo ""
-echo "[*] Starting backend on http://localhost:$BACKEND_PORT ..."
-python main.py > /tmp/locus_factory.log 2>&1 &
+echo "[*] Starting backend on http://localhost:$BACKEND_PORT (hot reload)..."
+uvicorn main:app --host 0.0.0.0 --port $BACKEND_PORT --reload --reload-dir "$FACTORY_DIR/backend" > /tmp/locus_factory.log 2>&1 &
 BACKEND_PID=$!
 
 # Wait for backend
@@ -84,8 +84,13 @@ if ! curl -s http://localhost:$BACKEND_PORT/ > /dev/null 2>&1; then
 fi
 echo "[OK] Backend ready"
 
-# Start frontend HTTP server
+# Start TypeScript watch (recompile on change)
 cd "$FACTORY_DIR/frontend"
+echo "[*] Starting TypeScript watcher..."
+npx -y typescript@latest --project tsconfig.json --watch --preserveWatchOutput > /tmp/locus_tsc.log 2>&1 &
+TSC_PID=$!
+
+# Start frontend HTTP server
 echo "[*] Starting frontend on http://localhost:$FRONTEND_PORT ..."
 python3 -m http.server $FRONTEND_PORT > /dev/null 2>&1 &
 FRONTEND_PID=$!
@@ -109,13 +114,14 @@ echo "  Factory Running"
 echo "======================================"
 echo "Frontend: http://localhost:$FRONTEND_PORT"
 echo "Backend:  http://localhost:$BACKEND_PORT"
-echo "Logs:     /tmp/locus_factory.log"
+echo "Logs:     /tmp/locus_factory.log (backend)"
+echo "          /tmp/locus_tsc.log (tsc watch)"
 echo ""
 echo "Press Ctrl+C to shutdown"
 echo ""
 
 # Cleanup on exit
-trap "echo '';echo 'Shutting down...';kill $BACKEND_PID $FRONTEND_PID 2>/dev/null;echo 'Factory stopped.';exit 0" INT TERM
+trap "echo '';echo 'Shutting down...';kill $BACKEND_PID $FRONTEND_PID $TSC_PID 2>/dev/null;echo 'Factory stopped.';exit 0" INT TERM
 
 # Keep running
 wait
