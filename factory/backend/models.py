@@ -35,6 +35,7 @@ class SaveScriptRequest(BaseModel):
     name: str
     script: str
     description: Optional[str] = None
+    overwrite: bool = False
 
 
 class TestScriptRequest(BaseModel):

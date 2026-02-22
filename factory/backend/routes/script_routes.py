@@ -70,14 +70,13 @@ async def list_scripts():
 
 @router.post("/scripts/save")
 async def save_script(request: SaveScriptRequest):
-    """Save a script to the scripts directory (never overwrites)"""
+    """Save a script to the scripts directory"""
     # Sanitize filename
     safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', request.name)
     base_path = SCRIPTS_DIR / f"{safe_name}.py"
 
-    # Prevent overwriting: add timestamp if file exists
     script_path = base_path
-    if script_path.exists():
+    if script_path.exists() and not request.overwrite:
         timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
         script_path = SCRIPTS_DIR / f"{safe_name}_{timestamp}.py"
 

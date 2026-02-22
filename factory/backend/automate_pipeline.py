@@ -47,6 +47,7 @@ class PipelineConfig:
         self.dry_run = args.dry_run
         self.clear_before = args.clear_before
         self.log_file = args.log_file
+        self.overwrite = args.overwrite
         self.max_retries = 3
         self.retry_delay = 2.0  # seconds
 
@@ -185,15 +186,16 @@ async def generate_and_save_script(client: httpx.AsyncClient, config: PipelineCo
     script_name = f"{topic_id}_{subtopic_id}_{difficulty}"
 
     try:
-        # Check if script already exists
-        try:
-            check_response = await client.get(f"{config.factory_backend}/scripts/{script_name}", timeout=10.0)
-            if check_response.status_code == 200:
-                logger.info(f"Script {script_name} already exists, skipping")
-                stats.scripts_generated += 1
-                return True
-        except:
-            pass  # Script doesn't exist, continue with generation
+        # Check if script already exists (skip check when overwriting)
+        if not config.overwrite:
+            try:
+                check_response = await client.get(f"{config.factory_backend}/scripts/{script_name}", timeout=10.0)
+                if check_response.status_code == 200:
+                    logger.info(f"Script {script_name} already exists, skipping")
+                    stats.scripts_generated += 1
+                    return True
+            except:
+                pass  # Script doesn't exist, continue with generation
 
         # Generate script
         logger.info(f"Generating script: {script_name}")
@@ -225,7 +227,8 @@ async def generate_and_save_script(client: httpx.AsyncClient, config: PipelineCo
             json={
                 "name": script_name,
                 "script": script_code,
-                "description": f"{topic_id} - {subtopic_id} ({difficulty})"
+                "description": f"{topic_id} - {subtopic_id} ({difficulty})",
+                "overwrite": config.overwrite
             },
             timeout=30.0
         )
@@ -472,6 +475,12 @@ def main():
     )
 
     parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='Overwrite existing scripts instead of adding a timestamp suffix'
+    )
+
+    parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Show what would be done without executing'
@@ -530,6 +539,7 @@ def main():
     logger.info(f"Grading mode: {config.grading_mode}")
     logger.info(f"Topics filter: {config.topics_filter or 'all'}")
     logger.info(f"Skip generation: {config.skip_generation}")
+    logger.info(f"Overwrite scripts: {config.overwrite}")
     logger.info(f"Clear before: {config.clear_before}")
     logger.info(f"Dry run: {config.dry_run}")
 

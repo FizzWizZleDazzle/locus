@@ -8,14 +8,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Factory backend root — problem_utils.py and svg_utils.py live here
-_BACKEND_DIR = str(Path(__file__).resolve().parent.parent)
+# Scripts repo root — problem_utils.py and svg_utils.py live here
+_SCRIPTS_ROOT = str(Path(__file__).resolve().parent.parent / "scripts")
 
 
 def _script_env() -> dict:
     """Env for script subprocesses: adds factory backend to PYTHONPATH."""
     env = os.environ.copy()
-    env["PYTHONPATH"] = _BACKEND_DIR + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = _SCRIPTS_ROOT + os.pathsep + env.get("PYTHONPATH", "")
     return env
 
 

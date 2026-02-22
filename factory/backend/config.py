@@ -9,7 +9,7 @@ load_dotenv()
 
 # Paths
 BASE_DIR = Path(__file__).parent
-SCRIPTS_DIR = BASE_DIR / "scripts"
+SCRIPTS_DIR = BASE_DIR / "scripts" / "src"
 EXPORTS_DIR = BASE_DIR / "exports"
 
 # Create directories if they don't exist
