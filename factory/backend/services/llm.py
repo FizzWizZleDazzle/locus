@@ -102,9 +102,29 @@ HELPERS:
 - emit(dict) — prints JSON to stdout
 - steps(*strings) — joins with <br> for solution_latex
 - SVG diagrams: `from svg_utils import Diagram, Graph` (optional)
-  - Diagram: geometry (polygon, circle, angle_arc, right_angle, segment_label, tick_marks)
-  - Graph: coordinate plots (plot SymPy expr, point, vline, hline)
-  - Pass rendered SVG to problem(..., image=d.render())
+  Pass rendered SVG to problem(..., image=d.render())
+
+  Diagram — geometry diagrams (math coords, y-up, auto-scaled):
+    d = Diagram(width=300, height=250, padding=40)
+    d.line(p1, p2, dashed=False)                     # line segment
+    d.polygon(points, labels=None, fill=None)         # closed shape; labels list matches points
+    d.circle(center, radius, fill=None)               # fill e.g. "currentColor"
+    d.arc(center, radius, start_deg, end_deg)         # circular arc
+    d.point(x, y, label=None)                         # dot with optional label
+    d.angle_arc(vertex, p1, p2, label=None)           # arc marking angle at vertex
+    d.right_angle(vertex, p1, p2)                     # right-angle square marker
+    d.segment_label(p1, p2, text)                     # label at midpoint of segment
+    d.tick_marks(p1, p2, count=1)                     # equal-length tick marks on segment
+    d.text(x, y, text)                                # free text label
+    svg = d.render()
+
+  Graph — function plots on a coordinate grid:
+    g = Graph(x_range=(-5, 5), y_range=(-5, 5), width=300, height=300)
+    g.plot(sympy_expr, color=None, dashed=False)      # plot SymPy expr in x
+    g.point(x, y, label=None)                         # labeled point
+    g.vline(x, dashed=True)                           # vertical line (e.g. asymptote)
+    g.hline(y, dashed=True)                           # horizontal line
+    svg = g.render()
 - nonzero(lo, hi) — random int in [lo,hi] excluding 0
 - fmt_set, fmt_tuple, fmt_list, fmt_matrix — format answer strings for special types
 - fmt_interval(left, right, left_open, right_open) — "open:1,closed:7" format
@@ -180,6 +200,7 @@ RULES:
 3. Always include a solution using steps()
 4. ELO must match actual complexity (see ELO guide above)
 5. Default calculator to "none" unless computation is heavy and not the focus
+6. Use Diagram/Graph when a visual would help (geometry, graphing, coordinate problems)
 
 Output ONLY the Python script. No markdown fences, no explanation."""
 
