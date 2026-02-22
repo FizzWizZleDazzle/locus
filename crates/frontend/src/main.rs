@@ -8,6 +8,7 @@ mod grader;
 mod katex_bindings;
 mod oauth;
 mod pages;
+pub mod problem_queue;
 mod utils;
 
 // ---------------------------------------------------------------------------

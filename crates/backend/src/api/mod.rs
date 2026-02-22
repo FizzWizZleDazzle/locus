@@ -97,7 +97,8 @@ pub fn router() -> Router<AppState> {
             get(oauth::oauth_redirect_link),
         )
         // Problem routes
-        .route("/problem", get(problems::get_problem))
+        .route("/problems", get(problems::get_problems))
+        .route("/problem", get(problems::get_problem)) // deprecated
         // Topics
         .route("/topics", get(topics::get_topics))
         // Submit route

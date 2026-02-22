@@ -3,7 +3,10 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use locus_common::{AnswerType, GradingMode, ProblemResponse, constants::DEFAULT_DIFFICULTY};
+use locus_common::{
+    AnswerType, GradingMode, ProblemResponse,
+    constants::{DEFAULT_DIFFICULTY, PROBLEM_BATCH_MAX},
+};
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Problem {
@@ -88,6 +91,77 @@ impl Problem {
                 )
                 .bind(target)
                 .fetch_optional(pool)
+                .await
+            }
+        }
+    }
+
+    /// Get multiple random problems matching the given criteria
+    pub async fn get_random_batch(
+        pool: &PgPool,
+        target_elo: Option<i32>,
+        main_topic: Option<&str>,
+        subtopics: Option<&[String]>,
+        count: u32,
+    ) -> Result<Vec<Self>, sqlx::Error> {
+        let target = target_elo.unwrap_or(DEFAULT_DIFFICULTY);
+        let limit = count.max(1).min(PROBLEM_BATCH_MAX) as i64;
+
+        match (main_topic, subtopics) {
+            (Some(mt), Some(st)) if !st.is_empty() => {
+                let subtopic_placeholders = (2..=st.len() + 1)
+                    .map(|i| format!("${}", i))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let target_placeholder = st.len() + 2;
+                let limit_placeholder = st.len() + 3;
+
+                let query_str = format!(
+                    r#"
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
+                    FROM problems
+                    WHERE main_topic = $1 AND subtopic IN ({})
+                    ORDER BY ABS(difficulty - ${}) + (RANDOM() * 200)
+                    LIMIT ${}
+                    "#,
+                    subtopic_placeholders, target_placeholder, limit_placeholder
+                );
+
+                let mut query = sqlx::query_as(&query_str).bind(mt);
+                for st_val in st {
+                    query = query.bind(st_val);
+                }
+                query = query.bind(target).bind(limit);
+                query.fetch_all(pool).await
+            }
+            (Some(mt), _) => {
+                sqlx::query_as(
+                    r#"
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
+                    FROM problems
+                    WHERE main_topic = $1
+                    ORDER BY ABS(difficulty - $2) + (RANDOM() * 200)
+                    LIMIT $3
+                    "#,
+                )
+                .bind(mt)
+                .bind(target)
+                .bind(limit)
+                .fetch_all(pool)
+                .await
+            }
+            _ => {
+                sqlx::query_as(
+                    r#"
+                    SELECT id, question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode, answer_type, calculator_allowed, solution_latex, question_image, time_limit_seconds
+                    FROM problems
+                    ORDER BY ABS(difficulty - $1) + (RANDOM() * 200)
+                    LIMIT $2
+                    "#,
+                )
+                .bind(target)
+                .bind(limit)
+                .fetch_all(pool)
                 .await
             }
         }

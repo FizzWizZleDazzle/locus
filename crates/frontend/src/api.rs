@@ -366,6 +366,25 @@ pub async fn get_problem(
     get_request(&path).await
 }
 
+pub async fn get_problems(
+    practice: bool,
+    main_topic: Option<&str>,
+    subtopics: Option<&[String]>,
+    count: u32,
+) -> Result<Vec<ProblemResponse>, RequestError> {
+    let mut path = format!("/problems?practice={}&count={}", practice, count);
+    if let Some(mt) = main_topic {
+        path.push_str(&format!("&main_topic={}", mt));
+    }
+    if let Some(st) = subtopics {
+        if !st.is_empty() {
+            let st_str = st.join(",");
+            path.push_str(&format!("&subtopics={}", st_str));
+        }
+    }
+    get_request(&path).await
+}
+
 pub async fn submit_answer(
     problem_id: uuid::Uuid,
     user_input: &str,

@@ -10,4 +10,13 @@ pub const DEFAULT_DIFFICULTY: i32 = 1500;
 pub const MIN_ELO: i32 = 100;
 
 /// Maximum ELO rating (practical ceiling)
-pub const MAX_ELO: i32 = 3000;
+pub const MAX_ELO: i32 = 5000;
+
+/// Default number of problems to fetch per batch
+pub const PROBLEM_BATCH_SIZE: u32 = 30;
+
+/// Maximum problems allowed in a single batch request
+pub const PROBLEM_BATCH_MAX: u32 = 50;
+
+/// Refill the problem queue when it drops to this many remaining
+pub const PROBLEM_QUEUE_REFILL_THRESHOLD: usize = 5;

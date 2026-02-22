@@ -423,6 +423,13 @@ pub struct ProblemQuery {
     /// Whether this is practice mode (includes answer)
     #[serde(default)]
     pub practice: bool,
+    /// Number of problems to fetch (for /problems endpoint, default 30)
+    #[serde(default = "default_count")]
+    pub count: u32,
+}
+
+fn default_count() -> u32 {
+    constants::PROBLEM_BATCH_SIZE
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

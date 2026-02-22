@@ -1,15 +1,14 @@
 //! Practice mode page
 
 use leptos::prelude::*;
-use leptos::task::spawn_local;
 use leptos_router::hooks::use_query_map;
 use locus_common::ProblemResponse;
 
 use crate::{
-    api,
     components::{LatexRenderer, ProblemInterface, TopicSelector},
     formatters::format_answer_for_display,
     grader::{GradeResult, check_answer, preprocess_input},
+    problem_queue::ProblemQueue,
     utils::{push_url_playing, setup_popstate_listener, update_url},
 };
 
@@ -33,8 +32,10 @@ pub fn Practice() -> impl IntoView {
     let (result, set_result) = signal(None::<GradeResult>);
     let (show_answer, set_show_answer) = signal(false);
 
+    // Problem queue for batch fetching
+    let queue = ProblemQueue::new(true);
+
     let load_problem = move || {
-        set_loading.set(true);
         set_error.set(None);
         set_answer.set(String::new());
         set_result.set(None);
@@ -43,19 +44,32 @@ pub fn Practice() -> impl IntoView {
         let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
 
-        spawn_local(async move {
-            match api::get_problem(true, topic.as_deref(), Some(&subtopics)).await {
-                Ok(p) => {
+        if let Some(p) = queue.next(topic.clone(), subtopics.clone()) {
+            set_problem.set(Some(p));
+            set_loading.set(false);
+        } else {
+            // Queue empty — fetch and wait for first result
+            set_loading.set(true);
+            queue.fetch(topic, subtopics);
+        }
+    };
+
+    // When the queue finishes loading and we're still waiting for a problem, pop one
+    Effect::new(move |_| {
+        if loading.get() && !queue.loading() {
+            if let Some(err) = queue.error() {
+                set_error.set(Some(err));
+                set_loading.set(false);
+            } else {
+                let topic = selected_topic.get();
+                let subtopics = selected_subtopics.get();
+                if let Some(p) = queue.next(topic, subtopics) {
                     set_problem.set(Some(p));
                     set_loading.set(false);
                 }
-                Err(e) => {
-                    set_error.set(Some(e.message));
-                    set_loading.set(false);
-                }
             }
-        });
-    };
+        }
+    });
 
     let on_topic_change = Callback::new(move |topic: String| {
         set_selected_topic.set(Some(topic.clone()));
@@ -83,6 +97,9 @@ pub fn Practice() -> impl IntoView {
     let on_topic_confirm = Callback::new(move |(topic, subtopics): (String, Vec<String>)| {
         set_selected_topic.set(Some(topic.clone()));
         set_selected_subtopics.set(subtopics.clone());
+
+        // Clear stale problems from previous topic selection
+        queue.clear();
 
         // Create a history entry with 'playing' state so back button can return to topic selector
         let url = if subtopics.is_empty() {
