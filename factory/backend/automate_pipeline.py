@@ -161,6 +161,10 @@ async def fetch_topics(client: httpx.AsyncClient, config: PipelineConfig,
         if not topic.get('enabled', True):
             continue
 
+        # Always skip the test topic
+        if topic['id'] == 'test':
+            continue
+
         if config.topics_filter and topic['id'] not in config.topics_filter:
             continue
 
@@ -268,27 +272,34 @@ async def generate_all_scripts(client: httpx.AsyncClient, config: PipelineConfig
         stats.scripts_generated = existing_scripts['count']
         return existing_scripts['count']
 
-    current = 0
-
+    # Build all tasks
+    all_tasks = []
     for topic in topics:
         topic_id = topic['id']
-        stats.topics_processed += 1
-
         for subtopic in topic['subtopics']:
-            subtopic_id = subtopic['id']
-
             for difficulty in difficulties:
-                current += 1
-                logger.info(f"\n[{current}/{total_combinations}] Processing {topic_id}/{subtopic_id}/{difficulty}")
+                all_tasks.append((topic_id, subtopic['id'], difficulty))
 
-                await generate_and_save_script(
-                    client, config, logger, stats,
-                    topic_id, subtopic_id, difficulty
-                )
+    stats.topics_processed = len(topics)
 
-                # Small delay to avoid overwhelming the LLM API
-                if not config.dry_run:
-                    await asyncio.sleep(0.5)
+    # Run with concurrency limit
+    semaphore = asyncio.Semaphore(4)
+    completed = 0
+
+    async def run_one(topic_id, subtopic_id, difficulty):
+        nonlocal completed
+        async with semaphore:
+            await generate_and_save_script(
+                client, config, logger, stats,
+                topic_id, subtopic_id, difficulty
+            )
+            completed += 1
+            if completed % 10 == 0:
+                logger.info(f"  Progress: {completed}/{total_combinations}")
+
+    await asyncio.gather(*(
+        run_one(tid, sid, diff) for tid, sid, diff in all_tasks
+    ))
 
     logger.success(f"\nScript generation complete: {stats.scripts_generated} succeeded, {stats.scripts_failed} failed")
     return stats.scripts_generated
@@ -325,53 +336,23 @@ async def mass_generate_problems(client: httpx.AsyncClient, config: PipelineConf
     return stats.problems_generated
 
 
-async def export_problems(client: httpx.AsyncClient, config: PipelineConfig,
-                         logger: PipelineLogger) -> str:
-    """Export staged problems to JSON"""
+async def upload_staged(client: httpx.AsyncClient, config: PipelineConfig,
+                        logger: PipelineLogger, stats: PipelineStats):
+    """Upload staged problems directly to main Locus backend"""
 
-    logger.section("STEP 4: Exporting Problems")
-
-    if config.dry_run:
-        logger.info("[DRY RUN] Would export problems to JSON")
-        return "dry_run.json"
-
-    logger.info("Exporting staged problems to JSON...")
-
-    response = await retry_request(
-        client, "POST", f"{config.factory_backend}/export",
-        config, logger,
-        json={"format": "json"},
-        timeout=60.0
-    )
-
-    result = response.json()
-    filename = result['filename']
-
-    logger.success(f"Export complete: {filename}")
-    logger.info(f"  Problems exported: {result['count']}")
-    logger.info(f"  File path: {result['path']}")
-
-    return filename
-
-
-async def upload_to_backend(client: httpx.AsyncClient, config: PipelineConfig,
-                           logger: PipelineLogger, stats: PipelineStats,
-                           filename: str):
-    """Upload problems to main Locus backend"""
-
-    logger.section("STEP 5: Uploading to Backend")
+    logger.section("STEP 4: Uploading Staged Problems to Backend")
 
     if config.dry_run:
-        logger.info("[DRY RUN] Would upload problems to backend")
+        logger.info("[DRY RUN] Would upload staged problems to backend")
         stats.problems_uploaded = stats.problems_generated
         return
 
-    logger.info(f"Uploading {filename} to Locus backend...")
+    logger.info("Uploading staged problems to Locus backend...")
 
     response = await retry_request(
-        client, "POST", f"{config.factory_backend}/upload-to-backend/{filename}",
+        client, "POST", f"{config.factory_backend}/upload-staged",
         config, logger,
-        timeout=600.0  # 10 minutes for upload
+        timeout=1800.0  # 30 minutes for large uploads
     )
 
     result = response.json()
@@ -431,11 +412,8 @@ async def run_pipeline(config: PipelineConfig, logger: PipelineLogger):
             # Step 3: Mass generate problems
             await mass_generate_problems(client, config, logger, stats)
 
-            # Step 4: Export
-            filename = await export_problems(client, config, logger)
-
-            # Step 5: Upload
-            await upload_to_backend(client, config, logger, stats, filename)
+            # Step 4: Upload staged directly (no JSON file)
+            await upload_staged(client, config, logger, stats)
 
     except KeyboardInterrupt:
         logger.warning("\nPipeline interrupted by user")

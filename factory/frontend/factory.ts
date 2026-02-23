@@ -60,10 +60,10 @@ interface RunScriptResponse {
 interface MassGenerateResponse {
   success: boolean;
   total_generated: number;
-  staged: number;
   scripts_run: number;
   per_script: Record<string, number>;
   errors?: string[];
+  output_file?: string;
   message: string;
 }
 
@@ -551,8 +551,8 @@ async function massGenerateSingle(_name: string): Promise<void> {
     });
 
     if (d.success) {
-      toast(`Generated ${d.total_generated}, ${d.staged} staged`, 'success');
-      await refreshStaging();
+      toast(`Wrote ${d.total_generated} problems to ${d.output_file ?? 'file'}`, 'success');
+      await viewExports();
     } else {
       toast('Mass generation failed', 'error');
     }
@@ -753,8 +753,8 @@ async function massGenerate(): Promise<void> {
     });
 
     if (d.success) {
-      toast(`Generated ${d.total_generated} from ${d.scripts_run} scripts`, 'success');
-      await refreshStaging();
+      toast(`Wrote ${d.total_generated} problems to ${d.output_file ?? 'file'}`, 'success');
+      await viewExports();
     } else {
       toast('Mass generation failed', 'error');
     }

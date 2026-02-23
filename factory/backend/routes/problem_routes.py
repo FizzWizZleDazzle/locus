@@ -1,5 +1,6 @@
 """Problem staging and export routes"""
 
+import asyncio
 import json
 import httpx
 from datetime import datetime
@@ -191,4 +192,49 @@ async def upload_to_backend(filename: str):
         "total": len(problems),
         "errors": errors[:10] if errors else None,
         "message": f"Uploaded {submitted}/{len(problems)} problems to Locus"
+    }
+
+
+@router.post("/upload-staged")
+async def upload_staged():
+    """Upload all staged problems directly to Locus backend (no JSON file)"""
+    if not locus_config["backend_url"] or not locus_config["api_key"]:
+        raise HTTPException(status_code=400, detail="Locus backend not configured")
+
+    if not staged_problems:
+        raise HTTPException(status_code=400, detail="No problems staged")
+
+    submitted = 0
+    errors = []
+    total = len(staged_problems)
+
+    semaphore = asyncio.Semaphore(8)
+
+    async def upload_one(client, i, problem):
+        nonlocal submitted
+        async with semaphore:
+            try:
+                response = await client.post(
+                    f"{locus_config['backend_url']}/api/internal/problems",
+                    headers={
+                        "X-API-Key": locus_config["api_key"],
+                        "Content-Type": "application/json",
+                    },
+                    json=problem,
+                )
+                response.raise_for_status()
+                submitted += 1
+            except Exception as e:
+                errors.append(f"Problem {i+1}: {str(e)[:100]}")
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        await asyncio.gather(*(
+            upload_one(client, i, p) for i, p in enumerate(staged_problems)
+        ))
+
+    return {
+        "submitted": submitted,
+        "total": total,
+        "errors": errors[:30] if errors else None,
+        "message": f"Uploaded {submitted}/{total} problems to Locus"
     }

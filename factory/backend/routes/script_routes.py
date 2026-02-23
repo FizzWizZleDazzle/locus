@@ -3,6 +3,7 @@
 import re
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
+from fastapi.concurrency import run_in_threadpool
 
 from models import (
     GenerateScriptRequest,
@@ -11,12 +12,13 @@ from models import (
     RunScriptRequest,
     MassGenerateRequest
 )
-from config import SCRIPTS_DIR, llm_config, staged_problems
+from config import SCRIPTS_DIR, EXPORTS_DIR, llm_config, staged_problems
 from services.llm import generate_script_with_llm
 from services.script_runner import (
     test_script_code,
     run_script_multiple,
-    mass_generate
+    mass_generate,
+    mass_generate_to_file,
 )
 
 router = APIRouter()
@@ -137,8 +139,11 @@ async def run_script(request: RunScriptRequest):
 
 @router.post("/mass-generate")
 async def mass_generate_route(request: MassGenerateRequest):
-    """Run ALL saved scripts N times each and auto-stage all problems"""
+    """Run ALL saved scripts N times each; write problems directly to SQL file."""
     if not any(SCRIPTS_DIR.glob("*.py")):
         raise HTTPException(status_code=400, detail="No scripts available")
 
-    return mass_generate(SCRIPTS_DIR, request.count_per_script, staged_problems)
+    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+    output_path = EXPORTS_DIR / f"problems_{timestamp}.sql"
+
+    return await run_in_threadpool(mass_generate_to_file, SCRIPTS_DIR, request.count_per_script, output_path)
