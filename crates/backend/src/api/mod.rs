@@ -5,6 +5,7 @@ mod factory;
 mod leaderboard;
 mod oauth;
 mod problems;
+mod stats;
 mod submit;
 mod topics;
 
@@ -107,6 +108,9 @@ pub fn router() -> Router<AppState> {
         .route("/leaderboard", get(leaderboard::get_leaderboard))
         // User profile
         .route("/user/me", get(auth::get_me))
+        // User stats
+        .route("/user/stats", get(stats::get_user_stats))
+        .route("/user/elo-history", get(stats::get_elo_history))
         // Factory endpoint (internal)
         .route("/internal/problems", post(factory::create_problem))
 }
