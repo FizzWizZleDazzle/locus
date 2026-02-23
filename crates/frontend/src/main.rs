@@ -142,7 +142,7 @@ use leptos_router::{
 };
 use pages::{
     ForgotPassword, Home, Leaderboard, Login, Practice, PrivacyPolicy, Ranked, Register,
-    ResetPassword, Settings, TermsOfService, VerifyEmail,
+    ResetPassword, Settings, Stats, TermsOfService, VerifyEmail,
 };
 
 fn main() {
@@ -224,6 +224,7 @@ fn App() -> impl IntoView {
                         <Route path=path!("/verify-email") view=VerifyEmail />
                         <Route path=path!("/forgot-password") view=ForgotPassword />
                         <Route path=path!("/reset-password") view=ResetPassword />
+                        <Route path=path!("/stats") view=Stats />
                         <Route path=path!("/settings") view=Settings />
                         <Route path=path!("/privacy-policy") view=PrivacyPolicy />
                         <Route path=path!("/terms-of-service") view=TermsOfService />

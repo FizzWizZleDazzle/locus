@@ -10,6 +10,7 @@ mod ranked;
 mod register;
 mod reset_password;
 mod settings;
+mod stats;
 mod terms_of_service;
 mod verify_email;
 
@@ -23,5 +24,6 @@ pub use ranked::Ranked;
 pub use register::Register;
 pub use reset_password::ResetPassword;
 pub use settings::Settings;
+pub use stats::Stats;
 pub use terms_of_service::TermsOfService;
 pub use verify_email::VerifyEmail;

@@ -6,8 +6,9 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use locus_common::{
     ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
-    LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest, SetPasswordRequest,
-    SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest, UserProfile,
+    EloHistoryResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
+    SetPasswordRequest, SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest,
+    UserProfile, UserStatsResponse,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -412,4 +413,16 @@ pub async fn get_topics() -> Result<Vec<Topic>, RequestError> {
 
 pub async fn get_leaderboard(topic: &str) -> Result<LeaderboardResponse, RequestError> {
     get_request(&format!("/leaderboard?topic={}", topic)).await
+}
+
+// ============================================================================
+// Stats API
+// ============================================================================
+
+pub async fn get_user_stats() -> Result<UserStatsResponse, RequestError> {
+    get_request("/user/stats").await
+}
+
+pub async fn get_elo_history(topic: &str) -> Result<EloHistoryResponse, RequestError> {
+    get_request(&format!("/user/elo-history?topic={}", topic)).await
 }
