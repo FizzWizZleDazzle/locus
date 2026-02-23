@@ -9,7 +9,9 @@ pub mod svg_compress;
 pub mod symengine;
 pub mod validation;
 
-use chrono::{DateTime, Utc};
+use std::collections::HashMap;
+
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -26,6 +28,7 @@ pub enum MainTopic {
     Algebra2,
     Precalculus,
     Calculus,
+    DifferentialEquations,
     MultivariableCalculus,
     LinearAlgebra,
     Test,
@@ -40,6 +43,7 @@ impl MainTopic {
             Self::Algebra2 => "Algebra 2",
             Self::Precalculus => "Precalculus",
             Self::Calculus => "Calculus",
+            Self::DifferentialEquations => "Differential Equations",
             Self::MultivariableCalculus => "Multivariable Calculus",
             Self::LinearAlgebra => "Linear Algebra",
             Self::Test => "Test",
@@ -49,69 +53,129 @@ impl MainTopic {
     pub fn subtopics(&self) -> &'static [&'static str] {
         match self {
             Self::Arithmetic => &[
-                "addition_subtraction",
-                "multiplication_division",
+                "addition",
+                "subtraction",
+                "multiplication",
+                "long_division",
                 "fractions",
+                "mixed_numbers",
                 "decimals",
                 "percentages",
                 "order_of_operations",
+                "ratios_proportions",
             ],
             Self::Algebra1 => &[
-                "linear_equations",
-                "inequalities",
+                "one_step_equations",
+                "two_step_equations",
+                "multi_step_equations",
+                "linear_inequalities",
+                "compound_inequalities",
+                "slope_and_intercept",
                 "graphing_lines",
-                "systems_of_equations",
-                "exponents",
-                "polynomials",
-                "factoring",
-                "quadratic_equations",
+                "systems_substitution",
+                "systems_elimination",
+                "exponent_rules",
+                "polynomial_operations",
+                "factoring_gcf",
+                "factoring_trinomials",
+                "quadratic_formula",
             ],
             Self::Geometry => &[
-                "angles",
-                "triangles",
-                "circles",
-                "area_perimeter",
-                "volume_surface_area",
+                "angle_relationships",
+                "triangle_properties",
+                "triangle_congruence",
+                "similar_triangles",
+                "circle_theorems",
+                "arc_length_sectors",
+                "area_of_polygons",
+                "perimeter",
+                "surface_area",
+                "volume",
                 "pythagorean_theorem",
-                "trigonometry_basics",
+                "right_triangle_trig",
             ],
             Self::Algebra2 => &[
-                "complex_numbers",
+                "complex_number_operations",
+                "complex_number_equations",
                 "rational_expressions",
+                "rational_equations",
                 "radical_expressions",
-                "exponential_functions",
-                "logarithms",
-                "sequences_series",
-                "conic_sections",
+                "radical_equations",
+                "exponential_growth_decay",
+                "exponential_equations",
+                "logarithm_properties",
+                "logarithmic_equations",
+                "arithmetic_sequences",
+                "geometric_sequences",
             ],
             Self::Precalculus => &[
-                "functions",
-                "trigonometric_functions",
-                "trigonometric_identities",
-                "inverse_trig",
+                "domain_and_range",
+                "function_composition",
+                "inverse_functions",
+                "transformations",
+                "unit_circle",
+                "graphing_trig",
+                "trig_identities",
+                "sum_difference_formulas",
+                "inverse_trig_functions",
+                "law_of_sines_cosines",
                 "polar_coordinates",
-                "vectors",
-                "matrices",
+                "polar_curves",
+                "vector_operations",
+                "dot_cross_product",
             ],
             Self::Calculus => &[
-                "limits",
-                "derivatives",
-                "integration",
-                "applications_of_derivatives",
-                "applications_of_integration",
+                "limits_algebraic",
+                "limits_at_infinity",
+                "continuity",
+                "derivative_rules",
+                "chain_rule",
+                "implicit_differentiation",
+                "related_rates",
+                "curve_sketching",
+                "optimization",
+                "lhopitals_rule",
+                "antiderivatives",
+                "u_substitution",
+                "integration_by_parts",
+                "definite_integrals",
+                "area_between_curves",
+                "volumes_of_revolution",
+            ],
+            Self::DifferentialEquations => &[
+                "separable_equations",
+                "first_order_linear",
+                "exact_equations",
+                "homogeneous_equations",
+                "second_order_constant",
+                "characteristic_equation",
+                "undetermined_coefficients",
+                "variation_of_parameters",
+                "laplace_transforms",
+                "systems_of_odes",
             ],
             Self::MultivariableCalculus => &[
                 "partial_derivatives",
-                "multiple_integrals",
-                "vector_calculus",
+                "gradient",
+                "directional_derivatives",
+                "lagrange_multipliers",
+                "double_integrals",
+                "triple_integrals",
+                "change_of_variables",
                 "line_integrals",
-                "surface_integrals",
+                "greens_theorem",
+                "stokes_divergence",
             ],
             Self::LinearAlgebra => &[
-                "matrix_operations",
+                "row_reduction",
+                "matrix_arithmetic",
+                "matrix_inverses",
                 "determinants",
                 "vector_spaces",
-                "eigenvalues_eigenvectors",
+                "subspaces",
+                "linear_independence",
+                "eigenvalues",
+                "diagonalization",
                 "linear_transformations",
             ],
             Self::Test => &[
@@ -139,6 +203,7 @@ impl MainTopic {
             Self::Algebra2,
             Self::Precalculus,
             Self::Calculus,
+            Self::DifferentialEquations,
             Self::MultivariableCalculus,
             Self::LinearAlgebra,
             Self::Test,
@@ -153,6 +218,7 @@ impl MainTopic {
             "algebra2" => Some(Self::Algebra2),
             "precalculus" => Some(Self::Precalculus),
             "calculus" => Some(Self::Calculus),
+            "differential_equations" => Some(Self::DifferentialEquations),
             "multivariable_calculus" => Some(Self::MultivariableCalculus),
             "linear_algebra" => Some(Self::LinearAlgebra),
             "test" => Some(Self::Test),
@@ -168,6 +234,7 @@ impl MainTopic {
             Self::Algebra2 => "algebra2",
             Self::Precalculus => "precalculus",
             Self::Calculus => "calculus",
+            Self::DifferentialEquations => "differential_equations",
             Self::MultivariableCalculus => "multivariable_calculus",
             Self::LinearAlgebra => "linear_algebra",
             Self::Test => "test",
@@ -313,18 +380,12 @@ pub struct UserProfile {
     pub username: String,
     pub email: String,
     pub email_verified: bool,
-    pub elo_arithmetic: i32,
-    pub elo_algebra1: i32,
-    pub elo_geometry: i32,
-    pub elo_algebra2: i32,
-    pub elo_precalculus: i32,
-    pub elo_calculus: i32,
-    pub elo_multivariable_calculus: i32,
-    pub elo_linear_algebra: i32,
-    pub elo_test: i32,
+    pub elo_ratings: HashMap<String, i32>,
     pub has_password: bool,
     pub oauth_providers: Vec<String>,
     pub created_at: DateTime<Utc>,
+    #[serde(default)]
+    pub current_streak: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -394,6 +455,8 @@ pub struct SubmitResponse {
     pub elo_before: i32,
     pub elo_after: i32,
     pub elo_change: i32,
+    #[serde(default)]
+    pub topic_streak: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -471,4 +534,39 @@ pub struct CreateProblemRequest {
 pub struct CreateProblemResponse {
     pub id: Uuid,
     pub message: String,
+}
+
+// ============================================================================
+// Stats Types
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TopicStatsEntry {
+    pub topic: String,
+    pub total: i64,
+    pub correct: i64,
+    pub elo: i32,
+    pub peak_elo: i32,
+    pub topic_streak: i32,
+    pub peak_topic_streak: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserStatsResponse {
+    pub total_attempts: i64,
+    pub correct_attempts: i64,
+    pub current_streak: i32,
+    pub topics: Vec<TopicStatsEntry>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EloHistoryPoint {
+    pub day: NaiveDate,
+    pub elo: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EloHistoryResponse {
+    pub topic: String,
+    pub history: Vec<EloHistoryPoint>,
 }
