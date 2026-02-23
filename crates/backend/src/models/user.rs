@@ -5,7 +5,7 @@ use sqlx::PgPool;
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use locus_common::{UserProfile, constants::INITIAL_ELO};
+use locus_common::UserProfile;
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct User {
@@ -136,6 +136,68 @@ impl User {
         Ok(())
     }
 
+    /// Update ELO and streaks for a topic, returning the new topic_streak
+    pub async fn update_elo_and_streaks(
+        pool: &PgPool,
+        user_id: Uuid,
+        topic: &str,
+        new_elo: i32,
+        is_correct: bool,
+    ) -> Result<i32, sqlx::Error> {
+        // Ensure the row exists first (upsert via PostgreSQL function)
+        sqlx::query("SELECT update_user_elo($1, $2, $3)")
+            .bind(user_id)
+            .bind(topic)
+            .bind(new_elo)
+            .execute(pool)
+            .await?;
+
+        let row: (i32,) = sqlx::query_as(
+            r#"
+            UPDATE user_topic_elo SET
+              elo = $3,
+              topic_streak = CASE WHEN $4 THEN topic_streak + 1 ELSE 0 END,
+              peak_topic_streak = GREATEST(peak_topic_streak,
+                                   CASE WHEN $4 THEN topic_streak + 1 ELSE 0 END),
+              peak_elo = GREATEST(peak_elo, $3),
+              updated_at = NOW()
+            WHERE user_id = $1 AND topic = $2
+            RETURNING topic_streak
+            "#,
+        )
+        .bind(user_id)
+        .bind(topic)
+        .bind(new_elo)
+        .bind(is_correct)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(row.0)
+    }
+
+    /// Update the global daily streak for a user (call only on correct answer)
+    pub async fn update_daily_streak(
+        pool: &PgPool,
+        user_id: Uuid,
+    ) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            r#"
+            UPDATE users SET
+              current_streak = CASE
+                WHEN last_active_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
+                WHEN last_active_date = CURRENT_DATE                      THEN current_streak
+                ELSE 1
+              END,
+              last_active_date = CURRENT_DATE
+            WHERE id = $1
+            "#,
+        )
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
+
     /// Get all ELO ratings for a user
     pub async fn get_all_elos(
         pool: &PgPool,
@@ -244,24 +306,23 @@ impl User {
     pub async fn to_profile(&self, pool: &PgPool) -> Result<UserProfile, sqlx::Error> {
         let elos = Self::get_all_elos(pool, self.id).await?;
         let oauth_providers = Self::get_oauth_providers(pool, self.id).await?;
+        let streak_row: (i32,) = sqlx::query_as(
+            "SELECT COALESCE(current_streak, 0) FROM users WHERE id = $1",
+        )
+        .bind(self.id)
+        .fetch_one(pool)
+        .await?;
 
         Ok(UserProfile {
             id: self.id,
             username: self.username.clone(),
             email: self.email.clone(),
             email_verified: self.email_verified,
-            elo_arithmetic: *elos.get("arithmetic").unwrap_or(&INITIAL_ELO),
-            elo_algebra1: *elos.get("algebra1").unwrap_or(&INITIAL_ELO),
-            elo_geometry: *elos.get("geometry").unwrap_or(&INITIAL_ELO),
-            elo_algebra2: *elos.get("algebra2").unwrap_or(&INITIAL_ELO),
-            elo_precalculus: *elos.get("precalculus").unwrap_or(&INITIAL_ELO),
-            elo_calculus: *elos.get("calculus").unwrap_or(&INITIAL_ELO),
-            elo_multivariable_calculus: *elos.get("multivariable_calculus").unwrap_or(&INITIAL_ELO),
-            elo_linear_algebra: *elos.get("linear_algebra").unwrap_or(&INITIAL_ELO),
-            elo_test: *elos.get("test").unwrap_or(&INITIAL_ELO),
+            elo_ratings: elos,
             has_password: self.password_hash.is_some(),
             oauth_providers,
             created_at: self.created_at,
+            current_streak: streak_row.0,
         })
     }
 }

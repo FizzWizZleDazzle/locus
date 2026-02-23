@@ -49,8 +49,20 @@ pub async fn submit_answer(
     );
     let elo_change = elo_after - elo_before;
 
-    // Update user's ELO for this topic
-    User::update_elo_for_topic(&state.pool, user.id, &problem.main_topic, elo_after).await?;
+    // Update user's ELO and per-topic streak
+    let topic_streak = User::update_elo_and_streaks(
+        &state.pool,
+        user.id,
+        &problem.main_topic,
+        elo_after,
+        is_correct,
+    )
+    .await?;
+
+    // Update global daily streak on correct answer
+    if is_correct {
+        User::update_daily_streak(&state.pool, user.id).await?;
+    }
 
     // Record the attempt
     Attempt::create(
@@ -71,5 +83,6 @@ pub async fn submit_answer(
         elo_before,
         elo_after,
         elo_change,
+        topic_streak,
     }))
 }
