@@ -3,7 +3,7 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_query_map};
-use locus_common::{MainTopic, ProblemResponse};
+use locus_common::ProblemResponse;
 
 use crate::{
     AuthContext, api,
@@ -12,6 +12,15 @@ use crate::{
     problem_queue::ProblemQueue,
     utils::{push_url_playing, setup_popstate_listener, update_url},
 };
+
+#[derive(Clone)]
+struct SessionAttempt {
+    is_correct: bool,
+    elo_before: i32,
+    elo_after: i32,
+    time_taken_ms: Option<i32>,
+    topic_streak: i32,
+}
 
 #[component]
 pub fn Ranked() -> impl IntoView {
@@ -40,6 +49,11 @@ pub fn Ranked() -> impl IntoView {
     let (submitting, set_submitting) = signal(false);
     let (result, set_result) = signal(None::<SubmitResult>);
     let (start_time, set_start_time) = signal(None::<f64>);
+
+    // Session tracking
+    let (session_attempts, set_session_attempts) = signal(Vec::<SessionAttempt>::new());
+    let (session_start_elo, set_session_start_elo) = signal(0i32);
+    let (show_summary, set_show_summary) = signal(false);
 
     // Problem queue for batch fetching
     let queue = ProblemQueue::new(false);
@@ -110,6 +124,10 @@ pub fn Ranked() -> impl IntoView {
         // Clear stale problems from previous topic selection
         queue.clear();
 
+        // Reset session state
+        set_session_attempts.set(Vec::new());
+        set_show_summary.set(false);
+
         // Create a history entry with 'playing' state so back button can return to topic selector
         let url = if subtopics.is_empty() {
             format!("/ranked?topic={}", topic)
@@ -133,12 +151,6 @@ pub fn Ranked() -> impl IntoView {
 
         if let Some(topic_val) = topic_param {
             if !topic_val.is_empty() {
-                // Validate topic exists - silently ignore if invalid
-                let main_topic = match MainTopic::from_str(&topic_val) {
-                    Some(t) => t,
-                    None => return, // Invalid topic, ignore params
-                };
-
                 // Parse subtopics from comma-separated string
                 let subtopics = if let Some(st) = subtopics_param {
                     st.split(',')
@@ -149,20 +161,13 @@ pub fn Ranked() -> impl IntoView {
                     Vec::new()
                 };
 
-                // Validate subtopics belong to topic - filter out invalid ones
-                let valid_subtopic_list = main_topic.subtopics();
-                let filtered_subtopics: Vec<String> = subtopics
-                    .into_iter()
-                    .filter(|st| valid_subtopic_list.contains(&st.as_str()))
-                    .collect();
-
                 // Set initial values for TopicSelector
                 set_initial_topic.set(Some(topic_val.clone()));
-                set_initial_subtopics.set(Some(filtered_subtopics.clone()));
+                set_initial_subtopics.set(Some(subtopics.clone()));
 
                 // Also set parent state so callbacks work correctly
                 set_selected_topic.set(Some(topic_val));
-                set_selected_subtopics.set(filtered_subtopics);
+                set_selected_subtopics.set(subtopics);
             }
         } else {
             // No topic in URL - clear everything to show topic selector
@@ -196,11 +201,28 @@ pub fn Ranked() -> impl IntoView {
             spawn_local(async move {
                 match api::submit_answer(p.id, &user_input, time_taken).await {
                     Ok(resp) => {
+                        // Record for session
+                        let attempt = SessionAttempt {
+                            is_correct: resp.is_correct,
+                            elo_before: resp.elo_before,
+                            elo_after: resp.elo_after,
+                            time_taken_ms: time_taken,
+                            topic_streak: resp.topic_streak,
+                        };
+                        set_session_attempts.update(|v| {
+                            // Record session start ELO on first attempt
+                            if v.is_empty() {
+                                set_session_start_elo.set(resp.elo_before);
+                            }
+                            v.push(attempt);
+                        });
+
                         set_result.set(Some(SubmitResult {
                             is_correct: resp.is_correct,
                             elo_before: resp.elo_before,
                             elo_after: resp.elo_after,
                             elo_change: resp.elo_change,
+                            topic_streak: resp.topic_streak,
                         }));
                         set_submitting.set(false);
                     }
@@ -224,20 +246,36 @@ pub fn Ranked() -> impl IntoView {
         set_selected_subtopics.set(Vec::new());
         set_problem.set(None);
         set_result.set(None);
+        set_session_attempts.set(Vec::new());
+        set_show_summary.set(false);
+        set_session_start_elo.set(0);
     };
 
     view! {
         <div class="max-w-2xl mx-auto px-4 py-8">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-semibold">"Ranked"</h1>
-                {move || problem.get().is_some().then(|| view! {
-                    <button
-                        class="text-sm text-gray-600 hover:text-gray-900"
-                        on:click=move |_| reset_selection()
-                    >
-                        "Change Topics"
-                    </button>
-                })}
+                <div class="flex items-center gap-3">
+                    {move || {
+                        let attempts = session_attempts.get();
+                        (!attempts.is_empty()).then(|| view! {
+                            <button
+                                class="text-sm px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50"
+                                on:click=move |_| set_show_summary.set(true)
+                            >
+                                "Finish Session"
+                            </button>
+                        })
+                    }}
+                    {move || problem.get().is_some().then(|| view! {
+                        <button
+                            class="text-sm text-gray-600 hover:text-gray-900"
+                            on:click=move |_| reset_selection()
+                        >
+                            "Change Topics"
+                        </button>
+                    })}
+                </div>
             </div>
 
             {move || error.get().map(|e| view! {
@@ -289,9 +327,31 @@ pub fn Ranked() -> impl IntoView {
 
                         view! {
                             <div class="p-6 border rounded">
-                                <div class="text-lg mb-2">
-                                    {if r.is_correct { "✓ Correct" } else { "✗ Incorrect" }}
+                                <div class="flex items-center gap-2 text-lg mb-2">
+                                    {if r.is_correct {
+                                        view! {
+                                            <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span>"Correct"</span>
+                                        }.into_any()
+                                    } else {
+                                        view! {
+                                            <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            <span>"Incorrect"</span>
+                                        }.into_any()
+                                    }}
                                 </div>
+                                {(r.is_correct && r.topic_streak > 0).then(|| view! {
+                                    <div class="flex items-center gap-1 text-sm text-orange-600 mb-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        {format!("{} correct in a row", r.topic_streak)}
+                                    </div>
+                                })}
                                 <div class="text-sm text-gray-600 mb-4">
                                     {format!("{} → {}", r.elo_before, r.elo_after)}
                                     <span class=format!("ml-2 font-medium {}", elo_color)>
@@ -309,6 +369,87 @@ pub fn Ranked() -> impl IntoView {
                     })}
                 </div>
             })}
+
+            // Session summary modal
+            {move || show_summary.get().then(|| {
+                let attempts = session_attempts.get();
+                let total = attempts.len() as i32;
+                let correct = attempts.iter().filter(|a| a.is_correct).count() as i32;
+                let accuracy = if total > 0 { correct * 100 / total } else { 0 };
+                let start_elo = session_start_elo.get();
+                let end_elo = attempts.last().map(|a| a.elo_after).unwrap_or(start_elo);
+                let elo_delta = end_elo - start_elo;
+                let elo_delta_color = if elo_delta >= 0 { "text-green-600" } else { "text-red-600" };
+                let elo_delta_str = if elo_delta >= 0 { format!("+{}", elo_delta) } else { format!("{}", elo_delta) };
+
+                let avg_time_ms = {
+                    let timed: Vec<i32> = attempts.iter().filter_map(|a| a.time_taken_ms).collect();
+                    if timed.is_empty() {
+                        None
+                    } else {
+                        Some(timed.iter().sum::<i32>() / timed.len() as i32)
+                    }
+                };
+
+                let best_streak = attempts.iter().map(|a| a.topic_streak).max().unwrap_or(0);
+
+                view! {
+                    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+                            <h2 class="text-xl font-semibold mb-4">"Session Summary"</h2>
+
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">"Problems attempted"</span>
+                                    <span class="font-medium">{total}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">"Correct"</span>
+                                    <span class="font-medium">{correct}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">"Accuracy"</span>
+                                    <span class="font-medium">{format!("{}%", accuracy)}</span>
+                                </div>
+                                <div class="border-t pt-3 flex justify-between">
+                                    <span class="text-gray-600">"ELO change"</span>
+                                    <span class="font-medium">
+                                        {format!("{} → {}", start_elo, end_elo)}
+                                        <span class=format!("ml-2 {}", elo_delta_color)>
+                                            {elo_delta_str}
+                                        </span>
+                                    </span>
+                                </div>
+                                {avg_time_ms.map(|ms| view! {
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">"Avg solve time"</span>
+                                        <span class="font-medium">{format!("{:.1}s", ms as f64 / 1000.0)}</span>
+                                    </div>
+                                })}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">"Best streak"</span>
+                                    <span class="font-medium">{best_streak}</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex gap-3">
+                                <button
+                                    class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm"
+                                    on:click=move |_| set_show_summary.set(false)
+                                >
+                                    "Keep Playing"
+                                </button>
+                                <button
+                                    class="flex-1 px-4 py-2 bg-black text-white rounded hover:bg-gray-800 text-sm"
+                                    on:click=move |_| reset_selection()
+                                >
+                                    "End Session"
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            })}
         </div>
     }
 }
@@ -319,4 +460,5 @@ struct SubmitResult {
     elo_before: i32,
     elo_after: i32,
     elo_change: i32,
+    topic_streak: i32,
 }

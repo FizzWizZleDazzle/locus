@@ -3,9 +3,9 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_query_map;
-use locus_common::{LeaderboardEntry, MainTopic};
+use locus_common::LeaderboardEntry;
 
-use crate::{api, utils::update_url};
+use crate::{api, api::Topic, utils::update_url};
 
 #[component]
 pub fn Leaderboard() -> impl IntoView {
@@ -19,9 +19,19 @@ pub fn Leaderboard() -> impl IntoView {
         .unwrap_or_else(|| "calculus".to_string());
 
     let (selected_topic, set_selected_topic) = signal(initial_topic);
+    let (topics_list, set_topics_list) = signal(Vec::<Topic>::new());
     let (entries, set_entries) = signal(Vec::<LeaderboardEntry>::new());
     let (loading, set_loading) = signal(false);
     let (error, set_error) = signal(None::<String>);
+
+    // Fetch topics from API on mount
+    Effect::new(move |_| {
+        spawn_local(async move {
+            if let Ok(topics) = api::get_topics().await {
+                set_topics_list.set(topics);
+            }
+        });
+    });
 
     let load_leaderboard = move || {
         set_loading.set(true);
@@ -65,11 +75,9 @@ pub fn Leaderboard() -> impl IntoView {
                     }
                     prop:value=selected_topic
                 >
-                    {MainTopic::all().iter().map(|topic| {
-                        let value = topic.as_str();
-                        let label = topic.display_name();
+                    {move || topics_list.get().into_iter().map(|topic| {
                         view! {
-                            <option value=value>{label}</option>
+                            <option value=topic.id.clone()>{topic.display_name.clone()}</option>
                         }
                     }).collect_view()}
                 </select>
