@@ -135,8 +135,8 @@ EXAMPLE 1 (expression answer):
 from problem_utils import *
 
 def generate():
-    n = randint(2, 5)
-    coeff = nonzero(-3, 3)
+    n = randint(2, 7)
+    coeff = nonzero(-12, 12)
     expr = coeff * x**n
     ans = diff(expr, x)
     return problem(
@@ -158,7 +158,7 @@ EXAMPLE 2 (numeric answer):
 from problem_utils import *
 
 def generate():
-    a_val, b_val = nonzero(-5, 5), nonzero(-5, 5)
+    a_val, b_val = nonzero(-50, 50), nonzero(-50, 50)
     ans = a_val + b_val
     return problem(
         question=f"${{{a_val}}} + {{{b_val}}} = ?$",
@@ -176,8 +176,11 @@ EXAMPLE 3 (factored form):
 from problem_utils import *
 
 def generate():
-    r1, r2 = nonzero(-6, 6), nonzero(-6, 6)
-    expr = expand((x - r1) * (x - r2))
+    # Reverse-engineer: pick roots first, expand to get messy-but-factorable polynomial
+    a = choice([1, 2, 3, 4])          # leading factor for first root
+    b = choice([1, 2, 3, 4])          # leading factor for second root
+    r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
+    expr = expand((a*x - r1) * (b*x - r2))
     ans = factor(expr)
     return problem(
         question=f"Factor ${latex(expr)}$",
@@ -186,7 +189,7 @@ def generate():
         topic="algebra1/factoring",
         grading_mode="factor",
         solution=steps(
-            f"Find two numbers that multiply to ${r1*r2}$ and add to ${-(r1+r2)}$",
+            f"Use the AC method or factor by grouping",
             f"${latex(ans)}$",
         ),
     )
@@ -196,11 +199,18 @@ emit(generate())
 
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
-2. Randomize parameters for variety
+2. Randomize parameters for variety — use LARGE ranges. Numbers don't need to be small.
+   - Coefficients: randint(-20, 20) or wider, not just (-3, 3)
+   - Factorable polynomials: pick roots first (e.g. r1=randint(-12,12), r2=randint(-12,12)),
+     then expand — 12x²+31x+20 is perfectly valid since it factors to (4x+5)(3x+4)
+   - Exponents: up to 6 or 8 for medium/hard
+   - Bounds and constants: scale with difficulty — hard problems should have harder numbers
 3. Always include a solution using steps()
 4. ELO must match actual complexity (see ELO guide above)
 5. Default calculator to "none" unless computation is heavy and not the focus
 6. Use Diagram/Graph when a visual would help (geometry, graphing, coordinate problems)
+7. Always set time= in problem() to the expected solve time in seconds.
+   Guidelines: easy 30-90s, medium 60-180s, hard 120-300s. Scale by problem complexity.
 
 Output ONLY the Python script. No markdown fences, no explanation."""
 
