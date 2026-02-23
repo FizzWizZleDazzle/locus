@@ -4,9 +4,7 @@ use axum::{Json, extract::State, http::StatusCode};
 
 use crate::api::AppState;
 use crate::{AppError, auth::ApiKeyAuth, models::Problem};
-use locus_common::{
-    AnswerType, CreateProblemRequest, CreateProblemResponse, GradingMode, MainTopic,
-};
+use locus_common::{AnswerType, CreateProblemRequest, CreateProblemResponse, GradingMode};
 
 /// Create a new problem (Factory endpoint)
 ///
@@ -19,6 +17,27 @@ pub async fn create_problem(
 ) -> Result<(StatusCode, Json<CreateProblemResponse>), AppError> {
     // Validate request fields
     validate_problem_request(&req)?;
+
+    // Validate topic/subtopic against database-driven topic cache
+    let topics = state.topic_cache.get_enabled().await;
+    let topic = topics.iter().find(|t| t.id == req.main_topic).ok_or_else(|| {
+        let valid: Vec<&str> = topics.iter().map(|t| t.id.as_str()).collect();
+        AppError::BadRequest(format!(
+            "Invalid main_topic '{}'. Valid topics: {}",
+            req.main_topic,
+            valid.join(", ")
+        ))
+    })?;
+
+    if !topic.subtopics.iter().any(|s| s.id == req.subtopic) {
+        let valid: Vec<&str> = topic.subtopics.iter().map(|s| s.id.as_str()).collect();
+        return Err(AppError::BadRequest(format!(
+            "Invalid subtopic '{}' for main_topic '{}'. Allowed subtopics: {}",
+            req.subtopic,
+            req.main_topic,
+            valid.join(", ")
+        )));
+    }
 
     // Parse grading mode
     let grading_mode = match req.grading_mode.to_lowercase().as_str() {
@@ -97,25 +116,6 @@ fn validate_problem_request(req: &CreateProblemRequest) -> Result<(), AppError> 
         ));
     }
 
-    // Validate main_topic
-    let main_topic = MainTopic::from_str(&req.main_topic).ok_or_else(|| {
-        AppError::BadRequest(format!(
-            "Invalid main_topic '{}'. Valid topics: arithmetic, algebra1, geometry, algebra2, precalculus, calculus, multivariable_calculus, linear_algebra",
-            req.main_topic
-        ))
-    })?;
-
-    // Validate subtopic belongs to main_topic
-    let allowed_subtopics = main_topic.subtopics();
-    if !allowed_subtopics.contains(&req.subtopic.as_str()) {
-        return Err(AppError::BadRequest(format!(
-            "Invalid subtopic '{}' for main_topic '{}'. Allowed subtopics: {}",
-            req.subtopic,
-            req.main_topic,
-            allowed_subtopics.join(", ")
-        )));
-    }
-
     // Validate calculator_allowed
     let valid_calculator_levels = ["none", "scientific", "graphing", "cas"];
     if !valid_calculator_levels.contains(&req.calculator_allowed.as_str()) {
@@ -148,7 +148,7 @@ mod tests {
             answer_key: "4".to_string(),
             difficulty: 1000,
             main_topic: "arithmetic".to_string(),
-            subtopic: "addition_subtraction".to_string(),
+            subtopic: "addition".to_string(),
             grading_mode: "equivalent".to_string(),
             answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
@@ -166,7 +166,7 @@ mod tests {
             answer_key: "4".to_string(),
             difficulty: 1000,
             main_topic: "arithmetic".to_string(),
-            subtopic: "addition_subtraction".to_string(),
+            subtopic: "addition".to_string(),
             grading_mode: "equivalent".to_string(),
             answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
@@ -184,43 +184,7 @@ mod tests {
             answer_key: "4".to_string(),
             difficulty: 5000,
             main_topic: "arithmetic".to_string(),
-            subtopic: "addition_subtraction".to_string(),
-            grading_mode: "equivalent".to_string(),
-            answer_type: "expression".to_string(),
-            calculator_allowed: "none".to_string(),
-            solution_latex: String::new(),
-            question_image: String::new(),
-            time_limit_seconds: None,
-        };
-        assert!(validate_problem_request(&req).is_err());
-    }
-
-    #[test]
-    fn test_validate_problem_request_invalid_topic() {
-        let req = CreateProblemRequest {
-            question_latex: "2 + 2".to_string(),
-            answer_key: "4".to_string(),
-            difficulty: 1000,
-            main_topic: "invalid_topic".to_string(),
-            subtopic: "addition_subtraction".to_string(),
-            grading_mode: "equivalent".to_string(),
-            answer_type: "expression".to_string(),
-            calculator_allowed: "none".to_string(),
-            solution_latex: String::new(),
-            question_image: String::new(),
-            time_limit_seconds: None,
-        };
-        assert!(validate_problem_request(&req).is_err());
-    }
-
-    #[test]
-    fn test_validate_problem_request_invalid_subtopic() {
-        let req = CreateProblemRequest {
-            question_latex: "2 + 2".to_string(),
-            answer_key: "4".to_string(),
-            difficulty: 1000,
-            main_topic: "arithmetic".to_string(),
-            subtopic: "derivatives".to_string(), // calculus subtopic
+            subtopic: "addition".to_string(),
             grading_mode: "equivalent".to_string(),
             answer_type: "expression".to_string(),
             calculator_allowed: "none".to_string(),
@@ -238,7 +202,7 @@ mod tests {
             answer_key: "4".to_string(),
             difficulty: 1000,
             main_topic: "arithmetic".to_string(),
-            subtopic: "addition_subtraction".to_string(),
+            subtopic: "addition".to_string(),
             grading_mode: "equivalent".to_string(),
             answer_type: "expression".to_string(),
             calculator_allowed: "invalid".to_string(),
