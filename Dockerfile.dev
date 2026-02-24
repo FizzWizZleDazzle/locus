@@ -6,11 +6,13 @@ FROM rust:1.93.0-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    build-essential \
     pkg-config \
     libssl-dev \
     libgmp-dev \
     cmake \
     g++ \
+    clang \
     git \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -20,9 +22,9 @@ RUN git clone https://github.com/symengine/symengine.git /tmp/symengine && \
     cd /tmp/symengine && \
     mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_INSTALL_PREFIX=/usr/local \
-          .. && \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr/local \
+    .. && \
     make -j$(nproc) && \
     make install && \
     cd / && rm -rf /tmp/symengine
