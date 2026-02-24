@@ -1,6 +1,7 @@
 {
   "name": "Locus Dev Container",
   "image": "ghcr.io/fizzwizzledazzle/locus-devcontainer:latest",
+  "remoteUser": "vscode",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },

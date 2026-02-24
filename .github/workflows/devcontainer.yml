@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.devcontainer/Dockerfile'
+      - '.github/workflows/devcontainer.yml'
       - 'symengine.js/**'
       - 'factory/backend/requirements.txt'
       - 'Cargo.toml'

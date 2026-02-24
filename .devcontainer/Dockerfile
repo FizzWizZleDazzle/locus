@@ -32,20 +32,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Rust toolchain
+# 2. Create non-root user
+RUN groupadd --gid 1000 vscode \
+    && useradd --uid 1000 --gid 1000 -m vscode -s /bin/bash \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode
+
+# 3. Rust toolchain (installed as vscode so ~/.cargo is in /home/vscode)
+USER vscode
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --default-toolchain stable
-ENV PATH="/root/.cargo/bin:${PATH}"
+ENV PATH="/home/vscode/.cargo/bin:${PATH}"
 RUN rustup target add wasm32-unknown-unknown \
     && cargo install trunk cargo-watch cargo-chef --locked
+USER root
 
-# 3. Node.js LTS + TypeScript
+# 4. Node.js LTS + TypeScript
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g typescript
 
-# 4. WASI SDK 25 (arch-aware)
+# 5. WASI SDK 25 (arch-aware)
 RUN ARCH="$(uname -m)" \
     && case "$ARCH" in \
         x86_64)  WASI_ARCH="x86_64" ;; \
@@ -60,7 +67,7 @@ RUN ARCH="$(uname -m)" \
     && rm /tmp/wasi-sdk.tar.gz
 ENV WASI_SDK_PATH="/opt/wasi-sdk"
 
-# 5. Native SymEngine (for backend)
+# 6. Native SymEngine (for backend)
 RUN cd /tmp \
     && git clone --depth 1 https://github.com/symengine/symengine.git \
     && cd symengine \
@@ -75,7 +82,7 @@ RUN cd /tmp \
     && make install \
     && cd / && rm -rf /tmp/symengine
 
-# 6. WASM SymEngine (for frontend)
+# 7. WASM SymEngine (for frontend)
 #    Uses symengine.js/build_wasm.sh from the repo (submodule must be checked out).
 #    CI does `actions/checkout` with `submodules: recursive` so these files exist.
 COPY symengine.js/build_wasm.sh /tmp/symengine-wasm-build/build_wasm.sh
@@ -88,7 +95,7 @@ RUN cd /tmp/symengine-wasm-build \
     && cd / && rm -rf /tmp/symengine-wasm-build
 ENV SYMENGINE_LIB_DIR="/opt/symengine-wasm/lib"
 
-# 7. Factory Python deps (pre-built venv)
+# 8. Factory Python deps (pre-built venv)
 COPY factory/backend/requirements.txt /tmp/factory-requirements.txt
 RUN python3 -m venv /opt/factory-venv \
     && /opt/factory-venv/bin/pip install --no-cache-dir -r /tmp/factory-requirements.txt \
@@ -96,12 +103,13 @@ RUN python3 -m venv /opt/factory-venv \
 
 # ---- Planner stage: generate cargo-chef recipe from workspace manifests ----
 FROM base AS planner
+USER vscode
 WORKDIR /workspaces/locus
-COPY Cargo.toml Cargo.lock ./
-COPY crates/common/Cargo.toml crates/common/Cargo.toml
-COPY crates/backend/Cargo.toml crates/backend/Cargo.toml
-COPY crates/frontend/Cargo.toml crates/frontend/Cargo.toml
-COPY crates/common/build.rs crates/common/build.rs
+COPY --chown=vscode:vscode Cargo.toml Cargo.lock ./
+COPY --chown=vscode:vscode crates/common/Cargo.toml crates/common/Cargo.toml
+COPY --chown=vscode:vscode crates/backend/Cargo.toml crates/backend/Cargo.toml
+COPY --chown=vscode:vscode crates/frontend/Cargo.toml crates/frontend/Cargo.toml
+COPY --chown=vscode:vscode crates/common/build.rs crates/common/build.rs
 # cargo-chef needs stub source files to satisfy Cargo's manifest validation
 RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src \
     && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs \
@@ -109,8 +117,13 @@ RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src \
 
 # ---- Final stage: cook (pre-build) all dependency crates ----
 FROM base AS final
+
+# Create cargo target dir owned by vscode
+RUN mkdir -p /opt/cargo-target && chown vscode:vscode /opt/cargo-target
+
 COPY --from=planner /tmp/recipe.json /tmp/recipe.json
 ENV CARGO_TARGET_DIR=/opt/cargo-target
+USER vscode
 WORKDIR /workspaces/locus
 
 # Cook native deps (axum, tokio, serde, sqlx, etc.)
@@ -123,7 +136,9 @@ RUN cargo chef cook --recipe-path /tmp/recipe.json || true
 RUN cargo chef cook --recipe-path /tmp/recipe.json --target wasm32-unknown-unknown || true
 
 # Clean up workspace stubs and recipe, keep compiled artifacts
+USER root
 RUN rm -rf /workspaces/locus/* /tmp/recipe.json
 
+USER vscode
 WORKDIR /workspaces/locus
 CMD ["/bin/bash"]
