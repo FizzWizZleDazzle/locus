@@ -34,8 +34,9 @@ docker-compose.dev.yml
 # macOS
 .DS_Store
 
-# Factory/scripts (not needed in runtime)
+# Factory/scripts (not needed in runtime, except requirements for devcontainer)
 factory/
+!factory/backend/requirements.txt
 
 # Documentation
 *.md

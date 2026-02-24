@@ -1,14 +1,17 @@
 {
-  "name": "Locus Codespaces Container",
-  "dockerFile": "Dockerfile",
-  "context": ".",
+  "name": "Locus Dev Container",
+  "image": "ghcr.io/fizzwizzledazzle/locus-devcontainer:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "initializeCommand": "git submodule update --init --recursive",
   "postCreateCommand": "bash .devcontainer/setup.sh",
-  "forwardPorts": [
-    8080,
-    3000,
-    9090,
-    9091
-  ],
+  "containerEnv": {
+    "SYMENGINE_LIB_DIR": "/opt/symengine-wasm/lib",
+    "WASI_SDK_PATH": "/opt/wasi-sdk",
+    "CARGO_TARGET_DIR": "/opt/cargo-target"
+  },
+  "forwardPorts": [8080, 3000, 5433, 9090, 9091],
   "customizations": {
     "vscode": {
       "settings": {
@@ -16,12 +19,10 @@
       },
       "extensions": [
         "rust-lang.rust-analyzer",
-        "ms-vscode.cpptools",
-        "ms-vscode.cpptools-extension-pack",
-        "twxs.cmake",
-        "ms-python.python",
         "ms-azuretools.vscode-docker",
-        "dbaeumer.vscode-eslint"
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates",
+        "ms-python.python"
       ]
     }
   }
