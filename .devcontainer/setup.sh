@@ -193,16 +193,16 @@ if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
         log_info "Importing problems into Postgres..."
         FACTORY_VENV="$REPO_ROOT/factory/backend/venv"
         if [ -f "$FACTORY_VENV/bin/python3" ]; then
-            "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/backend/import_db.py" "$PROBLEMS_DB" \
+            "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/import_db.py" "$PROBLEMS_DB" \
                 && log_success "Problem database seeded" \
-                || log_warn "Import failed — retry: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+                || log_warn "Import failed — retry: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
         else
             log_warn "Factory venv not found, skipping import"
-            log_warn "Run manually: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+            log_warn "Run manually: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
         fi
     else
         log_warn "Postgres not ready — skipping import"
-        log_warn "Run manually after starting DB: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+        log_warn "Run manually after starting DB: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
     fi
 fi
 

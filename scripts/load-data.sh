@@ -3,7 +3,7 @@
 
 set -e
 
-PROBLEMS_FILE="${PROBLEMS_FILE:-factory/backend/exports/problems_import.sql}"
+PROBLEMS_FILE="${PROBLEMS_FILE:-factory/exports/problems_import.sql}"
 
 echo "============================================"
 echo "Loading Problem Data"

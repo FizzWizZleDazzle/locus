@@ -10,7 +10,7 @@ load_dotenv()
 # Paths
 BASE_DIR = Path(__file__).parent
 SCRIPTS_DIR = BASE_DIR / "scripts" / "src"
-EXPORTS_DIR = BASE_DIR / "exports"
+EXPORTS_DIR = BASE_DIR.parent / "exports"
 
 # Create directories if they don't exist
 SCRIPTS_DIR.mkdir(exist_ok=True)

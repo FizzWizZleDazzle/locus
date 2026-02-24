@@ -216,7 +216,7 @@ cd factory/backend
 cargo run --release
 ```
 
-Output: `factory/backend/exports/problems_import.sql`
+Output: `factory/exports/problems_import.sql`
 
 Then load with:
 ```bash

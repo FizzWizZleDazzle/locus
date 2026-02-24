@@ -137,12 +137,12 @@ Deploys both backend and frontend.
 Loads problem data and removes duplicates.
 
 **What it does:**
-- Loads `factory/backend/exports/problems_import.sql` into database
+- Loads `factory/exports/problems_import.sql` into database
 - Removes duplicate problems (keeps lowest ID)
 - Shows final problem count
 
 **Requirements:**
-- `factory/backend/exports/problems_import.sql` exists
+- `factory/exports/problems_import.sql` exists
 - `.env.production` configured with `DATABASE_URL`
 - `psql` command available
 
@@ -293,10 +293,10 @@ trunk build --release
 psql "$DATABASE_URL" -c "SELECT 1;"
 
 # Check file exists
-ls -lh factory/backend/exports/problems_import.sql
+ls -lh factory/exports/problems_import.sql
 
 # Load manually
-psql "$DATABASE_URL" < factory/backend/exports/problems_import.sql
+psql "$DATABASE_URL" < factory/exports/problems_import.sql
 ```
 
 ### Cloudflare Tunnel Issues

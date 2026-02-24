@@ -16,10 +16,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Reuse helpers from script_runner
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent / "backend"))
 from services.script_runner import _run_script_n_times, _SQL_COLS, _problem_to_sql_row
 
-SCRIPTS_DIR = Path(__file__).parent / "scripts" / "src"
+SCRIPTS_DIR = Path(__file__).parent / "backend" / "scripts" / "src"
 
 
 def get_thin_subtopics(db_path: Path, target: int):

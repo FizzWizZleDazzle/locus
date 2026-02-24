@@ -40,7 +40,7 @@ venv/
 content-gen/*.sql
 
 # Factory generated exports
-factory/backend/exports/
+factory/exports/
 
 # Editor
 .vscode/
