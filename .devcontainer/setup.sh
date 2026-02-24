@@ -129,6 +129,84 @@ else
 fi
 
 # =============================================================================
+# 6. Download latest problem DB and seed Postgres
+# =============================================================================
+
+PROBLEMS_REPO="FizzWizZleDazzle/locus-scripts"
+PROBLEMS_DIR="$REPO_ROOT/.devcontainer"
+PROBLEMS_DB=""
+
+log_info "Fetching latest problem database release..."
+if command -v gh &> /dev/null; then
+    # Get the latest release tag that has a .db asset
+    LATEST_TAG=$(gh release list --repo "$PROBLEMS_REPO" --limit 10 --json tagName,assets \
+        --jq '[.[] | select(.assets[].name | endswith(".db"))] | .[0].tagName' 2>/dev/null) || true
+
+    if [ -n "$LATEST_TAG" ]; then
+        # Find the .db asset name
+        DB_NAME=$(gh release view "$LATEST_TAG" --repo "$PROBLEMS_REPO" --json assets \
+            --jq '[.assets[].name | select(endswith(".db"))] | .[0]' 2>/dev/null) || true
+
+        if [ -n "$DB_NAME" ]; then
+            PROBLEMS_DB="$PROBLEMS_DIR/$DB_NAME"
+            if [ ! -f "$PROBLEMS_DB" ]; then
+                log_info "Downloading $DB_NAME from release $LATEST_TAG..."
+                gh release download "$LATEST_TAG" \
+                    --repo "$PROBLEMS_REPO" \
+                    -p "$DB_NAME" \
+                    -D "$PROBLEMS_DIR" \
+                    && log_success "Downloaded $DB_NAME" \
+                    || { log_warn "Failed to download $DB_NAME"; PROBLEMS_DB=""; }
+            else
+                log_info "$DB_NAME already downloaded"
+            fi
+        fi
+    else
+        log_warn "No releases with .db assets found in $PROBLEMS_REPO"
+    fi
+else
+    log_warn "gh CLI not available — skipping problem DB download"
+fi
+
+if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
+    log_info "Starting Postgres to seed problem data..."
+    docker compose up -d 2>/dev/null || docker-compose up -d 2>/dev/null || true
+
+    # Wait for Postgres to accept connections
+    RETRIES=15
+    until docker exec locus-db pg_isready -U locus -d locus &>/dev/null || [ "$RETRIES" -eq 0 ]; do
+        RETRIES=$((RETRIES - 1))
+        sleep 2
+    done
+
+    if docker exec locus-db pg_isready -U locus -d locus &>/dev/null; then
+        # Run migrations so the problems table exists
+        log_info "Running database migrations..."
+        MIGRATIONS_DIR="$REPO_ROOT/crates/backend/migrations"
+        if [ -d "$MIGRATIONS_DIR" ]; then
+            for sql in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do
+                docker exec -i locus-db psql -U locus -d locus < "$sql" 2>/dev/null || true
+            done
+            log_success "Migrations applied"
+        fi
+
+        log_info "Importing problems into Postgres..."
+        FACTORY_VENV="$REPO_ROOT/factory/backend/venv"
+        if [ -f "$FACTORY_VENV/bin/python3" ]; then
+            "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/backend/import_db.py" "$PROBLEMS_DB" \
+                && log_success "Problem database seeded" \
+                || log_warn "Import failed — retry: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+        else
+            log_warn "Factory venv not found, skipping import"
+            log_warn "Run manually: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+        fi
+    else
+        log_warn "Postgres not ready — skipping import"
+        log_warn "Run manually after starting DB: factory/backend/venv/bin/python3 factory/backend/import_db.py $PROBLEMS_DB"
+    fi
+fi
+
+# =============================================================================
 # Summary
 # =============================================================================
 

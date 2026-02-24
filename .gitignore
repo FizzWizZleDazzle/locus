@@ -53,3 +53,6 @@ factory/backend/exports/
 
 kubeconfig
 
+# Downloaded problem databases
+.devcontainer/*.db
+
