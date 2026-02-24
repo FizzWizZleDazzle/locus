@@ -32,9 +32,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Create non-root user
-RUN groupadd --gid 1000 vscode \
-    && useradd --uid 1000 --gid 1000 -m vscode -s /bin/bash \
+# 2. Create non-root user (--force handles pre-existing GID/UID)
+RUN groupadd --gid 1000 --force vscode \
+    && useradd --uid 1000 --gid 1000 -m vscode -s /bin/bash || true \
     && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode
 
 # 3. Rust toolchain (installed as vscode so ~/.cargo is in /home/vscode)
