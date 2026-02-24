@@ -39,7 +39,7 @@ sudo apt-get install -y \
     python3-pip
 
 # =============================================================================
-# Install Emscripten (if not already installed)
+# Install Emscripten (skip if already in Docker image)
 # =============================================================================
 
 if ! command -v emcc &> /dev/null; then
@@ -52,11 +52,11 @@ if ! command -v emcc &> /dev/null; then
     cd "$REPO_ROOT"
     log_success "Emscripten installed"
 else
-    log_success "Emscripten already installed"
+    log_success "Emscripten already available"
 fi
 
 # =============================================================================
-# Install WASI SDK (if not already at /opt/wasi-sdk)
+# Install WASI SDK (skip if already in Docker image)
 # =============================================================================
 
 if [ ! -d /opt/wasi-sdk ]; then
@@ -68,7 +68,7 @@ if [ ! -d /opt/wasi-sdk ]; then
     rm wasi-sdk.tar.gz
     log_success "WASI SDK installed at /opt/wasi-sdk"
 else
-    log_success "WASI SDK already installed"
+    log_success "WASI SDK already available"
 fi
 
 # =============================================================================
