@@ -1,11 +1,14 @@
 {
   "name": "Locus Codespaces Container",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  
-  "postCreateCommand": "npm install -g typescript && rustup target add wasm32-unknown-unknown && curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash && cargo binstall -y trunk cargo-watch && cargo build --workspace",
-  
-  "forwardPorts": [8080, 3000, 9090, 9091],
-
+  "dockerFile": "Dockerfile",
+  "context": ".",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "forwardPorts": [
+    8080,
+    3000,
+    9090,
+    9091
+  ],
   "customizations": {
     "vscode": {
       "settings": {
