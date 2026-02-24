@@ -4,9 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - '.devcontainer/**'
+      - '.devcontainer/Dockerfile'
       - 'symengine.js/**'
       - 'factory/backend/requirements.txt'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/*/Cargo.toml'
   workflow_dispatch: # manual trigger
 
 jobs:
