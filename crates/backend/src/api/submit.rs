@@ -23,6 +23,11 @@ pub async fn submit_answer(
     user: AuthUser,
     Json(req): Json<SubmitRequest>,
 ) -> Result<Json<SubmitResponse>, AppError> {
+    // Reject oversized input to prevent DoS / database bloat
+    if req.user_input.len() > 10_000 {
+        return Err(AppError::BadRequest("Input too long".into()));
+    }
+
     // Get the problem
     let problem = Problem::find_by_id(&state.pool, req.problem_id)
         .await?
