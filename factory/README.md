@@ -1,259 +1,137 @@
-# Locus Factory - AI Problem Generator
+# Factory
 
-An AI-powered mathematical problem generation system that creates problems using LLM-generated Python scripts.
-
-## What Is This?
-
-Instead of manually writing problems, the Locus Factory:
-1. **Uses AI to generate Python scripts** that create random problems
-2. **Tests the scripts** to verify they work correctly
-3. **Batch generates** thousands of problem variations
-4. **Automatically submits** them to the Locus database
-
-**Performance:** Generate 1000 problems in ~3 minutes (~24,000x faster than manual creation).
+LLM-powered problem generation pipeline. Generates Python scripts that produce math problems, validates them with SymPy, and uploads to the main Locus backend.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Locus Factory System                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────┐         ┌──────────────┐                 │
-│  │   Frontend   │ ←────→  │   Backend    │                 │
-│  │  (HTML/JS)   │         │   (Python)   │                 │
-│  │              │         │              │                 │
-│  │  - Config UI │         │  - FastAPI   │                 │
-│  │  - Script    │         │  - LLM API   │                 │
-│  │    Editor    │         │  - Script    │                 │
-│  │  - Testing   │         │    Executor  │                 │
-│  └──────────────┘         └──────────────┘                 │
-│                                  │                           │
-│                                  ▼                           │
-│                          ┌──────────────┐                   │
-│                          │     LLM      │                   │
-│                          │  (OpenAI,    │                   │
-│                          │   Claude,    │                   │
-│                          │   etc.)      │                   │
-│                          └──────────────┘                   │
-│                                  │                           │
-│                                  ▼                           │
-│                      Generated Python Script                │
-│                      (creates random problems)               │
-│                                  │                           │
-│                                  ▼                           │
-│                      Run 1000x → 1000 problems              │
-│                                  │                           │
-│                                  ▼                           │
-│                      ┌──────────────────┐                   │
-│                      │  Locus Backend   │                   │
-│                      │  Factory API     │                   │
-│                      │ /api/internal/   │                   │
-│                      │    problems      │                   │
-│                      └──────────────────┘                   │
-│                                  │                           │
-│                                  ▼                           │
-│                      ┌──────────────────┐                   │
-│                      │   PostgreSQL     │                   │
-│                      │   problems       │                   │
-│                      │   table          │                   │
-│                      └──────────────────┘                   │
-└─────────────────────────────────────────────────────────────┘
+factory/
+  backend/                    FastAPI app (port 9090)
+    main.py                   Entry point, route registration
+    config.py                 LLM + Locus backend configuration
+    models.py                 Pydantic request/response models
+    routes/
+      config_routes.py        LLM and backend config endpoints
+      script_routes.py        Script generation, saving, testing, execution
+      problem_routes.py       Problem staging, approval, export
+    services/                 LLM client, script runner, problem staging
+    scripts/src/              Generated problem scripts (Python)
+  frontend/                   TypeScript UI (port 9091)
+    index.html                Entry point
+    factory.ts                Main TypeScript source
+    factory.css               Styles
+  exports/                    Generated SQL/JSON/SQLite outputs
+  automate_pipeline.py        Full automation script
+  import_db.py                SQLite -> PostgreSQL importer
+  publish_db.py               SQL -> SQLite -> GitHub Release publisher
+  topup.py                    Re-run scripts for thin subtopics
+  start.sh                    Multi-process startup
 ```
-
-### Components
-
-- **Frontend**: Standalone HTML/JavaScript web UI (port 8080)
-- **Backend**: Python FastAPI service (port 8001)
-- **Integration**: Submits problems to Locus backend via Factory API
-
-## Workflow
-
-1. **Configure**: Set up LLM endpoint (OpenAI, Anthropic, etc.) and Locus backend
-2. **Generate Script**: AI generates a Python script that creates random problems
-3. **Test**: Run the script once to verify it works correctly
-4. **Approve**: Review the generated problem
-5. **Batch Generate**: Run the script 1000 times to create problem variations
-6. **Submit**: All problems are automatically submitted to the Locus database
 
 ## Setup
 
-### Prerequisites
-
-- Python 3.8+
-- Locus backend running on http://localhost:3000
-- LLM API key (OpenAI, Anthropic Claude, or compatible)
-
-### Installation
-
-1. Install Python dependencies:
 ```bash
-cd factory/backend
-pip install -r requirements.txt
+cd factory
+
+# Copy and configure environment
+cp backend/.env.example backend/.env
+# Edit backend/.env with LLM credentials and backend URL
+
+# Start everything
+./start.sh
 ```
 
-2. Start the Factory backend:
+`start.sh` creates a Python venv, installs dependencies, compiles TypeScript, starts the FastAPI backend (uvicorn with hot reload) and an HTTP server for the frontend.
+
+### Environment Variables
+
+| Variable | Description |
+|---|---|
+| `LLM_ENDPOINT` | `https://api.openai.com/v1/chat/completions` or `https://api.anthropic.com/v1/messages` |
+| `LLM_API_KEY` | API key for the LLM provider |
+| `LLM_MODEL` | Model name (e.g. `gpt-4`, `claude-sonnet-4-5-20250929`) |
+| `LOCUS_BACKEND_URL` | Main backend URL (default: `http://localhost:3000`) |
+| `LOCUS_API_KEY` | Must match `API_KEY_SECRET` in the main backend |
+
+## Workflow
+
+### Interactive (Web UI)
+
+1. Open `http://localhost:9091`
+2. Configure LLM provider and model
+3. Select topic and subtopic
+4. Generate a script (LLM writes a Python function that produces problems)
+5. Test the script (runs it, validates output with SymPy)
+6. Save to `scripts/src/`
+7. Run to generate problems in bulk
+8. Review staged problems
+9. Approve and upload to main backend via API
+
+### Automated Pipeline
+
 ```bash
-python main.py
+python automate_pipeline.py [options]
 ```
 
-The backend will start on `http://localhost:8001`
+Full automation: fetches topics from main backend, generates scripts for all topic/subtopic combinations, mass-generates problems, uploads directly.
 
-3. Open the frontend:
+| Flag | Description |
+|---|---|
+| `--skip-generation` | Use existing scripts, skip LLM generation |
+| `--problems-per-script N` | Override default 100 problems per script |
+| `--topics "topic1,topic2"` | Only process specific topics |
+| `--dry-run` | Show what would be done |
+| `--clear-before` | Clear staged problems before starting |
+| `--overwrite` | Overwrite existing scripts |
+| `--timeout N` | LLM timeout in seconds (default: 300) |
+| `--log-file PATH` | Write detailed logs to file |
+
+Concurrency: 4 simultaneous LLM requests. Retries with exponential backoff (max 3 retries).
+
+## Standalone Scripts
+
+### `import_db.py` - Import SQLite to PostgreSQL
+
 ```bash
-cd factory/frontend
-# Open index.html in your browser, or use a simple HTTP server:
-python -m http.server 8080
+python import_db.py problems-v1.db
+python import_db.py problems-v1.db --url postgres://locus:pass@localhost:5433/locus
+python import_db.py problems-v1.db --dry-run
 ```
 
-Then navigate to `http://localhost:8080`
+Batch inserts (2000 rows), skips duplicates by `(question_latex, answer_key)`.
 
-## Configuration
+### `publish_db.py` - Publish to GitHub Releases
 
-### LLM Endpoints
-
-The Factory supports any OpenAI-compatible API endpoint:
-
-**OpenAI:**
-- Endpoint: `https://api.openai.com/v1/chat/completions`
-- Model: `gpt-4` or `gpt-3.5-turbo`
-
-**Anthropic Claude (via OpenAI-compatible wrapper):**
-- Endpoint: `https://api.anthropic.com/v1/messages`
-- Model: `claude-3-sonnet-20240229`
-
-**Local (Ollama):**
-- Endpoint: `http://localhost:11434/v1/chat/completions`
-- Model: `llama2` or any installed model
-
-### Locus Backend
-
-- Backend URL: `http://localhost:3000` (default)
-- API Key: `development-factory-key-change-in-production` (from .env)
-
-## Usage
-
-1. **Configure LLM**:
-   - Enter your LLM API endpoint and key
-   - Select your model
-   - Click "Save LLM Config"
-
-2. **Configure Locus**:
-   - Verify Locus backend URL (should already be correct)
-   - Verify Factory API key matches `.env.example`
-   - Click "Save Locus Config"
-
-3. **Set Problem Parameters**:
-   - Choose main topic (e.g., Calculus)
-   - Enter subtopic (e.g., derivatives)
-   - Set difficulty range (ELO: 1000-1500)
-   - Select grading mode (equivalent or factor)
-
-4. **Generate Script**:
-   - Click "Generate Script with AI"
-   - Wait for the AI to create a Python script
-   - Review the generated script in the editor
-
-5. **Test Script**:
-   - Click "Test Script (1 problem)"
-   - Verify the problem output looks correct
-   - Check question_latex, answer_key, and difficulty
-
-6. **Batch Generate**:
-   - Click "Batch Generate (1000 problems)"
-   - Wait for generation and submission (may take 2-5 minutes)
-   - Review the success rate and any errors
-
-## Example Script Output
-
-A valid script should output JSON like this:
-
-```json
-{
-  "question_latex": "Find the derivative: $\\frac{d}{dx}(3x^2 + 2x - 1)$",
-  "answer_key": "6*x + 2",
-  "difficulty": 1200,
-  "main_topic": "calculus",
-  "subtopic": "derivatives",
-  "grading_mode": "equivalent"
-}
+```bash
+python publish_db.py exports/*.sql
+python publish_db.py exports/*.sql --tag problems-v2
+python publish_db.py exports/*.sql --dry-run
 ```
 
-## Script Requirements
+Combines SQL files into a SQLite database, deduplicates, publishes to GitHub Releases on `FizzWizZleDazzle/locus-scripts`.
 
-Generated Python scripts must:
+### `topup.py` - Boost Thin Subtopics
 
-1. **Use SymPy** for symbolic mathematics
-2. **Include randomization** so each run produces different problems
-3. **Output valid JSON** to stdout
-4. **Include all required fields**: question_latex, answer_key, difficulty, main_topic, subtopic, grading_mode
-5. **Be self-contained** (no external file dependencies)
-6. **Execute quickly** (under 10 seconds per run)
-
-## Example Script
-
-```python
-import sympy as sp
-import random
-import json
-
-# Create a random derivative problem
-x = sp.Symbol('x')
-
-# Random coefficients
-a = random.randint(1, 10)
-b = random.randint(1, 10)
-c = random.randint(-10, 10)
-
-# Create expression
-expr = a*x**2 + b*x + c
-
-# Calculate derivative
-derivative = sp.diff(expr, x)
-
-# Generate problem
-problem = {
-    "question_latex": f"Find the derivative: $\\frac{{d}}{{dx}}({sp.latex(expr)})$",
-    "answer_key": str(derivative),
-    "difficulty": random.randint(1000, 1500),
-    "main_topic": "calculus",
-    "subtopic": "derivatives",
-    "grading_mode": "equivalent"
-}
-
-print(json.dumps(problem))
+```bash
+python topup.py /tmp/locus_check.db --target 1500 --output exports/topup.sql
 ```
 
-## Troubleshooting
+Finds subtopics below the target count, locates their scripts, runs them with a 2x safety buffer. 8 parallel workers.
 
-### "LLM not configured" error
-Make sure you've clicked "Save LLM Config" after entering your API credentials.
+## Problem Format
 
-### "Locus backend not configured" error
-Make sure you've clicked "Save Locus Config" and the Locus backend is running.
+Each generated problem must include:
 
-### Script execution timeout
-Scripts must complete in under 10 seconds. Simplify the script or reduce computation.
-
-### Invalid JSON output
-Make sure the script uses `print(json.dumps(problem))` and doesn't print anything else.
-
-### Submission errors
-Verify the Locus backend is running and the API key matches the one in `.env`.
-
-## Security Notes
-
-- **Never commit API keys** to version control
-- The backend runs scripts using `subprocess` - only run trusted scripts
-- In production, implement proper sandboxing for script execution
-- Use environment variables for API keys instead of hardcoding
-
-## Future Enhancements
-
-- [ ] Script templates library
-- [ ] SVG diagram generation support
-- [ ] Problem validation with SymPy
-- [ ] Progress tracking for batch generation
-- [ ] Script sandboxing (Docker/containers)
-- [ ] Problem quality metrics
-- [ ] Database of successful scripts
+| Field | Description |
+|---|---|
+| `question_latex` | LaTeX-formatted question |
+| `answer_key` | SymEngine-compatible expression |
+| `difficulty` | ELO-style rating (1000-2000) |
+| `main_topic` | Must match a topic in the database |
+| `subtopic` | Must match a subtopic under the topic |
+| `grading_mode` | `equivalent`, `factor`, or `expand` |
+| `answer_type` | `expression`, `numeric`, `set`, `tuple`, `list`, `interval`, `inequality`, `equation`, `boolean`, `word`, `matrix`, `multi_part` |
+| `calculator_allowed` | `none`, `scientific`, `graphing`, `cas` |
+| `solution_latex` | Step-by-step solution in LaTeX (can be empty) |
+| `question_image` | Compressed SVG (s1: prefix) or empty |
+| `time_limit_seconds` | Optional, 1-3600 |

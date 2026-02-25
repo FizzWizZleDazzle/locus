@@ -1,516 +1,449 @@
 # API Reference
 
-Complete documentation for all Locus REST API endpoints.
-
-## Base URL
-
-**Development:** `http://localhost:3000/api`
-**Production:** `https://yourdomain.com/api`
+Base path: `/api`
 
 ## Authentication
 
-Most endpoints require a JWT token obtained from login.
+Two auth mechanisms:
 
-**Header:**
-```
-Authorization: Bearer {token}
+| Type | Header | Used by |
+|---|---|---|
+| Bearer JWT | `Authorization: Bearer <token>` | User-facing endpoints |
+| API Key | `x-api-key: <key>` | Factory (`POST /internal/problems`) |
+
+JWT claims: `sub` (user UUID), `username`, `exp` (24h), `iat`.
+
+## Rate Limiting
+
+IP-based via governor. Unlimited in debug builds.
+
+| Limiter | Limit | Applies to | Env var |
+|---|---|---|---|
+| Auth | 5 / 15 min | register, verify-email, resend-verification, forgot-password | `RATE_LIMIT_AUTH_PER_15MIN` |
+| Login | 10 / 15 min | login | `RATE_LIMIT_LOGIN_PER_15MIN` |
+| General | 1000 / min | all other endpoints | `RATE_LIMIT_GENERAL_PER_MIN` |
+
+## Error Format
+
+All errors return:
+
+```json
+{ "message": "Error description" }
 ```
 
-**Token Expiry:** 24 hours (configurable via `JWT_EXPIRY_HOURS`)
+Status codes: `400` validation, `401` auth, `404` not found, `500` server error.
 
 ---
 
 ## Endpoints
 
-### Health Check
+### Health
 
-#### GET /api/health
+#### `GET /health`
 
-Health check endpoint to verify server is running.
+No auth, no rate limiting. Returns 200 if the server is running.
 
-**Auth Required:** No
+---
 
-**Request:**
-```bash
-curl http://localhost:3000/api/health
+### Auth
+
+#### `POST /auth/register`
+
+Create a new account. Sends verification email.
+
+**Auth**: None | **Rate limit**: Auth
+
+```json
+// Request
+{ "username": "alice", "email": "alice@example.com", "password": "P@ssw0rd!", "accepted_tos": true }
+
+// Response 200
+{ "success": true, "message": "...", "email": "alice@example.com" }
 ```
 
-**Response:**
+Validation: username 3-20 chars `[a-zA-Z0-9_]`, password 8+ chars with uppercase + lowercase + digit, unique username and email, `accepted_tos` must be true.
+
+#### `POST /auth/login`
+
+**Auth**: None | **Rate limit**: Login
+
 ```json
+// Request
+{ "email": "alice@example.com", "password": "P@ssw0rd!" }
+
+// Response 200
+{ "token": "eyJ...", "user": { UserProfile } }
+```
+
+Requires verified email. Returns JWT token (24-hour expiry).
+
+#### `GET /user/me`
+
+**Auth**: Bearer
+
+```json
+// Response 200
 {
-  "status": "ok",
-  "version": "0.1.0"
+  "id": "uuid",
+  "username": "alice",
+  "email": "alice@example.com",
+  "email_verified": true,
+  "elo_ratings": { "calculus": 1650, "algebra1": 1500 },
+  "has_password": true,
+  "oauth_providers": ["google"],
+  "created_at": "2024-01-01T00:00:00Z",
+  "current_streak": 5
 }
+```
+
+#### `POST /auth/set-password`
+
+Set password for OAuth-only users.
+
+**Auth**: Bearer
+
+```json
+// Request
+{ "password": "P@ssw0rd!" }
+
+// Response 200
+{ UserProfile }
+```
+
+#### `POST /auth/change-password`
+
+**Auth**: Bearer
+
+```json
+// Request
+{ "old_password": "P@ssw0rd!", "new_password": "N3wP@ss!" }
+
+// Response 200
+{ "success": true, "message": "..." }
+```
+
+#### `POST /auth/change-username`
+
+**Auth**: Bearer
+
+```json
+// Request
+{ "new_username": "bob" }
+
+// Response 200
+{ UserProfile }
+```
+
+#### `POST /auth/delete-account`
+
+Cascading delete of all user data.
+
+**Auth**: Bearer
+
+```json
+// Request
+{ "password": "P@ssw0rd!" }  // required if user has password
+
+// Response 200
+{ "success": true, "message": "..." }
+```
+
+#### `POST /auth/unlink-oauth`
+
+Remove an OAuth provider. Requires at least one other auth method (password or another provider).
+
+**Auth**: Bearer
+
+```json
+// Request
+{ "provider": "google" }
+
+// Response 200
+{ UserProfile }
+```
+
+#### `POST /auth/verify-email`
+
+**Auth**: None | **Rate limit**: Auth
+
+```json
+// Request
+{ "token": "64-char-hex-token" }
+
+// Response 200
+{ "success": true, "message": "..." }
+```
+
+Token expires after 1 hour.
+
+#### `POST /auth/resend-verification`
+
+**Auth**: None | **Rate limit**: Auth
+
+```json
+// Request
+{ "email": "alice@example.com" }
+
+// Response 200
+{ "success": true, "message": "..." }
+```
+
+Rate limited to 1 email per minute per user. Silently succeeds for non-existent emails.
+
+#### `POST /auth/forgot-password`
+
+**Auth**: None | **Rate limit**: Auth
+
+```json
+// Request
+{ "email": "alice@example.com" }
+
+// Response 200
+{ "success": true, "message": "..." }
+```
+
+Always returns success (email enumeration prevention). Token expires after 30 minutes.
+
+#### `POST /auth/validate-reset-token`
+
+**Auth**: None
+
+```json
+// Request
+{ "token": "64-char-hex-token" }
+
+// Response 200
+{ "valid": true, "message": null }
+```
+
+#### `POST /auth/reset-password`
+
+**Auth**: None | **Rate limit**: Auth
+
+```json
+// Request
+{ "token": "64-char-hex-token", "new_password": "N3wP@ss!" }
+
+// Response 200
+{ "success": true, "message": "..." }
 ```
 
 ---
 
-## Authentication Endpoints
+### OAuth
 
-### Register
+#### `GET /auth/oauth/{provider}`
 
-#### POST /api/auth/register
+Redirects to Google or GitHub OAuth consent screen. Generates CSRF state JWT (10-minute expiry).
 
-Create a new user account.
+**Auth**: None | **Path params**: `provider` = `google` | `github`
 
-**Auth Required:** No
+Returns HTML that redirects the browser.
 
-**Request Body:**
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "SecurePassword123!"
-}
-```
+#### `GET /auth/oauth/{provider}/callback`
 
-**Validation:**
-- `username`: 3-50 characters, alphanumeric + underscore
-- `email`: Valid email format
-- `password`: Minimum 8 characters (no other restrictions)
+OAuth provider callback. Creates or links account.
 
-**Response (200 OK):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "john_doe"
-}
-```
+**Auth**: None | **Query params**: `code`, `state`, `error`
 
-**Errors:**
-- `400` - Invalid input (validation failed)
-- `409` - Username or email already exists
+Returns HTML with `postMessage` to opener window:
+- Success: `{ type: "oauth_success", data: { token, user } }`
+- Error: `{ type: "oauth_error", error: "..." }`
 
-**Example:**
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "password": "SecurePassword123!"
-  }'
-```
+Email conflict: blocks login if email already exists under a different auth method.
+
+#### `GET /auth/oauth/link/{provider}`
+
+Link an OAuth provider to an existing account.
+
+**Auth**: JWT via `token` query param | **Path params**: `provider` = `google` | `github`
+
+Redirects to OAuth consent screen with user ID embedded in CSRF state.
 
 ---
 
-### Login
+### Problems
 
-#### POST /api/auth/login
+#### `GET /problems`
 
-Authenticate and receive a JWT token.
+Fetch random problems.
 
-**Auth Required:** No
+**Auth**: Required for ranked mode, optional for practice
 
-**Request Body:**
+| Query param | Type | Default | Description |
+|---|---|---|---|
+| `practice` | bool | false | Include answer key and solution |
+| `main_topic` | string | - | Filter by topic |
+| `subtopics` | string | - | Comma-separated subtopic filter |
+| `elo` | i32 | - | Override target difficulty (0-3000) |
+| `count` | u32 | 1 | Number of problems (max 10) |
+
 ```json
-{
-  "email": "john@example.com",
-  "password": "SecurePassword123!"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "john_doe"
-}
-```
-
-**Errors:**
-- `400` - Invalid input
-- `401` - Invalid credentials
-
-**Example:**
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "SecurePassword123!"
-  }'
-```
-
----
-
-### Get Current User
-
-#### GET /api/user/me
-
-Get the profile of the currently authenticated user.
-
-**Auth Required:** Yes
-
-**Response (200 OK):**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "username": "john_doe",
-  "email": "john@example.com",
-  "created_at": "2024-01-15T10:30:00Z",
-  "elo_arithmetic": 1520,
-  "elo_algebra1": 1485,
-  "elo_geometry": 1500,
-  "elo_algebra2": 1500,
-  "elo_precalculus": 1500,
-  "elo_calculus": 1560,
-  "elo_multivariable_calculus": 1500,
-  "elo_linear_algebra": 1500
-}
-```
-
-**Errors:**
-- `401` - Unauthorized (missing or invalid token)
-
-**Example:**
-```bash
-curl http://localhost:3000/api/user/me \
-  -H "Authorization: Bearer {token}"
-```
-
----
-
-## Problem Endpoints
-
-### Get Problem
-
-#### GET /api/problem
-
-Get a random problem, optionally filtered by topic and subtopics.
-
-**Auth Required:** Optional
-- **Without auth (Practice mode):** Returns problem with answer
-- **With auth (Ranked mode):** Returns problem without answer
-
-**Query Parameters:**
-- `main_topic` (optional) - Filter by topic: `Arithmetic`, `Algebra1`, `Geometry`, `Algebra2`, `Precalculus`, `Calculus`, `MultivariableCalculus`, `LinearAlgebra`
-- `subtopics` (optional) - Comma-separated list of subtopics
-
-**Response (200 OK - Practice Mode):**
-```json
-{
-  "id": "660e8400-e29b-41d4-a716-446655440000",
-  "question_latex": "Factor the expression: $x^2 - 5x + 6$",
-  "answer_key": "(x-2)(x-3)",
+// Response 200
+[{
+  "id": "uuid",
+  "question_latex": "\\frac{d}{dx} x^2",
   "difficulty": 1400,
-  "main_topic": "Algebra1",
-  "subtopic": "factoring_quadratics",
-  "grading_mode": "Factor"
-}
+  "main_topic": "calculus",
+  "subtopic": "derivatives",
+  "grading_mode": "equivalent",
+  "answer_type": "expression",
+  "calculator_allowed": "none",
+  "answer_key": "2*x",           // practice mode only
+  "solution_latex": "...",        // practice mode only
+  "question_image": "",
+  "time_limit_seconds": null
+}]
 ```
 
-**Response (200 OK - Ranked Mode):**
-```json
-{
-  "id": "660e8400-e29b-41d4-a716-446655440000",
-  "question_latex": "Factor the expression: $x^2 - 5x + 6$",
-  "answer_key": null,
-  "difficulty": 1400,
-  "main_topic": "Algebra1",
-  "subtopic": "factoring_quadratics",
-  "grading_mode": "Factor"
-}
-```
+Ranked mode uses user's per-topic ELO for difficulty matching (default 1500).
 
-**Errors:**
-- `404` - No problems found matching criteria
+#### `GET /problem` (deprecated)
 
-**Examples:**
-
-Get any problem (practice mode):
-```bash
-curl http://localhost:3000/api/problem
-```
-
-Get Calculus problem (practice mode):
-```bash
-curl "http://localhost:3000/api/problem?main_topic=Calculus"
-```
-
-Get Algebra1 problem with specific subtopics (practice mode):
-```bash
-curl "http://localhost:3000/api/problem?main_topic=Algebra1&subtopics=factoring_quadratics,polynomials"
-```
-
-Get problem for ranked mode:
-```bash
-curl http://localhost:3000/api/problem \
-  -H "Authorization: Bearer {token}"
-```
+Same as `GET /problems` but returns a single problem. Returns `Deprecation: true` header.
 
 ---
 
-## Submission Endpoints
+### Submit
 
-### Submit Answer
+#### `POST /submit`
 
-#### POST /api/submit
+Submit an answer for grading (ranked mode).
 
-Submit an answer to a problem in ranked mode. Calculates ELO change and records attempt.
+**Auth**: Bearer
 
-**Auth Required:** Yes
-
-**Request Body:**
 ```json
-{
-  "problem_id": "660e8400-e29b-41d4-a716-446655440000",
-  "user_input": "(x-2)(x-3)",
-  "time_taken_ms": 45000
-}
-```
+// Request
+{ "problem_id": "uuid", "user_input": "2*x", "time_taken_ms": 15000 }
 
-**Fields:**
-- `problem_id` - UUID of the problem being answered
-- `user_input` - User's answer (string)
-- `time_taken_ms` - Time taken in milliseconds (optional, defaults to 0)
-
-**Response (200 OK):**
-```json
+// Response 200
 {
   "is_correct": true,
-  "correct_answer": "(x-2)(x-3)",
-  "elo_change": 15,
-  "new_elo": 1515,
-  "problem_difficulty": 1400
+  "elo_before": 1500,
+  "elo_after": 1520,
+  "elo_change": 20,
+  "topic_streak": 3
 }
 ```
 
-**Fields:**
-- `is_correct` - Whether the answer was correct
-- `correct_answer` - The correct answer (always shown after submission)
-- `elo_change` - Change in ELO rating (positive or negative)
-- `new_elo` - User's new ELO for this topic
-- `problem_difficulty` - The difficulty rating of the problem
-
-**Errors:**
-- `401` - Unauthorized (missing or invalid token)
-- `404` - Problem not found
-- `500` - Server error (database failure, etc.)
-
-**Example:**
-```bash
-curl -X POST http://localhost:3000/api/submit \
-  -H "Authorization: Bearer {token}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "problem_id": "660e8400-e29b-41d4-a716-446655440000",
-    "user_input": "(x-2)(x-3)",
-    "time_taken_ms": 45000
-  }'
-```
+Server-side grading. Updates ELO, streaks (topic + global daily), and records attempt.
 
 ---
 
-## Leaderboard Endpoints
+### Topics
 
-### Get Leaderboard
+#### `GET /topics`
 
-#### GET /api/leaderboard
-
-Get the top 100 users by ELO rating for a specific topic.
-
-**Auth Required:** No
-
-**Query Parameters:**
-- `topic` (required) - One of: `Arithmetic`, `Algebra1`, `Geometry`, `Algebra2`, `Precalculus`, `Calculus`, `MultivariableCalculus`, `LinearAlgebra`
-
-**Response (200 OK):**
-```json
-[
-  {
-    "rank": 1,
-    "username": "math_wizard",
-    "elo": 1850
-  },
-  {
-    "rank": 2,
-    "username": "calc_master",
-    "elo": 1820
-  },
-  {
-    "rank": 3,
-    "username": "algebra_ace",
-    "elo": 1795
-  }
-]
-```
-
-**Errors:**
-- `400` - Invalid topic parameter
-
-**Example:**
-```bash
-curl "http://localhost:3000/api/leaderboard?topic=Calculus"
-```
-
----
-
-## Data Models
-
-### MainTopic Enum
-
-```rust
-pub enum MainTopic {
-    Arithmetic,
-    Algebra1,
-    Geometry,
-    Algebra2,
-    Precalculus,
-    Calculus,
-    MultivariableCalculus,
-    LinearAlgebra,
-}
-```
-
-### Subtopics by Topic
-
-**Arithmetic:**
-- `basic_operations`
-- `fractions`
-- `decimals`
-- `percentages`
-- `order_of_operations`
-
-**Algebra1:**
-- `linear_equations`
-- `inequalities`
-- `graphing_lines`
-- `systems_of_equations`
-- `polynomials`
-- `factoring_quadratics`
-- `exponents`
-- `radicals`
-
-**Geometry:**
-- `angles`
-- `triangles`
-- `quadrilaterals`
-- `circles`
-- `area_perimeter`
-- `volume_surface_area`
-- `pythagorean_theorem`
-
-**Algebra2:**
-- `quadratic_functions`
-- `complex_numbers`
-- `polynomial_functions`
-- `rational_functions`
-- `exponential_functions`
-- `logarithmic_functions`
-
-**Precalculus:**
-- `trigonometry`
-- `polar_coordinates`
-- `sequences_series`
-- `limits`
-- `conic_sections`
-
-**Calculus:**
-- `limits_continuity`
-- `derivatives`
-- `applications_of_derivatives`
-- `integrals`
-- `applications_of_integrals`
-
-**MultivariableCalculus:**
-- `partial_derivatives`
-- `multiple_integrals`
-- `vector_calculus`
-- `line_integrals`
-- `surface_integrals`
-
-**LinearAlgebra:**
-- `matrices`
-- `determinants`
-- `vector_spaces`
-- `eigenvalues_eigenvectors`
-- `linear_transformations`
-
-### GradingMode Enum
-
-```rust
-pub enum GradingMode {
-    Equivalent,  // Mathematical equivalence (e.g., 2x + 4 = 2(x + 2))
-    Factor,      // Must be in factored form
-}
-```
-
----
-
-## Error Responses
-
-All errors follow this format:
+**Auth**: None
 
 ```json
+// Response 200
+[{
+  "id": "calculus",
+  "name": "Calculus",
+  "enabled": true,
+  "subtopics": [
+    { "id": "derivatives", "name": "Derivatives" }
+  ]
+}]
+```
+
+Served from in-memory cache.
+
+---
+
+### Leaderboard
+
+#### `GET /leaderboard`
+
+**Auth**: None
+
+| Query param | Type | Default | Description |
+|---|---|---|---|
+| `topic` | string | calculus | Topic to rank |
+
+```json
+// Response 200
 {
-  "error": "Error message description"
+  "entries": [{ "rank": 1, "username": "alice", "elo": 2100 }],
+  "topic": "calculus"
 }
 ```
 
-**Common HTTP Status Codes:**
-- `200` - Success
-- `400` - Bad Request (validation failed)
-- `401` - Unauthorized (missing or invalid JWT)
-- `404` - Not Found (resource doesn't exist)
-- `409` - Conflict (duplicate username/email)
-- `500` - Internal Server Error
+Returns top 100 users.
 
 ---
 
-## Rate Limiting
+### Stats
 
-**Current:** No rate limiting implemented
+#### `GET /user/stats`
 
-**Future Considerations:**
-- 100 requests per minute per IP
-- 1000 requests per hour per user
-- Higher limits for authenticated users
+**Auth**: Bearer
+
+```json
+// Response 200
+{
+  "total_attempts": 500,
+  "correct_attempts": 350,
+  "current_streak": 5,
+  "topics": [{
+    "topic": "calculus",
+    "total": 200,
+    "correct": 140,
+    "elo": 1650,
+    "peak_elo": 1700,
+    "topic_streak": 8,
+    "peak_topic_streak": 15
+  }]
+}
+```
+
+#### `GET /user/elo-history`
+
+**Auth**: Bearer
+
+| Query param | Type | Required | Description |
+|---|---|---|---|
+| `topic` | string | yes | Topic to get history for |
+
+```json
+// Response 200
+{
+  "topic": "calculus",
+  "history": [{ "day": "2024-01-15", "elo": 1520 }]
+}
+```
+
+Returns last 30 days. One entry per day (last attempt's ELO).
 
 ---
 
-## Versioning
+### Factory (Internal)
 
-**Current Version:** v1 (implicit in `/api` prefix)
+#### `POST /internal/problems`
 
-**Future Versioning:**
-- `/api/v2/...` for breaking changes
-- Maintain v1 for backward compatibility
+Create a new problem.
 
----
+**Auth**: API Key (`x-api-key` header)
 
-## CORS Configuration
+```json
+// Request
+{
+  "question_latex": "\\frac{d}{dx} x^3",
+  "answer_key": "3*x**2",
+  "difficulty": 1400,
+  "main_topic": "calculus",
+  "subtopic": "derivative_rules",
+  "grading_mode": "equivalent",
+  "answer_type": "expression",
+  "calculator_allowed": "none",
+  "solution_latex": "...",
+  "question_image": "",
+  "time_limit_seconds": null
+}
 
-**Development:**
-- Allowed origins: `http://localhost:8080`
-- Allowed methods: GET, POST, PUT, DELETE
-- Allowed headers: Authorization, Content-Type
+// Response 201
+{ "id": "uuid", "message": "Problem created" }
+```
 
-**Production:**
-- Configure based on deployment domain
-- Use environment variables for allowed origins
-
----
-
-## WebSocket Support
-
-**Current:** Not implemented
-
-**Future Plans:**
-- Real-time leaderboard updates
-- Live competitions
-- Problem racing mode
-
----
-
-## Response Times
-
-**Expected Response Times:**
-- Auth endpoints: < 200ms
-- Problem retrieval: < 50ms
-- Submit answer: < 100ms
-- Leaderboard: < 100ms
-
-**Database Query Performance:**
-- Indexed queries on main_topic, subtopic
-- Connection pooling for concurrent requests
+Validates: non-empty question/answer, difficulty 0-3000, valid topic/subtopic from cache, valid grading_mode/answer_type/calculator_allowed, time_limit 1-3600 if provided.
