@@ -83,9 +83,21 @@ def main():
         print(f"  Loaded batch {batch_num}: {inserted_to_temp:,} rows in temp table")
 
     print(f"[*] Merging into problems (skipping duplicates)...")
+    # Build SELECT with proper type casting for integer columns only
+    select_cols = []
+    for col in COLS:
+        if col == 'difficulty':
+            select_cols.append(f"CAST(i.{col} AS INTEGER) AS {col}")
+        elif col == 'time_limit_seconds':
+            # Handle empty strings as NULL, otherwise cast to integer
+            select_cols.append(f"CAST(NULLIF(i.{col}, '') AS INTEGER) AS {col}")
+        else:
+            # All other columns are VARCHAR/TEXT, keep as is
+            select_cols.append(f"i.{col}")
+    
     cur.execute(f"""
         INSERT INTO problems ({', '.join(COLS)})
-        SELECT {', '.join(COLS)} FROM _import i
+        SELECT {', '.join(select_cols)} FROM _import i
         WHERE NOT EXISTS (
             SELECT 1 FROM problems p
             WHERE p.question_latex = i.question_latex

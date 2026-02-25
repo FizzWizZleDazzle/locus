@@ -139,27 +139,32 @@ PROBLEMS_DB=""
 log_info "Fetching latest problem database release..."
 if command -v gh &> /dev/null; then
     # Get the latest release tag that has a .db asset
-    LATEST_TAG=$(gh release list --repo "$PROBLEMS_REPO" --limit 10 --json tagName,assets \
-        --jq '[.[] | select(.assets[].name | endswith(".db"))] | .[0].tagName' 2>/dev/null) || true
+    LATEST_TAG=$(gh release list --repo "$PROBLEMS_REPO" --limit 20 --json tagName,assets \
+        -q '.[] | select(.assets[].name | endswith(".db")) | .tagName' 2>/dev/null | head -1)
 
     if [ -n "$LATEST_TAG" ]; then
         # Find the .db asset name
         DB_NAME=$(gh release view "$LATEST_TAG" --repo "$PROBLEMS_REPO" --json assets \
-            --jq '[.assets[].name | select(endswith(".db"))] | .[0]' 2>/dev/null) || true
+            -q '.assets[] | select(.name | endswith(".db")) | .name' 2>/dev/null | head -1)
 
         if [ -n "$DB_NAME" ]; then
             PROBLEMS_DB="$PROBLEMS_DIR/$DB_NAME"
             if [ ! -f "$PROBLEMS_DB" ]; then
                 log_info "Downloading $DB_NAME from release $LATEST_TAG..."
-                gh release download "$LATEST_TAG" \
+                if gh release download "$LATEST_TAG" \
                     --repo "$PROBLEMS_REPO" \
                     -p "$DB_NAME" \
-                    -D "$PROBLEMS_DIR" \
-                    && log_success "Downloaded $DB_NAME" \
-                    || { log_warn "Failed to download $DB_NAME"; PROBLEMS_DB=""; }
+                    -D "$PROBLEMS_DIR" 2>&1; then
+                    log_success "Downloaded $DB_NAME"
+                else
+                    log_error "Failed to download $DB_NAME"
+                    PROBLEMS_DB=""
+                fi
             else
                 log_info "$DB_NAME already downloaded"
             fi
+        else
+            log_warn "Could not parse .db asset name from release $LATEST_TAG"
         fi
     else
         log_warn "No releases with .db assets found in $PROBLEMS_REPO"
@@ -170,39 +175,67 @@ fi
 
 if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
     log_info "Starting Postgres to seed problem data..."
-    docker compose up -d 2>/dev/null || docker-compose up -d 2>/dev/null || true
-
-    # Wait for Postgres to accept connections
-    RETRIES=15
-    until docker exec locus-db pg_isready -U locus -d locus &>/dev/null || [ "$RETRIES" -eq 0 ]; do
-        RETRIES=$((RETRIES - 1))
-        sleep 2
-    done
-
-    if docker exec locus-db pg_isready -U locus -d locus &>/dev/null; then
-        # Run migrations so the problems table exists
-        log_info "Running database migrations..."
-        MIGRATIONS_DIR="$REPO_ROOT/crates/backend/migrations"
-        if [ -d "$MIGRATIONS_DIR" ]; then
-            for sql in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do
-                docker exec -i locus-db psql -U locus -d locus < "$sql" 2>/dev/null || true
-            done
-            log_success "Migrations applied"
+    
+    # Try to start docker compose
+    if ! docker compose up -d 2>&1; then
+        if ! docker-compose up -d 2>&1; then
+            log_error "Failed to start docker compose services"
+            PROBLEMS_DB=""
         fi
+    fi
+    
+    # Only proceed if we have a valid DB file
+    if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
+        # Wait for Postgres to accept connections (up to 60 seconds)
+        RETRIES=30
+        while ! docker exec locus-db pg_isready -U locus -d locus &>/dev/null && [ "$RETRIES" -gt 0 ]; do
+            RETRIES=$((RETRIES - 1))
+            sleep 2
+        done
 
-        log_info "Importing problems into Postgres..."
-        FACTORY_VENV="$REPO_ROOT/factory/backend/venv"
-        if [ -f "$FACTORY_VENV/bin/python3" ]; then
-            "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/import_db.py" "$PROBLEMS_DB" \
-                && log_success "Problem database seeded" \
-                || log_warn "Import failed — retry: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
+        if docker exec locus-db pg_isready -U locus -d locus &>/dev/null; then
+            # Run migrations so the problems table exists
+            log_info "Running database migrations..."
+            MIGRATIONS_DIR="$REPO_ROOT/crates/backend/migrations"
+            if [ -d "$MIGRATIONS_DIR" ]; then
+                MIGRATION_ERRORS=0
+                for sql in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do
+                    if ! docker exec -i locus-db psql -U locus -d locus < "$sql" 2>&1; then
+                        log_warn "Migration $(basename "$sql") reported errors"
+                        MIGRATION_ERRORS=$((MIGRATION_ERRORS + 1))
+                    fi
+                done
+                if [ "$MIGRATION_ERRORS" -eq 0 ]; then
+                    log_success "All migrations applied successfully"
+                else
+                    log_warn "$MIGRATION_ERRORS migration(s) had issues — continuing anyway"
+                fi
+            fi
+
+            log_info "Importing problems into Postgres..."
+            FACTORY_VENV="$REPO_ROOT/factory/backend/venv"
+            if [ -f "$FACTORY_VENV/bin/python3" ]; then
+                if "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/import_db.py" "$PROBLEMS_DB" 2>&1; then
+                    log_success "Problem database seeded successfully"
+                else
+                    log_error "Import failed"
+                    log_info "Retry manually with:"
+                    log_info "  $FACTORY_VENV/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
+                fi
+            else
+                log_warn "Factory venv not found, skipping import"
+                log_info "Create venv and run:"
+                log_info "  python3 -m venv $FACTORY_VENV"
+                log_info "  $FACTORY_VENV/bin/pip install -r $REPO_ROOT/factory/backend/requirements.txt"
+                log_info "  $FACTORY_VENV/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
+            fi
         else
-            log_warn "Factory venv not found, skipping import"
-            log_warn "Run manually: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
+            log_error "Postgres failed to start or refused connections after 60 seconds"
+            log_info "Troubleshoot with:"
+            log_info "  docker compose logs locus-db"
+            log_info "When fixed, run:"
+            log_info "  $REPO_ROOT/factory/backend/venv/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
         fi
-    else
-        log_warn "Postgres not ready — skipping import"
-        log_warn "Run manually after starting DB: factory/backend/venv/bin/python3 factory/import_db.py $PROBLEMS_DB"
     fi
 fi
 

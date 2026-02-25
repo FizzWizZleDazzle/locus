@@ -132,6 +132,9 @@ start_db() {
 # Build and run backend (with hot reload)
 start_backend() {
     log_info "Starting backend on http://localhost:3000 (hot reload)"
+    # Set CORS allowed origins from frontend URL
+    local frontend_url="${LOCUS_FRONTEND_URL:-http://localhost:8080}"
+    export ALLOWED_ORIGINS="$frontend_url"
     cargo watch -w crates/backend/src -w crates/common/src -x 'run -p locus-backend' &
     BACKEND_PID=$!
     sleep 2
@@ -140,11 +143,38 @@ start_backend() {
 # Build and run frontend
 start_frontend() {
     log_info "Starting frontend on http://localhost:8080"
-    cd crates/frontend
-    # Set environment variables for development
-    export LOCUS_API_URL=http://localhost:3000/api
-    export LOCUS_FRONTEND_URL=http://localhost:8080
+    # Set environment variables for development (use existing or defaults)
+    export LOCUS_API_URL="${LOCUS_API_URL:-http://localhost:3000/api}"
+    export LOCUS_FRONTEND_URL="${LOCUS_FRONTEND_URL:-http://localhost:8080}"
     export LOCUS_ENV=development
+    cd crates/frontend
+    
+    # Update Trunk.toml with dynamic public_url if TRUNK_PUBLIC_URL is set
+    if [ -n "$TRUNK_PUBLIC_URL" ]; then
+        # Extract the URL and ensure trailing slash
+        public_url="${TRUNK_PUBLIC_URL%/}/"
+        # Create a temporary Trunk config with the public_url
+        {
+            echo '[build]'
+            echo 'target = "index.html"'
+            echo 'dist = "dist"'
+            echo ''
+            echo '[watch]'
+            echo 'watch = ["src", "index.html"]'
+            echo ''
+            echo '[serve]'
+            echo "address = \"${TRUNK_SERVE_ADDRESS:-127.0.0.1}\""
+            echo 'port = 8080'
+            echo 'open = false'
+            echo "public_url = \"$public_url\""
+            echo ''
+            echo '# Proxy API requests to backend'
+            echo '[[proxy]]'
+            echo 'rewrite = "/api/"'
+            echo "backend = \"${LOCUS_API_URL%/api}/api/\""
+        } > Trunk.toml
+    fi
+    
     # Pass wasm-bindgen flags to disable reference types (fixes "env" module errors)
     trunk serve &
     FRONTEND_PID=$!
