@@ -87,31 +87,12 @@ pub fn open_oauth_login_popup(
     open_oauth_popup(&url, on_success, on_error);
 }
 
-/// Open an OAuth popup for linking (shortcut for provider name)
+/// Open an OAuth popup for linking (cookie-based auth — no token parameter needed)
 pub fn open_oauth_link_popup(
     provider: &str,
     on_success: impl Fn(AuthResponse) + 'static,
     on_error: impl Fn(String) + 'static,
 ) {
-    use gloo_storage::{LocalStorage, Storage};
-    use wasm_bindgen::JsValue;
-
-    // Get the current auth token
-    let token = match LocalStorage::get::<String>("locus_token") {
-        Ok(token) => token,
-        Err(_) => {
-            on_error("Not authenticated. Please log in first.".to_string());
-            return;
-        }
-    };
-
-    // URL encode the token using JavaScript's encodeURIComponent
-    let encoded_token = js_sys::encode_uri_component(&token);
-    let url = format!(
-        "{}/auth/oauth/link/{}?token={}",
-        env::api_base(),
-        provider,
-        encoded_token
-    );
+    let url = format!("{}/auth/oauth/link/{}", env::api_base(), provider);
     open_oauth_popup(&url, on_success, on_error);
 }

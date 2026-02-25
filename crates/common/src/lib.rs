@@ -370,7 +370,6 @@ pub struct LoginRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthResponse {
-    pub token: String,
     pub user: UserProfile,
 }
 

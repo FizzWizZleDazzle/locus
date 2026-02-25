@@ -77,6 +77,8 @@ async fn main() -> anyhow::Result<()> {
         tracing::info!("GitHub OAuth configured");
     }
 
+    let is_production = config.environment == config::Environment::Production;
+
     // Build application state
     let state = api::AppState::new(
         pool,
@@ -91,6 +93,7 @@ async fn main() -> anyhow::Result<()> {
         config.frontend_base_url.clone(),
         topic_cache,
         email_service,
+        is_production,
     );
 
     // Parse allowed origins for CORS
@@ -116,7 +119,8 @@ async fn main() -> anyhow::Result<()> {
                 .allow_headers([
                     axum::http::header::AUTHORIZATION,
                     axum::http::header::CONTENT_TYPE,
-                ]),
+                ])
+                .allow_credentials(true),
         )
         .layer(TraceLayer::new_for_http())
         .with_state(state);

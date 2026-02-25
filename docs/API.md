@@ -4,14 +4,19 @@ Base path: `/api`
 
 ## Authentication
 
-Two auth mechanisms:
+Three auth mechanisms (in priority order for user endpoints):
 
-| Type | Header | Used by |
+| Type | Mechanism | Used by |
 |---|---|---|
-| Bearer JWT | `Authorization: Bearer <token>` | User-facing endpoints |
-| API Key | `x-api-key: <key>` | Factory (`POST /internal/problems`) |
+| httpOnly cookie | `locus_token` cookie (set by server) | User-facing endpoints (browser) |
+| Bearer JWT | `Authorization: Bearer <token>` header | API clients / migration fallback |
+| API Key | `x-api-key: <key>` header | Factory (`POST /internal/problems`) |
 
 JWT claims: `sub` (user UUID), `username`, `exp` (24h), `iat`.
+
+Cookie attributes: `HttpOnly; SameSite=Lax; Path=/api; Max-Age=86400`. `Secure` flag added in production.
+
+The auth middleware checks for the cookie first, then falls back to the Authorization header. Browser requests must include `credentials: include` for cookies to be sent cross-origin.
 
 ## Rate Limiting
 
@@ -71,11 +76,22 @@ Validation: username 3-20 chars `[a-zA-Z0-9_]`, password 8+ chars with uppercase
 // Request
 { "email": "alice@example.com", "password": "P@ssw0rd!" }
 
-// Response 200
-{ "token": "eyJ...", "user": { UserProfile } }
+// Response 200 (with Set-Cookie header)
+{ "user": { UserProfile } }
 ```
 
-Requires verified email. Returns JWT token (24-hour expiry).
+Requires verified email. Sets `locus_token` httpOnly cookie (24-hour expiry). Token is NOT returned in the response body.
+
+#### `POST /auth/logout`
+
+Clears the auth cookie.
+
+**Auth**: None
+
+```json
+// Response 200 (with Set-Cookie: Max-Age=0)
+{ "success": true, "message": "Logged out successfully" }
+```
 
 #### `GET /user/me`
 
@@ -136,15 +152,15 @@ Set password for OAuth-only users.
 
 #### `POST /auth/delete-account`
 
-Cascading delete of all user data.
+Cascading delete of all user data. Clears auth cookie.
 
-**Auth**: Bearer
+**Auth**: Cookie or Bearer
 
 ```json
 // Request
 { "password": "P@ssw0rd!" }  // required if user has password
 
-// Response 200
+// Response 200 (with Set-Cookie: Max-Age=0)
 { "success": true, "message": "..." }
 ```
 
@@ -242,12 +258,12 @@ Returns HTML that redirects the browser.
 
 #### `GET /auth/oauth/{provider}/callback`
 
-OAuth provider callback. Creates or links account.
+OAuth provider callback. Creates or links account. Sets `locus_token` httpOnly cookie on success.
 
 **Auth**: None | **Query params**: `code`, `state`, `error`
 
 Returns HTML with `postMessage` to opener window:
-- Success: `{ type: "oauth_success", data: { token, user } }`
+- Success: `{ type: "oauth_success", data: { user } }` (token is in Set-Cookie header, not in postMessage)
 - Error: `{ type: "oauth_error", error: "..." }`
 
 Email conflict: blocks login if email already exists under a different auth method.
@@ -256,9 +272,9 @@ Email conflict: blocks login if email already exists under a different auth meth
 
 Link an OAuth provider to an existing account.
 
-**Auth**: JWT via `token` query param | **Path params**: `provider` = `google` | `github`
+**Auth**: Cookie (httpOnly `locus_token`) | **Path params**: `provider` = `google` | `github`
 
-Redirects to OAuth consent screen with user ID embedded in CSRF state.
+Redirects to OAuth consent screen with user ID embedded in CSRF state. Cookie is sent automatically by the browser on popup navigation.
 
 ---
 

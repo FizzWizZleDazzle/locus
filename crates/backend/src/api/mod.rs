@@ -34,6 +34,7 @@ pub struct AppState {
     pub frontend_base_url: String,
     pub topic_cache: crate::topics::TopicCache,
     pub email_service: crate::email::EmailService,
+    pub is_production: bool,
 }
 
 impl AppState {
@@ -50,6 +51,7 @@ impl AppState {
         frontend_base_url: String,
         topic_cache: crate::topics::TopicCache,
         email_service: crate::email::EmailService,
+        is_production: bool,
     ) -> Self {
         Self {
             pool,
@@ -64,6 +66,7 @@ impl AppState {
             frontend_base_url,
             topic_cache,
             email_service,
+            is_production,
         }
     }
 }
@@ -80,6 +83,7 @@ pub fn router() -> Router<AppState> {
         .route("/auth/change-password", post(auth::change_password))
         .route("/auth/change-username", post(auth::change_username))
         .route("/auth/delete-account", post(auth::delete_account))
+        .route("/auth/logout", post(auth::logout))
         .route("/auth/unlink-oauth", post(auth::unlink_oauth))
         .route("/auth/verify-email", post(auth::verify_email))
         .route("/auth/resend-verification", post(auth::resend_verification))

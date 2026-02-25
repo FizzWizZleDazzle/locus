@@ -53,7 +53,7 @@ pub fn Login() -> impl IntoView {
         oauth::open_oauth_login_popup(
             "google",
             move |resp| {
-                api::store_oauth_auth(&resp.token, &resp.user.username);
+                api::store_username(&resp.user.username);
                 auth.set_logged_in.set(true);
                 auth.set_username.set(Some(resp.user.username));
                 nav("/", Default::default());
@@ -69,7 +69,7 @@ pub fn Login() -> impl IntoView {
         oauth::open_oauth_login_popup(
             "github",
             move |resp| {
-                api::store_oauth_auth(&resp.token, &resp.user.username);
+                api::store_username(&resp.user.username);
                 auth.set_logged_in.set(true);
                 auth.set_username.set(Some(resp.user.username));
                 nav("/", Default::default());

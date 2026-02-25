@@ -3,6 +3,7 @@
 use gloo_net::http::Request;
 use gloo_storage::{LocalStorage, Storage};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use web_sys::RequestCredentials;
 
 use locus_common::{
     ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
@@ -32,12 +33,11 @@ pub struct Subtopic {
 // CRITICAL: Never hardcode production URLs - always use crate::env functions
 use crate::env;
 
-const TOKEN_KEY: &str = "locus_token";
 const USERNAME_KEY: &str = "locus_username";
 
-/// Check if user is logged in (has stored token)
+/// Check if user is logged in (has stored username)
 pub fn is_logged_in() -> bool {
-    LocalStorage::get::<String>(TOKEN_KEY).is_ok()
+    LocalStorage::get::<String>(USERNAME_KEY).is_ok()
 }
 
 /// Get stored username
@@ -45,25 +45,13 @@ pub fn get_stored_username() -> Option<String> {
     LocalStorage::get::<String>(USERNAME_KEY).ok()
 }
 
-/// Get stored token
-fn get_token() -> Option<String> {
-    LocalStorage::get::<String>(TOKEN_KEY).ok()
-}
-
-/// Store auth data (internal)
-fn store_auth(token: &str, username: &str) {
-    let _ = LocalStorage::set(TOKEN_KEY, token);
+/// Store username for UI display (token is in httpOnly cookie)
+pub fn store_username(username: &str) {
     let _ = LocalStorage::set(USERNAME_KEY, username);
-}
-
-/// Store auth data from OAuth popup result
-pub fn store_oauth_auth(token: &str, username: &str) {
-    store_auth(token, username);
 }
 
 /// Clear auth data
 pub fn clear_auth() {
-    LocalStorage::delete(TOKEN_KEY);
     LocalStorage::delete(USERNAME_KEY);
 }
 
@@ -157,15 +145,13 @@ impl std::fmt::Display for RequestError {
 async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError> {
     let url = format!("{}{}", env::api_base(), path);
 
-    let mut req = Request::get(&url);
-
-    if let Some(token) = get_token() {
-        req = req.header("Authorization", &format!("Bearer {}", token));
-    }
-
-    let resp = req.send().await.map_err(|e| RequestError {
-        message: format!("Network error: {}", e),
-    })?;
+    let resp = Request::get(&url)
+        .credentials(RequestCredentials::Include)
+        .send()
+        .await
+        .map_err(|e| RequestError {
+            message: format!("Network error: {}", e),
+        })?;
 
     if resp.ok() {
         resp.json::<T>().await.map_err(|e| RequestError {
@@ -186,13 +172,9 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(
 ) -> Result<T, RequestError> {
     let url = format!("{}{}", env::api_base(), path);
 
-    let mut req = Request::post(&url).header("Content-Type", "application/json");
-
-    if let Some(token) = get_token() {
-        req = req.header("Authorization", &format!("Bearer {}", token));
-    }
-
-    let req = req
+    let req = Request::post(&url)
+        .header("Content-Type", "application/json")
+        .credentials(RequestCredentials::Include)
         .body(serde_json::to_string(body).map_err(|e| RequestError {
             message: format!("Serialization error: {}", e),
         })?)
@@ -288,11 +270,13 @@ pub async fn login(email: &str, password: &str) -> Result<AuthResponse, RequestE
     };
 
     let resp: AuthResponse = post_request("/auth/login", &req).await?;
-    store_auth(&resp.token, &resp.user.username);
+    store_username(&resp.user.username);
     Ok(resp)
 }
 
-pub fn logout() {
+pub async fn logout() {
+    // Clear the httpOnly cookie via backend
+    let _ = post_request::<SuccessResponse, _>("/auth/logout", &serde_json::json!({})).await;
     clear_auth();
 }
 

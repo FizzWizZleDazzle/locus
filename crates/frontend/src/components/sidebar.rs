@@ -1,5 +1,6 @@
 use crate::{AuthContext, api};
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 use leptos_router::{components::A, hooks::use_navigate};
 
 #[component]
@@ -12,10 +13,13 @@ pub fn Sidebar() -> impl IntoView {
     let on_mouse_leave = move |_| set_is_expanded.set(false);
 
     let logout = move |_| {
-        api::logout();
-        auth.set_logged_in.set(false);
-        auth.set_username.set(None);
-        navigate("/", Default::default());
+        let nav = navigate.clone();
+        spawn_local(async move {
+            api::logout().await;
+            auth.set_logged_in.set(false);
+            auth.set_username.set(None);
+            nav("/", Default::default());
+        });
     };
 
     view! {

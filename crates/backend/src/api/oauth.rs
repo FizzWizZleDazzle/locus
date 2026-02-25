@@ -2,7 +2,7 @@
 
 use axum::{
     extract::{Path, Query, State},
-    response::Html,
+    response::{Html, Response},
 };
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
@@ -104,19 +104,22 @@ pub async fn oauth_redirect(
     )))
 }
 
-#[derive(Deserialize)]
-pub struct LinkQueryParams {
-    token: String,
-}
-
-/// OAuth redirect for linking (requires authentication via token parameter)
+/// OAuth redirect for linking (requires authentication via cookie)
 pub async fn oauth_redirect_link(
     State(state): State<AppState>,
     Path(provider): Path<String>,
-    Query(params): Query<LinkQueryParams>,
+    headers: axum::http::HeaderMap,
 ) -> Result<Html<String>, AppError> {
-    // Verify the token and extract user ID
-    let user_id = verify_token(&params.token, &state.jwt_secret)
+    // Extract token from cookie
+    let cookie_header = headers
+        .get(axum::http::header::COOKIE)
+        .and_then(|v| v.to_str().ok())
+        .ok_or_else(|| AppError::Auth("Not authenticated".into()))?;
+
+    let token = crate::auth::extract_token_from_cookies(cookie_header)
+        .ok_or_else(|| AppError::Auth("Not authenticated".into()))?;
+
+    let user_id = verify_token(token, &state.jwt_secret)
         .map_err(|_| AppError::Auth("Invalid or expired token".into()))?
         .sub;
 
@@ -140,7 +143,7 @@ pub async fn oauth_callback(
     State(state): State<AppState>,
     Path(provider): Path<String>,
     Query(params): Query<CallbackParams>,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
     if let Some(error) = &params.error {
         return Ok(build_callback_html_error(error, &state.frontend_base_url));
     }
@@ -208,7 +211,7 @@ async fn google_callback(
     state: AppState,
     code: &str,
     link_user_id: Option<Uuid>,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
     let client_id = state
         .google_client_id
         .as_deref()
@@ -313,7 +316,7 @@ async fn github_callback(
     state: AppState,
     code: &str,
     link_user_id: Option<Uuid>,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
     let client_id = state
         .github_client_id
         .as_deref()
@@ -398,7 +401,9 @@ async fn oauth_login_or_register(
     email: &str,
     display_name: &str,
     link_user_id: Option<Uuid>,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
+    let secure = state.is_production;
+
     // LINKING MODE: User is already logged in and wants to link their OAuth account
     if let Some(user_id) = link_user_id {
         // Verify user exists
@@ -444,6 +449,7 @@ async fn oauth_login_or_register(
             &token,
             &profile,
             &state.frontend_base_url,
+            secure,
         ));
     }
 
@@ -465,6 +471,7 @@ async fn oauth_login_or_register(
             &token,
             &profile,
             &state.frontend_base_url,
+            secure,
         ));
     }
 
@@ -500,6 +507,7 @@ async fn oauth_login_or_register(
         &token,
         &profile,
         &state.frontend_base_url,
+        secure,
     ))
 }
 
@@ -563,14 +571,15 @@ fn build_callback_html_success(
     token: &str,
     profile: &locus_common::UserProfile,
     frontend_origin: &str,
-) -> Html<String> {
-    let auth_json = serde_json::json!({
-        "token": token,
+    secure: bool,
+) -> Response {
+    let data_json = serde_json::json!({
         "user": profile,
     });
     let origin_js = serde_json::to_string(frontend_origin).unwrap();
+    let cookie = crate::auth::build_auth_cookie(token, 24, secure);
 
-    Html(format!(
+    let html = format!(
         r#"<!DOCTYPE html>
 <html><head><title>OAuth</title></head><body>
 <script>
@@ -584,14 +593,21 @@ fn build_callback_html_success(
 </script>
 <p>Sign-in successful. This window should close automatically.</p>
 </body></html>"#,
-        auth_json, origin_js
-    ))
+        data_json, origin_js
+    );
+
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .header("Set-Cookie", cookie)
+        .body(axum::body::Body::from(html))
+        .unwrap()
 }
 
-fn build_callback_html_error(error: &str, frontend_origin: &str) -> Html<String> {
+fn build_callback_html_error(error: &str, frontend_origin: &str) -> Response {
     let escaped = error.replace('\\', "\\\\").replace('"', "\\\"");
     let origin_js = serde_json::to_string(frontend_origin).unwrap();
-    Html(format!(
+
+    let html = format!(
         r#"<!DOCTYPE html>
 <html><head><title>OAuth Error</title></head><body>
 <script>
@@ -606,5 +622,10 @@ fn build_callback_html_error(error: &str, frontend_origin: &str) -> Html<String>
 <p>Sign-in failed: {}. This window should close automatically.</p>
 </body></html>"#,
         escaped, origin_js, error
-    ))
+    );
+
+    Response::builder()
+        .header("Content-Type", "text/html")
+        .body(axum::body::Body::from(html))
+        .unwrap()
 }

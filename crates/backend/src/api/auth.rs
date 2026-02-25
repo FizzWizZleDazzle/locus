@@ -4,7 +4,7 @@ use argon2::{
     Argon2,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
-use axum::{Json, extract::State};
+use axum::{Json, extract::State, response::AppendHeaders};
 
 use locus_common::{
     AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest, LoginRequest,
@@ -14,12 +14,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     AppError,
-    auth::{AuthUser, create_token},
+    auth::{AuthUser, build_auth_cookie, build_clear_cookie, create_token},
     models::{EmailVerificationToken, OAuthAccount, PasswordResetToken, User},
 };
 
 use super::AppState;
 use locus_common::validation;
+
+use axum::http::header::SET_COOKIE;
 
 #[derive(Serialize)]
 pub struct RegisterResponse {
@@ -93,7 +95,7 @@ pub async fn register(
 pub async fn login(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
-) -> Result<Json<AuthResponse>, AppError> {
+) -> Result<(AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<AuthResponse>), AppError> {
     // Find user by email
     let user = User::find_by_email(&state.pool, &req.email)
         .await?
@@ -124,10 +126,14 @@ pub async fn login(
     let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
         .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
 
-    Ok(Json(AuthResponse {
-        token,
-        user: user.to_profile(&state.pool).await?,
-    }))
+    let cookie = build_auth_cookie(&token, 24, state.is_production);
+
+    Ok((
+        AppendHeaders([(SET_COOKIE, cookie)]),
+        Json(AuthResponse {
+            user: user.to_profile(&state.pool).await?,
+        }),
+    ))
 }
 
 /// Set password for the current user (for OAuth users who want email+password login)
@@ -518,12 +524,26 @@ pub async fn change_username(
     }
 }
 
+/// Logout — clears the auth cookie
+pub async fn logout(
+    State(state): State<AppState>,
+) -> (AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<SuccessResponse>) {
+    let cookie = build_clear_cookie(state.is_production);
+    (
+        AppendHeaders([(SET_COOKIE, cookie)]),
+        Json(SuccessResponse {
+            success: true,
+            message: Some("Logged out successfully".to_string()),
+        }),
+    )
+}
+
 /// Delete user account
 pub async fn delete_account(
     State(state): State<AppState>,
     auth_user: AuthUser,
     Json(req): Json<DeleteAccountRequest>,
-) -> Result<Json<SuccessResponse>, AppError> {
+) -> Result<(AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<SuccessResponse>), AppError> {
     let user = User::find_by_id(&state.pool, auth_user.id)
         .await?
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;
@@ -546,10 +566,14 @@ pub async fn delete_account(
     // Delete user (cascades to oauth_accounts, attempts, etc.)
     User::delete_account(&state.pool, auth_user.id).await?;
 
-    Ok(Json(SuccessResponse {
-        success: true,
-        message: Some("Account deleted successfully".to_string()),
-    }))
+    let cookie = build_clear_cookie(state.is_production);
+    Ok((
+        AppendHeaders([(SET_COOKIE, cookie)]),
+        Json(SuccessResponse {
+            success: true,
+            message: Some("Account deleted successfully".to_string()),
+        }),
+    ))
 }
 
 /// Validate OAuth provider name

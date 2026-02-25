@@ -30,17 +30,21 @@ impl FromRequestParts<AppState> for AuthUser {
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        // Get Authorization header
-        let auth_header = parts
+        // 1. Try cookie first
+        let token = parts
             .headers
-            .get(AUTHORIZATION)
+            .get(axum::http::header::COOKIE)
             .and_then(|value| value.to_str().ok())
-            .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization header"))?;
-
-        // Extract Bearer token
-        let token = auth_header
-            .strip_prefix("Bearer ")
-            .ok_or((StatusCode::UNAUTHORIZED, "Invalid authorization format"))?;
+            .and_then(super::cookie::extract_token_from_cookies)
+            // 2. Fall back to Authorization: Bearer header
+            .or_else(|| {
+                parts
+                    .headers
+                    .get(AUTHORIZATION)
+                    .and_then(|value| value.to_str().ok())
+                    .and_then(|auth| auth.strip_prefix("Bearer "))
+            })
+            .ok_or((StatusCode::UNAUTHORIZED, "Missing authentication"))?;
 
         // Verify token
         let claims: Claims = verify_token(token, &state.jwt_secret)
