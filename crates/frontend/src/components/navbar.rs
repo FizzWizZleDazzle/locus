@@ -19,7 +19,7 @@ pub fn Navbar() -> impl IntoView {
                         <A href="/" attr:class="text-lg font-medium">"Locus"</A>
                         <div class="flex items-center gap-4">
                             <A href="/login" attr:class="text-sm hover:text-gray-600">"Login"</A>
-                            <button
+                            /* <button
                                 on:click=move |_| theme.toggle_theme.run(())
                                 class="p-2 rounded hover:bg-gray-100 transition-colors"
                                 title=move || if theme.is_dark.get() { "Switch to light mode" } else { "Switch to dark mode" }
@@ -36,8 +36,8 @@ pub fn Navbar() -> impl IntoView {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                                         </svg>
                                     }
-                                }}
-                            </button>
+                                }} 
+                            </button> */
                             <A href="/register" attr:class="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800">
                                 "Sign Up"
                             </A>

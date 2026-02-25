@@ -240,7 +240,7 @@ fn App() -> impl IntoView {
                     </div>
                     <button
                         on:click=move |_| toggle_theme.run(())
-                        class="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                        class="p-1.5 rounded hover:bg-gray-100 transition-colors flex space-x-4"
                         title=move || if is_dark.get() { "Switch to light mode" } else { "Switch to dark mode" }
                     >
                         {move || if is_dark.get() {
