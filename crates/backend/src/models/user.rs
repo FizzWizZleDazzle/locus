@@ -26,6 +26,7 @@ impl User {
         email: &str,
         password_hash: &str,
     ) -> Result<Self, sqlx::Error> {
+        let email = email.to_lowercase();
         sqlx::query_as(
             r#"
             INSERT INTO users (username, email, password_hash)
@@ -34,7 +35,7 @@ impl User {
             "#,
         )
         .bind(username)
-        .bind(email)
+        .bind(&email)
         .bind(password_hash)
         .fetch_one(pool)
         .await
@@ -46,6 +47,7 @@ impl User {
         username: &str,
         email: &str,
     ) -> Result<Self, sqlx::Error> {
+        let email = email.to_lowercase();
         sqlx::query_as(
             r#"
             INSERT INTO users (username, email, password_hash, email_verified, email_verified_at)
@@ -54,7 +56,7 @@ impl User {
             "#,
         )
         .bind(username)
-        .bind(email)
+        .bind(&email)
         .fetch_one(pool)
         .await
     }
@@ -73,8 +75,9 @@ impl User {
         Ok(())
     }
 
-    /// Find user by email
+    /// Find user by email (case-insensitive)
     pub async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Self>, sqlx::Error> {
+        let email = email.to_lowercase();
         sqlx::query_as(
             r#"
             SELECT id, username, email, password_hash, email_verified, email_verified_at, created_at
@@ -82,7 +85,7 @@ impl User {
             WHERE email = $1
             "#,
         )
-        .bind(email)
+        .bind(&email)
         .fetch_optional(pool)
         .await
     }
@@ -244,10 +247,11 @@ impl User {
         Ok(result.0 > 0)
     }
 
-    /// Check if email exists
+    /// Check if email exists (case-insensitive)
     pub async fn email_exists(pool: &PgPool, email: &str) -> Result<bool, sqlx::Error> {
+        let email = email.to_lowercase();
         let result: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM users WHERE email = $1")
-            .bind(email)
+            .bind(&email)
             .fetch_one(pool)
             .await?;
         Ok(result.0 > 0)
