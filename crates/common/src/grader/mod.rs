@@ -251,6 +251,9 @@ pub(crate) fn are_proportional<E: ExprEngine>(a: &E, b: &E) -> bool {
                         }
                     }
                     let r = av / bv;
+                    if r.is_nan() || r.is_infinite() {
+                        return false;
+                    }
                     match ratio {
                         None => ratio = Some(r),
                         Some(prev) => {
@@ -264,5 +267,108 @@ pub(crate) fn are_proportional<E: ExprEngine>(a: &E, b: &E) -> bool {
             }
         }
         ratio.is_some()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fmt;
+
+    /// Minimal mock ExprEngine that evaluates to a fixed f64 at any test point.
+    /// Used to test are_proportional edge cases without SymEngine FFI.
+    #[derive(Clone)]
+    struct MockExpr {
+        value: Option<f64>,
+        has_symbol: bool,
+    }
+
+    impl MockExpr {
+        fn with_symbol(value: Option<f64>) -> Self {
+            Self { value, has_symbol: true }
+        }
+    }
+
+    #[derive(Debug)]
+    struct MockError;
+    impl fmt::Display for MockError {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "mock error")
+        }
+    }
+
+    impl ExprEngine for MockExpr {
+        type Error = MockError;
+
+        fn parse(_input: &str) -> Result<Self, Self::Error> {
+            Err(MockError)
+        }
+
+        fn expand(&self) -> Self {
+            self.clone()
+        }
+
+        fn sub(&self, _other: &Self) -> Self {
+            self.clone()
+        }
+
+        fn equals(&self, _other: &Self) -> bool {
+            false
+        }
+
+        fn is_zero(&self) -> bool {
+            false
+        }
+
+        fn free_symbols(&self) -> Vec<String> {
+            if self.has_symbol {
+                vec!["x".to_string()]
+            } else {
+                vec![]
+            }
+        }
+
+        fn subs_float(&self, _var_name: &str, _val: f64) -> Self {
+            self.clone()
+        }
+
+        fn to_float(&self) -> Option<f64> {
+            self.value
+        }
+    }
+
+    #[test]
+    fn test_proportional_nan_ratio_returns_false() {
+        let a = MockExpr::with_symbol(Some(f64::NAN));
+        let b = MockExpr::with_symbol(Some(1.0));
+        assert!(!are_proportional(&a, &b));
+    }
+
+    #[test]
+    fn test_proportional_infinity_ratio_returns_false() {
+        let a = MockExpr::with_symbol(Some(f64::INFINITY));
+        let b = MockExpr::with_symbol(Some(1.0));
+        assert!(!are_proportional(&a, &b));
+    }
+
+    #[test]
+    fn test_proportional_neg_infinity_ratio_returns_false() {
+        let a = MockExpr::with_symbol(Some(f64::NEG_INFINITY));
+        let b = MockExpr::with_symbol(Some(1.0));
+        assert!(!are_proportional(&a, &b));
+    }
+
+    #[test]
+    fn test_proportional_normal_values_returns_true() {
+        let a = MockExpr::with_symbol(Some(4.0));
+        let b = MockExpr::with_symbol(Some(2.0));
+        assert!(are_proportional(&a, &b));
+    }
+
+    #[test]
+    fn test_proportional_both_nan_returns_false() {
+        let a = MockExpr::with_symbol(Some(f64::NAN));
+        let b = MockExpr::with_symbol(Some(f64::NAN));
+        assert!(!are_proportional(&a, &b));
     }
 }
