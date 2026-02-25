@@ -142,7 +142,7 @@ pub async fn oauth_callback(
     Query(params): Query<CallbackParams>,
 ) -> Result<Html<String>, AppError> {
     if let Some(error) = &params.error {
-        return Ok(build_callback_html_error(error));
+        return Ok(build_callback_html_error(error, &state.frontend_base_url));
     }
 
     let code = params
@@ -413,12 +413,16 @@ async fn oauth_login_or_register(
             if oauth_account.user_id == user_id {
                 return Ok(build_callback_html_error(
                     "This account is already linked to your profile.",
+                    &state.frontend_base_url,
                 ));
             } else {
-                return Ok(build_callback_html_error(&format!(
-                    "This {} account is already linked to another user.",
-                    provider
-                )));
+                return Ok(build_callback_html_error(
+                    &format!(
+                        "This {} account is already linked to another user.",
+                        provider
+                    ),
+                    &state.frontend_base_url,
+                ));
             }
         }
 
@@ -436,7 +440,11 @@ async fn oauth_login_or_register(
             .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
 
         let profile = user.to_profile(&state.pool).await?;
-        return Ok(build_callback_html_success(&token, &profile));
+        return Ok(build_callback_html_success(
+            &token,
+            &profile,
+            &state.frontend_base_url,
+        ));
     }
 
     // LOGIN/REGISTER MODE: Normal OAuth flow
@@ -453,16 +461,23 @@ async fn oauth_login_or_register(
             .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
 
         let profile = user.to_profile(&state.pool).await?;
-        return Ok(build_callback_html_success(&token, &profile));
+        return Ok(build_callback_html_success(
+            &token,
+            &profile,
+            &state.frontend_base_url,
+        ));
     }
 
     // 2. SECURITY FIX: Block auto-linking if email already exists
     if User::find_by_email(&state.pool, email).await?.is_some() {
-        return Ok(build_callback_html_error(&format!(
-            "An account with email {} already exists. Please log in with your password first, \
-                then link your {} account in Settings.",
-            email, provider
-        )));
+        return Ok(build_callback_html_error(
+            &format!(
+                "An account with email {} already exists. Please log in with your password first, \
+                    then link your {} account in Settings.",
+                email, provider
+            ),
+            &state.frontend_base_url,
+        ));
     }
 
     // 3. Create new user (email doesn't exist yet)
@@ -481,7 +496,11 @@ async fn oauth_login_or_register(
         .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
 
     let profile = user.to_profile(&state.pool).await?;
-    Ok(build_callback_html_success(&token, &profile))
+    Ok(build_callback_html_success(
+        &token,
+        &profile,
+        &state.frontend_base_url,
+    ))
 }
 
 /// Generate a unique username from display name or email prefix
@@ -540,11 +559,16 @@ async fn generate_unique_username(
 // Callback HTML (postMessage to opener)
 // ============================================================================
 
-fn build_callback_html_success(token: &str, profile: &locus_common::UserProfile) -> Html<String> {
+fn build_callback_html_success(
+    token: &str,
+    profile: &locus_common::UserProfile,
+    frontend_origin: &str,
+) -> Html<String> {
     let auth_json = serde_json::json!({
         "token": token,
         "user": profile,
     });
+    let origin_js = serde_json::to_string(frontend_origin).unwrap();
 
     Html(format!(
         r#"<!DOCTYPE html>
@@ -554,18 +578,19 @@ fn build_callback_html_success(token: &str, profile: &locus_common::UserProfile)
     window.opener.postMessage({{
       type: "oauth_success",
       data: {}
-    }}, "*");
+    }}, {});
   }}
   window.close();
 </script>
 <p>Sign-in successful. This window should close automatically.</p>
 </body></html>"#,
-        auth_json
+        auth_json, origin_js
     ))
 }
 
-fn build_callback_html_error(error: &str) -> Html<String> {
+fn build_callback_html_error(error: &str, frontend_origin: &str) -> Html<String> {
     let escaped = error.replace('\\', "\\\\").replace('"', "\\\"");
+    let origin_js = serde_json::to_string(frontend_origin).unwrap();
     Html(format!(
         r#"<!DOCTYPE html>
 <html><head><title>OAuth Error</title></head><body>
@@ -574,12 +599,12 @@ fn build_callback_html_error(error: &str) -> Html<String> {
     window.opener.postMessage({{
       type: "oauth_error",
       error: "{}"
-    }}, "*");
+    }}, {});
   }}
   window.close();
 </script>
 <p>Sign-in failed: {}. This window should close automatically.</p>
 </body></html>"#,
-        escaped, error
+        escaped, origin_js, error
     ))
 }

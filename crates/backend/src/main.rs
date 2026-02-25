@@ -88,6 +88,7 @@ async fn main() -> anyhow::Result<()> {
         config.github_client_id.clone(),
         config.github_client_secret.clone(),
         config.oauth_redirect_base.clone(),
+        config.frontend_base_url.clone(),
         topic_cache,
         email_service,
     );

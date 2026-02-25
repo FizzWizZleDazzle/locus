@@ -31,6 +31,7 @@ pub struct AppState {
     pub github_client_id: Option<String>,
     pub github_client_secret: Option<String>,
     pub oauth_redirect_base: String,
+    pub frontend_base_url: String,
     pub topic_cache: crate::topics::TopicCache,
     pub email_service: crate::email::EmailService,
 }
@@ -46,6 +47,7 @@ impl AppState {
         github_client_id: Option<String>,
         github_client_secret: Option<String>,
         oauth_redirect_base: String,
+        frontend_base_url: String,
         topic_cache: crate::topics::TopicCache,
         email_service: crate::email::EmailService,
     ) -> Self {
@@ -59,6 +61,7 @@ impl AppState {
             github_client_id,
             github_client_secret,
             oauth_redirect_base,
+            frontend_base_url,
             topic_cache,
             email_service,
         }
