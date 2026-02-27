@@ -5,7 +5,8 @@ use leptos_router::hooks::use_query_map;
 use locus_common::ProblemResponse;
 
 use crate::{
-    components::{LatexRenderer, ProblemInterface, TopicSelector},
+    ThemeContext,
+    components::{LatexRenderer, ProblemInterface, TopicSelector, Whiteboard},
     formatters::format_answer_for_display,
     grader::{GradeResult, check_answer, preprocess_input},
     problem_queue::ProblemQueue,
@@ -17,6 +18,7 @@ use crate::{
 #[component]
 pub fn Practice() -> impl IntoView {
     let query = use_query_map();
+    let theme = expect_context::<ThemeContext>();
 
     // Topic selection state
     let (selected_topic, set_selected_topic) = signal(None::<String>);
@@ -31,6 +33,9 @@ pub fn Practice() -> impl IntoView {
     let (answer, set_answer) = signal(String::new());
     let (result, set_result) = signal(None::<GradeResult>);
     let (show_answer, set_show_answer) = signal(false);
+
+    // Whiteboard mode
+    let (whiteboard_mode, set_whiteboard_mode) = signal(false);
 
     // Problem queue for batch fetching
     let queue = ProblemQueue::new(true);
@@ -180,19 +185,77 @@ pub fn Practice() -> impl IntoView {
         set_problem.set(None);
     };
 
+    // Derive problem ID for whiteboard clearing
+    let problem_id_signal = Signal::derive(move || {
+        problem.get().map(|p| p.id.to_string()).unwrap_or_default()
+    });
+
+    let wb_signal = Signal::derive(move || whiteboard_mode.get());
+
     view! {
-        <div class="max-w-2xl mx-auto px-4 py-8">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-2xl font-semibold">"Practice"</h1>
-                {move || problem.get().is_some().then(|| view! {
-                    <button
-                        class="text-sm text-gray-500 hover:text-gray-900"
-                        on:click=move |_| reset_selection()
+        <div class=move || if whiteboard_mode.get() && problem.get().is_some() {
+            "relative w-full h-[calc(100vh-4rem)] overflow-hidden"
+        } else {
+            "max-w-2xl mx-auto px-4 py-8"
+        }>
+            // Header — normal bar, or floating elements on canvas in whiteboard mode
+            {move || if whiteboard_mode.get() && problem.get().is_some() {
+                view! {
+                    // Small label top-left
+                    <span class="absolute top-3 left-3 z-30 text-xs text-gray-400 select-none">"Practice"</span>
+                    // Controls top-right
+                    <div class="absolute top-3 right-3 z-30 flex items-center gap-2"
+                        on:pointerdown=|ev: web_sys::PointerEvent| ev.stop_propagation()
                     >
-                        "Change Topics"
-                    </button>
-                })}
-            </div>
+                        <button
+                            class="p-1.5 rounded border bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100 transition-colors"
+                            on:click=move |_| set_whiteboard_mode.update(|v| *v = !*v)
+                            title="Toggle whiteboard"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                </path>
+                            </svg>
+                        </button>
+                        <button
+                            class="text-sm text-gray-400 hover:text-gray-200"
+                            on:click=move |_| reset_selection()
+                        >
+                            "Change Topics"
+                        </button>
+                    </div>
+                }.into_any()
+            } else {
+                view! {
+                    <div class="flex items-center justify-between mb-6">
+                        <h1 class="text-2xl font-semibold">"Practice"</h1>
+                        <div class="flex items-center gap-3">
+                            {move || problem.get().is_some().then(|| view! {
+                                <button
+                                    class="p-1.5 rounded border text-gray-500 border-gray-300 hover:border-gray-400 hover:text-gray-700 transition-colors"
+                                    on:click=move |_| set_whiteboard_mode.update(|v| *v = !*v)
+                                    title="Toggle whiteboard"
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                        </path>
+                                    </svg>
+                                </button>
+                            })}
+                            {move || problem.get().is_some().then(|| view! {
+                                <button
+                                    class="text-sm text-gray-500 hover:text-gray-900"
+                                    on:click=move |_| reset_selection()
+                                >
+                                    "Change Topics"
+                                </button>
+                            })}
+                        </div>
+                    </div>
+                }.into_any()
+            }}
 
             {move || error.get().map(|e| view! {
                 <div class="text-red-600 text-sm mb-4">{e}</div>
@@ -213,13 +276,18 @@ pub fn Practice() -> impl IntoView {
 
             // Show problem once loaded
             {move || problem.get().is_some().then(|| view! {
-                <div class="space-y-6">
+                <div class=move || if whiteboard_mode.get() { "relative w-full h-full" } else { "space-y-6" }>
+                    // Whiteboard canvas (behind everything)
+                    {move || whiteboard_mode.get().then(|| view! {
+                        <Whiteboard problem_id=problem_id_signal is_dark=Signal::derive(move || theme.is_dark.get()) />
+                    })}
+
                     {move || loading.get().then(|| view! {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
                     })}
 
                     // Show answer key if revealed
-                    {move || (show_answer.get() && problem.get().is_some()).then(|| {
+                    {move || (show_answer.get() && problem.get().is_some() && !whiteboard_mode.get()).then(|| {
                         problem.get().and_then(|p| {
                             let ans = p.answer_key.clone()?;
                             let answer_type = p.answer_type;
@@ -251,6 +319,7 @@ pub fn Practice() -> impl IntoView {
                         answer=answer
                         set_answer=set_answer
                         on_submit=on_submit
+                        whiteboard_mode=wb_signal
                         render_controls=move || {
                             // Inline check logic to avoid capturing closures
                             let check_inline = move || {

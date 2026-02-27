@@ -160,6 +160,9 @@
 
         /* Danger zone */
         .dark .border-red-200.border-2 { border-color: #991b1b; }
+
+        /* Whiteboard canvas — Fabric.js generates .canvas-container wrapping the <canvas> */
+        .canvas-container { position: absolute !important; inset: 0; z-index: 0; }
     </style>
 
     <link data-trunk rel="rust" data-wasm-opt="z" />

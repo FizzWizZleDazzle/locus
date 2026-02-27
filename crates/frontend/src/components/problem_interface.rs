@@ -1,4 +1,4 @@
-use crate::components::{AnswerInput, ProblemCard};
+use crate::components::{AnswerInput, Draggable, LatexRenderer, ProblemCard};
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
 
@@ -8,6 +8,9 @@ use locus_common::ProblemResponse;
 /// - Problem rendering (ProblemCard)
 /// - Answer input (AnswerInput with per-type adaptations, forced remounting via key prop)
 /// - Mode-specific behavior via callback props
+///
+/// When `whiteboard_mode` is true, the card becomes collapsible and is wrapped
+/// in a `<Draggable>` container that floats above the whiteboard canvas.
 #[component]
 pub fn ProblemInterface<ControlsView, ControlsViewOutput, ResultView, ResultViewOutput>(
     /// The current problem to display
@@ -25,6 +28,10 @@ pub fn ProblemInterface<ControlsView, ControlsViewOutput, ResultView, ResultView
 
     /// Custom result renderer (GradeResult for Practice, ELO for Ranked)
     render_result: ResultView,
+
+    /// Whether whiteboard mode is active
+    #[prop(optional, into)]
+    whiteboard_mode: Option<Signal<bool>>,
 ) -> impl IntoView
 where
     ControlsView: Fn() -> ControlsViewOutput + Copy + Send + Sync + 'static,
@@ -32,37 +39,88 @@ where
     ResultView: Fn() -> ResultViewOutput + Copy + Send + Sync + 'static,
     ResultViewOutput: IntoView + 'static,
 {
+    let wb_mode = whiteboard_mode.unwrap_or(Signal::derive(|| false));
+    // Collapsed by default in whiteboard mode
+    let (collapsed, set_collapsed) = signal(true);
+
+    let on_toggle_collapse = Callback::new(move |_: ()| {
+        set_collapsed.update(|v| *v = !*v);
+    });
+
+    // When whiteboard mode toggles, set collapsed accordingly
+    Effect::new(move |_| {
+        if wb_mode.get() {
+            set_collapsed.set(true);
+        } else {
+            set_collapsed.set(false);
+        }
+    });
+
     view! {
         <Show when=move || problem.get().is_some()>
             {move || problem.get().map(|p| {
                 let problem_id = p.id.to_string();
                 let problem_id_clone = problem_id.clone();
                 let answer_type = p.answer_type;
-                view! {
-                    <div class="space-y-6">
-                        // Problem card with key for forced remounting
-                        <ProblemCard key=problem_id_clone problem=p.clone() time_limit_seconds=p.time_limit_seconds />
+                let answer_hint = p.answer_type.hint();
+                let question_latex = p.question_latex.clone();
+                let time_limit = p.time_limit_seconds;
 
-                        // Answer input with forced remounting via key + per-type adaptations
-                        <AnswerInput
-                            answer_type=answer_type
-                            value=answer
-                            set_value=set_answer
-                            on_submit=on_submit
-                            key=problem_id
-                        />
+                // Clone p for the two branches
+                let p_for_wb = p.clone();
 
-                        // Answer type hint
-                        {p.answer_type.hint().map(|hint| view! {
-                            <p class="text-xs text-gray-400 -mt-4 italic">{hint}</p>
-                        })}
+                if wb_mode.get() {
+                    let collapsed_content = {
+                        let question_latex = question_latex.clone();
+                        move || view! {
+                            <div class="text-sm truncate max-w-md">
+                                <LatexRenderer content=question_latex.clone() render_key="collapsed".to_string() />
+                            </div>
+                        }
+                    };
 
-                        // Mode-specific controls (passed as prop)
-                        {(render_controls)()}
-
-                        // Mode-specific result display (passed as prop)
-                        {(render_result)()}
-                    </div>
+                    view! {
+                        <Draggable collapsed=collapsed on_toggle_collapse=on_toggle_collapse>
+                            <Show
+                                when=move || !collapsed.get()
+                                fallback=collapsed_content
+                            >
+                                <div class="space-y-6">
+                                    <ProblemCard key=problem_id_clone.clone() problem=p_for_wb.clone() time_limit_seconds=time_limit />
+                                    <AnswerInput
+                                        answer_type=answer_type
+                                        value=answer
+                                        set_value=set_answer
+                                        on_submit=on_submit
+                                        key=problem_id.clone()
+                                    />
+                                    {answer_hint.map(|hint| view! {
+                                        <p class="text-xs text-gray-400 -mt-4 italic">{hint}</p>
+                                    })}
+                                    {(render_controls)()}
+                                    {(render_result)()}
+                                </div>
+                            </Show>
+                        </Draggable>
+                    }.into_any()
+                } else {
+                    view! {
+                        <div class="space-y-6">
+                            <ProblemCard key=problem_id_clone problem=p time_limit_seconds=time_limit />
+                            <AnswerInput
+                                answer_type=answer_type
+                                value=answer
+                                set_value=set_answer
+                                on_submit=on_submit
+                                key=problem_id
+                            />
+                            {answer_hint.map(|hint| view! {
+                                <p class="text-xs text-gray-400 -mt-4 italic">{hint}</p>
+                            })}
+                            {(render_controls)()}
+                            {(render_result)()}
+                        </div>
+                    }.into_any()
                 }
             })}
         </Show>
