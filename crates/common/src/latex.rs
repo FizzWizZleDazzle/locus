@@ -11,7 +11,7 @@
 pub fn convert_latex_to_plain(input: &str) -> String {
     let mut result = input.to_string();
 
-    // Remove \left and \right delimiters first
+    // Remove \left and \right delimiters first (keep what follows, e.g. \left( → ()
     result = result.replace("\\left", "");
     result = result.replace("\\right", "");
 
@@ -62,7 +62,19 @@ pub fn convert_latex_to_plain(input: &str) -> String {
         result.replace_range(sqrt_pos..sqrt_pos + 5, "sqrt");
     }
 
+    // Convert matrix environments before other replacements
+    result = convert_matrix_envs(&result);
+
     // Remove LaTeX function backslashes: \sin -> sin, \cos -> cos, etc.
+    // Inverse trig (must come before \sin/\cos/\tan to avoid partial matches)
+    result = result.replace("\\arcsin", "arcsin");
+    result = result.replace("\\arccos", "arccos");
+    result = result.replace("\\arctan", "arctan");
+    // Hyperbolic (must come before \sin/\cos/\tan)
+    result = result.replace("\\sinh", "sinh");
+    result = result.replace("\\cosh", "cosh");
+    result = result.replace("\\tanh", "tanh");
+    // Standard trig
     result = result.replace("\\sin", "sin");
     result = result.replace("\\cos", "cos");
     result = result.replace("\\tan", "tan");
@@ -75,6 +87,16 @@ pub fn convert_latex_to_plain(input: &str) -> String {
     result = result.replace("\\abs", "abs");
     result = result.replace("\\cdot", "*");
     result = result.replace("\\times", "*");
+
+    // Comparison operators
+    result = result.replace("\\le", "<=");
+    result = result.replace("\\ge", ">=");
+    result = result.replace("\\ne", "!=");
+
+    // Greek/special symbols
+    result = result.replace("\\pi", "pi");
+    result = result.replace("\\theta", "theta");
+    result = result.replace("\\infty", "oo");
 
     // Handle exponents with braces: x^{2} -> x^(2), e^{x+1} -> e^(x+1)
     while let Some(exp_start) = result.find("^{") {
@@ -130,6 +152,9 @@ pub fn convert_latex_to_plain(input: &str) -> String {
     // ========================================================================
 
     // Pass 1: Protect explicit brace/bracket commands from conversion
+    // MathQuill outputs \{ and \} for literal braces (sets)
+    result = result.replace("\\{", "\x01LBRACE\x01");
+    result = result.replace("\\}", "\x01RBRACE\x01");
     result = result.replace("\\lbrace", "\x01LBRACE\x01");
     result = result.replace("\\rbrace", "\x01RBRACE\x01");
     result = result.replace("\\lbrack", "\x01LBRACK\x01");
@@ -202,6 +227,48 @@ fn add_explicit_multiplication(input: &str) -> String {
 
             if needs_mult {
                 result.push('*');
+            }
+        }
+    }
+
+    result
+}
+
+/// Convert LaTeX matrix environments to [[row1],[row2]] notation.
+///
+/// Handles \begin{pmatrix}, \begin{bmatrix}, \begin{matrix}, \begin{vmatrix}.
+/// Rows are separated by \\ and cells by &.
+/// Example: \begin{pmatrix}1&2\\3&4\end{pmatrix} → [[1,2],[3,4]]
+fn convert_matrix_envs(input: &str) -> String {
+    let mut result = input.to_string();
+
+    for env in &["pmatrix", "bmatrix", "matrix", "vmatrix"] {
+        let begin_tag = format!("\\begin{{{}}}", env);
+        let end_tag = format!("\\end{{{}}}", env);
+
+        while let Some(start) = result.find(&begin_tag) {
+            if let Some(end_rel) = result[start..].find(&end_tag) {
+                let content_start = start + begin_tag.len();
+                let content_end = start + end_rel;
+                let content = result[content_start..content_end].trim().to_string();
+
+                // Parse rows (split by \\) and cells (split by &)
+                let rows: Vec<String> = content
+                    .split("\\\\")
+                    .map(|row| {
+                        let cells: Vec<String> = row
+                            .split('&')
+                            .map(|cell| cell.trim().to_string())
+                            .collect();
+                        format!("[{}]", cells.join(","))
+                    })
+                    .collect();
+
+                let matrix_str = format!("[{}]", rows.join(","));
+                let replace_end = content_end + end_tag.len();
+                result.replace_range(start..replace_end, &matrix_str);
+            } else {
+                break; // No matching \end tag
             }
         }
     }
@@ -316,5 +383,78 @@ mod tests {
     fn test_implicit_multiplication_var_paren() {
         assert_eq!(convert_latex_to_plain("x(y+1)"), "x*(y+1)");
         assert_eq!(convert_latex_to_plain("a(b+c)"), "a*(b+c)");
+    }
+
+    // === MathQuill-specific conversions ===
+
+    #[test]
+    fn test_escaped_braces() {
+        // MathQuill outputs \{ and \} for sets
+        assert_eq!(convert_latex_to_plain("\\{1, 2, 3\\}"), "{1, 2, 3}");
+        assert_eq!(
+            convert_latex_to_plain("\\left\\{1, 2\\right\\}"),
+            "{1, 2}"
+        );
+    }
+
+    #[test]
+    fn test_inverse_trig() {
+        assert_eq!(convert_latex_to_plain("\\arcsin(x)"), "arcsin(x)");
+        assert_eq!(convert_latex_to_plain("\\arccos(x)"), "arccos(x)");
+        assert_eq!(convert_latex_to_plain("\\arctan(x)"), "arctan(x)");
+    }
+
+    #[test]
+    fn test_hyperbolic_trig() {
+        assert_eq!(convert_latex_to_plain("\\sinh(x)"), "sinh(x)");
+        assert_eq!(convert_latex_to_plain("\\cosh(x)"), "cosh(x)");
+        assert_eq!(convert_latex_to_plain("\\tanh(x)"), "tanh(x)");
+    }
+
+    #[test]
+    fn test_greek_symbols() {
+        assert_eq!(convert_latex_to_plain("\\pi"), "pi");
+        assert_eq!(convert_latex_to_plain("2\\pi"), "2*pi");
+        assert_eq!(convert_latex_to_plain("\\theta"), "theta");
+        assert_eq!(convert_latex_to_plain("\\infty"), "oo");
+    }
+
+    #[test]
+    fn test_comparison_operators() {
+        assert_eq!(convert_latex_to_plain("x\\le5"), "x<=5");
+        assert_eq!(convert_latex_to_plain("x\\ge-3"), "x>=-3");
+        assert_eq!(convert_latex_to_plain("x\\ne0"), "x!=0");
+    }
+
+    #[test]
+    fn test_matrix_pmatrix() {
+        assert_eq!(
+            convert_latex_to_plain("\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}"),
+            "[[1,2],[3,4]]"
+        );
+    }
+
+    #[test]
+    fn test_matrix_bmatrix() {
+        assert_eq!(
+            convert_latex_to_plain("\\begin{bmatrix}a&b\\\\c&d\\end{bmatrix}"),
+            "[[a,b],[c,d]]"
+        );
+    }
+
+    #[test]
+    fn test_matrix_3x3() {
+        assert_eq!(
+            convert_latex_to_plain("\\begin{pmatrix}1&0&0\\\\0&1&0\\\\0&0&1\\end{pmatrix}"),
+            "[[1,0,0],[0,1,0],[0,0,1]]"
+        );
+    }
+
+    #[test]
+    fn test_interval_bracket_types() {
+        // MathQuill outputs \left( and \right] etc., after \left/\right removal:
+        assert_eq!(convert_latex_to_plain("\\left(1, 7\\right]"), "(1, 7]");
+        assert_eq!(convert_latex_to_plain("\\left[-2, 4\\right)"), "[-2, 4)");
+        assert_eq!(convert_latex_to_plain("\\left[0, \\infty\\right)"), "[0, oo)");
     }
 }

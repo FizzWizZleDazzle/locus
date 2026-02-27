@@ -1,4 +1,4 @@
-use crate::components::{MathInput, ProblemCard};
+use crate::components::{AnswerInput, ProblemCard};
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
 
@@ -6,7 +6,7 @@ use locus_common::ProblemResponse;
 ///
 /// This component encapsulates:
 /// - Problem rendering (ProblemCard)
-/// - Answer input (MathInput with forced remounting via key prop)
+/// - Answer input (AnswerInput with per-type adaptations, forced remounting via key prop)
 /// - Mode-specific behavior via callback props
 #[component]
 pub fn ProblemInterface<ControlsView, ControlsViewOutput, ResultView, ResultViewOutput>(
@@ -37,20 +37,19 @@ where
             {move || problem.get().map(|p| {
                 let problem_id = p.id.to_string();
                 let problem_id_clone = problem_id.clone();
+                let answer_type = p.answer_type;
                 view! {
                     <div class="space-y-6">
                         // Problem card with key for forced remounting
-                        // CRITICAL: key={problem.id} ensures complete destruction/recreation
                         <ProblemCard key=problem_id_clone problem=p.clone() time_limit_seconds=p.time_limit_seconds />
 
-                        // Answer input with forced remounting via key
-                        // CRITICAL: key={problem.id} ensures complete destruction/recreation
-                        <MathInput
-                            key=problem_id
+                        // Answer input with forced remounting via key + per-type adaptations
+                        <AnswerInput
+                            answer_type=answer_type
                             value=answer
                             set_value=set_answer
-                            on_submit=Callback::new(move |_| on_submit.run(answer.get()))
-                            placeholder="Your answer"
+                            on_submit=on_submit
+                            key=problem_id
                         />
 
                         // Answer type hint

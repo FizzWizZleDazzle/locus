@@ -20,10 +20,12 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
-    <!-- MathLive for interactive math input (like Desmos) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive-static.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@cortex-js/compute-engine/dist/compute-engine.min.js"></script>
+    <!-- jQuery (required by MathQuill) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- MathQuill for interactive math input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathquill@0.10.1/build/mathquill.css">
+    <script src="https://cdn.jsdelivr.net/npm/mathquill@0.10.1/build/mathquill.js"></script>
 
     <!-- Nerdamer for symbolic math and LaTeX conversion -->
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
@@ -53,24 +55,22 @@
             font-family: 'Monaco', 'Consolas', monospace;
         }
 
-        /* MathLive styling adjustments */
-        math-field {
-            --caret-color: #1f2937;
-            --primary-color: #1f2937;
-            --keyboard-zindex: -1;
+        /* MathQuill styling */
+        .mq-editable-field {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 18px;
+            min-height: 48px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            outline: none;
         }
-
-        /* Hide virtual keyboard and menu buttons using class selector */
-        math-field .ML__virtual-keyboard-toggle,
-        math-field .ML__menu-toggle {
-            display: none !important;
-            visibility: hidden !important;
-        }
-
-        /* Additional hiding via shadow DOM parts if available */
-        math-field::part(virtual-keyboard-toggle),
-        math-field::part(menu-toggle) {
-            display: none !important;
+        .mq-editable-field.mq-focused {
+            border-color: #1f2937;
+            box-shadow: 0 0 0 1px #1f2937;
         }
 
         /* === Dark mode centralized overrides === */
@@ -130,13 +130,22 @@
         .dark .text-blue-900 { color: #93bbfd; }
         .dark .text-blue-800 { color: #93bbfd; }
 
-        /* MathLive */
-        .dark math-field {
-            --caret-color: #e5e7eb;
-            --primary-color: #e5e7eb;
-            background: #111827 !important;
-            color: #f3f4f6 !important;
-            border-color: #374151 !important;
+        /* MathQuill dark mode */
+        .dark .mq-editable-field {
+            background: #111827;
+            color: #f3f4f6;
+            border-color: #374151;
+        }
+        .dark .mq-editable-field.mq-focused {
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 1px #9ca3af;
+        }
+        .dark .mq-editable-field .mq-cursor {
+            border-color: #e5e7eb;
+        }
+        .dark .mq-editable-field .mq-root-block,
+        .dark .mq-editable-field .mq-math-mode {
+            color: #f3f4f6;
         }
 
         /* KaTeX */

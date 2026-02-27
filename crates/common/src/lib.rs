@@ -4,7 +4,6 @@ pub mod constants;
 pub mod elo;
 pub mod grader;
 pub mod latex;
-pub mod mathjson;
 pub mod svg_compress;
 pub mod symengine;
 pub mod validation;

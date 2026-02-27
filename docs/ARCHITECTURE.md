@@ -37,8 +37,7 @@ Shared between frontend and backend. Compiles to both WASM and native targets.
 | `src/grader/multipart.rs` | Splits on `\|\|\|`, grades each part independently with its own answer type |
 | `src/grader/parse.rs` | Shared parsing: `split_top_level()`, `split_equation()` |
 | `src/elo.rs` | ELO calculation: `K_FACTOR=32`, `expected_score()`, `time_multiplier()`, `calculate_new_elo()` |
-| `src/mathjson.rs` | MathJSON AST to SymEngine plain text converter (handles `Add`, `Multiply`, `Power`, `Divide`, trig, etc.) |
-| `src/latex.rs` | Legacy LaTeX to plain text converter (fallback for non-MathJSON input) |
+| `src/latex.rs` | LaTeX to plain text converter: fractions, sqrt, trig, inverse trig, hyperbolic, Greek symbols, comparison operators, matrix environments, implicit multiplication |
 | `src/validation.rs` | Username/password/email validation rules shared between frontend and backend |
 | `src/svg_compress.rs` | Dictionary-based SVG compression (prefix `s1:`) |
 | `build.rs` | Conditional linking: WASM links from `symengine.js/dist/wasm-unknown/lib/`, native links `/usr/local/lib/libsymengine.a` + system gmp/stdc++ |
@@ -51,14 +50,15 @@ Leptos 0.7 CSR app. Compiles to `wasm32-unknown-unknown`.
 |---|---|
 | `src/main.rs` | App root: C allocator bridge (malloc/free/calloc/realloc), routing, AuthContext, ThemeContext |
 | `src/api.rs` | Gloo HTTP client for all backend endpoints. Token storage in LocalStorage |
-| `src/grader.rs` | Client-side grading: MathJSON/LaTeX preprocessing, calls `locus_common::grader::grade_answer()` |
+| `src/grader.rs` | Client-side grading: LaTeX preprocessing via `convert_latex_to_plain()`, calls `locus_common::grader::grade_answer()` |
 | `src/env.rs` | Compile-time config: `api_base()` from `LOCUS_API_URL`, `frontend_base()` from `LOCUS_FRONTEND_URL` |
 | `src/oauth.rs` | OAuth popup window management with postMessage callback |
 | `src/problem_queue.rs` | Pre-fetches problems in batches, auto-refills at 5 remaining |
 | `src/katex_bindings.rs` | KaTeX JS bindings for LaTeX rendering |
 | `src/utils.rs` | Utility functions |
 | `src/components/mod.rs` | Component re-exports |
-| `src/components/math_input.rs` | MathLive `<math-field>` wrapper with Leptos signals |
+| `src/components/math_field.rs` | MathQuill wrapper: creates MQ.MathField, edit/enter handlers, template pre-seeding, restriction support |
+| `src/components/answer_input.rs` | Per-AnswerType dispatcher: templates (Set/Tuple/List/Equation), restrictions (Numeric), affordances (Interval brackets, Inequality palette, Matrix +row/+col, MultiPart stacked fields) |
 | `src/components/latex_renderer.rs` | KaTeX LaTeX renderer component |
 | `src/components/navbar.rs` | Top navigation bar |
 | `src/components/sidebar.rs` | Side navigation |
@@ -151,9 +151,7 @@ factory/
 ### Input Pipeline
 
 ```
-MathLive -> MathJSON -> convert_mathjson_to_plain() -> Plain text -> Grader
-                               |
-                    convert_latex_to_plain() (fallback for intervals)
+MathQuill -> field.latex() -> convert_latex_to_plain() -> Plain text -> Grader
 ```
 
 ## ELO System

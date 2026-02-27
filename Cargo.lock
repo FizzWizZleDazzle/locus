@@ -1803,7 +1803,6 @@ dependencies = [
  "lazy_static",
  "regex",
  "serde",
- "serde_json",
  "uuid",
 ]
 
