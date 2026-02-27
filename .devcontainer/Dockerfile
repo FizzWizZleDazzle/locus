@@ -49,7 +49,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --default-toolchain stable
 ENV PATH="/home/vscode/.cargo/bin:${PATH}"
 RUN rustup target add wasm32-unknown-unknown \
-    && cargo install trunk cargo-watch cargo-chef --locked
+    && curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
+    && cargo binstall -y trunk cargo-watch cargo-chef
 USER root
 
 # 4. Node.js LTS + TypeScript
@@ -116,6 +117,7 @@ COPY --chown=vscode:vscode crates/common/Cargo.toml crates/common/Cargo.toml
 COPY --chown=vscode:vscode crates/backend/Cargo.toml crates/backend/Cargo.toml
 COPY --chown=vscode:vscode crates/frontend/Cargo.toml crates/frontend/Cargo.toml
 COPY --chown=vscode:vscode crates/common/build.rs crates/common/build.rs
+COPY --chown=vscode:vscode crates/common/wasi_stub.c crates/common/wasi_stub.c
 # cargo-chef needs stub source files to satisfy Cargo's manifest validation
 RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src \
     && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs \
@@ -125,21 +127,18 @@ RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src \
 FROM base AS final
 
 # Create cargo target dir owned by vscode
-RUN mkdir -p /opt/cargo-target && chown vscode:vscode /opt/cargo-target
+RUN mkdir -p /opt/cargo-target /workspaces/locus && chown vscode:vscode /opt/cargo-target /workspaces/locus
 
 COPY --from=planner /tmp/recipe.json /tmp/recipe.json
 ENV CARGO_TARGET_DIR=/opt/cargo-target
 USER vscode
 WORKDIR /workspaces/locus
 
-# Cook native deps (axum, tokio, serde, sqlx, etc.)
-# The `|| true` allows the build to succeed even if some crates fail
-# (e.g. build.rs that expect runtime resources). The important thing
-# is that the bulk of dependency crates are compiled and cached.
-RUN cargo chef cook --recipe-path /tmp/recipe.json || true
+# Cook native deps (backend + common: axum, tokio, serde, sqlx, etc.)
+RUN cargo chef cook --recipe-path /tmp/recipe.json -p locus-backend
 
-# Cook WASM deps (leptos, wasm-bindgen, gloo, etc.)
-RUN cargo chef cook --recipe-path /tmp/recipe.json --target wasm32-unknown-unknown || true
+# Cook WASM deps (frontend + common: leptos, wasm-bindgen, gloo, etc.)
+RUN cargo chef cook --recipe-path /tmp/recipe.json -p locus-frontend --target wasm32-unknown-unknown
 
 # Clean up workspace stubs and recipe, keep compiled artifacts
 USER root
