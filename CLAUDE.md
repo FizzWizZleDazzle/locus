@@ -35,6 +35,8 @@ Requires: `cargo`, `trunk`, `cargo-watch`, `docker`. Creates `.env` from `.env.e
 
 ## Documentation Index
 
+Prioritize reading documentation before diving into code. Each doc is concise and focused on a specific area. When making changes, update the relevant doc to keep it accurate.
+
 | Document | Purpose |
 |---|---|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Crate map, module inventory, grading system, ELO, auth flows, build system |
@@ -42,3 +44,5 @@ Requires: `cargo`, `trunk`, `cargo-watch`, `docker`. Creates `.env` from `.env.e
 | [`docs/DATABASE.md`](docs/DATABASE.md) | All tables, columns, migrations, PostgreSQL functions, constraints |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Environment variables, Docker, dev containers, Kubernetes, Cloudflare, scripts |
 | [`factory/README.md`](factory/README.md) | Problem generation pipeline, LLM config, automation scripts |
+
+No coauthor/cosign on commits
