@@ -202,7 +202,7 @@ pub fn Practice() -> impl IntoView {
             {move || if whiteboard_mode.get() && problem.get().is_some() {
                 view! {
                     // Small label top-left
-                    <span class="absolute top-3 left-3 z-30 text-xs text-gray-400 select-none">"Practice"</span>
+                    <span class="absolute top-3 left-3 z-30 text-xs text-gray-600 dark:text-gray-300 font-medium select-none">"Practice"</span>
                     // Controls top-right
                     <div class="absolute top-3 right-3 z-30 flex items-center gap-2"
                         on:pointerdown=|ev: web_sys::PointerEvent| ev.stop_propagation()
@@ -219,7 +219,7 @@ pub fn Practice() -> impl IntoView {
                             </svg>
                         </button>
                         <button
-                            class="text-sm text-gray-400 hover:text-gray-200"
+                            class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                             on:click=move |_| reset_selection()
                         >
                             "Change Topics"
