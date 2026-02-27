@@ -69,6 +69,25 @@ if [ ! -f ".env" ]; then
     echo "[WARN] Edit factory/backend/.env with your LLM API key"
 fi
 
+# Julia setup (optional — only Python scripts will work without it)
+if command -v julia &> /dev/null; then
+    JULIA_DIR="$FACTORY_DIR/julia"
+    if [ ! -f "$JULIA_DIR/Manifest.toml" ]; then
+        echo "[*] Installing Julia dependencies (~1 min, one-time)..."
+        julia --project="$JULIA_DIR" -e 'using Pkg; Pkg.instantiate()'
+        echo "[OK] Julia dependencies installed"
+    fi
+    SYSIMAGE="$JULIA_DIR/sysimage.so"
+    if [ ! -f "$SYSIMAGE" ] || [ "$JULIA_DIR/Project.toml" -nt "$SYSIMAGE" ]; then
+        echo "[*] Building Julia sysimage (~2 min, one-time)..."
+        julia --project="$JULIA_DIR" "$JULIA_DIR/build/build_sysimage.jl"
+        echo "[OK] Julia sysimage built"
+    fi
+else
+    echo "[WARN] Julia not installed — only Python scripts will work"
+    echo "[INFO] Install Julia from https://julialang.org/downloads/"
+fi
+
 # Start backend
 echo ""
 echo "[*] Starting backend on http://localhost:$BACKEND_PORT (hot reload)..."

@@ -29,6 +29,7 @@ class GenerateScriptRequest(BaseModel):
     subtopic: str
     difficulty_level: str = "medium"  # "easy", "medium", "hard"
     prompt_template: Optional[str] = None
+    language: str = "julia"  # "julia" or "python"
 
 
 class SaveScriptRequest(BaseModel):
@@ -36,10 +37,12 @@ class SaveScriptRequest(BaseModel):
     script: str
     description: Optional[str] = None
     overwrite: bool = False
+    language: str = "julia"  # "julia" or "python"
 
 
 class TestScriptRequest(BaseModel):
     script: str
+    language: str = "julia"  # "julia" or "python"
 
 
 class RunScriptRequest(BaseModel):

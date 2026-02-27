@@ -1,4 +1,4 @@
-"""Script execution service"""
+"""Script execution service — supports Python and Julia generators"""
 
 import json
 import os
@@ -12,12 +12,37 @@ from typing import List, Dict, Any, Tuple
 # Scripts repo root — problem_utils.py and svg_utils.py live here
 _SCRIPTS_ROOT = str(Path(__file__).resolve().parent.parent / "scripts")
 
+# Julia project root
+_JULIA_PROJECT = str(Path(__file__).resolve().parent.parent.parent / "julia")
+_JULIA_SYSIMAGE = os.path.join(_JULIA_PROJECT, "sysimage.so")
+
 
 def _script_env() -> dict:
     """Env for script subprocesses: adds factory backend to PYTHONPATH."""
     env = os.environ.copy()
     env["PYTHONPATH"] = _SCRIPTS_ROOT + os.pathsep + env.get("PYTHONPATH", "")
     return env
+
+
+def _detect_language(path: Path) -> str:
+    """Return 'julia' or 'python' based on file extension."""
+    return "julia" if path.suffix == ".jl" else "python"
+
+
+def _julia_cmd() -> list:
+    """Base Julia command with sysimage and project flags if available."""
+    cmd = ["julia"]
+    if os.path.isfile(_JULIA_SYSIMAGE):
+        cmd += [f"--sysimage={_JULIA_SYSIMAGE}"]
+    cmd += [f"--project={_JULIA_PROJECT}"]
+    return cmd
+
+
+def _script_cmd(script_path: Path) -> list:
+    """Return the subprocess command for running a script."""
+    if _detect_language(script_path) == "julia":
+        return _julia_cmd() + [script_path.name]
+    return ["python3", script_path.name]
 
 
 def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
@@ -28,12 +53,15 @@ def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
         (True, problem_dict) on success
         (False, error_message) on failure
     """
+    lang = _detect_language(script_path)
+    timeout = 30 if lang == "julia" else 10
+
     try:
         result = subprocess.run(
-            ["python3", script_path.name],
+            _script_cmd(script_path),
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=timeout,
             cwd=str(cwd),
             env=_script_env(),
         )
@@ -42,7 +70,10 @@ def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
             return False, result.stderr
 
         try:
-            problem = json.loads(result.stdout.strip())
+            # For Julia scripts, output may be JSONL; take first line
+            stdout = result.stdout.strip()
+            first_line = stdout.split('\n')[0] if stdout else ""
+            problem = json.loads(first_line)
             problem.setdefault("answer_type", "expression")
             problem.setdefault("calculator_allowed", "none")
             return True, problem
@@ -50,23 +81,80 @@ def run_script_once(script_path: Path, cwd: Path) -> Tuple[bool, Any]:
             return False, f"Invalid JSON: {str(e)}"
 
     except subprocess.TimeoutExpired:
-        return False, "Script timeout (10 seconds)"
+        return False, f"Script timeout ({timeout} seconds)"
     except Exception as e:
         return False, f"Execution error: {str(e)}"
 
 
-def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
+def run_julia_batch(
+    script_path: Path, count: int, cwd: Path
+) -> Tuple[List[Dict], List[str]]:
+    """
+    Run a Julia script once with --count N, parse JSONL output.
+    Returns (problems, errors).
+    """
+    cmd = _julia_cmd() + [script_path.name, "--count", str(count)]
+    problems = []
+    errors = []
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=max(30, count),  # scale timeout with count
+            cwd=str(cwd),
+            env=_script_env(),
+        )
+
+        if result.returncode != 0:
+            errors.append(result.stderr[:200])
+            return problems, errors
+
+        for i, line in enumerate(result.stdout.strip().split('\n')):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                problem = json.loads(line)
+                problem.setdefault("answer_type", "expression")
+                problem.setdefault("calculator_allowed", "none")
+                problem["id"] = str(uuid.uuid4())
+                problem["generated_at"] = datetime.utcnow().isoformat()
+                problems.append(problem)
+            except json.JSONDecodeError as e:
+                errors.append(f"Line {i+1}: Invalid JSON: {str(e)}")
+
+    except subprocess.TimeoutExpired:
+        errors.append(f"Script timeout ({max(30, count)}s)")
+    except Exception as e:
+        errors.append(f"Execution error: {str(e)}")
+
+    return problems, errors
+
+
+def test_script_code(script_code: str, scripts_dir: Path, language: str = "python") -> Dict[str, Any]:
     """Test a script by running it once (used for inline testing)"""
-    temp_path = scripts_dir / "temp_test.py"
+    ext = ".jl" if language == "julia" else ".py"
+    temp_name = f"temp_test{ext}"
+    temp_path = scripts_dir / temp_name
+
+    is_julia = language == "julia"
+    timeout = 30 if is_julia else 10
 
     try:
         temp_path.write_text(script_code)
 
+        if is_julia:
+            cmd = _julia_cmd() + [temp_name]
+        else:
+            cmd = ["python3", temp_name]
+
         result = subprocess.run(
-            ["python3", "temp_test.py"],
+            cmd,
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=timeout,
             cwd=str(scripts_dir),
             env=_script_env(),
         )
@@ -79,7 +167,10 @@ def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
             }
 
         try:
-            problem = json.loads(result.stdout.strip())
+            # Take first line for JSONL compatibility
+            stdout = result.stdout.strip()
+            first_line = stdout.split('\n')[0] if stdout else ""
+            problem = json.loads(first_line)
 
             required_fields = ["question_latex", "answer_key", "difficulty",
                              "main_topic", "subtopic", "grading_mode",
@@ -135,7 +226,7 @@ def test_script_code(script_code: str, scripts_dir: Path) -> Dict[str, Any]:
     except subprocess.TimeoutExpired:
         return {
             "success": False,
-            "error": "Script timeout (10 seconds)",
+            "error": f"Script timeout ({timeout} seconds)",
         }
     except Exception as e:
         return {
@@ -152,6 +243,17 @@ def run_script_multiple(
     scripts_dir: Path
 ) -> Dict[str, Any]:
     """Run a saved script multiple times"""
+    # Julia scripts: use batch mode (single process, N problems)
+    if _detect_language(script_path) == "julia":
+        problems, errors = run_julia_batch(script_path, count, scripts_dir)
+        return {
+            "success": len(problems) > 0,
+            "problems": problems,
+            "count": len(problems),
+            "errors": errors[:10] if errors else None
+        }
+
+    # Python scripts: run N times (one process per problem)
     problems = []
     errors = []
 
@@ -178,12 +280,21 @@ def run_script_multiple(
 def _run_script_n_times(args: Tuple) -> Tuple[str, List[Dict], List[str]]:
     """Worker function: run a single script N times. Returns (name, problems, errors)."""
     script_path, scripts_dir, count = args
-    script_name = Path(script_path).stem
+    script_path = Path(script_path)
+    scripts_dir = Path(scripts_dir)
+    script_name = script_path.stem
+
+    # Julia: single batch invocation
+    if _detect_language(script_path) == "julia":
+        problems, errors = run_julia_batch(script_path, count, scripts_dir)
+        return script_name, problems, errors
+
+    # Python: N separate invocations
     problems = []
     errors = []
 
     for i in range(count):
-        success, result = run_script_once(Path(script_path), Path(scripts_dir))
+        success, result = run_script_once(script_path, scripts_dir)
         if success:
             problem = result
             problem["id"] = str(uuid.uuid4())
@@ -196,6 +307,17 @@ def _run_script_n_times(args: Tuple) -> Tuple[str, List[Dict], List[str]]:
     return script_name, problems, errors
 
 
+def _discover_scripts(scripts_dir: Path) -> List[Path]:
+    """Find all .py and .jl scripts, excluding temp files."""
+    skip = {"temp_test.py", "temp_test.jl"}
+    scripts = []
+    for ext in ("*.py", "*.jl"):
+        for s in scripts_dir.glob(ext):
+            if s.name not in skip:
+                scripts.append(s)
+    return scripts
+
+
 def mass_generate(
     scripts_dir: Path,
     count_per_script: int,
@@ -203,8 +325,7 @@ def mass_generate(
     max_workers: int = 8,
 ) -> Dict[str, Any]:
     """Run ALL saved scripts N times each in parallel and auto-stage all problems"""
-    skip = {"temp_test.py"}
-    scripts = [s for s in scripts_dir.glob("*.py") if s.name not in skip]
+    scripts = _discover_scripts(scripts_dir)
 
     total_generated = 0
     errors = []
@@ -263,8 +384,7 @@ def mass_generate_to_file(
     max_workers: int = 8,
 ) -> Dict[str, Any]:
     """Run ALL scripts N times each; write problems directly to SQL file."""
-    skip = {"temp_test.py"}
-    scripts = [s for s in scripts_dir.glob("*.py") if s.name not in skip]
+    scripts = _discover_scripts(scripts_dir)
 
     total_generated = 0
     errors: List[str] = []

@@ -4,20 +4,8 @@ import httpx
 from fastapi import HTTPException
 
 
-async def generate_script_with_llm(
-    llm_config: dict,
-    main_topic: str,
-    subtopic: str,
-    difficulty_level: str,
-    prompt_template: str = None
-) -> str:
-    """Generate a Python script using LLM"""
-
-    if not llm_config["endpoint"] or not llm_config["api_key"]:
-        raise HTTPException(status_code=400, detail="LLM not configured")
-
-    # ELO is RELATIVE TO TOPIC (not absolute mathematical difficulty)
-    elo_guide = """
+# ELO guide shared between Python and Julia prompts
+_ELO_GUIDE = """
 ELO SCALE (Relative to Topic):
 
 1000-1200 (Beginner in this topic):
@@ -66,19 +54,21 @@ Geometry Triangles:
 - 1700: "Area using Heron's formula"
 """
 
-    difficulty_targets = {
-        "easy": "EASIER problems for this subtopic (1000-1300 ELO range)",
-        "medium": "STANDARD problems for this subtopic (1300-1600 ELO range)",
-        "hard": "HARDER problems for this subtopic (1600-1900 ELO range)"
-    }
+_DIFFICULTY_TARGETS = {
+    "easy": "EASIER problems for this subtopic (1000-1300 ELO range)",
+    "medium": "STANDARD problems for this subtopic (1300-1600 ELO range)",
+    "hard": "HARDER problems for this subtopic (1600-1900 ELO range)"
+}
 
-    default_prompt = f"""Generate a Python script that creates random math problems.
 
-{elo_guide}
+def _python_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
+    return f"""Generate a Python script that creates random math problems.
+
+{_ELO_GUIDE}
 
 Topic: {main_topic}
 Subtopic: {subtopic}
-Target: {difficulty_targets.get(difficulty_level, difficulty_targets['medium'])}
+Target: {_DIFFICULTY_TARGETS.get(difficulty_level, _DIFFICULTY_TARGETS['medium'])}
 
 """ + r"""The script must start with `from problem_utils import *` which provides:
 
@@ -214,7 +204,170 @@ RULES:
 
 Output ONLY the Python script. No markdown fences, no explanation."""
 
-    prompt = prompt_template or default_prompt
+
+def _julia_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
+    return f"""Generate a Julia script that creates random math problems.
+
+{_ELO_GUIDE}
+
+Topic: {main_topic}
+Subtopic: {subtopic}
+Target: {_DIFFICULTY_TARGETS.get(difficulty_level, _DIFFICULTY_TARGETS['medium'])}
+
+""" + r"""The script must start with:
+```
+include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+```
+which provides SymEngine.jl CAS and these helpers:
+
+AVAILABLE VIA ProblemUtils: All SymEngine functions (@vars, diff, expand, factor, subs,
+sin, cos, tan, exp, log, sqrt, abs, Basic, free_symbols),
+Latexify (via tex() helper), JSON, and Random.
+
+HELPERS:
+- problem(; question, answer, difficulty, topic, solution, grading_mode, answer_type, calculator, image, time) -> Dict
+  - question: LaTeX string
+  - answer: any Julia/SymEngine value (auto-converted to string)
+  - difficulty: Int or (lo, hi) tuple for random ELO
+  - topic: "main/sub" e.g. "calculus/derivatives"
+  - solution: step-by-step LaTeX (use steps() helper)
+  - grading_mode: "equivalent" (default), "factor", "expand"
+  - answer_type: auto-detected if omitted (Bool->boolean, Int/Float->numeric,
+    Vector{Vector}->matrix, Set->set, Tuple->tuple, Vector->list, else->expression)
+  - calculator: "none" (default), "scientific", "graphing", "cas"
+- emit(dict) — prints JSON line to stdout (JSONL)
+- run_batch(generate) — parses --count N from ARGS, calls generate() N times with emit()
+- steps(strings...) — joins with <br> for solution_latex
+- tex(expr) — converts SymEngine expression to LaTeX string via Latexify
+- nonzero(lo, hi) — random int in [lo,hi] excluding 0
+- randint(lo, hi) — random int in [lo,hi] (inclusive)
+- choice(collection) — pick random element
+- fmt_set, fmt_tuple, fmt_list, fmt_matrix — format answer strings for special types
+- fmt_interval(left, right; left_open, right_open) — "open:1,closed:7" format
+- fmt_equation(lhs, rhs) — "lhs = rhs"
+- compress_svg(svg), decompress_svg(s) — SVG compression
+
+KEY SYMENGINE.JL DIFFERENCES FROM SYMPY:
+- Declare symbols: @vars x y z  (not symbols('x y z'))
+- LaTeX: tex(expr)  (not latex(expr))
+- Rational: Basic(a) // Basic(b)  (not Rational(a, b))
+- SymEngine has limited simplify; use expand() instead
+- solve(expr, x) returns a vector
+- No Matrix type; use Vector{Vector} for matrices
+- No FiniteSet; use Set([...]) for sets
+
+EXAMPLE 1 (expression answer):
+```
+include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+function generate()
+    @vars x
+    n = randint(2, 7)
+    coeff = nonzero(-12, 12)
+    expr = coeff * x^n
+    ans = diff(expr, x)
+    return problem(
+        question="\\frac{d}{dx}\\left[$(tex(expr))\\right]",
+        answer=ans,
+        difficulty=(1000, 1200),
+        topic="calculus/derivatives",
+        solution=steps(
+            "Apply power rule to \$$(tex(expr))\$",
+            "\$$(tex(ans))\$",
+        ),
+    )
+end
+
+run_batch(generate)
+```
+
+EXAMPLE 2 (numeric answer):
+```
+include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+function generate()
+    a_val, b_val = nonzero(-50, 50), nonzero(-50, 50)
+    ans = a_val + b_val
+    return problem(
+        question="\$$(a_val) + $(b_val) = ?\$",
+        answer=ans,
+        difficulty=(1000, 1100),
+        topic="arithmetic/addition_subtraction",
+        solution="\$$(a_val) + $(b_val) = $(ans)\$",
+    )
+end
+
+run_batch(generate)
+```
+
+EXAMPLE 3 (factored form):
+```
+include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+function generate()
+    @vars x
+    a = choice([1, 2, 3, 4])
+    b = choice([1, 2, 3, 4])
+    r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
+    expr = expand((a*x - r1) * (b*x - r2))
+    ans = factor(expr)
+    return problem(
+        question="Factor \$$(tex(expr))\$",
+        answer=ans,
+        difficulty=(1200, 1400),
+        topic="algebra1/factoring",
+        grading_mode="factor",
+        solution=steps(
+            "Use the AC method or factor by grouping",
+            "\$$(tex(ans))\$",
+        ),
+    )
+end
+
+run_batch(generate)
+```
+
+RULES:
+1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
+2. Randomize parameters for variety — use LARGE ranges. Numbers don't need to be small.
+   - Coefficients: randint(-20, 20) or wider, not just (-3, 3)
+   - Factorable polynomials: pick roots first (e.g. r1=randint(-12,12), r2=randint(-12,12)),
+     then expand — 12x²+31x+20 is perfectly valid since it factors to (4x+5)(3x+4)
+   - Exponents: up to 6 or 8 for medium/hard
+   - Bounds and constants: scale with difficulty — hard problems should have harder numbers
+3. Always include a solution using steps()
+4. ELO must match actual complexity (see ELO guide above)
+5. Default calculator to "none" unless computation is heavy and not the focus
+6. Always set time= in problem() to the expected solve time in seconds.
+   Guidelines: easy 30-90s, medium 60-180s, hard 120-300s. Scale by problem complexity.
+7. Always end the script with run_batch(generate) — this handles --count N for batch execution
+
+Output ONLY the Julia script. No markdown fences, no explanation."""
+
+
+async def generate_script_with_llm(
+    llm_config: dict,
+    main_topic: str,
+    subtopic: str,
+    difficulty_level: str,
+    prompt_template: str = None,
+    language: str = "julia",
+) -> str:
+    """Generate a problem script using LLM"""
+
+    if not llm_config["endpoint"] or not llm_config["api_key"]:
+        raise HTTPException(status_code=400, detail="LLM not configured")
+
+    if prompt_template:
+        prompt = prompt_template
+    elif language == "julia":
+        prompt = _julia_prompt(main_topic, subtopic, difficulty_level)
+    else:
+        prompt = _python_prompt(main_topic, subtopic, difficulty_level)
 
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
@@ -269,8 +422,9 @@ Output ONLY the Python script. No markdown fences, no explanation."""
                 script = str(data)
 
             # Clean up markdown code blocks
-            if "```python" in script:
-                script = script.split("```python")[1].split("```")[0].strip()
+            fence_lang = "julia" if language == "julia" else "python"
+            if f"```{fence_lang}" in script:
+                script = script.split(f"```{fence_lang}")[1].split("```")[0].strip()
             elif "```" in script:
                 script = script.split("```")[1].split("```")[0].strip()
 

@@ -1,11 +1,16 @@
 # Factory
 
-LLM-powered problem generation pipeline. Generates Python scripts that produce math problems, validates them with SymPy, and uploads to the main Locus backend.
+LLM-powered problem generation pipeline. Generates Julia or Python scripts that produce math problems, validates them with SymEngine/SymPy, and uploads to the main Locus backend.
 
 ## Architecture
 
 ```
 factory/
+  julia/                      Julia project (SymEngine.jl CAS)
+    Project.toml              Dependencies (SymEngine, Latexify, JSON)
+    src/ProblemUtils.jl       Shared utilities for Julia scripts
+    build/                    PackageCompiler sysimage build
+    sysimage.so               Precompiled sysimage (gitignored)
   backend/                    FastAPI app (port 9090)
     main.py                   Entry point, route registration
     config.py                 LLM + Locus backend configuration
@@ -15,7 +20,7 @@ factory/
       script_routes.py        Script generation, saving, testing, execution
       problem_routes.py       Problem staging, approval, export
     services/                 LLM client, script runner, problem staging
-    scripts/src/              Generated problem scripts (Python)
+    scripts/src/              Generated problem scripts (Python + Julia)
   frontend/                   TypeScript UI (port 9091)
     index.html                Entry point
     factory.ts                Main TypeScript source
@@ -41,7 +46,14 @@ cp backend/.env.example backend/.env
 ./start.sh
 ```
 
-`start.sh` creates a Python venv, installs dependencies, compiles TypeScript, starts the FastAPI backend (uvicorn with hot reload) and an HTTP server for the frontend.
+`start.sh` creates a Python venv, installs dependencies, compiles TypeScript, sets up Julia (installs deps + builds sysimage), starts the FastAPI backend (uvicorn with hot reload) and an HTTP server for the frontend.
+
+### Prerequisites
+
+- **Python 3** — required for backend and Python scripts
+- **Julia** — optional but recommended for Julia scripts (faster generation)
+  - Install from https://julialang.org/downloads/
+  - On first run, `start.sh` auto-installs Julia packages and builds a sysimage (~2 min)
 
 ### Environment Variables
 
@@ -53,6 +65,57 @@ cp backend/.env.example backend/.env
 | `LOCUS_BACKEND_URL` | Main backend URL (default: `http://localhost:3000`) |
 | `LOCUS_API_KEY` | Must match `API_KEY_SECRET` in the main backend |
 
+## Dual-Language Support
+
+Scripts can be written in **Julia** (default for new scripts) or **Python**. Both produce identical JSON output.
+
+### Why Julia?
+
+1. **SymEngine.jl** — same CAS engine as the Rust grader (consistent behavior)
+2. **Batch execution** — one Julia process generates N problems (amortizes JIT startup)
+3. **Math-native syntax** — LLMs generate cleaner math code in Julia
+
+### Execution Model
+
+| Language | Execution | Per 100 problems |
+|---|---|---|
+| Python | `python3 script.py` × 100 (one process per problem) | 100 subprocess spawns |
+| Julia | `julia script.jl --count 100` (one process, JSONL output) | 1 subprocess spawn |
+
+The Julia sysimage (built by `start.sh`) reduces startup from ~3s to ~0.3s.
+
+### Julia Script API (ProblemUtils.jl)
+
+Scripts begin with:
+```julia
+include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+```
+
+**Available:**
+- `@vars x y z` — declare SymEngine symbols
+- `diff(expr, x)`, `expand(expr)`, `factor(expr)`, `subs(expr, x => val)` — CAS
+- `tex(expr)` — LaTeX output via Latexify.jl
+- `problem(; question, answer, difficulty, topic, solution, ...)` — build problem dict
+- `emit(dict)` — print one JSON line to stdout
+- `run_batch(generate)` — parse `--count N`, call `generate()` N times
+- `steps(s1, s2, ...)`, `nonzero(lo, hi)`, `randint(lo, hi)`, `choice(v)`
+- `fmt_set`, `fmt_tuple`, `fmt_list`, `fmt_matrix`, `fmt_interval`, `fmt_equation`
+- `compress_svg(svg)`, `decompress_svg(s)`
+
+### SymPy → SymEngine.jl Cheat Sheet
+
+| Python (SymPy) | Julia (SymEngine.jl) |
+|---|---|
+| `symbols('x y')` | `@vars x y` |
+| `latex(expr)` | `tex(expr)` |
+| `Rational(a, b)` | `Basic(a) // Basic(b)` |
+| `simplify(expr)` | `expand(expr)` (limited simplify in SymEngine) |
+| `solve(eq, x)` | `SymEngine.solve(eq, x)` (returns vector) |
+| `randint(lo, hi)` | `randint(lo, hi)` (provided by ProblemUtils) |
+| `choice([a,b])` | `choice([a,b])` (provided by ProblemUtils) |
+| `emit(generate())` | `run_batch(generate)` (handles --count N) |
+
 ## Workflow
 
 ### Interactive (Web UI)
@@ -60,8 +123,8 @@ cp backend/.env.example backend/.env
 1. Open `http://localhost:9091`
 2. Configure LLM provider and model
 3. Select topic and subtopic
-4. Generate a script (LLM writes a Python function that produces problems)
-5. Test the script (runs it, validates output with SymPy)
+4. Generate a script (LLM writes a Julia/Python function that produces problems)
+5. Test the script (runs it, validates output)
 6. Save to `scripts/src/`
 7. Run to generate problems in bulk
 8. Review staged problems
