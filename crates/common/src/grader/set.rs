@@ -67,3 +67,85 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
     GradeResult::Correct
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::test_utils::NumExpr;
+
+    #[test]
+    fn test_same_order() {
+        assert_eq!(grade::<NumExpr>("{1, 2, 3}", "1, 2, 3"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_different_order() {
+        assert_eq!(grade::<NumExpr>("{3, 1, 2}", "1, 2, 3"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_with_braces_on_both() {
+        assert_eq!(grade::<NumExpr>("{1, 2}", "{1, 2}"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_wrong_element() {
+        assert_eq!(grade::<NumExpr>("{1, 2, 4}", "1, 2, 3"), GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_wrong_count() {
+        assert_eq!(grade::<NumExpr>("{1, 2}", "1, 2, 3"), GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_unparseable_element() {
+        assert!(matches!(grade::<NumExpr>("{1, abc, 3}", "1, 2, 3"), GradeResult::Invalid(_)));
+    }
+
+    #[test]
+    fn test_negative_elements() {
+        assert_eq!(grade::<NumExpr>("{-1, -2, -3}", "-3, -2, -1"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_pipeline_set() {
+        use crate::latex::convert_latex_to_plain;
+        let plain = convert_latex_to_plain("\\left\\{1, 2, 3\\right\\}");
+        assert_eq!(plain, "{1, 2, 3}");
+        assert_eq!(grade::<NumExpr>(&plain, "1, 2, 3"), GradeResult::Correct);
+    }
+
+    mod symengine_tests {
+        use super::super::*;
+        use crate::symengine::Expr;
+        use crate::latex::convert_latex_to_plain;
+
+        #[test]
+        fn test_basic_set() {
+            assert_eq!(grade::<Expr>("{1, 2, 3}", "1, 2, 3"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_reordered() {
+            assert_eq!(grade::<Expr>("{3, 1, 2}", "1, 2, 3"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_expression_elements() {
+            // 1+1 == 2
+            assert_eq!(grade::<Expr>("{1+1, 3}", "2, 3"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_wrong_element() {
+            assert_eq!(grade::<Expr>("{1, 2, 4}", "1, 2, 3"), GradeResult::Incorrect);
+        }
+
+        #[test]
+        fn test_pipeline_set_latex() {
+            let plain = convert_latex_to_plain("\\left\\{-1, 0, 1\\right\\}");
+            assert_eq!(grade::<Expr>(&plain, "-1, 0, 1"), GradeResult::Correct);
+        }
+    }
+}

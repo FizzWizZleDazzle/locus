@@ -75,3 +75,87 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
     GradeResult::Correct
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::test_utils::NumExpr;
+
+    #[test]
+    fn test_2x2_correct() {
+        assert_eq!(
+            grade::<NumExpr>("[[1,2],[3,4]]", "[[1,2],[3,4]]"),
+            GradeResult::Correct,
+        );
+    }
+
+    #[test]
+    fn test_2x2_wrong_element() {
+        assert_eq!(
+            grade::<NumExpr>("[[1,2],[3,5]]", "[[1,2],[3,4]]"),
+            GradeResult::Incorrect,
+        );
+    }
+
+    #[test]
+    fn test_wrong_dimensions() {
+        assert_eq!(
+            grade::<NumExpr>("[[1,2,3],[4,5,6]]", "[[1,2],[3,4]]"),
+            GradeResult::Incorrect,
+        );
+    }
+
+    #[test]
+    fn test_not_a_matrix() {
+        assert!(matches!(
+            grade::<NumExpr>("not a matrix", "[[1,2],[3,4]]"),
+            GradeResult::Invalid(_),
+        ));
+    }
+
+    #[test]
+    fn test_3x3_identity() {
+        assert_eq!(
+            grade::<NumExpr>("[[1,0,0],[0,1,0],[0,0,1]]", "[[1,0,0],[0,1,0],[0,0,1]]"),
+            GradeResult::Correct,
+        );
+    }
+
+    mod symengine_tests {
+        use super::super::*;
+        use crate::symengine::Expr;
+        use crate::latex::convert_latex_to_plain;
+
+        #[test]
+        fn test_basic_matrix() {
+            assert_eq!(
+                grade::<Expr>("[[1,2],[3,4]]", "[[1,2],[3,4]]"),
+                GradeResult::Correct,
+            );
+        }
+
+        #[test]
+        fn test_expression_elements() {
+            assert_eq!(
+                grade::<Expr>("[[1+1,2],[3,4]]", "[[2,2],[3,4]]"),
+                GradeResult::Correct,
+            );
+        }
+
+        #[test]
+        fn test_pipeline_matrix() {
+            let plain = convert_latex_to_plain(
+                "\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}",
+            );
+            assert_eq!(grade::<Expr>(&plain, "[[1,2],[3,4]]"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_pipeline_matrix_with_negatives() {
+            let plain = convert_latex_to_plain(
+                "\\begin{pmatrix}-1&0\\\\0&-1\\end{pmatrix}",
+            );
+            assert_eq!(grade::<Expr>(&plain, "[[-1,0],[0,-1]]"), GradeResult::Correct);
+        }
+    }
+}

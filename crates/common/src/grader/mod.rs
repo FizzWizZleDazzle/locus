@@ -14,6 +14,8 @@ mod numeric;
 mod ordered;
 pub mod parse;
 mod set;
+#[cfg(test)]
+pub(crate) mod test_utils;
 mod word;
 
 use crate::symengine::{Expr, ExprError};

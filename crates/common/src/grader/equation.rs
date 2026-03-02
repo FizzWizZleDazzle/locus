@@ -54,3 +54,70 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
     GradeResult::Incorrect
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::test_utils::NumExpr;
+
+    #[test]
+    fn test_exact_match() {
+        assert_eq!(grade::<NumExpr>("1 = 1", "1 = 1"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_different_sides() {
+        // 3 = 3 matches 3 = 3 (diff = 0 for both)
+        assert_eq!(grade::<NumExpr>("3 = 3", "3 = 3"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_no_equals() {
+        assert!(matches!(grade::<NumExpr>("3", "1 = 1"), GradeResult::Invalid(_)));
+    }
+
+    #[test]
+    fn test_wrong_equation() {
+        assert_eq!(grade::<NumExpr>("1 = 2", "1 = 1"), GradeResult::Incorrect);
+    }
+
+    mod symengine_tests {
+        use super::super::*;
+        use crate::symengine::Expr;
+        use crate::latex::convert_latex_to_plain;
+
+        #[test]
+        fn test_simple_equation() {
+            assert_eq!(grade::<Expr>("x = 5", "x = 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_equivalent_rearranged() {
+            // x - 5 = 0 is proportional to x = 5 (diff: x-5 vs x-5)
+            assert_eq!(grade::<Expr>("x - 5 = 0", "x = 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_sides_swapped() {
+            // 5 = x has diff 5-x = -(x-5), proportional to x-5
+            assert_eq!(grade::<Expr>("5 = x", "x = 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_scaled_equation() {
+            // 2*x = 10 has diff 2*x-10 = 2*(x-5), proportional to x-5
+            assert_eq!(grade::<Expr>("2*x = 10", "x = 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_wrong_equation() {
+            assert_eq!(grade::<Expr>("x = 6", "x = 5"), GradeResult::Incorrect);
+        }
+
+        #[test]
+        fn test_pipeline_equation() {
+            let plain = convert_latex_to_plain("x^{2}+y^{2}=1");
+            assert_eq!(grade::<Expr>(&plain, "x^2 + y^2 = 1"), GradeResult::Correct);
+        }
+    }
+}

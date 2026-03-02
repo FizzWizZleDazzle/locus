@@ -185,3 +185,118 @@ fn interval_key_to_user_notation(key: &str) -> String {
 
     format!("{}{}, {}{}", left_type, left_val, right_val, right_type)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::test_utils::NumExpr;
+
+    // ── Parser unit tests ──
+
+    #[test]
+    fn test_parse_x_gt() {
+        let r = inequality_to_interval_key("x > -4").unwrap();
+        assert_eq!(r, "open:-4,open:inf");
+    }
+
+    #[test]
+    fn test_parse_x_le() {
+        let r = inequality_to_interval_key("x <= 1").unwrap();
+        assert_eq!(r, "open:-inf,closed:1");
+    }
+
+    #[test]
+    fn test_parse_compound() {
+        let r = inequality_to_interval_key("-2 < x <= 5").unwrap();
+        assert_eq!(r, "open:-2,closed:5");
+    }
+
+    #[test]
+    fn test_parse_flipped() {
+        let r = inequality_to_interval_key("-4 < x").unwrap();
+        assert_eq!(r, "open:-4,open:inf");
+    }
+
+    // ── Grading tests ──
+
+    #[test]
+    fn test_correct_simple() {
+        assert_eq!(grade::<NumExpr>("x > -4", "x > -4"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_flipped_equivalent() {
+        assert_eq!(grade::<NumExpr>("-4 < x", "x > -4"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_wrong_operator() {
+        assert_eq!(grade::<NumExpr>("x >= -4", "x > -4"), GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_wrong_value() {
+        assert_eq!(grade::<NumExpr>("x > -5", "x > -4"), GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_compound_correct() {
+        assert_eq!(grade::<NumExpr>("-2 < x <= 5", "-2 < x <= 5"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_invalid_input() {
+        assert!(matches!(grade::<NumExpr>("hello", "x > 0"), GradeResult::Invalid(_)));
+    }
+
+    // ── Pipeline tests ──
+
+    #[test]
+    fn test_pipeline_inequality_le() {
+        use crate::latex::convert_latex_to_plain;
+        let plain = convert_latex_to_plain("x\\le5");
+        assert_eq!(plain, "x<=5");
+        assert_eq!(grade::<NumExpr>(&plain, "x <= 5"), GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_pipeline_inequality_gt() {
+        use crate::latex::convert_latex_to_plain;
+        let plain = convert_latex_to_plain("x\\gt-3");
+        assert_eq!(plain, "x>-3");
+        assert_eq!(grade::<NumExpr>(&plain, "x > -3"), GradeResult::Correct);
+    }
+
+    mod symengine_tests {
+        use super::super::*;
+        use crate::symengine::Expr;
+        use crate::latex::convert_latex_to_plain;
+
+        #[test]
+        fn test_simple_inequality() {
+            assert_eq!(grade::<Expr>("x > -4", "x > -4"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_flipped() {
+            assert_eq!(grade::<Expr>("-4 < x", "x > -4"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_compound() {
+            assert_eq!(grade::<Expr>("-2 < x <= 5", "-2 < x <= 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_pipeline_le() {
+            let plain = convert_latex_to_plain("x\\le5");
+            assert_eq!(grade::<Expr>(&plain, "x <= 5"), GradeResult::Correct);
+        }
+
+        #[test]
+        fn test_pipeline_compound() {
+            let plain = convert_latex_to_plain("-2\\lt x\\le5");
+            assert_eq!(grade::<Expr>(&plain, "-2 < x <= 5"), GradeResult::Correct);
+        }
+    }
+}
