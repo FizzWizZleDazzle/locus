@@ -208,31 +208,41 @@ impl Expr {
     pub fn to_float(&self) -> Option<f64> {
         se_lock!();
         unsafe {
+            // Fast path: if already a RealDouble, extract directly
+            if is_a_RealDouble(self.ptr) != 0 {
+                return Some(real_double_get_d(self.ptr));
+            }
+
+            // If it's an Integer or Rational, convert via string
+            if is_a_Integer(self.ptr) != 0 || is_a_Rational(self.ptr) != 0 {
+                let s = basic_str(self.ptr);
+                let str_val = CStr::from_ptr(s).to_string_lossy().into_owned();
+                basic_str_free(s);
+                return str_val.parse::<f64>().ok();
+            }
+
+            // General case: use evalf in real domain (real=1 to avoid complex results)
             let result_ptr = basic_new_heap();
-            let rc = basic_evalf(result_ptr, self.ptr, 53, 0);
+            let rc = basic_evalf(result_ptr, self.ptr, 53, 1);
 
             if rc != 0 {
                 basic_free_heap(result_ptr);
                 return None;
             }
 
-            if is_a_RealDouble(result_ptr) != 0 {
-                let val = real_double_get_d(result_ptr);
-                basic_free_heap(result_ptr);
-                Some(val)
+            let val = if is_a_RealDouble(result_ptr) != 0 {
+                Some(real_double_get_d(result_ptr))
             } else if is_a_Integer(result_ptr) != 0 || is_a_Rational(result_ptr) != 0 {
-                let float_ptr = basic_new_heap();
-                real_double_set_d(float_ptr, 0.0);
                 let s = basic_str(result_ptr);
                 let str_val = CStr::from_ptr(s).to_string_lossy().into_owned();
                 basic_str_free(s);
-                basic_free_heap(result_ptr);
-                basic_free_heap(float_ptr);
                 str_val.parse::<f64>().ok()
             } else {
-                basic_free_heap(result_ptr);
                 None
-            }
+            };
+
+            basic_free_heap(result_ptr);
+            val
         }
     }
 
