@@ -175,63 +175,14 @@ fn IntervalInput(
     #[prop(optional)] key: Option<String>,
     #[prop(default = false)] disabled: bool,
 ) -> impl IntoView {
-    let (left_closed, set_left_closed) = signal(false); // ( by default
-    let (right_closed, set_right_closed) = signal(false); // ) by default
-
-    // Plain text from MathField (includes template delimiters after conversion)
-    let (inner_plain, set_inner_plain) = signal(String::new());
-
-    // Assemble the full interval string whenever parts change
-    Effect::new(move |_| {
-        let left = if left_closed.get() { "[" } else { "(" };
-        let right = if right_closed.get() { "]" } else { ")" };
-        let inner = inner_plain.get();
-
-        // Strip any leading/trailing parens/brackets from the converted template,
-        // then re-wrap with the user-selected bracket types.
-        let stripped = inner
-            .trim()
-            .trim_start_matches(['(', '['])
-            .trim_end_matches([')', ']'])
-            .trim();
-        let assembled = format!("{}{}{}", left, stripped, right);
-        set_value.set(assembled);
-    });
-
     view! {
-        <div class="relative">
-            <button
-                type="button"
-                class="absolute left-0 top-0 bottom-0 z-10 w-8 flex items-center justify-center
-                       text-lg font-mono text-gray-500 hover:text-gray-900 hover:bg-gray-100
-                       rounded-l transition-colors border-r border-gray-200"
-                on:click=move |_| set_left_closed.update(|v| *v = !*v)
-                title="Toggle open/closed bracket"
-            >
-                {move || if left_closed.get() { "[" } else { "(" }}
-            </button>
-
-            <div style="padding-left: 32px; padding-right: 32px;">
-                <MathField
-                    set_plain=set_inner_plain
-                    on_submit=on_submit
-                    template="\\left( ,\\right)"
-                    key=key.unwrap_or_default()
-                    disabled=disabled
-                />
-            </div>
-
-            <button
-                type="button"
-                class="absolute right-0 top-0 bottom-0 z-10 w-8 flex items-center justify-center
-                       text-lg font-mono text-gray-500 hover:text-gray-900 hover:bg-gray-100
-                       rounded-r transition-colors border-l border-gray-200"
-                on:click=move |_| set_right_closed.update(|v| *v = !*v)
-                title="Toggle open/closed bracket"
-            >
-                {move || if right_closed.get() { "]" } else { ")" }}
-            </button>
-        </div>
+        <MathField
+            set_plain=set_value
+            on_submit=on_submit
+            template="\\left( ,\\right)"
+            key=key.unwrap_or_default()
+            disabled=disabled
+        />
     }
 }
 

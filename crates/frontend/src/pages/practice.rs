@@ -169,7 +169,11 @@ pub fn Practice() -> impl IntoView {
     let answer_for_check = answer;
     let set_result_for_check = set_result;
 
+    let result_for_submit = result;
     let on_submit = Callback::new(move |_| {
+        if result_for_submit.get().is_some() {
+            return;
+        }
         if let Some(p) = problem_for_check.get() {
             let user_input = preprocess_input(&answer_for_check.get());
             if let Some(answer_key) = &p.answer_key {
@@ -337,7 +341,7 @@ pub fn Practice() -> impl IntoView {
                                     <button
                                         class="flex-1 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
                                         on:click=move |_| check_inline()
-                                        disabled=move || answer.get().is_empty()
+                                        disabled=move || answer.get().is_empty() || result.get().is_some()
                                     >
                                         "Check"
                                     </button>

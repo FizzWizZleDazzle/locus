@@ -240,7 +240,7 @@ pub fn Ranked() -> impl IntoView {
     };
 
     let on_submit = Callback::new(move |_| {
-        if !submitting.get() && !answer.get().is_empty() {
+        if !submitting.get() && !answer.get().is_empty() && result.get().is_none() {
             submit();
         }
     });
@@ -378,72 +378,68 @@ pub fn Ranked() -> impl IntoView {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
                     })}
 
-                    {move || result.get().is_none().then(|| view! {
-                        <ProblemInterface
-                            problem=problem
-                            answer=answer
-                            set_answer=set_answer
-                            on_submit=on_submit
-                            whiteboard_mode=wb_signal
-                            render_controls=move || view! {
-                                <button
-                                    class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
-                                    on:click=move |_| submit()
-                                    disabled=move || answer.get().is_empty() || submitting.get()
-                                >
-                                    {move || if submitting.get() { "Submitting..." } else { "Submit" }}
-                                </button>
-                            }
-                            render_result=|| ()
-                        />
-                    })}
-
-                    {move || result.get().map(|r| {
-                        let elo_color = if r.elo_change >= 0 { "text-green-600" } else { "text-red-600" };
-                        let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
-
-                        view! {
-                            <div class="p-6 border rounded">
-                                <div class="flex items-center gap-2 text-lg mb-2">
-                                    {if r.is_correct {
-                                        view! {
-                                            <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            <span>"Correct"</span>
-                                        }.into_any()
-                                    } else {
-                                        view! {
-                                            <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                            <span>"Incorrect"</span>
-                                        }.into_any()
-                                    }}
-                                </div>
-                                {(r.is_correct && r.topic_streak > 0).then(|| view! {
-                                    <div class="flex items-center gap-1 text-sm text-orange-600 mb-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                        </svg>
-                                        {format!("{} correct in a row", r.topic_streak)}
-                                    </div>
-                                })}
-                                <div class="text-sm text-gray-600 mb-4">
-                                    {format!("{} → {}", r.elo_before, r.elo_after)}
-                                    <span class=format!("ml-2 font-medium {}", elo_color)>
-                                        {format!("({}{})", elo_prefix, r.elo_change)}
-                                    </span>
-                                </div>
-                                <button
-                                    class="w-full px-4 py-3 border hover:bg-gray-50 rounded"
-                                    on:click=move |_| load_problem()
-                                >
-                                    "Next Problem"
-                                </button>
-                            </div>
+                    <ProblemInterface
+                        problem=problem
+                        answer=answer
+                        set_answer=set_answer
+                        on_submit=on_submit
+                        whiteboard_mode=wb_signal
+                        render_controls=move || view! {
+                            <button
+                                class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
+                                on:click=move |_| submit()
+                                disabled=move || answer.get().is_empty() || submitting.get() || result.get().is_some()
+                            >
+                                {move || if submitting.get() { "Submitting..." } else { "Submit" }}
+                            </button>
                         }
-                    })}
+                        render_result=move || result.get().map(|r| {
+                            let elo_color = if r.elo_change >= 0 { "text-green-600" } else { "text-red-600" };
+                            let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
+
+                            view! {
+                                <div class="p-6 border rounded">
+                                    <div class="flex items-center gap-2 text-lg mb-2">
+                                        {if r.is_correct {
+                                            view! {
+                                                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <span>"Correct"</span>
+                                            }.into_any()
+                                        } else {
+                                            view! {
+                                                <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                <span>"Incorrect"</span>
+                                            }.into_any()
+                                        }}
+                                    </div>
+                                    {(r.is_correct && r.topic_streak > 0).then(|| view! {
+                                        <div class="flex items-center gap-1 text-sm text-orange-600 mb-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            </svg>
+                                            {format!("{} correct in a row", r.topic_streak)}
+                                        </div>
+                                    })}
+                                    <div class="text-sm text-gray-600 mb-4">
+                                        {format!("{} → {}", r.elo_before, r.elo_after)}
+                                        <span class=format!("ml-2 font-medium {}", elo_color)>
+                                            {format!("({}{})", elo_prefix, r.elo_change)}
+                                        </span>
+                                    </div>
+                                    <button
+                                        class="w-full px-4 py-3 border hover:bg-gray-50 rounded"
+                                        on:click=move |_| load_problem()
+                                    >
+                                        "Next Problem"
+                                    </button>
+                                </div>
+                            }
+                        })
+                    />
                 </div>
             })}
 
