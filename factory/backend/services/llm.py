@@ -216,19 +216,19 @@ Target: {_DIFFICULTY_TARGETS.get(difficulty_level, _DIFFICULTY_TARGETS['medium']
 
 """ + r"""The script must start with:
 ```
-include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 ```
-which provides SymEngine.jl CAS and these helpers:
+which provides Symbolics.jl CAS and these helpers:
 
-AVAILABLE VIA ProblemUtils: All SymEngine functions (@vars, diff, expand, factor, subs,
-sin, cos, tan, exp, log, sqrt, abs, Basic, free_symbols),
+AVAILABLE VIA ProblemUtils: Symbolics.jl functions (@variables, diff, expand, simplify,
+substitute, solve, sin, cos, tan, exp, log, sqrt, abs, Num),
 Latexify (via tex() helper), JSON, and Random.
 
 HELPERS:
 - problem(; question, answer, difficulty, topic, solution, grading_mode, answer_type, calculator, image, time) -> Dict
   - question: LaTeX string
-  - answer: any Julia/SymEngine value (auto-converted to string)
+  - answer: any Julia/Symbolics value (auto-converted to string)
   - difficulty: Int or (lo, hi) tuple for random ELO
   - topic: "main/sub" e.g. "calculus/derivatives"
   - solution: step-by-step LaTeX (use steps() helper)
@@ -239,7 +239,12 @@ HELPERS:
 - emit(dict) — prints JSON line to stdout (JSONL)
 - run_batch(generate) — parses --count N from ARGS, calls generate() N times with emit()
 - steps(strings...) — joins with <br> for solution_latex
-- tex(expr) — converts SymEngine expression to LaTeX string via Latexify
+- tex(expr) — converts Symbolics expression to LaTeX string
+- diff(expr, x) — differentiate (wraps Symbolics Differential)
+- expand(expr) — expand expression
+- simplify(expr) — simplify expression
+- substitute(expr, x => val) — substitute values
+- solve(eq, x) — solve equation for variable (pass expr for expr=0, or use ~ for equations)
 - nonzero(lo, hi) — random int in [lo,hi] excluding 0
 - randint(lo, hi) — random int in [lo,hi] (inclusive)
 - choice(collection) — pick random element
@@ -247,23 +252,47 @@ HELPERS:
 - fmt_interval(left, right; left_open, right_open) — "open:1,closed:7" format
 - fmt_equation(lhs, rhs) — "lhs = rhs"
 - compress_svg(svg), decompress_svg(s) — SVG compression
+- SVG diagrams (also provided by ProblemUtils):
+  Pass rendered SVG to problem(..., image=render(d))
 
-KEY SYMENGINE.JL DIFFERENCES FROM SYMPY:
-- Declare symbols: @vars x y z  (not symbols('x y z'))
+  DiagramObj — geometry diagrams (math coords, y-up, auto-scaled):
+    d = DiagramObj(; width=300, height=250, padding=40)
+    line!(d, p1, p2; dashed=false)                     # line segment
+    polygon!(d, points; labels=nothing, fill=nothing)   # closed shape; labels vector matches points
+    circle!(d, center, radius; fill=nothing)            # fill e.g. "currentColor"
+    arc!(d, center, radius, start_deg, end_deg)         # circular arc
+    point!(d, x, y; label=nothing)                      # dot with optional label
+    angle_arc!(d, vertex, p1, p2; label=nothing)        # arc marking angle at vertex
+    right_angle!(d, vertex, p1, p2)                     # right-angle square marker
+    segment_label!(d, p1, p2, text)                     # label at midpoint of segment
+    tick_marks!(d, p1, p2; count=1)                     # equal-length tick marks on segment
+    text!(d, x, y, text)                                # free text label
+    svg = render(d)
+
+  GraphObj — function plots on a coordinate grid:
+    g = GraphObj(; x_range=(-5, 5), y_range=(-5, 5), width=300, height=300)
+    plot!(g, symbolics_expr; color=nothing, dashed=false)  # plot Symbolics expr in x
+    point!(g, x, y; label=nothing)                         # labeled point
+    vline!(g, x; dashed=true)                              # vertical line (e.g. asymptote)
+    hline!(g, y; dashed=true)                              # horizontal line
+    svg = render(g)
+
+KEY SYMBOLICS.JL DIFFERENCES FROM SYMPY:
+- Declare symbols: @variables x y z  (not symbols('x y z'))
 - LaTeX: tex(expr)  (not latex(expr))
-- Rational: Basic(a) // Basic(b)  (not Rational(a, b))
-- SymEngine has limited simplify; use expand() instead
-- solve(expr, x) returns a vector
-- No Matrix type; use Vector{Vector} for matrices
+- Rational: use Julia's //  (e.g. 1//3)
+- Equations use ~  (e.g. x^2 ~ 1), not Eq()
+- solve(eq, x) wraps Symbolics.solve_for
 - No FiniteSet; use Set([...]) for sets
+- No Matrix type; use Vector{Vector} for matrices
 
 EXAMPLE 1 (expression answer):
 ```
-include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 
 function generate()
-    @vars x
+    @variables x
     n = randint(2, 7)
     coeff = nonzero(-12, 12)
     expr = coeff * x^n
@@ -285,7 +314,7 @@ run_batch(generate)
 
 EXAMPLE 2 (numeric answer):
 ```
-include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 
 function generate()
@@ -305,25 +334,26 @@ run_batch(generate)
 
 EXAMPLE 3 (factored form):
 ```
-include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 
 function generate()
-    @vars x
+    @variables x
     a = choice([1, 2, 3, 4])
     b = choice([1, 2, 3, 4])
     r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
-    expr = expand((a*x - r1) * (b*x - r2))
-    ans = factor(expr)
+    # Build factored form first, then expand for the question
+    factored = (a*x - r1) * (b*x - r2)
+    expr = expand(factored)
     return problem(
         question="Factor \$$(tex(expr))\$",
-        answer=ans,
+        answer=factored,
         difficulty=(1200, 1400),
         topic="algebra1/factoring",
         grading_mode="factor",
         solution=steps(
             "Use the AC method or factor by grouping",
-            "\$$(tex(ans))\$",
+            "\$$(tex(factored))\$",
         ),
     )
 end

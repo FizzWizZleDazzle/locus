@@ -23,28 +23,15 @@ cd "$FACTORY_DIR/frontend"
 if [ -f "factory.ts" ]; then
     echo "[*] Compiling TypeScript..."
 
-    # Try npx tsc first (local install)
-    if command -v npx &> /dev/null; then
-        if npx -y typescript@latest --version &> /dev/null; then
-            npx -y typescript@latest --project tsconfig.json
-            echo "[OK] TypeScript compiled"
-        else
-            echo "[WARN] npx typescript not available, trying global tsc..."
-            if command -v tsc &> /dev/null; then
-                tsc --project tsconfig.json
-                echo "[OK] TypeScript compiled"
-            else
-                echo "[ERROR] TypeScript not found. Install with: npm install -g typescript"
-                exit 1
-            fi
-        fi
-    # Try global tsc
-    elif command -v tsc &> /dev/null; then
+    if command -v tsc &> /dev/null; then
         tsc --project tsconfig.json
+        echo "[OK] TypeScript compiled"
+    elif command -v npx &> /dev/null; then
+        echo "[*] Using npx to compile TypeScript..."
+        npx -y tsc --project tsconfig.json
         echo "[OK] TypeScript compiled"
     else
         echo "[ERROR] TypeScript not found. Install with: npm install -g typescript"
-        echo "[INFO] Or use npx: npx -y typescript@latest"
         exit 1
     fi
 fi
@@ -70,8 +57,10 @@ if [ ! -f ".env" ]; then
 fi
 
 # Julia setup (optional — only Python scripts will work without it)
+# Julia project now lives inside the scripts submodule
+JULIA_DIR="$FACTORY_DIR/backend/scripts/julia"
+
 if command -v julia &> /dev/null; then
-    JULIA_DIR="$FACTORY_DIR/julia"
     if [ ! -f "$JULIA_DIR/Manifest.toml" ]; then
         echo "[*] Installing Julia dependencies (~1 min, one-time)..."
         julia --project="$JULIA_DIR" -e 'using Pkg; Pkg.instantiate()'
@@ -79,9 +68,31 @@ if command -v julia &> /dev/null; then
     fi
     SYSIMAGE="$JULIA_DIR/sysimage.so"
     if [ ! -f "$SYSIMAGE" ] || [ "$JULIA_DIR/Project.toml" -nt "$SYSIMAGE" ]; then
-        echo "[*] Building Julia sysimage (~2 min, one-time)..."
-        julia --project="$JULIA_DIR" "$JULIA_DIR/build/build_sysimage.jl"
-        echo "[OK] Julia sysimage built"
+        # Try downloading pre-built sysimage from GitHub Releases
+        if command -v gh &> /dev/null; then
+            echo "[*] Trying to download pre-built Julia sysimage..."
+            if gh release download sysimage-latest \
+                --repo FizzWizZleDazzle/locus-scripts \
+                -p 'sysimage.so' \
+                -D "$JULIA_DIR" \
+                --clobber 2>/dev/null; then
+                echo "[OK] Downloaded pre-built sysimage"
+            else
+                echo "[INFO] No pre-built sysimage available, building locally..."
+            fi
+        fi
+
+        # Build locally if download failed or unavailable
+        if [ ! -f "$SYSIMAGE" ] || [ "$JULIA_DIR/Project.toml" -nt "$SYSIMAGE" ]; then
+            echo "[*] Installing build dependencies..."
+            julia --project="$JULIA_DIR/build" -e 'using Pkg; Pkg.instantiate()'
+            echo "[*] Building Julia sysimage (~2 min, one-time)..."
+            if julia --project="$JULIA_DIR/build" "$JULIA_DIR/build/build_sysimage.jl"; then
+                echo "[OK] Julia sysimage built"
+            else
+                echo "[WARN] Sysimage build failed — Julia scripts will still work (slower startup)"
+            fi
+        fi
     fi
 else
     echo "[WARN] Julia not installed — only Python scripts will work"
@@ -106,7 +117,11 @@ echo "[OK] Backend ready"
 # Start TypeScript watch (recompile on change)
 cd "$FACTORY_DIR/frontend"
 echo "[*] Starting TypeScript watcher..."
-npx -y typescript@latest --project tsconfig.json --watch --preserveWatchOutput > /tmp/locus_tsc.log 2>&1 &
+if command -v tsc &> /dev/null; then
+    tsc --project tsconfig.json --watch --preserveWatchOutput > /tmp/locus_tsc.log 2>&1 &
+else
+    npx -y tsc --project tsconfig.json --watch --preserveWatchOutput > /tmp/locus_tsc.log 2>&1 &
+fi
 TSC_PID=$!
 
 # Start frontend HTTP server

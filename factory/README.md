@@ -6,11 +6,6 @@ LLM-powered problem generation pipeline. Generates Julia or Python scripts that 
 
 ```
 factory/
-  julia/                      Julia project (SymEngine.jl CAS)
-    Project.toml              Dependencies (SymEngine, Latexify, JSON)
-    src/ProblemUtils.jl       Shared utilities for Julia scripts
-    build/                    PackageCompiler sysimage build
-    sysimage.so               Precompiled sysimage (gitignored)
   backend/                    FastAPI app (port 9090)
     main.py                   Entry point, route registration
     config.py                 LLM + Locus backend configuration
@@ -20,7 +15,14 @@ factory/
       script_routes.py        Script generation, saving, testing, execution
       problem_routes.py       Problem staging, approval, export
     services/                 LLM client, script runner, problem staging
-    scripts/src/              Generated problem scripts (Python + Julia)
+    scripts/                  Git submodule → locus-scripts repo
+      src/                    324+ generated problem scripts (Python + Julia)
+      python/                 Python utilities (problem_utils.py, svg_utils.py)
+      julia/                  Julia project (Symbolics.jl CAS, SvgUtils.jl)
+        Project.toml          Runtime deps (Symbolics, Latexify, JSON, Random)
+        src/ProblemUtils.jl   Shared utilities + SvgUtils for Julia scripts
+        build/                PackageCompiler sysimage build
+      run.sh                  Standalone runner for scripts repo
   frontend/                   TypeScript UI (port 9091)
     index.html                Entry point
     factory.ts                Main TypeScript source
@@ -46,14 +48,14 @@ cp backend/.env.example backend/.env
 ./start.sh
 ```
 
-`start.sh` creates a Python venv, installs dependencies, compiles TypeScript, sets up Julia (installs deps + builds sysimage), starts the FastAPI backend (uvicorn with hot reload) and an HTTP server for the frontend.
+`start.sh` creates a Python venv, installs dependencies, compiles TypeScript, sets up Julia (installs deps + downloads or builds sysimage), starts the FastAPI backend (uvicorn with hot reload) and an HTTP server for the frontend.
 
 ### Prerequisites
 
 - **Python 3** — required for backend and Python scripts
 - **Julia** — optional but recommended for Julia scripts (faster generation)
   - Install from https://julialang.org/downloads/
-  - On first run, `start.sh` auto-installs Julia packages and builds a sysimage (~2 min)
+  - On first run, `start.sh` tries to download a pre-built sysimage from GitHub Releases, falling back to a local build (~2 min)
 
 ### Environment Variables
 
@@ -64,6 +66,7 @@ cp backend/.env.example backend/.env
 | `LLM_MODEL` | Model name (e.g. `gpt-4`, `claude-sonnet-4-5-20250929`) |
 | `LOCUS_BACKEND_URL` | Main backend URL (default: `http://localhost:3000`) |
 | `LOCUS_API_KEY` | Must match `API_KEY_SECRET` in the main backend |
+| `SCRIPTS_REPO_PATH` | Override scripts repo location (default: `backend/scripts`) |
 
 ## Dual-Language Support
 
@@ -71,7 +74,7 @@ Scripts can be written in **Julia** (default for new scripts) or **Python**. Bot
 
 ### Why Julia?
 
-1. **SymEngine.jl** — same CAS engine as the Rust grader (consistent behavior)
+1. **Symbolics.jl** — full-featured native Julia CAS (simplify, solve, factor)
 2. **Batch execution** — one Julia process generates N problems (amortizes JIT startup)
 3. **Math-native syntax** — LLMs generate cleaner math code in Julia
 
@@ -79,22 +82,22 @@ Scripts can be written in **Julia** (default for new scripts) or **Python**. Bot
 
 | Language | Execution | Per 100 problems |
 |---|---|---|
-| Python | `python3 script.py` × 100 (one process per problem) | 100 subprocess spawns |
+| Python | `python3 script.py` x 100 (one process per problem) | 100 subprocess spawns |
 | Julia | `julia script.jl --count 100` (one process, JSONL output) | 1 subprocess spawn |
 
-The Julia sysimage (built by `start.sh`) reduces startup from ~3s to ~0.3s.
+The Julia sysimage (built or downloaded by `start.sh`) reduces startup from ~3s to ~0.3s.
 
 ### Julia Script API (ProblemUtils.jl)
 
 Scripts begin with:
 ```julia
-include(joinpath(@__DIR__, "..", "..", "..", "julia", "src", "ProblemUtils.jl"))
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 ```
 
 **Available:**
-- `@vars x y z` — declare SymEngine symbols
-- `diff(expr, x)`, `expand(expr)`, `factor(expr)`, `subs(expr, x => val)` — CAS
+- `@variables x y z` — declare symbolic variables
+- `diff(expr, x)`, `expand(expr)`, `simplify(expr)`, `substitute(expr, x => val)`, `solve(eq, x)` — CAS
 - `tex(expr)` — LaTeX output via Latexify.jl
 - `problem(; question, answer, difficulty, topic, solution, ...)` — build problem dict
 - `emit(dict)` — print one JSON line to stdout
@@ -102,19 +105,23 @@ using .ProblemUtils
 - `steps(s1, s2, ...)`, `nonzero(lo, hi)`, `randint(lo, hi)`, `choice(v)`
 - `fmt_set`, `fmt_tuple`, `fmt_list`, `fmt_matrix`, `fmt_interval`, `fmt_equation`
 - `compress_svg(svg)`, `decompress_svg(s)`
+- `DiagramObj`, `GraphObj` — SVG builders (see scripts repo README)
 
-### SymPy → SymEngine.jl Cheat Sheet
+### SymPy -> Symbolics.jl Cheat Sheet
 
-| Python (SymPy) | Julia (SymEngine.jl) |
+| Python (SymPy) | Julia (Symbolics.jl) |
 |---|---|
-| `symbols('x y')` | `@vars x y` |
+| `symbols('x y')` | `@variables x y` |
 | `latex(expr)` | `tex(expr)` |
-| `Rational(a, b)` | `Basic(a) // Basic(b)` |
-| `simplify(expr)` | `expand(expr)` (limited simplify in SymEngine) |
-| `solve(eq, x)` | `SymEngine.solve(eq, x)` (returns vector) |
+| `Rational(a, b)` | `a // b` (Julia built-in) |
+| `simplify(expr)` | `simplify(expr)` |
+| `solve(eq, x)` | `solve(eq, x)` (provided by ProblemUtils) |
+| `Eq(lhs, rhs)` | `lhs ~ rhs` |
+| `subs(expr, {x: 2})` | `substitute(expr, x => 2)` |
 | `randint(lo, hi)` | `randint(lo, hi)` (provided by ProblemUtils) |
 | `choice([a,b])` | `choice([a,b])` (provided by ProblemUtils) |
 | `emit(generate())` | `run_batch(generate)` (handles --count N) |
+| `Diagram()` / `Graph()` | `DiagramObj()` / `GraphObj()` |
 
 ## Workflow
 

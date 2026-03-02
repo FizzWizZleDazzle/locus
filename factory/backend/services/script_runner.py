@@ -9,18 +9,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Scripts repo root — problem_utils.py and svg_utils.py live here
-_SCRIPTS_ROOT = str(Path(__file__).resolve().parent.parent / "scripts")
+from config import SCRIPTS_PYTHON_DIR, JULIA_PROJECT
+
+# Python utils dir — problem_utils.py and svg_utils.py live here
+_SCRIPTS_PYTHON_DIR = str(SCRIPTS_PYTHON_DIR)
 
 # Julia project root
-_JULIA_PROJECT = str(Path(__file__).resolve().parent.parent.parent / "julia")
+_JULIA_PROJECT = str(JULIA_PROJECT)
 _JULIA_SYSIMAGE = os.path.join(_JULIA_PROJECT, "sysimage.so")
 
 
 def _script_env() -> dict:
     """Env for script subprocesses: adds factory backend to PYTHONPATH."""
     env = os.environ.copy()
-    env["PYTHONPATH"] = _SCRIPTS_ROOT + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = _SCRIPTS_PYTHON_DIR + os.pathsep + env.get("PYTHONPATH", "")
     return env
 
 
