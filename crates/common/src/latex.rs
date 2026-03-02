@@ -88,15 +88,21 @@ pub fn convert_latex_to_plain(input: &str) -> String {
     result = result.replace("\\cdot", "*");
     result = result.replace("\\times", "*");
 
-    // Comparison operators
+    // Comparison operators (longer forms first to avoid partial matches)
+    result = result.replace("\\leq", "<=");
+    result = result.replace("\\geq", ">=");
+    result = result.replace("\\neq", "!=");
     result = result.replace("\\le", "<=");
     result = result.replace("\\ge", ">=");
     result = result.replace("\\ne", "!=");
+    result = result.replace("\\lt", "<");
+    result = result.replace("\\gt", ">");
 
     // Greek/special symbols
     result = result.replace("\\pi", "pi");
     result = result.replace("\\theta", "theta");
     result = result.replace("\\infty", "oo");
+    result = result.replace("\\inf", "oo"); // MathQuill sometimes outputs \inf instead of \infty
 
     // Handle exponents with braces: x^{2} -> x^(2), e^{x+1} -> e^(x+1)
     while let Some(exp_start) = result.find("^{") {
@@ -456,5 +462,123 @@ mod tests {
         assert_eq!(convert_latex_to_plain("\\left(1, 7\\right]"), "(1, 7]");
         assert_eq!(convert_latex_to_plain("\\left[-2, 4\\right)"), "[-2, 4)");
         assert_eq!(convert_latex_to_plain("\\left[0, \\infty\\right)"), "[0, oo)");
+    }
+
+    // === MathQuill \inf vs \infty ===
+
+    #[test]
+    fn test_inf_shorthand() {
+        // MathQuill outputs \inf instead of \infty
+        assert_eq!(convert_latex_to_plain("\\inf"), "oo");
+        assert_eq!(convert_latex_to_plain("-\\inf"), "-oo");
+        assert_eq!(convert_latex_to_plain("\\infty"), "oo");
+        assert_eq!(convert_latex_to_plain("-\\infty"), "-oo");
+    }
+
+    #[test]
+    fn test_interval_with_inf_shorthand() {
+        // Real MathQuill output for interval with infinity
+        assert_eq!(
+            convert_latex_to_plain("\\left(-\\inf ,6\\right]"),
+            "(-oo ,6]"
+        );
+        assert_eq!(
+            convert_latex_to_plain("\\left(3,\\inf\\right)"),
+            "(3,oo)"
+        );
+        assert_eq!(
+            convert_latex_to_plain("\\left[-5,\\inf\\right)"),
+            "[-5,oo)"
+        );
+        assert_eq!(
+            convert_latex_to_plain("\\left(-\\inf ,\\inf\\right)"),
+            "(-oo ,oo)"
+        );
+    }
+
+    // === Full MathQuill interval template pipeline ===
+
+    #[test]
+    fn test_interval_template_empty() {
+        // Initial template emission: \left( ,\right)
+        assert_eq!(convert_latex_to_plain("\\left( ,\\right)"), "( ,)");
+    }
+
+    #[test]
+    fn test_interval_template_with_values() {
+        assert_eq!(
+            convert_latex_to_plain("\\left(1,7\\right)"),
+            "(1,7)"
+        );
+        assert_eq!(
+            convert_latex_to_plain("\\left(-3,5\\right]"),
+            "(-3,5]"
+        );
+    }
+
+    #[test]
+    fn test_interval_with_expressions() {
+        assert_eq!(
+            convert_latex_to_plain("\\left(\\frac{1}{2},\\frac{3}{4}\\right)"),
+            "((1)/(2),(3)/(4))"
+        );
+        assert_eq!(
+            convert_latex_to_plain("\\left(-\\sqrt{2},\\sqrt{2}\\right)"),
+            "(-sqrt(2),sqrt(2))"
+        );
+    }
+
+    // === Set template ===
+
+    #[test]
+    fn test_set_template() {
+        assert_eq!(convert_latex_to_plain("\\left\\{1, 2, 3\\right\\}"), "{1, 2, 3}");
+        assert_eq!(convert_latex_to_plain("\\left\\{ \\right\\}"), "{ }");
+    }
+
+    // === Tuple/List templates ===
+
+    #[test]
+    fn test_tuple_template() {
+        assert_eq!(convert_latex_to_plain("\\left(3, -4\\right)"), "(3, -4)");
+        assert_eq!(convert_latex_to_plain("\\left( ,\\right)"), "( ,)");
+    }
+
+    #[test]
+    fn test_list_template() {
+        assert_eq!(convert_latex_to_plain("\\left[1, 2, 3\\right]"), "[1, 2, 3]");
+        assert_eq!(convert_latex_to_plain("\\left[ ,\\right]"), "[ ,]");
+    }
+
+    // === Equation template ===
+
+    #[test]
+    fn test_equation_with_equals() {
+        assert_eq!(convert_latex_to_plain("y=2x+3"), "y=2*x+3");
+        assert_eq!(convert_latex_to_plain("x^{2}+y^{2}=1"), "x^(2)+y^(2)=1");
+    }
+
+    // === Inequality with comparison operators ===
+
+    #[test]
+    fn test_inequality_le_ge() {
+        assert_eq!(convert_latex_to_plain("x\\le5"), "x<=5");
+        assert_eq!(convert_latex_to_plain("x\\ge-3"), "x>=-3");
+    }
+
+    #[test]
+    fn test_inequality_lt_gt() {
+        assert_eq!(convert_latex_to_plain("x\\lt5"), "x<5");
+        assert_eq!(convert_latex_to_plain("x\\gt-3"), "x>-3");
+    }
+
+    // === Matrix template ===
+
+    #[test]
+    fn test_matrix_with_fractions() {
+        assert_eq!(
+            convert_latex_to_plain("\\begin{pmatrix}\\frac{1}{2}&0\\\\0&\\frac{3}{4}\\end{pmatrix}"),
+            "[[(1)/(2),0],[0,(3)/(4)]]"
+        );
     }
 }
