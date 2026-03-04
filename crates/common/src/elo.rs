@@ -231,4 +231,113 @@ mod tests {
             mult
         );
     }
+
+    // ====================================================================
+    // Edge-case tests
+    // ====================================================================
+
+    #[test]
+    fn test_extreme_mismatch_win() {
+        // Very weak player (500) beats very strong problem (2500)
+        let change = calculate_elo_change(500, 2500, true, None, None);
+        // Expected score ≈ 0, so gain ≈ K
+        assert!(change >= 31, "Expected near-max gain, got {}", change);
+    }
+
+    #[test]
+    fn test_extreme_mismatch_loss() {
+        // Very strong player (2500) loses to very easy problem (500)
+        let change = calculate_elo_change(2500, 500, false, None, None);
+        // Expected score ≈ 1, so loss ≈ -K
+        assert!(change <= -31, "Expected near-max loss, got {}", change);
+    }
+
+    #[test]
+    fn test_very_low_elo() {
+        // Both at 100 — should behave like equal match
+        let new = calculate_new_elo(100, 100, true, None, None);
+        assert!(new > 100, "Expected gain at low ELO, got {}", new);
+
+        let new_loss = calculate_new_elo(100, 100, false, None, None);
+        assert!(new_loss < 100, "Expected loss at low ELO, got {}", new_loss);
+    }
+
+    #[test]
+    fn test_very_high_elo() {
+        // Both at 3000 — should behave like equal match
+        let new = calculate_new_elo(3000, 3000, true, None, None);
+        assert!(new > 3000, "Expected gain at high ELO, got {}", new);
+
+        let new_loss = calculate_new_elo(3000, 3000, false, None, None);
+        assert!(
+            new_loss < 3000,
+            "Expected loss at high ELO, got {}",
+            new_loss
+        );
+    }
+
+    #[test]
+    fn test_equal_elo_symmetric() {
+        // Equal ratings: |win_delta| == |loss_delta|
+        let win_delta = calculate_elo_change(1500, 1500, true, None, None);
+        let loss_delta = calculate_elo_change(1500, 1500, false, None, None);
+        assert_eq!(
+            win_delta.abs(),
+            loss_delta.abs(),
+            "Equal ELO changes should be symmetric: win={}, loss={}",
+            win_delta,
+            loss_delta
+        );
+    }
+
+    #[test]
+    fn test_calculate_elo_change_matches_new_elo() {
+        let player = 1400;
+        let problem = 1600;
+        let delta = calculate_elo_change(player, problem, true, Some(20_000), None);
+        let new = calculate_new_elo(player, problem, true, Some(20_000), None);
+        assert_eq!(delta, new - player);
+    }
+
+    #[test]
+    fn test_time_boundary_half_ratio() {
+        // ratio exactly 0.5 → 1.5x (boundary of max bonus)
+        // difficulty 1000 → expected 30_000ms, so 15_000ms = ratio 0.5
+        let mult = time_multiplier(15_000, 1000, None);
+        assert!(
+            (mult - 1.5).abs() < f64::EPSILON,
+            "Ratio 0.5 should give exactly 1.5x, got {}",
+            mult
+        );
+    }
+
+    #[test]
+    fn test_time_boundary_full_ratio() {
+        // ratio exactly 1.0 → 1.0x (boundary of no bonus)
+        let mult = time_multiplier(30_000, 1000, None);
+        assert!(
+            (mult - 1.0).abs() < f64::EPSILON,
+            "Ratio 1.0 should give exactly 1.0x, got {}",
+            mult
+        );
+    }
+
+    #[test]
+    fn test_zero_time_ms() {
+        // 0ms → ratio 0.0, clamped to max bonus 1.5x
+        let mult = time_multiplier(0, 1000, None);
+        assert!(
+            (mult - 1.5).abs() < f64::EPSILON,
+            "Zero time should give 1.5x, got {}",
+            mult
+        );
+    }
+
+    #[test]
+    fn test_no_time_data_no_multiplier() {
+        // No time data → k_factor stays at K_FACTOR (1.0x baseline)
+        let with_no_time = calculate_new_elo(1500, 1500, true, None, None);
+        // Manually compute: expected = 0.5, actual = 1.0, change = 32 * 0.5 = 16
+        assert_eq!(with_no_time, 1516, "No time data → base K gain");
+    }
 }
