@@ -603,8 +603,27 @@ fn build_callback_html_success(
         .unwrap()
 }
 
+/// Escape a string for safe embedding in both JS string literals and HTML body text.
+/// Prevents XSS via `</script>` injection, entity injection, and JS string breakout.
+fn escape_for_js_and_html(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 16);
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\\' => out.push_str("\\\\"),
+            '/' => out.push_str("\\/"),
+            '\n' | '\r' => out.push(' '),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
 fn build_callback_html_error(error: &str, frontend_origin: &str) -> Response {
-    let escaped = error.replace('\\', "\\\\").replace('"', "\\\"");
+    let escaped = escape_for_js_and_html(error);
     let origin_js = serde_json::to_string(frontend_origin).unwrap();
 
     let html = format!(
@@ -621,7 +640,7 @@ fn build_callback_html_error(error: &str, frontend_origin: &str) -> Response {
 </script>
 <p>Sign-in failed: {}. This window should close automatically.</p>
 </body></html>"#,
-        escaped, origin_js, error
+        escaped, origin_js, escaped
     );
 
     Response::builder()
