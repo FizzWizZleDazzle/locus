@@ -20,14 +20,17 @@ pub async fn create_problem(
 
     // Validate topic/subtopic against database-driven topic cache
     let topics = state.topic_cache.get_enabled().await;
-    let topic = topics.iter().find(|t| t.id == req.main_topic).ok_or_else(|| {
-        let valid: Vec<&str> = topics.iter().map(|t| t.id.as_str()).collect();
-        AppError::BadRequest(format!(
-            "Invalid main_topic '{}'. Valid topics: {}",
-            req.main_topic,
-            valid.join(", ")
-        ))
-    })?;
+    let topic = topics
+        .iter()
+        .find(|t| t.id == req.main_topic)
+        .ok_or_else(|| {
+            let valid: Vec<&str> = topics.iter().map(|t| t.id.as_str()).collect();
+            AppError::BadRequest(format!(
+                "Invalid main_topic '{}'. Valid topics: {}",
+                req.main_topic,
+                valid.join(", ")
+            ))
+        })?;
 
     if !topic.subtopics.iter().any(|s| s.id == req.subtopic) {
         let valid: Vec<&str> = topic.subtopics.iter().map(|s| s.id.as_str()).collect();

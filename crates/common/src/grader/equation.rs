@@ -57,8 +57,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     #[test]
     fn test_exact_match() {
@@ -73,7 +73,10 @@ mod tests {
 
     #[test]
     fn test_no_equals() {
-        assert!(matches!(grade::<NumExpr>("3", "1 = 1"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>("3", "1 = 1"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     #[test]
@@ -83,8 +86,8 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_simple_equation() {

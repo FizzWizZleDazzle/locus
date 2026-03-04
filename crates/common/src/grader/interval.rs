@@ -209,26 +209,40 @@ fn parse_json_interval(s: &str) -> Result<Interval, String> {
     match (has_neg_inf, has_pos_inf) {
         (true, false) => {
             // (-inf, val] or (-inf, val)
-            let right = finite_bounds.into_iter().next()
+            let right = finite_bounds
+                .into_iter()
+                .next()
                 .ok_or_else(|| format!("No finite bound with neg_inf in: {{{}}}", s))?;
             Ok(Interval {
-                left: Bound { kind: BoundType::Open, value: "-inf".to_string() },
+                left: Bound {
+                    kind: BoundType::Open,
+                    value: "-inf".to_string(),
+                },
                 right,
             })
         }
         (false, true) => {
             // (val, inf) or [val, inf)
-            let left = finite_bounds.into_iter().next()
+            let left = finite_bounds
+                .into_iter()
+                .next()
                 .ok_or_else(|| format!("No finite bound with pos_inf in: {{{}}}", s))?;
             Ok(Interval {
                 left,
-                right: Bound { kind: BoundType::Open, value: "inf".to_string() },
+                right: Bound {
+                    kind: BoundType::Open,
+                    value: "inf".to_string(),
+                },
             })
         }
         (false, false) => {
             // Two finite bounds: first = left, second = right
             if finite_bounds.len() != 2 {
-                return Err(format!("Expected 2 finite bounds, got {} in: {{{}}}", finite_bounds.len(), s));
+                return Err(format!(
+                    "Expected 2 finite bounds, got {} in: {{{}}}",
+                    finite_bounds.len(),
+                    s
+                ));
             }
             let mut it = finite_bounds.into_iter();
             Ok(Interval {
@@ -236,12 +250,16 @@ fn parse_json_interval(s: &str) -> Result<Interval, String> {
                 right: it.next().unwrap(),
             })
         }
-        (true, true) => {
-            Ok(Interval {
-                left: Bound { kind: BoundType::Open, value: "-inf".to_string() },
-                right: Bound { kind: BoundType::Open, value: "inf".to_string() },
-            })
-        }
+        (true, true) => Ok(Interval {
+            left: Bound {
+                kind: BoundType::Open,
+                value: "-inf".to_string(),
+            },
+            right: Bound {
+                kind: BoundType::Open,
+                value: "inf".to_string(),
+            },
+        }),
     }
 }
 
@@ -407,8 +425,8 @@ fn grade_with_json_key<E: ExprEngine>(user_input: &str, answer_key: &str) -> Gra
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     // ── Basic correct cases ──
 
@@ -501,51 +519,60 @@ mod tests {
     #[test]
     fn test_empty_input() {
         let r = grade::<NumExpr>("", "open:1,closed:7");
-        assert_eq!(r, GradeResult::Invalid("Could not parse interval notation".into()));
+        assert_eq!(
+            r,
+            GradeResult::Invalid("Could not parse interval notation".into())
+        );
     }
 
     #[test]
     fn test_no_comma() {
         let r = grade::<NumExpr>("(1 7)", "open:1,closed:7");
-        assert_eq!(r, GradeResult::Invalid("Could not parse interval notation".into()));
+        assert_eq!(
+            r,
+            GradeResult::Invalid("Could not parse interval notation".into())
+        );
     }
 
     #[test]
     fn test_empty_bounds() {
         // This is what the MathField template produces initially: ( ,)
         let r = grade::<NumExpr>("( ,)", "open:1,closed:7");
-        assert_eq!(r, GradeResult::Invalid("Could not parse interval notation".into()));
+        assert_eq!(
+            r,
+            GradeResult::Invalid("Could not parse interval notation".into())
+        );
     }
 
     #[test]
     fn test_one_empty_bound() {
         let r = grade::<NumExpr>("(1, )", "open:1,closed:7");
-        assert_eq!(r, GradeResult::Invalid("Could not parse interval notation".into()));
+        assert_eq!(
+            r,
+            GradeResult::Invalid("Could not parse interval notation".into())
+        );
     }
 
     #[test]
     fn test_missing_delimiters() {
         let r = grade::<NumExpr>("1, 7", "open:1,closed:7");
-        assert_eq!(r, GradeResult::Invalid("Could not parse interval notation".into()));
+        assert_eq!(
+            r,
+            GradeResult::Invalid("Could not parse interval notation".into())
+        );
     }
 
     // ── Union intervals ──
 
     #[test]
     fn test_union_correct() {
-        let r = grade::<NumExpr>(
-            "(-inf, 0] U (2, inf)",
-            "open:-inf,closed:0|open:2,open:inf",
-        );
+        let r = grade::<NumExpr>("(-inf, 0] U (2, inf)", "open:-inf,closed:0|open:2,open:inf");
         assert_eq!(r, GradeResult::Correct);
     }
 
     #[test]
     fn test_union_wrong_component_count() {
-        let r = grade::<NumExpr>(
-            "(-inf, inf)",
-            "open:-inf,closed:0|open:2,open:inf",
-        );
+        let r = grade::<NumExpr>("(-inf, inf)", "open:-inf,closed:0|open:2,open:inf");
         assert_eq!(r, GradeResult::Incorrect);
     }
 
@@ -721,50 +748,74 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_basic_interval() {
-            assert_eq!(grade::<Expr>("(1, 7]", "open:1,closed:7"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("(1, 7]", "open:1,closed:7"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_equivalent_expressions_as_bounds() {
             // 2+1 == 3, so (0, 2+1] should match (0, 3]
-            assert_eq!(grade::<Expr>("(0, 2+1]", "open:0,closed:3"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("(0, 2+1]", "open:0,closed:3"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_fraction_bounds() {
-            assert_eq!(grade::<Expr>("(1/2, 3/4)", "open:1/2,open:3/4"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("(1/2, 3/4)", "open:1/2,open:3/4"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_inf_bounds_symengine() {
-            assert_eq!(grade::<Expr>("(-oo, 6]", "open:-inf,closed:6"), GradeResult::Correct);
-            assert_eq!(grade::<Expr>("(3, oo)", "open:3,open:inf"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("(-oo, 6]", "open:-inf,closed:6"),
+                GradeResult::Correct
+            );
+            assert_eq!(
+                grade::<Expr>("(3, oo)", "open:3,open:inf"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_pipeline_inf_latex_to_grade() {
             let latex = "\\left(-\\inf ,6\\right]";
             let plain = convert_latex_to_plain(latex);
-            assert_eq!(grade::<Expr>(&plain, "open:-inf,closed:6"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>(&plain, "open:-inf,closed:6"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_pipeline_infty_latex_to_grade() {
             let latex = "\\left(-\\infty,6\\right]";
             let plain = convert_latex_to_plain(latex);
-            assert_eq!(grade::<Expr>(&plain, "open:-inf,closed:6"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>(&plain, "open:-inf,closed:6"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_pipeline_mixed_bracket_inf() {
             let latex = "\\left[0,\\inf\\right)";
             let plain = convert_latex_to_plain(latex);
-            assert_eq!(grade::<Expr>(&plain, "closed:0,open:inf"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>(&plain, "closed:0,open:inf"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
@@ -777,12 +828,18 @@ mod tests {
 
         #[test]
         fn test_negative_bounds() {
-            assert_eq!(grade::<Expr>("(-5, -1]", "open:-5,closed:-1"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("(-5, -1]", "open:-5,closed:-1"),
+                GradeResult::Correct
+            );
         }
 
         #[test]
         fn test_wrong_value_symengine() {
-            assert_eq!(grade::<Expr>("(1, 8]", "open:1,closed:7"), GradeResult::Incorrect);
+            assert_eq!(
+                grade::<Expr>("(1, 8]", "open:1,closed:7"),
+                GradeResult::Incorrect
+            );
         }
 
         #[test]

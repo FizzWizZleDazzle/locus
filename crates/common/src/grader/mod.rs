@@ -287,7 +287,10 @@ mod tests {
 
     impl MockExpr {
         fn with_symbol(value: Option<f64>) -> Self {
-            Self { value, has_symbol: true }
+            Self {
+                value,
+                has_symbol: true,
+            }
         }
     }
 

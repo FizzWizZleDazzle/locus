@@ -95,7 +95,13 @@ pub async fn register(
 pub async fn login(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
-) -> Result<(AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<AuthResponse>), AppError> {
+) -> Result<
+    (
+        AppendHeaders<[(axum::http::HeaderName, String); 1]>,
+        Json<AuthResponse>,
+    ),
+    AppError,
+> {
     // Find user by email
     let user = User::find_by_email(&state.pool, &req.email)
         .await?
@@ -527,7 +533,10 @@ pub async fn change_username(
 /// Logout — clears the auth cookie
 pub async fn logout(
     State(state): State<AppState>,
-) -> (AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<SuccessResponse>) {
+) -> (
+    AppendHeaders<[(axum::http::HeaderName, String); 1]>,
+    Json<SuccessResponse>,
+) {
     let cookie = build_clear_cookie(state.is_production);
     (
         AppendHeaders([(SET_COOKIE, cookie)]),
@@ -543,7 +552,13 @@ pub async fn delete_account(
     State(state): State<AppState>,
     auth_user: AuthUser,
     Json(req): Json<DeleteAccountRequest>,
-) -> Result<(AppendHeaders<[(axum::http::HeaderName, String); 1]>, Json<SuccessResponse>), AppError> {
+) -> Result<
+    (
+        AppendHeaders<[(axum::http::HeaderName, String); 1]>,
+        Json<SuccessResponse>,
+    ),
+    AppError,
+> {
     let user = User::find_by_id(&state.pool, auth_user.id)
         .await?
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;

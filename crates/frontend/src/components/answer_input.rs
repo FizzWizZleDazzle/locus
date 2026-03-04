@@ -135,7 +135,11 @@ fn BooleanInput(
                 return;
             }
             set_selected.set(Some(val));
-            set_value.set(if val { "true".to_string() } else { "false".to_string() });
+            set_value.set(if val {
+                "true".to_string()
+            } else {
+                "false".to_string()
+            });
         }
     };
 
@@ -143,9 +147,15 @@ fn BooleanInput(
         let base = "flex-1 px-4 py-3 text-lg font-medium rounded border transition-colors";
         let is_selected = selected.get() == Some(val);
         if is_selected {
-            format!("{} bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100", base)
+            format!(
+                "{} bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100",
+                base
+            )
         } else {
-            format!("{} bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700", base)
+            format!(
+                "{} bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700",
+                base
+            )
         }
     };
 
@@ -267,13 +277,11 @@ fn IntervalInput(
                 let mq_interface = super::math_field::get_mq_interface();
                 if !mq_interface.is_undefined() {
                     if let Ok(mq_fn) = mq_interface.dyn_ref::<js_sys::Function>().ok_or(()) {
-                        if let Ok(mq_instance) =
-                            mq_fn.call1(&wasm_bindgen::JsValue::NULL, &mq_span)
+                        if let Ok(mq_instance) = mq_fn.call1(&wasm_bindgen::JsValue::NULL, &mq_span)
                         {
                             // Get current LaTeX
-                            let latex_fn =
-                                js_sys::Reflect::get(&mq_instance, &"latex".into())
-                                    .unwrap_or_default();
+                            let latex_fn = js_sys::Reflect::get(&mq_instance, &"latex".into())
+                                .unwrap_or_default();
                             if let Ok(func) = latex_fn.dyn_into::<js_sys::Function>() {
                                 if let Ok(result) = func.call0(&mq_instance) {
                                     let current = result.as_string().unwrap_or_default();
@@ -383,8 +391,7 @@ fn InequalityInput(
                 let mq_interface = super::math_field::get_mq_interface();
                 if !mq_interface.is_undefined() {
                     if let Ok(mq_fn) = mq_interface.dyn_ref::<js_sys::Function>().ok_or(()) {
-                        if let Ok(mq_instance) =
-                            mq_fn.call1(&wasm_bindgen::JsValue::NULL, &mq_span)
+                        if let Ok(mq_instance) = mq_fn.call1(&wasm_bindgen::JsValue::NULL, &mq_span)
                         {
                             // .write(latex) inserts LaTeX at cursor
                             let write_fn = js_sys::Reflect::get(&mq_instance, &"write".into())
@@ -456,10 +463,7 @@ fn InequalityInput(
 
 /// Generate a MathQuill LaTeX template for an NxM matrix.
 fn matrix_template(rows: u32, cols: u32) -> String {
-    let row: String = (0..cols)
-        .map(|_| " ")
-        .collect::<Vec<_>>()
-        .join("& ");
+    let row: String = (0..cols).map(|_| " ").collect::<Vec<_>>().join("& ");
     let rows_str: String = (0..rows)
         .map(|_| row.as_str())
         .collect::<Vec<_>>()

@@ -179,10 +179,7 @@ impl User {
     }
 
     /// Update the global daily streak for a user (call only on correct answer)
-    pub async fn update_daily_streak(
-        pool: &PgPool,
-        user_id: Uuid,
-    ) -> Result<(), sqlx::Error> {
+    pub async fn update_daily_streak(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
             UPDATE users SET
@@ -310,12 +307,11 @@ impl User {
     pub async fn to_profile(&self, pool: &PgPool) -> Result<UserProfile, sqlx::Error> {
         let elos = Self::get_all_elos(pool, self.id).await?;
         let oauth_providers = Self::get_oauth_providers(pool, self.id).await?;
-        let streak_row: (i32,) = sqlx::query_as(
-            "SELECT COALESCE(current_streak, 0) FROM users WHERE id = $1",
-        )
-        .bind(self.id)
-        .fetch_one(pool)
-        .await?;
+        let streak_row: (i32,) =
+            sqlx::query_as("SELECT COALESCE(current_streak, 0) FROM users WHERE id = $1")
+                .bind(self.id)
+                .fetch_one(pool)
+                .await?;
 
         Ok(UserProfile {
             id: self.id,

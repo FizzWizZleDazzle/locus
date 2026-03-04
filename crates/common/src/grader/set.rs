@@ -70,17 +70,23 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     #[test]
     fn test_same_order() {
-        assert_eq!(grade::<NumExpr>("{1, 2, 3}", "1, 2, 3"), GradeResult::Correct);
+        assert_eq!(
+            grade::<NumExpr>("{1, 2, 3}", "1, 2, 3"),
+            GradeResult::Correct
+        );
     }
 
     #[test]
     fn test_different_order() {
-        assert_eq!(grade::<NumExpr>("{3, 1, 2}", "1, 2, 3"), GradeResult::Correct);
+        assert_eq!(
+            grade::<NumExpr>("{3, 1, 2}", "1, 2, 3"),
+            GradeResult::Correct
+        );
     }
 
     #[test]
@@ -90,22 +96,34 @@ mod tests {
 
     #[test]
     fn test_wrong_element() {
-        assert_eq!(grade::<NumExpr>("{1, 2, 4}", "1, 2, 3"), GradeResult::Incorrect);
+        assert_eq!(
+            grade::<NumExpr>("{1, 2, 4}", "1, 2, 3"),
+            GradeResult::Incorrect
+        );
     }
 
     #[test]
     fn test_wrong_count() {
-        assert_eq!(grade::<NumExpr>("{1, 2}", "1, 2, 3"), GradeResult::Incorrect);
+        assert_eq!(
+            grade::<NumExpr>("{1, 2}", "1, 2, 3"),
+            GradeResult::Incorrect
+        );
     }
 
     #[test]
     fn test_unparseable_element() {
-        assert!(matches!(grade::<NumExpr>("{1, abc, 3}", "1, 2, 3"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>("{1, abc, 3}", "1, 2, 3"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     #[test]
     fn test_negative_elements() {
-        assert_eq!(grade::<NumExpr>("{-1, -2, -3}", "-3, -2, -1"), GradeResult::Correct);
+        assert_eq!(
+            grade::<NumExpr>("{-1, -2, -3}", "-3, -2, -1"),
+            GradeResult::Correct
+        );
     }
 
     #[test]
@@ -118,8 +136,8 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_basic_set() {
@@ -139,7 +157,10 @@ mod tests {
 
         #[test]
         fn test_wrong_element() {
-            assert_eq!(grade::<Expr>("{1, 2, 4}", "1, 2, 3"), GradeResult::Incorrect);
+            assert_eq!(
+                grade::<Expr>("{1, 2, 4}", "1, 2, 3"),
+                GradeResult::Incorrect
+            );
         }
 
         #[test]

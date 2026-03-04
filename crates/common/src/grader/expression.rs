@@ -43,8 +43,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str, mode: GradingMod
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::symengine::Expr;
     use crate::latex::convert_latex_to_plain;
+    use crate::symengine::Expr;
 
     #[test]
     fn test_equivalent_expression() {

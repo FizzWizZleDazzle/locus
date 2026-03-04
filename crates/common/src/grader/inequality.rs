@@ -188,8 +188,8 @@ fn interval_key_to_user_notation(key: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     // ── Parser unit tests ──
 
@@ -231,7 +231,10 @@ mod tests {
 
     #[test]
     fn test_wrong_operator() {
-        assert_eq!(grade::<NumExpr>("x >= -4", "x > -4"), GradeResult::Incorrect);
+        assert_eq!(
+            grade::<NumExpr>("x >= -4", "x > -4"),
+            GradeResult::Incorrect
+        );
     }
 
     #[test]
@@ -241,12 +244,18 @@ mod tests {
 
     #[test]
     fn test_compound_correct() {
-        assert_eq!(grade::<NumExpr>("-2 < x <= 5", "-2 < x <= 5"), GradeResult::Correct);
+        assert_eq!(
+            grade::<NumExpr>("-2 < x <= 5", "-2 < x <= 5"),
+            GradeResult::Correct
+        );
     }
 
     #[test]
     fn test_invalid_input() {
-        assert!(matches!(grade::<NumExpr>("hello", "x > 0"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>("hello", "x > 0"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     // ── Pipeline tests ──
@@ -269,8 +278,8 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_simple_inequality() {
@@ -284,7 +293,10 @@ mod tests {
 
         #[test]
         fn test_compound() {
-            assert_eq!(grade::<Expr>("-2 < x <= 5", "-2 < x <= 5"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("-2 < x <= 5", "-2 < x <= 5"),
+                GradeResult::Correct
+            );
         }
 
         #[test]

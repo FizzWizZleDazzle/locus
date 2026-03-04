@@ -179,7 +179,7 @@ pub fn Whiteboard(
     // event listeners, and the crosshair cursor that would otherwise persist.
     on_cleanup(move || {
         let _ = js_sys::eval(
-            "(function() { if (window.__wb_canvas) { window.__wb_canvas.dispose(); window.__wb_canvas = null; } })()"
+            "(function() { if (window.__wb_canvas) { window.__wb_canvas.dispose(); window.__wb_canvas = null; } })()",
         );
     });
 
@@ -199,10 +199,8 @@ pub fn Whiteboard(
         });
 
         if let Some(window) = web_sys::window() {
-            let _ = window.add_event_listener_with_callback(
-                "resize",
-                resize.as_ref().unchecked_ref(),
-            );
+            let _ =
+                window.add_event_listener_with_callback("resize", resize.as_ref().unchecked_ref());
         }
         resize.forget();
     });
@@ -214,10 +212,7 @@ pub fn Whiteboard(
             if prev != current_id && canvas_ready.get_untracked() {
                 let dark = is_dark.get_untracked();
                 let bg = if dark { "#030712" } else { "#f9fafb" };
-                wb_eval(&format!(
-                    "c.clear(); c.backgroundColor = '{}';",
-                    bg
-                ));
+                wb_eval(&format!("c.clear(); c.backgroundColor = '{}';", bg));
                 wb_redraw_grid(dark);
             }
         }
@@ -266,7 +261,8 @@ pub fn Whiteboard(
         let color = active_color.get_untracked();
         wb_eval(&format!(
             "c.freeDrawingBrush = new fabric.PencilBrush(c); c.freeDrawingBrush.color = '{}'; c.freeDrawingBrush.width = {}; c.isDrawingMode = true;",
-            color, brush_size.get_untracked()
+            color,
+            brush_size.get_untracked()
         ));
     };
 
@@ -281,7 +277,11 @@ pub fn Whiteboard(
     let on_eraser = move |_| {
         set_active_tool.set(Tool::Eraser);
         set_text_mode(false);
-        let eraser_color = if is_dark.get_untracked() { "#030712" } else { "#f9fafb" };
+        let eraser_color = if is_dark.get_untracked() {
+            "#030712"
+        } else {
+            "#f9fafb"
+        };
         wb_eval(&format!(
             "c.freeDrawingBrush = new fabric.PencilBrush(c); c.freeDrawingBrush.color = '{}'; c.freeDrawingBrush.width = 20; c.isDrawingMode = true;",
             eraser_color
@@ -292,10 +292,7 @@ pub fn Whiteboard(
     let on_clear = move |_| {
         let dark = is_dark.get_untracked();
         let bg = if dark { "#030712" } else { "#f9fafb" };
-        wb_eval(&format!(
-            "c.clear(); c.backgroundColor = '{}';",
-            bg
-        ));
+        wb_eval(&format!("c.clear(); c.backgroundColor = '{}';", bg));
         wb_redraw_grid(dark);
     };
 

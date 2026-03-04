@@ -78,8 +78,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     #[test]
     fn test_2x2_correct() {
@@ -123,8 +123,8 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_basic_matrix() {
@@ -144,18 +144,17 @@ mod tests {
 
         #[test]
         fn test_pipeline_matrix() {
-            let plain = convert_latex_to_plain(
-                "\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}",
-            );
+            let plain = convert_latex_to_plain("\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}");
             assert_eq!(grade::<Expr>(&plain, "[[1,2],[3,4]]"), GradeResult::Correct);
         }
 
         #[test]
         fn test_pipeline_matrix_with_negatives() {
-            let plain = convert_latex_to_plain(
-                "\\begin{pmatrix}-1&0\\\\0&-1\\end{pmatrix}",
+            let plain = convert_latex_to_plain("\\begin{pmatrix}-1&0\\\\0&-1\\end{pmatrix}");
+            assert_eq!(
+                grade::<Expr>(&plain, "[[-1,0],[0,-1]]"),
+                GradeResult::Correct
             );
-            assert_eq!(grade::<Expr>(&plain, "[[-1,0],[0,-1]]"), GradeResult::Correct);
         }
     }
 }

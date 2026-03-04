@@ -23,14 +23,18 @@ pub fn MathField(
     /// Write plain-text output on every edit
     set_plain: WriteSignal<String>,
     /// Called on Enter key
-    #[prop(optional)] on_submit: Option<Callback<()>>,
+    #[prop(optional)]
+    on_submit: Option<Callback<()>>,
     /// Initial LaTeX template (e.g., "\\left\\{ \\right\\}")
-    #[prop(default = String::new())] template: String,
+    #[prop(default = String::new())]
+    template: String,
     /// Key for forced remounting (problem ID)
-    #[prop(optional)] key: Option<String>,
+    #[prop(optional)]
+    key: Option<String>,
     #[prop(default = false)] disabled: bool,
     /// Optional restriction: returns false to reject the edit (reverts to previous LaTeX)
-    #[prop(optional)] restrict: Option<Callback<String, bool>>,
+    #[prop(optional)]
+    restrict: Option<Callback<String, bool>>,
 ) -> impl IntoView {
     let container_ref = NodeRef::<Div>::new();
     let initialized = StoredValue::new(false);
@@ -112,7 +116,8 @@ pub fn MathField(
         if let Some(on_submit_cb) = on_submit {
             let enter_closure = Closure::wrap(Box::new(move |_mq_field: wasm_bindgen::JsValue| {
                 on_submit_cb.run(());
-            }) as Box<dyn FnMut(wasm_bindgen::JsValue)>);
+            })
+                as Box<dyn FnMut(wasm_bindgen::JsValue)>);
             let _ = js_sys::Reflect::set(&handlers, &"enter".into(), enter_closure.as_ref());
             enter_closure.forget();
         }

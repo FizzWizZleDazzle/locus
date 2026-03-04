@@ -69,14 +69,10 @@ pub fn Draggable(
 
     // Attach global listeners
     if let Some(window) = web_sys::window() {
-        let _ = window.add_event_listener_with_callback(
-            "mousemove",
-            on_mousemove.as_ref().unchecked_ref(),
-        );
-        let _ = window.add_event_listener_with_callback(
-            "mouseup",
-            on_mouseup.as_ref().unchecked_ref(),
-        );
+        let _ = window
+            .add_event_listener_with_callback("mousemove", on_mousemove.as_ref().unchecked_ref());
+        let _ =
+            window.add_event_listener_with_callback("mouseup", on_mouseup.as_ref().unchecked_ref());
     }
     on_mousemove.forget();
     on_mouseup.forget();
@@ -91,8 +87,8 @@ pub fn Draggable(
         }
     };
 
-    let on_touchmove = Closure::<dyn FnMut(web_sys::TouchEvent)>::new(
-        move |ev: web_sys::TouchEvent| {
+    let on_touchmove =
+        Closure::<dyn FnMut(web_sys::TouchEvent)>::new(move |ev: web_sys::TouchEvent| {
             if !dragging.get_untracked() {
                 return;
             }
@@ -108,24 +104,18 @@ pub fn Draggable(
                 set_pos_x.set(new_x.max(0.0).min(vw - 100.0));
                 set_pos_y.set(new_y.max(0.0).min(vh - 60.0));
             }
-        },
-    );
+        });
 
-    let on_touchend = Closure::<dyn FnMut(web_sys::TouchEvent)>::new(
-        move |_: web_sys::TouchEvent| {
+    let on_touchend =
+        Closure::<dyn FnMut(web_sys::TouchEvent)>::new(move |_: web_sys::TouchEvent| {
             set_dragging.set(false);
-        },
-    );
+        });
 
     if let Some(window) = web_sys::window() {
-        let _ = window.add_event_listener_with_callback(
-            "touchmove",
-            on_touchmove.as_ref().unchecked_ref(),
-        );
-        let _ = window.add_event_listener_with_callback(
-            "touchend",
-            on_touchend.as_ref().unchecked_ref(),
-        );
+        let _ = window
+            .add_event_listener_with_callback("touchmove", on_touchmove.as_ref().unchecked_ref());
+        let _ = window
+            .add_event_listener_with_callback("touchend", on_touchend.as_ref().unchecked_ref());
     }
     on_touchmove.forget();
     on_touchend.forget();

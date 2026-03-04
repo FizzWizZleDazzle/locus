@@ -190,9 +190,8 @@ pub fn Practice() -> impl IntoView {
     };
 
     // Derive problem ID for whiteboard clearing
-    let problem_id_signal = Signal::derive(move || {
-        problem.get().map(|p| p.id.to_string()).unwrap_or_default()
-    });
+    let problem_id_signal =
+        Signal::derive(move || problem.get().map(|p| p.id.to_string()).unwrap_or_default());
 
     let wb_signal = Signal::derive(move || whiteboard_mode.get());
 

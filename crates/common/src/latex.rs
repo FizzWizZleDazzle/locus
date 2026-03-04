@@ -262,10 +262,8 @@ fn convert_matrix_envs(input: &str) -> String {
                 let rows: Vec<String> = content
                     .split("\\\\")
                     .map(|row| {
-                        let cells: Vec<String> = row
-                            .split('&')
-                            .map(|cell| cell.trim().to_string())
-                            .collect();
+                        let cells: Vec<String> =
+                            row.split('&').map(|cell| cell.trim().to_string()).collect();
                         format!("[{}]", cells.join(","))
                     })
                     .collect();
@@ -397,10 +395,7 @@ mod tests {
     fn test_escaped_braces() {
         // MathQuill outputs \{ and \} for sets
         assert_eq!(convert_latex_to_plain("\\{1, 2, 3\\}"), "{1, 2, 3}");
-        assert_eq!(
-            convert_latex_to_plain("\\left\\{1, 2\\right\\}"),
-            "{1, 2}"
-        );
+        assert_eq!(convert_latex_to_plain("\\left\\{1, 2\\right\\}"), "{1, 2}");
     }
 
     #[test]
@@ -461,7 +456,10 @@ mod tests {
         // MathQuill outputs \left( and \right] etc., after \left/\right removal:
         assert_eq!(convert_latex_to_plain("\\left(1, 7\\right]"), "(1, 7]");
         assert_eq!(convert_latex_to_plain("\\left[-2, 4\\right)"), "[-2, 4)");
-        assert_eq!(convert_latex_to_plain("\\left[0, \\infty\\right)"), "[0, oo)");
+        assert_eq!(
+            convert_latex_to_plain("\\left[0, \\infty\\right)"),
+            "[0, oo)"
+        );
     }
 
     // === MathQuill \inf vs \infty ===
@@ -482,14 +480,8 @@ mod tests {
             convert_latex_to_plain("\\left(-\\inf ,6\\right]"),
             "(-oo ,6]"
         );
-        assert_eq!(
-            convert_latex_to_plain("\\left(3,\\inf\\right)"),
-            "(3,oo)"
-        );
-        assert_eq!(
-            convert_latex_to_plain("\\left[-5,\\inf\\right)"),
-            "[-5,oo)"
-        );
+        assert_eq!(convert_latex_to_plain("\\left(3,\\inf\\right)"), "(3,oo)");
+        assert_eq!(convert_latex_to_plain("\\left[-5,\\inf\\right)"), "[-5,oo)");
         assert_eq!(
             convert_latex_to_plain("\\left(-\\inf ,\\inf\\right)"),
             "(-oo ,oo)"
@@ -506,14 +498,8 @@ mod tests {
 
     #[test]
     fn test_interval_template_with_values() {
-        assert_eq!(
-            convert_latex_to_plain("\\left(1,7\\right)"),
-            "(1,7)"
-        );
-        assert_eq!(
-            convert_latex_to_plain("\\left(-3,5\\right]"),
-            "(-3,5]"
-        );
+        assert_eq!(convert_latex_to_plain("\\left(1,7\\right)"), "(1,7)");
+        assert_eq!(convert_latex_to_plain("\\left(-3,5\\right]"), "(-3,5]");
     }
 
     #[test]
@@ -532,7 +518,10 @@ mod tests {
 
     #[test]
     fn test_set_template() {
-        assert_eq!(convert_latex_to_plain("\\left\\{1, 2, 3\\right\\}"), "{1, 2, 3}");
+        assert_eq!(
+            convert_latex_to_plain("\\left\\{1, 2, 3\\right\\}"),
+            "{1, 2, 3}"
+        );
         assert_eq!(convert_latex_to_plain("\\left\\{ \\right\\}"), "{ }");
     }
 
@@ -546,7 +535,10 @@ mod tests {
 
     #[test]
     fn test_list_template() {
-        assert_eq!(convert_latex_to_plain("\\left[1, 2, 3\\right]"), "[1, 2, 3]");
+        assert_eq!(
+            convert_latex_to_plain("\\left[1, 2, 3\\right]"),
+            "[1, 2, 3]"
+        );
         assert_eq!(convert_latex_to_plain("\\left[ ,\\right]"), "[ ,]");
     }
 
@@ -577,7 +569,9 @@ mod tests {
     #[test]
     fn test_matrix_with_fractions() {
         assert_eq!(
-            convert_latex_to_plain("\\begin{pmatrix}\\frac{1}{2}&0\\\\0&\\frac{3}{4}\\end{pmatrix}"),
+            convert_latex_to_plain(
+                "\\begin{pmatrix}\\frac{1}{2}&0\\\\0&\\frac{3}{4}\\end{pmatrix}"
+            ),
             "[[(1)/(2),0],[0,(3)/(4)]]"
         );
     }

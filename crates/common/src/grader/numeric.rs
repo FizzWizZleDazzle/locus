@@ -22,8 +22,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     #[test]
     fn test_exact_match() {
@@ -47,7 +47,10 @@ mod tests {
 
     #[test]
     fn test_unparseable_input() {
-        assert!(matches!(grade::<NumExpr>("abc", "42"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>("abc", "42"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     #[test]
@@ -66,13 +69,16 @@ mod tests {
         let plain = convert_latex_to_plain("\\frac{1}{2}");
         // (1)/(2) = 0.5 — but NumExpr can't parse this, so it returns Invalid.
         // This is expected: the real SymEngine handles it.
-        assert!(matches!(grade::<NumExpr>(&plain, "0.5"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>(&plain, "0.5"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_integer() {

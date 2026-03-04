@@ -52,8 +52,8 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::test_utils::NumExpr;
+    use super::*;
 
     // ── Tuple tests ──
 
@@ -79,24 +79,36 @@ mod tests {
 
     #[test]
     fn test_tuple_wrong_count() {
-        assert_eq!(grade::<NumExpr>("(3, -4, 1)", "3, -4"), GradeResult::Incorrect);
+        assert_eq!(
+            grade::<NumExpr>("(3, -4, 1)", "3, -4"),
+            GradeResult::Incorrect
+        );
     }
 
     #[test]
     fn test_tuple_unparseable() {
-        assert!(matches!(grade::<NumExpr>("(abc, 3)", "3, -4"), GradeResult::Invalid(_)));
+        assert!(matches!(
+            grade::<NumExpr>("(abc, 3)", "3, -4"),
+            GradeResult::Invalid(_)
+        ));
     }
 
     // ── List tests ──
 
     #[test]
     fn test_list_correct() {
-        assert_eq!(grade::<NumExpr>("[1, 2, 3]", "[1, 2, 3]"), GradeResult::Correct);
+        assert_eq!(
+            grade::<NumExpr>("[1, 2, 3]", "[1, 2, 3]"),
+            GradeResult::Correct
+        );
     }
 
     #[test]
     fn test_list_wrong_order() {
-        assert_eq!(grade::<NumExpr>("[3, 2, 1]", "[1, 2, 3]"), GradeResult::Incorrect);
+        assert_eq!(
+            grade::<NumExpr>("[3, 2, 1]", "[1, 2, 3]"),
+            GradeResult::Incorrect
+        );
     }
 
     #[test]
@@ -117,8 +129,8 @@ mod tests {
 
     mod symengine_tests {
         use super::super::*;
-        use crate::symengine::Expr;
         use crate::latex::convert_latex_to_plain;
+        use crate::symengine::Expr;
 
         #[test]
         fn test_tuple() {
@@ -137,7 +149,10 @@ mod tests {
 
         #[test]
         fn test_list() {
-            assert_eq!(grade::<Expr>("[1, 2, 3]", "[1, 2, 3]"), GradeResult::Correct);
+            assert_eq!(
+                grade::<Expr>("[1, 2, 3]", "[1, 2, 3]"),
+                GradeResult::Correct
+            );
         }
 
         #[test]

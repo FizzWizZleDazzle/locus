@@ -1,12 +1,15 @@
 //! User stats endpoints
 
-use axum::{Json, extract::{Query, State}};
+use axum::{
+    Json,
+    extract::{Query, State},
+};
 use serde::Deserialize;
 
 use locus_common::{EloHistoryPoint, EloHistoryResponse, TopicStatsEntry, UserStatsResponse};
 
-use crate::{AppError, auth::AuthUser};
 use super::AppState;
+use crate::{AppError, auth::AuthUser};
 
 pub async fn get_user_stats(
     State(state): State<AppState>,
@@ -36,17 +39,19 @@ pub async fn get_user_stats(
 
     let topics = topic_rows
         .into_iter()
-        .map(|(topic, total, correct, elo, peak_elo, topic_streak, peak_topic_streak)| {
-            TopicStatsEntry {
-                topic,
-                total,
-                correct,
-                elo,
-                peak_elo,
-                topic_streak,
-                peak_topic_streak,
-            }
-        })
+        .map(
+            |(topic, total, correct, elo, peak_elo, topic_streak, peak_topic_streak)| {
+                TopicStatsEntry {
+                    topic,
+                    total,
+                    correct,
+                    elo,
+                    peak_elo,
+                    topic_streak,
+                    peak_topic_streak,
+                }
+            },
+        )
         .collect();
 
     // Global stats
