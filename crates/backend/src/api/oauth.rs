@@ -2,7 +2,7 @@
 
 use axum::{
     extract::{Path, Query, State},
-    response::{Html, Response},
+    response::Response,
 };
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
@@ -86,7 +86,7 @@ pub struct CallbackParams {
 pub async fn oauth_redirect(
     State(state): State<AppState>,
     Path(provider): Path<String>,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
     let url = match provider.as_str() {
         "google" => google_auth_url(state, None).await?,
         "github" => github_auth_url(state, None).await?,
@@ -98,10 +98,15 @@ pub async fn oauth_redirect(
         }
     };
     // Use client-side redirect so dev proxies don't follow the redirect server-side
-    Ok(Html(format!(
+    let html = format!(
         r#"<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={url}"></head><body><script>window.location.href="{url}";</script></body></html>"#,
         url = url
-    )))
+    );
+    Ok(Response::builder()
+        .header("Content-Type", "text/html")
+        .header("Content-Security-Policy", oauth_csp_header())
+        .body(axum::body::Body::from(html))
+        .unwrap())
 }
 
 /// OAuth redirect for linking (requires authentication via cookie)
@@ -109,7 +114,7 @@ pub async fn oauth_redirect_link(
     State(state): State<AppState>,
     Path(provider): Path<String>,
     headers: axum::http::HeaderMap,
-) -> Result<Html<String>, AppError> {
+) -> Result<Response, AppError> {
     // Extract token from cookie
     let cookie_header = headers
         .get(axum::http::header::COOKIE)
@@ -133,10 +138,15 @@ pub async fn oauth_redirect_link(
             )));
         }
     };
-    Ok(Html(format!(
+    let html = format!(
         r#"<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={url}"></head><body><script>window.location.href="{url}";</script></body></html>"#,
         url = url
-    )))
+    );
+    Ok(Response::builder()
+        .header("Content-Type", "text/html")
+        .header("Content-Security-Policy", oauth_csp_header())
+        .body(axum::body::Body::from(html))
+        .unwrap())
 }
 
 pub async fn oauth_callback(
@@ -567,6 +577,10 @@ async fn generate_unique_username(
 // Callback HTML (postMessage to opener)
 // ============================================================================
 
+fn oauth_csp_header() -> &'static str {
+    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'"
+}
+
 fn build_callback_html_success(
     token: &str,
     profile: &locus_common::UserProfile,
@@ -598,6 +612,7 @@ fn build_callback_html_success(
 
     Response::builder()
         .header("Content-Type", "text/html")
+        .header("Content-Security-Policy", oauth_csp_header())
         .header("Set-Cookie", cookie)
         .body(axum::body::Body::from(html))
         .unwrap()
@@ -645,6 +660,7 @@ fn build_callback_html_error(error: &str, frontend_origin: &str) -> Response {
 
     Response::builder()
         .header("Content-Type", "text/html")
+        .header("Content-Security-Policy", oauth_csp_header())
         .body(axum::body::Body::from(html))
         .unwrap()
 }
