@@ -2,6 +2,7 @@
 
 use crate::components::{LatexRenderer, Timer};
 use crate::katex_bindings::render_plain_math_to_string;
+use crate::utils::escape_html;
 use leptos::prelude::*;
 use locus_common::ProblemResponse;
 
@@ -42,7 +43,7 @@ pub fn ProblemCard(
             {show_answer.map(|answer| {
                 // Convert plain math notation to rendered LaTeX
                 let rendered = render_plain_math_to_string(&answer)
-                    .unwrap_or_else(|_| format!("<code>{}</code>", answer));
+                    .unwrap_or_else(|_| format!("<code>{}</code>", escape_html(&answer)));
 
                 view! {
                     <div class="mt-4 pt-4 border-t">

@@ -1,6 +1,21 @@
 //! Utility functions
 
 use serde::Serialize;
+
+/// Escape a string for safe embedding in HTML content.
+pub fn escape_html(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 16);
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
 use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
 

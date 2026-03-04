@@ -10,7 +10,7 @@ use crate::{
     formatters::format_answer_for_display,
     grader::{GradeResult, check_answer, preprocess_input},
     problem_queue::ProblemQueue,
-    utils::{push_url_playing, setup_popstate_listener, update_url},
+    utils::{escape_html, push_url_playing, setup_popstate_listener, update_url},
 };
 
 // format_answer_for_display moved to crate::formatters module
@@ -298,7 +298,7 @@ pub fn Practice() -> impl IntoView {
 
                             // Format answer based on its type
                             let rendered_answer = format_answer_for_display(&ans, answer_type)
-                                .unwrap_or_else(|_| format!("<code>{}</code>", ans));
+                                .unwrap_or_else(|_| format!("<code>{}</code>", escape_html(&ans)));
 
                             let solution = p.solution_latex.clone();
                             Some(view! {
