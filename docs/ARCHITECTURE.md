@@ -28,7 +28,7 @@ Shared between frontend and backend. Compiles to both WASM and native targets.
 | `src/grader/numeric.rs` | Numeric comparison |
 | `src/grader/set.rs` | Unordered element-wise comparison (strips `{}`) |
 | `src/grader/ordered.rs` | Tuple/List ordered comparison (strips `()`/`[]`) |
-| `src/grader/interval.rs` | Interval bound comparison. DB format: `open:1,closed:7`. User format: `(1, 7]`. Supports unions with `\|` |
+| `src/grader/interval.rs` | Interval bound comparison. DB format: `open:1,closed:7` or JSON `{interval:{open:1,closed:7}}`. User format: `(1, 7]`. Supports unions with `\|` or `union:` prefix |
 | `src/grader/inequality.rs` | Parses inequalities (`x > -4`, `-2 < x <= 5`), converts to interval, delegates to interval grader |
 | `src/grader/equation.rs` | Splits on `=`, checks LHS-RHS difference equivalence and proportionality |
 | `src/grader/boolean.rs` | True/false parsing (accepts `true`, `yes`, `t`, `1`, etc.) |
@@ -58,7 +58,7 @@ Leptos 0.7 CSR app. Compiles to `wasm32-unknown-unknown`.
 | `src/utils.rs` | Utility functions |
 | `src/components/mod.rs` | Component re-exports |
 | `src/components/math_field.rs` | MathQuill wrapper: creates MQ.MathField, edit/enter handlers, template pre-seeding, restriction support |
-| `src/components/answer_input.rs` | Per-AnswerType dispatcher: templates (Set/Tuple/List/Equation), restrictions (Numeric), affordances (Interval brackets, Inequality palette, Matrix +row/+col, MultiPart stacked fields) |
+| `src/components/answer_input.rs` | Per-AnswerType dispatcher: templates (Set/Tuple/List/Equation), restrictions (Numeric), affordances (Interval bracket toggles, Inequality palette, Matrix +/-row/col with dynamic template, Boolean True/False toggle, MultiPart stacked fields) |
 | `src/components/latex_renderer.rs` | KaTeX LaTeX renderer component |
 | `src/components/navbar.rs` | Top navigation bar |
 | `src/components/sidebar.rs` | Side navigation |
@@ -135,7 +135,7 @@ factory/
 | `set` | `set.rs` | `{a, b, c}` - unordered, unique |
 | `tuple` | `ordered.rs` | `(a, b)` - ordered |
 | `list` | `ordered.rs` | `[a, b]` - ordered |
-| `interval` | `interval.rs` | `(1, 7]`, unions with `U` |
+| `interval` | `interval.rs` | `(1, 7]`, unions with `U`. Also parses factory JSON format `{interval:{...}}` |
 | `inequality` | `inequality.rs` | `x > -4`, `-2 < x <= 5` |
 | `equation` | `equation.rs` | `LHS = RHS` |
 | `boolean` | `boolean.rs` | true/false |

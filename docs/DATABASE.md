@@ -232,3 +232,5 @@ idx_password_reset_sends_user_time  ON password_reset_sends(user_id, sent_at DES
 | 014 | granular_subtopics | Replace subtopics with 89 granular ones, add differential_equations topic |
 | 015 | delete_orphaned | Delete problems with orphaned subtopics |
 | 016 | streaks_and_peak_elo | current_streak + last_active_date on users, topic_streak + peak columns on user_topic_elo |
+| 017 | normalize_email | Lowercase all emails |
+| 018 | fix_answer_key_formats | Fix set Python list notation, delete broken list-of-Matrix problems |

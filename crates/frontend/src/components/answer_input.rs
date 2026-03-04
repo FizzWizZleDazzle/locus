@@ -21,9 +21,14 @@ pub fn AnswerInput(
     let k = key.unwrap_or_default();
 
     match answer_type {
-        // Boolean/Word — plain text input, no MathQuill
-        AnswerType::Boolean | AnswerType::Word => {
-            view! { <PlainTextInput value set_value on_submit=submit_cb key=k disabled answer_type /> }
+        // Boolean — toggle buttons
+        AnswerType::Boolean => {
+            view! { <BooleanInput set_value on_submit=submit_cb key=k disabled /> }.into_any()
+        }
+
+        // Word — plain text input
+        AnswerType::Word => {
+            view! { <PlainTextInput value set_value on_submit=submit_cb key=k disabled /> }
                 .into_any()
         }
 
@@ -37,7 +42,7 @@ pub fn AnswerInput(
             view! { <InequalityInput set_value on_submit=submit_cb key=k disabled /> }.into_any()
         }
 
-        // Matrix — MathField + add row/col buttons
+        // Matrix — MathField + add/remove row/col buttons
         AnswerType::Matrix => {
             view! { <MatrixInput set_value on_submit=submit_cb key=k disabled /> }.into_any()
         }
@@ -55,11 +60,11 @@ pub fn AnswerInput(
         // Expression, Set, Tuple, List, Equation — template-only variants
         _ => {
             let template = match answer_type {
-                AnswerType::Set => "\\left\\{ \\right\\}",
-                AnswerType::Tuple => "\\left( ,\\right)",
-                AnswerType::List => "\\left[ ,\\right]",
-                AnswerType::Equation => "=",
-                _ => "", // Expression
+                AnswerType::Set => "\\left\\{ \\right\\}".to_string(),
+                AnswerType::Tuple => "\\left( ,\\right)".to_string(),
+                AnswerType::List => "\\left[ ,\\right]".to_string(),
+                AnswerType::Equation => "=".to_string(),
+                _ => String::new(), // Expression
             };
 
             view! {
@@ -77,7 +82,7 @@ pub fn AnswerInput(
 }
 
 // ============================================================================
-// Plain text input (Boolean / Word)
+// Plain text input (Word)
 // ============================================================================
 
 #[component]
@@ -87,19 +92,12 @@ fn PlainTextInput(
     on_submit: Callback<()>,
     #[prop(optional)] key: Option<String>,
     #[prop(default = false)] disabled: bool,
-    answer_type: AnswerType,
 ) -> impl IntoView {
-    let placeholder = match answer_type {
-        AnswerType::Boolean => "true or false",
-        AnswerType::Word => "Type your answer",
-        _ => "Your answer",
-    };
-
     view! {
         <input
             type="text"
-            class="w-full px-4 py-3 border border-gray-300 rounded text-lg focus:border-gray-900 focus:outline-none"
-            placeholder=placeholder
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded text-lg focus:border-gray-900 dark:focus:border-gray-300 focus:outline-none bg-white dark:bg-gray-800 dark:text-gray-100"
+            placeholder="Type your answer"
             prop:value=move || value.get()
             prop:disabled=disabled
             data-key=key.unwrap_or_default()
@@ -114,6 +112,62 @@ fn PlainTextInput(
                 }
             }
         />
+    }
+}
+
+// ============================================================================
+// Boolean — True / False toggle buttons
+// ============================================================================
+
+#[component]
+fn BooleanInput(
+    set_value: WriteSignal<String>,
+    on_submit: Callback<()>,
+    #[prop(optional)] key: Option<String>,
+    #[prop(default = false)] disabled: bool,
+) -> impl IntoView {
+    let (selected, set_selected) = signal(Option::<bool>::None);
+    let _ = (on_submit, key);
+
+    let make_handler = move |val: bool| {
+        move |_| {
+            if disabled {
+                return;
+            }
+            set_selected.set(Some(val));
+            set_value.set(if val { "true".to_string() } else { "false".to_string() });
+        }
+    };
+
+    let btn_class = move |val: bool| {
+        let base = "flex-1 px-4 py-3 text-lg font-medium rounded border transition-colors";
+        let is_selected = selected.get() == Some(val);
+        if is_selected {
+            format!("{} bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100", base)
+        } else {
+            format!("{} bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700", base)
+        }
+    };
+
+    view! {
+        <div class="flex gap-3">
+            <button
+                type="button"
+                class=move || btn_class(true)
+                prop:disabled=disabled
+                on:click=make_handler(true)
+            >
+                "True"
+            </button>
+            <button
+                type="button"
+                class=move || btn_class(false)
+                prop:disabled=disabled
+                on:click=make_handler(false)
+            >
+                "False"
+            </button>
+        </div>
     }
 }
 
@@ -165,8 +219,30 @@ fn NumericInput(
 }
 
 // ============================================================================
-// Interval — bracket toggle overlays
+// Interval — bracket toggle + MathField
 // ============================================================================
+
+/// Rewrite interval delimiters in LaTeX based on bracket toggles.
+fn rewrite_interval_delimiters(latex: &str, left_closed: bool, right_closed: bool) -> String {
+    let mut result = latex.to_string();
+    // Replace left delimiter
+    if left_closed {
+        result = result.replacen("\\left(", "\\left[", 1);
+    } else {
+        result = result.replacen("\\left[", "\\left(", 1);
+    }
+    // Replace right delimiter (last occurrence)
+    if right_closed {
+        if let Some(pos) = result.rfind("\\right)") {
+            result.replace_range(pos..pos + 7, "\\right]");
+        }
+    } else {
+        if let Some(pos) = result.rfind("\\right]") {
+            result.replace_range(pos..pos + 7, "\\right)");
+        }
+    }
+    result
+}
 
 #[component]
 fn IntervalInput(
@@ -175,14 +251,109 @@ fn IntervalInput(
     #[prop(optional)] key: Option<String>,
     #[prop(default = false)] disabled: bool,
 ) -> impl IntoView {
+    let container_ref = NodeRef::<Div>::new();
+    let (left_closed, set_left_closed) = signal(false);
+    let (right_closed, set_right_closed) = signal(false);
+
+    let update_delimiters = move |new_left: bool, new_right: bool| {
+        if let Some(container) = container_ref.get_untracked() {
+            let container_el: &web_sys::HtmlElement = &container;
+            if let Some(mq_span) = container_el
+                .query_selector(".mq-editable-field")
+                .ok()
+                .flatten()
+            {
+                let mq_span: web_sys::HtmlElement = mq_span.unchecked_into();
+                let mq_interface = super::math_field::get_mq_interface();
+                if !mq_interface.is_undefined() {
+                    if let Ok(mq_fn) = mq_interface.dyn_ref::<js_sys::Function>().ok_or(()) {
+                        if let Ok(mq_instance) =
+                            mq_fn.call1(&wasm_bindgen::JsValue::NULL, &mq_span)
+                        {
+                            // Get current LaTeX
+                            let latex_fn =
+                                js_sys::Reflect::get(&mq_instance, &"latex".into())
+                                    .unwrap_or_default();
+                            if let Ok(func) = latex_fn.dyn_into::<js_sys::Function>() {
+                                if let Ok(result) = func.call0(&mq_instance) {
+                                    let current = result.as_string().unwrap_or_default();
+                                    let updated =
+                                        rewrite_interval_delimiters(&current, new_left, new_right);
+                                    // Set updated LaTeX
+                                    let set_fn =
+                                        js_sys::Reflect::get(&mq_instance, &"latex".into())
+                                            .unwrap_or_default();
+                                    if let Ok(func) = set_fn.dyn_into::<js_sys::Function>() {
+                                        let _ = func.call1(
+                                            &mq_instance,
+                                            &wasm_bindgen::JsValue::from_str(&updated),
+                                        );
+                                    }
+                                    // Re-focus
+                                    let focus_fn =
+                                        js_sys::Reflect::get(&mq_instance, &"focus".into())
+                                            .unwrap_or_default();
+                                    if let Ok(func) = focus_fn.dyn_into::<js_sys::Function>() {
+                                        let _ = func.call0(&mq_instance);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    let toggle_left = move |_| {
+        let new_val = !left_closed.get_untracked();
+        set_left_closed.set(new_val);
+        update_delimiters(new_val, right_closed.get_untracked());
+    };
+
+    let toggle_right = move |_| {
+        let new_val = !right_closed.get_untracked();
+        set_right_closed.set(new_val);
+        update_delimiters(left_closed.get_untracked(), new_val);
+    };
+
+    let left_label = move || if left_closed.get() { "[" } else { "(" };
+    let right_label = move || if right_closed.get() { "]" } else { ")" };
+
+    let bracket_btn = "px-3 py-2 text-lg font-mono border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors select-none";
+
     view! {
-        <MathField
-            set_plain=set_value
-            on_submit=on_submit
-            template="\\left( ,\\right)"
-            key=key.unwrap_or_default()
-            disabled=disabled
-        />
+        <div node_ref=container_ref>
+            <div class="flex items-stretch gap-1">
+                <button
+                    type="button"
+                    class=bracket_btn
+                    prop:disabled=disabled
+                    on:click=toggle_left
+                    title="Toggle open/closed left bracket"
+                >
+                    {left_label}
+                </button>
+                <div class="flex-1">
+                    <MathField
+                        set_plain=set_value
+                        on_submit=on_submit
+                        template="\\left( ,\\right)".to_string()
+                        key=key.unwrap_or_default()
+                        disabled=disabled
+                    />
+                </div>
+                <button
+                    type="button"
+                    class=bracket_btn
+                    prop:disabled=disabled
+                    on:click=toggle_right
+                    title="Toggle open/closed right bracket"
+                >
+                    {right_label}
+                </button>
+            </div>
+        </div>
     }
 }
 
@@ -280,8 +451,21 @@ fn InequalityInput(
 }
 
 // ============================================================================
-// Matrix — template + add row/col
+// Matrix — template + add/remove row/col
 // ============================================================================
+
+/// Generate a MathQuill LaTeX template for an NxM matrix.
+fn matrix_template(rows: u32, cols: u32) -> String {
+    let row: String = (0..cols)
+        .map(|_| " ")
+        .collect::<Vec<_>>()
+        .join("& ");
+    let rows_str: String = (0..rows)
+        .map(|_| row.as_str())
+        .collect::<Vec<_>>()
+        .join("\\\\ ");
+    format!("\\begin{{pmatrix}} {} \\end{{pmatrix}}", rows_str)
+}
 
 #[component]
 fn MatrixInput(
@@ -307,11 +491,14 @@ fn MatrixInput(
         <div>
             {move || {
                 let k = field_key.get();
+                let r = rows.get();
+                let c = cols.get();
+                let tmpl = matrix_template(r, c);
                 view! {
                     <MathField
                         set_plain=set_value
                         on_submit=on_submit
-                        template="\\begin{pmatrix} & \\\\ & \\end{pmatrix}"
+                        template=tmpl
                         key=k
                         disabled=disabled
                     />
@@ -328,9 +515,23 @@ fn MatrixInput(
                 <button
                     type="button"
                     class="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                    on:click=move |_| set_rows.update(|r| if *r > 1 { *r -= 1 })
+                >
+                    "-Row"
+                </button>
+                <button
+                    type="button"
+                    class="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
                     on:click=move |_| set_cols.update(|c| *c += 1)
                 >
                     "+Col"
+                </button>
+                <button
+                    type="button"
+                    class="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                    on:click=move |_| set_cols.update(|c| if *c > 1 { *c -= 1 })
+                >
+                    "-Col"
                 </button>
                 <span class="text-xs text-gray-400 self-center">
                     {move || format!("{}x{}", rows.get(), cols.get())}

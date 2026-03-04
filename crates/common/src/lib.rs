@@ -344,7 +344,7 @@ impl AnswerType {
             Self::Boolean => Some("Answer: true or false"),
             Self::Word => Some("Type your answer as a word"),
             Self::Matrix => Some("Enter as [[row1], [row2]], e.g. [[1, 2], [3, 4]]"),
-            Self::MultiPart => Some("Separate parts with |||"),
+            Self::MultiPart => Some("Enter each part separately"),
         }
     }
 }

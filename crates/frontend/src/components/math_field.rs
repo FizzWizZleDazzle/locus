@@ -25,7 +25,7 @@ pub fn MathField(
     /// Called on Enter key
     #[prop(optional)] on_submit: Option<Callback<()>>,
     /// Initial LaTeX template (e.g., "\\left\\{ \\right\\}")
-    #[prop(default = "")] template: &'static str,
+    #[prop(default = String::new())] template: String,
     /// Key for forced remounting (problem ID)
     #[prop(optional)] key: Option<String>,
     #[prop(default = false)] disabled: bool,
@@ -129,10 +129,10 @@ pub fn MathField(
 
         // Pre-seed template
         if !template.is_empty() {
-            set_latex(&mq_instance, template);
-            *prev_latex.borrow_mut() = template.to_string();
+            set_latex(&mq_instance, &template);
+            *prev_latex.borrow_mut() = template.clone();
             // Also emit the initial plain text
-            let plain = convert_latex_to_plain(template);
+            let plain = convert_latex_to_plain(&template);
             set_plain.set(plain);
         }
 

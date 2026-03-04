@@ -172,7 +172,115 @@ fn intervals_equivalent<E: ExprEngine>(a: &Interval, b: &Interval) -> bool {
     bounds_equivalent::<E>(&a.left, &b.left) && bounds_equivalent::<E>(&a.right, &b.right)
 }
 
+/// Parse a single JSON-like interval: `{closed:3,neg_inf:true}` or `{open:4,pos_inf:true}`
+/// or `{open:1,closed:7}` (two finite bounds).
+///
+/// When `neg_inf:true` is present, the finite bound is the RIGHT bound.
+/// When `pos_inf:true` is present, the finite bound is the LEFT bound.
+/// When neither inf is present, first field = left, second = right.
+fn parse_json_interval(s: &str) -> Result<Interval, String> {
+    let s = s.trim().trim_start_matches('{').trim_end_matches('}');
+
+    let mut has_neg_inf = false;
+    let mut has_pos_inf = false;
+    let mut finite_bounds: Vec<Bound> = Vec::new();
+
+    for part in s.split(',') {
+        let part = part.trim();
+        if let Some((key, val)) = part.split_once(':') {
+            let key = key.trim();
+            let val = val.trim();
+            match key {
+                "neg_inf" if val == "true" => has_neg_inf = true,
+                "pos_inf" if val == "true" => has_pos_inf = true,
+                "open" => finite_bounds.push(Bound {
+                    kind: BoundType::Open,
+                    value: normalize_inf(val),
+                }),
+                "closed" => finite_bounds.push(Bound {
+                    kind: BoundType::Closed,
+                    value: normalize_inf(val),
+                }),
+                _ => {}
+            }
+        }
+    }
+
+    match (has_neg_inf, has_pos_inf) {
+        (true, false) => {
+            // (-inf, val] or (-inf, val)
+            let right = finite_bounds.into_iter().next()
+                .ok_or_else(|| format!("No finite bound with neg_inf in: {{{}}}", s))?;
+            Ok(Interval {
+                left: Bound { kind: BoundType::Open, value: "-inf".to_string() },
+                right,
+            })
+        }
+        (false, true) => {
+            // (val, inf) or [val, inf)
+            let left = finite_bounds.into_iter().next()
+                .ok_or_else(|| format!("No finite bound with pos_inf in: {{{}}}", s))?;
+            Ok(Interval {
+                left,
+                right: Bound { kind: BoundType::Open, value: "inf".to_string() },
+            })
+        }
+        (false, false) => {
+            // Two finite bounds: first = left, second = right
+            if finite_bounds.len() != 2 {
+                return Err(format!("Expected 2 finite bounds, got {} in: {{{}}}", finite_bounds.len(), s));
+            }
+            let mut it = finite_bounds.into_iter();
+            Ok(Interval {
+                left: it.next().unwrap(),
+                right: it.next().unwrap(),
+            })
+        }
+        (true, true) => {
+            Ok(Interval {
+                left: Bound { kind: BoundType::Open, value: "-inf".to_string() },
+                right: Bound { kind: BoundType::Open, value: "inf".to_string() },
+            })
+        }
+    }
+}
+
+/// Parse JSON-like union format from factory:
+/// `union:{interval:{closed:-3,neg_inf:true}},{interval:{closed:4,pos_inf:true}}`
+/// or single: `{interval:{open:1,closed:7}}`
+fn parse_json_key(answer_key: &str) -> Result<Vec<Interval>, String> {
+    let s = answer_key.trim().trim_start_matches("union:");
+    let mut intervals = Vec::new();
+
+    // Split on `},{interval:` boundary — but we need to handle nested braces carefully.
+    // Strategy: find all `{interval:{...}}` blocks
+    let mut remaining = s;
+    while let Some(start) = remaining.find("{interval:{") {
+        let inner_start = start + "{interval:".len();
+        // Find matching closing braces — we need to find `}}`
+        let after = &remaining[inner_start..];
+        if let Some(end) = after.find("}}") {
+            let interval_str = &after[..end + 1]; // include inner `}`
+            intervals.push(parse_json_interval(interval_str)?);
+            remaining = &remaining[inner_start + end + 2..];
+        } else {
+            return Err(format!("Unmatched braces in JSON interval: {}", answer_key));
+        }
+    }
+
+    if intervals.is_empty() {
+        return Err(format!("No intervals found in JSON format: {}", answer_key));
+    }
+
+    Ok(intervals)
+}
+
 pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
+    // Detect JSON-like interval format from factory
+    if answer_key.contains("{interval:") {
+        return grade_with_json_key::<E>(user_input, answer_key);
+    }
+
     // Split on | for answer key unions
     let key_parts: Vec<&str> = answer_key.split('|').collect();
 
@@ -223,6 +331,62 @@ pub fn grade<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
 
     // For unions, match each component (sorted comparison would be ideal,
     // but for simplicity do unordered bipartite matching)
+    let mut matched = vec![false; user_intervals.len()];
+    for ki in &key_intervals {
+        let mut found = false;
+        for (j, ui) in user_intervals.iter().enumerate() {
+            if !matched[j] && intervals_equivalent::<E>(ki, ui) {
+                matched[j] = true;
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            return GradeResult::Incorrect;
+        }
+    }
+
+    GradeResult::Correct
+}
+
+/// Grade against JSON-format answer key from factory.
+fn grade_with_json_key<E: ExprEngine>(user_input: &str, answer_key: &str) -> GradeResult {
+    let key_intervals = match parse_json_key(answer_key) {
+        Ok(v) => v,
+        Err(e) => return GradeResult::Error(format!("Invalid JSON interval answer key: {}", e)),
+    };
+
+    // Parse user input unions
+    let user_str = user_input.trim();
+    let user_parts: Vec<&str> = if user_str.contains(" U ") || user_str.contains(" union ") {
+        user_str
+            .split(" U ")
+            .flat_map(|s| s.split(" union "))
+            .collect()
+    } else {
+        vec![user_str]
+    };
+
+    if key_intervals.len() != user_parts.len() {
+        return GradeResult::Incorrect;
+    }
+
+    let user_intervals: Vec<Interval> = match user_parts
+        .iter()
+        .map(|s| parse_user_interval(s.trim()))
+        .collect::<Result<Vec<_>, _>>()
+    {
+        Ok(v) => v,
+        Err(_) => return GradeResult::Invalid("Could not parse interval notation".into()),
+    };
+
+    if key_intervals.len() == 1 {
+        if intervals_equivalent::<E>(&user_intervals[0], &key_intervals[0]) {
+            return GradeResult::Correct;
+        }
+        return GradeResult::Incorrect;
+    }
+
     let mut matched = vec![false; user_intervals.len()];
     for ki in &key_intervals {
         let mut found = false;
@@ -492,6 +656,65 @@ mod tests {
         // Should produce Invalid, not crash
         let r = grade::<NumExpr>(&plain, "open:1,closed:7");
         assert!(matches!(r, GradeResult::Invalid(_)));
+    }
+
+    // ── JSON format answer keys ──
+
+    #[test]
+    fn test_json_single_interval() {
+        let r = grade::<NumExpr>("(1, 7]", "{interval:{open:1,closed:7}}");
+        assert_eq!(r, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_json_single_wrong() {
+        let r = grade::<NumExpr>("(1, 8]", "{interval:{open:1,closed:7}}");
+        assert_eq!(r, GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_json_neg_inf() {
+        let r = grade::<NumExpr>("(-inf, 3]", "{interval:{closed:3,neg_inf:true}}");
+        assert_eq!(r, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_json_pos_inf() {
+        let r = grade::<NumExpr>("(4, inf)", "{interval:{open:4,pos_inf:true}}");
+        assert_eq!(r, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_json_union() {
+        let r = grade::<NumExpr>(
+            "(-inf, -3] U (4, inf)",
+            "union:{interval:{closed:-3,neg_inf:true}},{interval:{open:4,pos_inf:true}}",
+        );
+        assert_eq!(r, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_json_union_reversed_order() {
+        let r = grade::<NumExpr>(
+            "(4, inf) U (-inf, -3]",
+            "union:{interval:{closed:-3,neg_inf:true}},{interval:{open:4,pos_inf:true}}",
+        );
+        assert_eq!(r, GradeResult::Correct);
+    }
+
+    #[test]
+    fn test_json_union_wrong_count() {
+        let r = grade::<NumExpr>(
+            "(-inf, inf)",
+            "union:{interval:{closed:-3,neg_inf:true}},{interval:{open:4,pos_inf:true}}",
+        );
+        assert_eq!(r, GradeResult::Incorrect);
+    }
+
+    #[test]
+    fn test_json_bad_format() {
+        let r = grade::<NumExpr>("(1, 7]", "{garbage}");
+        assert!(matches!(r, GradeResult::Error(_)));
     }
 
     // ── SymEngine (real CAS) tests ──
