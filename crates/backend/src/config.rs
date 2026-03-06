@@ -28,7 +28,6 @@ pub struct Config {
     pub database_url: String,
     pub jwt_secret: String,
     pub jwt_expiry_hours: i64,
-    pub api_key_secret: String,
     pub environment: Environment,
     pub allowed_origins: Vec<String>,
     pub google_client_id: Option<String>,
@@ -63,23 +62,6 @@ impl Config {
             );
         }
 
-        let api_key_secret = env::var("API_KEY_SECRET")
-            .unwrap_or_else(|_| "development-factory-key-change-in-production".to_string());
-
-        // Validate API key in production
-        if environment == Environment::Production {
-            if api_key_secret == "development-factory-key-change-in-production" {
-                return Err(ConfigError::InsecureApiKey);
-            }
-            if api_key_secret.len() < 32 {
-                return Err(ConfigError::ApiKeyTooShort);
-            }
-        } else if api_key_secret == "development-factory-key-change-in-production" {
-            tracing::warn!(
-                "Using default API key in development mode. This is insecure for production!"
-            );
-        }
-
         // Parse allowed origins
         let allowed_origins = env::var("ALLOWED_ORIGINS")
             .unwrap_or_else(|_| "http://localhost:8080".to_string())
@@ -101,7 +83,6 @@ impl Config {
                 .unwrap_or_else(|_| "24".to_string())
                 .parse()
                 .unwrap_or(24),
-            api_key_secret,
             environment,
             allowed_origins,
             google_client_id: env::var("GOOGLE_CLIENT_ID").ok().filter(|s| !s.is_empty()),
@@ -141,11 +122,4 @@ pub enum ConfigError {
     #[error("JWT secret must be at least 32 characters long in production")]
     JwtSecretTooShort,
 
-    #[error(
-        "API key cannot be the default development key in production. Generate a secure key with: openssl rand -base64 32"
-    )]
-    InsecureApiKey,
-
-    #[error("API key must be at least 32 characters long in production")]
-    ApiKeyTooShort,
 }

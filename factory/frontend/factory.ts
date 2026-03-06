@@ -105,14 +105,8 @@ interface LLMConfig {
   configured: boolean;
 }
 
-interface LocusConfig {
-  backend_url: string;
-  api_key: string | null;
-}
-
 interface ConfigResponse {
   llm: LLMConfig;
-  locus: LocusConfig;
 }
 
 // ============================================================================

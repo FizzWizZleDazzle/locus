@@ -35,7 +35,6 @@ services:
       ENVIRONMENT: ${ENVIRONMENT}
       DATABASE_URL: postgresql://locus:${DB_PASSWORD}@postgres:5432/locus
       JWT_SECRET: ${JWT_SECRET}
-      API_KEY_SECRET: ${API_KEY_SECRET}
 
       # CORS and URLs
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}

@@ -1,14 +1,13 @@
 """Problem staging and export routes"""
 
-import asyncio
 import json
-import httpx
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
 
 from models import ConfirmProblemRequest, ExportRequest
-from config import EXPORTS_DIR, staged_problems, locus_config
+from config import EXPORTS_DIR, staged_problems
 from latex_formatter import normalize_latex
+from services.db import insert_problems
 
 router = APIRouter()
 
@@ -150,91 +149,20 @@ async def download_export(filename: str):
     }
 
 
-@router.post("/upload-to-backend/{filename}")
-async def upload_to_backend(filename: str):
-    """Upload an exported SQL file to Locus backend by executing it"""
-    if not locus_config["backend_url"] or not locus_config["api_key"]:
-        raise HTTPException(status_code=400, detail="Locus backend not configured")
-
-    filepath = EXPORTS_DIR / filename
-    if not filepath.exists():
-        raise HTTPException(status_code=404, detail="Export file not found")
-
-    # For SQL files, we need to parse and submit each problem individually
-    # (The Locus backend doesn't have a SQL import endpoint)
-    if filename.endswith('.json'):
-        # Load JSON and submit each problem
-        problems = json.loads(filepath.read_text())
-    else:
-        raise HTTPException(status_code=400, detail="Only JSON uploads supported for now. Use staged submit instead.")
-
-    submitted = 0
-    errors = []
-
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        for i, problem in enumerate(problems):
-            try:
-                response = await client.post(
-                    f"{locus_config['backend_url']}/api/internal/problems",
-                    headers={
-                        "X-API-Key": locus_config["api_key"],
-                        "Content-Type": "application/json",
-                    },
-                    json=problem,
-                )
-                response.raise_for_status()
-                submitted += 1
-            except Exception as e:
-                errors.append(f"Problem {i+1}: {str(e)[:100]}")
-
-    return {
-        "submitted": submitted,
-        "total": len(problems),
-        "errors": errors[:10] if errors else None,
-        "message": f"Uploaded {submitted}/{len(problems)} problems to Locus"
-    }
-
-
 @router.post("/upload-staged")
 async def upload_staged():
-    """Upload all staged problems directly to Locus backend (no JSON file)"""
-    if not locus_config["backend_url"] or not locus_config["api_key"]:
-        raise HTTPException(status_code=400, detail="Locus backend not configured")
-
+    """Insert all staged problems directly into Postgres"""
     if not staged_problems:
         raise HTTPException(status_code=400, detail="No problems staged")
 
-    submitted = 0
-    errors = []
     total = len(staged_problems)
-
-    semaphore = asyncio.Semaphore(8)
-
-    async def upload_one(client, i, problem):
-        nonlocal submitted
-        async with semaphore:
-            try:
-                response = await client.post(
-                    f"{locus_config['backend_url']}/api/internal/problems",
-                    headers={
-                        "X-API-Key": locus_config["api_key"],
-                        "Content-Type": "application/json",
-                    },
-                    json=problem,
-                )
-                response.raise_for_status()
-                submitted += 1
-            except Exception as e:
-                errors.append(f"Problem {i+1}: {str(e)[:100]}")
-
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        await asyncio.gather(*(
-            upload_one(client, i, p) for i, p in enumerate(staged_problems)
-        ))
-
-    return {
-        "submitted": submitted,
-        "total": total,
-        "errors": errors[:30] if errors else None,
-        "message": f"Uploaded {submitted}/{total} problems to Locus"
-    }
+    try:
+        ids = await insert_problems(staged_problems)
+        return {
+            "inserted": len(ids),
+            "total": total,
+            "ids": ids[:20],
+            "message": f"Inserted {len(ids)}/{total} problems into database"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database insert failed: {str(e)}")

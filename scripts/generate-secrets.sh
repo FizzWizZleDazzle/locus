@@ -8,7 +8,6 @@ echo ""
 
 # Generate strong random secrets
 JWT_SECRET=$(openssl rand -base64 32)
-API_KEY_SECRET=$(openssl rand -base64 32)
 DB_PASSWORD=$(openssl rand -base64 32)
 
 # Create .env.production with generated secrets
@@ -26,7 +25,6 @@ DATABASE_URL=postgresql://locus_srv:${DB_PASSWORD}@YOUR_DB_HOST:5432/locus
 
 # Security Secrets (auto-generated)
 JWT_SECRET=${JWT_SECRET}
-API_KEY_SECRET=${API_KEY_SECRET}
 
 # Email (Resend) - CONFIGURE THESE!
 RESEND_API_KEY=re_your_resend_api_key_here
@@ -80,6 +78,5 @@ echo "   make all"
 echo ""
 echo "Generated secrets (DO NOT COMMIT):"
 echo "  - JWT_SECRET: ${JWT_SECRET:0:16}..."
-echo "  - API_KEY_SECRET: ${API_KEY_SECRET:0:16}..."
 echo "  - DB_PASSWORD: ${DB_PASSWORD:0:16}..."
 echo ""

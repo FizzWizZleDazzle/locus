@@ -26,11 +26,8 @@ llm_config = {
     "model": os.getenv("LLM_MODEL", "gpt-4"),
 }
 
-# Locus Backend Configuration
-locus_config = {
-    "backend_url": os.getenv("LOCUS_BACKEND_URL", "http://localhost:3000"),
-    "api_key": os.getenv("LOCUS_API_KEY", "development-factory-key-change-in-production"),
-}
+# Database Configuration
+DATABASE_URL = os.getenv("DATABASE_URL", "postgres://locus:locus_dev_password@localhost:5433/locus")
 
 # In-memory problem staging
 staged_problems = []

@@ -41,7 +41,7 @@ source .env.production
 set +a
 
 # Verify required variables
-if [ -z "$JWT_SECRET" ] || [ -z "$API_KEY_SECRET" ] || [ -z "$DB_PASSWORD" ]; then
+if [ -z "$JWT_SECRET" ] || [ -z "$DB_PASSWORD" ]; then
     echo "ERROR: Required secrets not found in .env.production"
     exit 1
 fi
@@ -83,7 +83,6 @@ helm upgrade --install $RELEASE_NAME ./helm/locus \
     --namespace $NAMESPACE \
     --set secrets.databaseUrl="$DATABASE_URL" \
     --set secrets.jwtSecret="$JWT_SECRET" \
-    --set secrets.apiKeySecret="$API_KEY_SECRET" \
     --set secrets.googleClientId="$GOOGLE_CLIENT_ID" \
     --set secrets.googleClientSecret="$GOOGLE_CLIENT_SECRET" \
     --set secrets.githubClientId="$GITHUB_CLIENT_ID" \

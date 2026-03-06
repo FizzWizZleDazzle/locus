@@ -1,8 +1,8 @@
 """Configuration routes"""
 
 from fastapi import APIRouter
-from models import LLMConfig, LocusConfig
-from config import llm_config, locus_config
+from models import LLMConfig
+from config import llm_config
 
 router = APIRouter()
 
@@ -25,13 +25,6 @@ async def configure_llm(config: LLMConfig):
     return {"message": "LLM configuration updated"}
 
 
-@router.post("/config/locus")
-async def configure_locus(config: LocusConfig):
-    locus_config["backend_url"] = config.backend_url
-    locus_config["api_key"] = config.api_key
-    return {"message": "Locus configuration updated"}
-
-
 @router.get("/config")
 async def get_config():
     return {
@@ -40,9 +33,5 @@ async def get_config():
             "api_key": "***" + (llm_config["api_key"][-4:] if llm_config["api_key"] else ""),
             "model": llm_config["model"],
             "configured": bool(llm_config["endpoint"] and llm_config["api_key"]),
-        },
-        "locus": {
-            "backend_url": locus_config["backend_url"],
-            "api_key": "***" if locus_config["api_key"] else None,
         },
     }

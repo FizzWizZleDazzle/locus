@@ -36,8 +36,6 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Starting Locus backend");
     tracing::info!("Environment: {:?}", config.environment);
     tracing::info!("Allowed CORS origins: {:?}", config.allowed_origins);
-    tracing::info!("Factory endpoint enabled at /api/internal/problems");
-
     // Connect to database
     let pool = db::create_pool(&config.database_url).await?;
 
@@ -83,7 +81,6 @@ async fn main() -> anyhow::Result<()> {
     let state = api::AppState::new(
         pool,
         config.jwt_secret.clone(),
-        config.api_key_secret.clone(),
         http_client,
         config.google_client_id.clone(),
         config.google_client_secret.clone(),

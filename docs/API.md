@@ -10,7 +10,7 @@ Three auth mechanisms (in priority order for user endpoints):
 |---|---|---|
 | httpOnly cookie | `locus_token` cookie (set by server) | User-facing endpoints (browser) |
 | Bearer JWT | `Authorization: Bearer <token>` header | API clients / migration fallback |
-| API Key | `x-api-key: <key>` header | Factory (`POST /internal/problems`) |
+| ~~API Key~~ | ~~`x-api-key` header~~ | Removed — factory uses direct Postgres |
 
 JWT claims: `sub` (user UUID), `username`, `exp` (24h), `iat`.
 
@@ -432,34 +432,6 @@ Returns top 100 users.
 
 Returns last 30 days. One entry per day (last attempt's ELO).
 
----
 
-### Factory (Internal)
 
-#### `POST /internal/problems`
-
-Create a new problem.
-
-**Auth**: API Key (`x-api-key` header)
-
-```json
-// Request
-{
-  "question_latex": "\\frac{d}{dx} x^3",
-  "answer_key": "3*x**2",
-  "difficulty": 1400,
-  "main_topic": "calculus",
-  "subtopic": "derivative_rules",
-  "grading_mode": "equivalent",
-  "answer_type": "expression",
-  "calculator_allowed": "none",
-  "solution_latex": "...",
-  "question_image": "",
-  "time_limit_seconds": null
-}
-
-// Response 201
-{ "id": "uuid", "message": "Problem created" }
-```
-
-Validates: non-empty question/answer, difficulty 0-3000, valid topic/subtopic from cache, valid grading_mode/answer_type/calculator_allowed, time_limit 1-3600 if provided.
+Note: The factory endpoint (`POST /internal/problems`) has been removed. The factory now inserts problems directly into PostgreSQL via `asyncpg`.

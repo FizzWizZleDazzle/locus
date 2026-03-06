@@ -19,15 +19,10 @@ class LLMConfig(BaseModel):
     model: str
 
 
-class LocusConfig(BaseModel):
-    backend_url: str
-    api_key: str
-
-
 class GenerateScriptRequest(BaseModel):
     main_topic: str
     subtopic: str
-    difficulty_level: str = "medium"  # "easy", "medium", "hard"
+    difficulty_level: str = "medium"  # "very_easy", "easy", "medium", "hard", "very_hard", "competition"
     prompt_template: Optional[str] = None
     language: str = "julia"  # "julia" or "python"
 
@@ -58,6 +53,12 @@ class MassGenerateRequest(BaseModel):
 class ConfirmProblemRequest(BaseModel):
     problem: Dict[str, Any]
     approved: bool = True
+
+
+class ValidateScriptRequest(BaseModel):
+    script: str
+    language: str = "julia"
+    runs: int = 30
 
 
 class ExportRequest(BaseModel):

@@ -1,6 +1,6 @@
 # Factory
 
-LLM-powered problem generation pipeline. Generates Julia or Python scripts that produce math problems, validates them with SymEngine/SymPy, and uploads to the main Locus backend.
+LLM-powered problem generation pipeline. Generates Julia or Python scripts that produce math problems, validates them, and inserts directly into the Locus PostgreSQL database.
 
 ## Architecture
 
@@ -8,13 +8,13 @@ LLM-powered problem generation pipeline. Generates Julia or Python scripts that 
 factory/
   backend/                    FastAPI app (port 9090)
     main.py                   Entry point, route registration
-    config.py                 LLM + Locus backend configuration
+    config.py                 LLM + database configuration
     models.py                 Pydantic request/response models
     routes/
       config_routes.py        LLM and backend config endpoints
       script_routes.py        Script generation, saving, testing, execution
       problem_routes.py       Problem staging, approval, export
-    services/                 LLM client, script runner, problem staging
+    services/                 LLM client, script runner, DB access, validator
     scripts/                  Git submodule → locus-scripts repo
       src/                    324+ generated problem scripts (Python + Julia)
       python/                 Python utilities (problem_utils.py, svg_utils.py)
@@ -64,8 +64,7 @@ cp backend/.env.example backend/.env
 | `LLM_ENDPOINT` | `https://api.openai.com/v1/chat/completions` or `https://api.anthropic.com/v1/messages` |
 | `LLM_API_KEY` | API key for the LLM provider |
 | `LLM_MODEL` | Model name (e.g. `gpt-4`, `claude-sonnet-4-5-20250929`) |
-| `LOCUS_BACKEND_URL` | Main backend URL (default: `http://localhost:3000`) |
-| `LOCUS_API_KEY` | Must match `API_KEY_SECRET` in the main backend |
+| `DATABASE_URL` | Postgres connection string (same DB as main backend) |
 | `SCRIPTS_REPO_PATH` | Override scripts repo location (default: `backend/scripts`) |
 
 ## Dual-Language Support
@@ -105,7 +104,8 @@ using .ProblemUtils
 - `steps(s1, s2, ...)`, `nonzero(lo, hi)`, `randint(lo, hi)`, `choice(v)`
 - `fmt_set`, `fmt_tuple`, `fmt_list`, `fmt_matrix`, `fmt_interval`, `fmt_equation`
 - `compress_svg(svg)`, `decompress_svg(s)`
-- `DiagramObj`, `GraphObj` — SVG builders (see scripts repo README)
+- `DiagramObj`, `GraphObj`, `NumberLine` — SVG builders
+- `arrow!`, `fill_between!`, `open_point!`, `closed_point!`, `shade!`, `shade_left!`, `shade_right!`
 
 ### SymPy -> Symbolics.jl Cheat Sheet
 
@@ -135,7 +135,7 @@ using .ProblemUtils
 6. Save to `scripts/src/`
 7. Run to generate problems in bulk
 8. Review staged problems
-9. Approve and upload to main backend via API
+9. Approve and insert into Postgres directly
 
 ### Automated Pipeline
 
@@ -196,7 +196,7 @@ Each generated problem must include:
 |---|---|
 | `question_latex` | LaTeX-formatted question |
 | `answer_key` | SymEngine-compatible expression |
-| `difficulty` | ELO-style rating (1000-2000) |
+| `difficulty` | ELO-style rating (100-5000) |
 | `main_topic` | Must match a topic in the database |
 | `subtopic` | Must match a subtopic under the topic |
 | `grading_mode` | `equivalent`, `factor`, or `expand` |

@@ -1,7 +1,6 @@
 //! API routes and handlers
 
 mod auth;
-mod factory;
 mod leaderboard;
 mod oauth;
 mod problems;
@@ -24,7 +23,6 @@ use locus_common::ApiError;
 pub struct AppState {
     pub pool: PgPool,
     pub jwt_secret: String,
-    pub api_key: String,
     pub http_client: reqwest::Client,
     pub google_client_id: Option<String>,
     pub google_client_secret: Option<String>,
@@ -41,7 +39,6 @@ impl AppState {
     pub fn new(
         pool: PgPool,
         jwt_secret: String,
-        api_key: String,
         http_client: reqwest::Client,
         google_client_id: Option<String>,
         google_client_secret: Option<String>,
@@ -56,7 +53,6 @@ impl AppState {
         Self {
             pool,
             jwt_secret,
-            api_key,
             http_client,
             google_client_id,
             google_client_secret,
@@ -118,8 +114,6 @@ pub fn router() -> Router<AppState> {
         // User stats
         .route("/user/stats", get(stats::get_user_stats))
         .route("/user/elo-history", get(stats::get_elo_history))
-        // Factory endpoint (internal)
-        .route("/internal/problems", post(factory::create_problem))
 }
 
 /// Health check endpoint

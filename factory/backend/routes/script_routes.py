@@ -10,7 +10,8 @@ from models import (
     SaveScriptRequest,
     TestScriptRequest,
     RunScriptRequest,
-    MassGenerateRequest
+    MassGenerateRequest,
+    ValidateScriptRequest,
 )
 from config import SCRIPTS_DIR, EXPORTS_DIR, llm_config, staged_problems
 from services.llm import generate_script_with_llm
@@ -20,6 +21,7 @@ from services.script_runner import (
     mass_generate,
     mass_generate_to_file,
 )
+from services.validator import validate_script
 
 router = APIRouter()
 
@@ -171,6 +173,12 @@ async def delete_script(script_name: str):
 async def test_script(request: TestScriptRequest):
     """Test a script by running it once"""
     return test_script_code(request.script, SCRIPTS_DIR, request.language)
+
+
+@router.post("/validate-script")
+async def validate_script_route(request: ValidateScriptRequest):
+    """Run script N times and validate output across 7 quality categories"""
+    return await run_in_threadpool(validate_script, request.script, request.language, request.runs, SCRIPTS_DIR)
 
 
 @router.post("/run-script")

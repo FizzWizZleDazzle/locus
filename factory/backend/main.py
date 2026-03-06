@@ -7,25 +7,36 @@ Workflow:
 3. Test script (run once)
 4. Run script in batch to generate problems
 5. Review and approve problems
-6. Export to SQL for PostgreSQL
+6. Upload to Postgres or export to SQL/JSON
 
 Features:
 - LLM-powered script generation
 - Script library management
 - SymPy validation
 - Problem staging and approval
-- SQL/JSON export
+- Direct Postgres insert + SQL/JSON export
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import DATABASE_URL
+from services.db import init_pool, close_pool
 from routes.config_routes import router as config_router
 from routes.script_routes import router as script_router
 from routes.problem_routes import router as problem_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_pool(DATABASE_URL)
+    yield
+    await close_pool()
+
+
 # Create FastAPI app
-app = FastAPI(title="Locus Factory")
+app = FastAPI(title="Locus Factory", lifespan=lifespan)
 
 # CORS middleware
 app.add_middleware(

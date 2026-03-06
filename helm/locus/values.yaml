@@ -102,7 +102,6 @@ secrets:
 
   # Generate with: openssl rand -base64 32
   jwtSecret: ""
-  apiKeySecret: ""
 
   # OAuth credentials
   googleClientId: ""

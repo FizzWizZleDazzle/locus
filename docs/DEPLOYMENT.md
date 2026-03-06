@@ -8,7 +8,6 @@
 |---|---|---|---|
 | `DATABASE_URL` | yes | - | PostgreSQL connection string |
 | `JWT_SECRET` | yes | - | JWT signing secret (32+ chars) |
-| `API_KEY_SECRET` | yes | - | Factory API key (32+ chars) |
 | `HOST` | no | 0.0.0.0 | Bind address |
 | `PORT` | no | 3000 | Bind port |
 | `ENVIRONMENT` | no | development | `development` or `production` |
@@ -42,8 +41,7 @@
 | `LLM_ENDPOINT` | LLM API URL (OpenAI or Anthropic) |
 | `LLM_API_KEY` | LLM API key |
 | `LLM_MODEL` | Model name (e.g. `gpt-4`, `claude-sonnet-4-5-20250929`) |
-| `LOCUS_BACKEND_URL` | Main backend URL (default: `http://localhost:3000`) |
-| `LOCUS_API_KEY` | Must match `API_KEY_SECRET` |
+| `DATABASE_URL` | Postgres connection string (same DB as main backend) |
 
 ## Development Setup
 

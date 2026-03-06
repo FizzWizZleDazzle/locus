@@ -70,7 +70,6 @@ autoscaling:
 # DO NOT commit secrets to git!
 # secrets:
 #   jwtSecret: "from-env"
-#   apiKeySecret: "from-env"
 #   databasePassword: "from-env"
 #   googleClientId: "from-env"
 #   googleClientSecret: "from-env"

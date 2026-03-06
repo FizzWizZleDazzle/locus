@@ -507,34 +507,6 @@ impl ApiError {
 }
 
 // ============================================================================
-// Factory Submission Types
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CreateProblemRequest {
-    pub question_latex: String,
-    pub answer_key: String,
-    pub difficulty: i32,
-    pub main_topic: String,
-    pub subtopic: String,
-    pub grading_mode: String,
-    pub answer_type: String,
-    pub calculator_allowed: String,
-    #[serde(default)]
-    pub solution_latex: String,
-    #[serde(default)]
-    pub question_image: String,
-    #[serde(default)]
-    pub time_limit_seconds: Option<i32>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CreateProblemResponse {
-    pub id: Uuid,
-    pub message: String,
-}
-
-// ============================================================================
 // Stats Types
 // ============================================================================
 

@@ -6,58 +6,36 @@ from fastapi import HTTPException
 
 # ELO guide shared between Python and Julia prompts
 _ELO_GUIDE = """
-ELO SCALE (Relative to Topic):
+ELO SCALE (100-5000):
 
-1000-1200 (Beginner in this topic):
-- Simplest problem type in this subtopic
-- Single-step, direct application
-- Minimal complexity
+100-400 Foundational: recognition/recall, single-operation (count objects, identify shapes)
+400-700 Elementary: one clear step, basic definitions (1-step arithmetic, name a property)
+700-1000 Pre-Competent: one-two steps, standard drills (2x+1=5, basic fraction ops)
+1000-1400 Developing: textbook exercises, direct concept application (multi-step equations, standard integrals)
+1400-1800 Competent: multi-step, concept relationships, strategic thinking (word problems, related rates)
+1800-2200 Expert: deep understanding, creative approaches (challenging proofs, tricky optimization)
+2200-3000 Competition: AMC/AIME level, multiple insights required
+3000-4000 Olympiad: USAMO/IMO, novel proof strategies, deep combinatorics
+4000-5000 Research-Adjacent: hardest competition problems, open-problem flavored
 
-1200-1400 (Developing):
-- Two-step problems
-- Requires one intermediate calculation
-- Standard textbook exercise level
-
-1400-1600 (Competent):
-- Multi-step problems
-- Requires understanding of concept relationships
-- Typical homework problem difficulty
-
-1600-1800 (Advanced):
-- Complex multi-step problems
-- Requires strategic thinking
-- Challenging homework or easy test problem
-
-1800-2000 (Expert):
-- Very complex problems in this topic
-- Requires deep understanding
-- Competition or advanced test level
-
-EXAMPLES BY TOPIC:
-
-Algebra1 Linear Equations:
-- 1100: "2x = 10" (one-step)
-- 1300: "2x + 5 = 13" (two-step)
-- 1500: "3(x - 2) + 7 = 16" (distribution + multi-step)
-- 1700: Word problem requiring equation setup
-
-Calculus Derivatives:
-- 1200: "d/dx[x³]" (power rule only)
-- 1400: "d/dx[3x² + 2x - 1]" (polynomial)
-- 1600: "d/dx[sin(2x)]" (chain rule)
-- 1800: "d/dx[x·eˣ]" (product rule)
-
-Geometry Triangles:
-- 1100: "Find missing angle: given 60° and 80°"
-- 1300: "Pythagorean theorem with sides 3,4"
-- 1500: "Pythagorean with one unknown side"
-- 1700: "Area using Heron's formula"
+EXAMPLES:
+- 200: "What is 3 + 4?"
+- 600: "Solve x + 5 = 12"
+- 900: "Solve 2x + 5 = 13"
+- 1200: "Solve 3(x - 2) + 7 = 16"
+- 1600: "Word problem requiring equation setup + multi-step solve"
+- 2000: "Tricky optimization with constraints"
+- 2500: "AMC 12 #20-level combinatorics"
+- 3500: "USAMO proof problem"
 """
 
 _DIFFICULTY_TARGETS = {
-    "easy": "EASIER problems for this subtopic (1000-1300 ELO range)",
-    "medium": "STANDARD problems for this subtopic (1300-1600 ELO range)",
-    "hard": "HARDER problems for this subtopic (1600-1900 ELO range)"
+    "very_easy": "FOUNDATIONAL/ELEMENTARY problems (100-700 ELO range)",
+    "easy": "PRE-COMPETENT to BEGINNER problems (700-1200 ELO range)",
+    "medium": "DEVELOPING to COMPETENT problems (1200-1800 ELO range)",
+    "hard": "EXPERT to COMPETITION ENTRY problems (1800-2500 ELO range)",
+    "very_hard": "COMPETITION to OLYMPIAD problems (2500-3500 ELO range)",
+    "competition": "OLYMPIAD to RESEARCH-ADJACENT problems (3500-5000 ELO range)",
 }
 
 
@@ -219,162 +197,53 @@ Target: {_DIFFICULTY_TARGETS.get(difficulty_level, _DIFFICULTY_TARGETS['medium']
 include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 ```
-which provides Symbolics.jl CAS and these helpers:
 
-AVAILABLE VIA ProblemUtils: Symbolics.jl functions (@variables, diff, expand, simplify,
-substitute, solve, sin, cos, tan, exp, log, sqrt, abs, Num),
-Latexify (via tex() helper), JSON, and Random.
-
-HELPERS:
+API SUMMARY:
 - problem(; question, answer, difficulty, topic, solution, grading_mode, answer_type, calculator, image, time) -> Dict
-  - question: LaTeX string
-  - answer: any Julia/Symbolics value (auto-converted to string)
-  - difficulty: Int or (lo, hi) tuple for random ELO
-  - topic: "main/sub" e.g. "calculus/derivatives"
-  - solution: step-by-step LaTeX (use steps() helper)
-  - grading_mode: "equivalent" (default), "factor", "expand"
-  - answer_type: auto-detected if omitted (Bool->boolean, Int/Float->numeric,
-    Vector{Vector}->matrix, Set->set, Tuple->tuple, Vector->list, else->expression)
-  - calculator: "none" (default), "scientific", "graphing", "cas"
-- emit(dict) — prints JSON line to stdout (JSONL)
-- run_batch(generate) — parses --count N from ARGS, calls generate() N times with emit()
-- steps(strings...) — joins with <br> for solution_latex
-- tex(expr) — converts Symbolics expression to LaTeX string
-- diff(expr, x) — differentiate (wraps Symbolics Differential)
-- expand(expr) — expand expression
-- simplify(expr) — simplify expression
-- substitute(expr, x => val) — substitute values
-- solve(eq, x) — solve equation for variable (pass expr for expr=0, or use ~ for equations)
-- nonzero(lo, hi) — random int in [lo,hi] excluding 0
-- randint(lo, hi) — random int in [lo,hi] (inclusive)
-- choice(collection) — pick random element
-- fmt_set, fmt_tuple, fmt_list, fmt_matrix — format answer strings for special types
-- fmt_interval(left, right; left_open, right_open) — "open:1,closed:7" format
-- fmt_equation(lhs, rhs) — "lhs = rhs"
-- compress_svg(svg), decompress_svg(s) — SVG compression
-- SVG diagrams (also provided by ProblemUtils):
-  Pass rendered SVG to problem(..., image=render(d))
-
-  DiagramObj — geometry diagrams (math coords, y-up, auto-scaled):
-    d = DiagramObj(; width=300, height=250, padding=40)
-    line!(d, p1, p2; dashed=false)                     # line segment
-    polygon!(d, points; labels=nothing, fill=nothing)   # closed shape; labels vector matches points
-    circle!(d, center, radius; fill=nothing)            # fill e.g. "currentColor"
-    arc!(d, center, radius, start_deg, end_deg)         # circular arc
-    point!(d, x, y; label=nothing)                      # dot with optional label
-    angle_arc!(d, vertex, p1, p2; label=nothing)        # arc marking angle at vertex
-    right_angle!(d, vertex, p1, p2)                     # right-angle square marker
-    segment_label!(d, p1, p2, text)                     # label at midpoint of segment
-    tick_marks!(d, p1, p2; count=1)                     # equal-length tick marks on segment
-    text!(d, x, y, text)                                # free text label
-    svg = render(d)
-
-  GraphObj — function plots on a coordinate grid:
-    g = GraphObj(; x_range=(-5, 5), y_range=(-5, 5), width=300, height=300)
-    plot!(g, symbolics_expr; color=nothing, dashed=false)  # plot Symbolics expr in x
-    point!(g, x, y; label=nothing)                         # labeled point
-    vline!(g, x; dashed=true)                              # vertical line (e.g. asymptote)
-    hline!(g, y; dashed=true)                              # horizontal line
-    svg = render(g)
+  answer_type auto-detected (Bool->boolean, Int->numeric, Set->set, etc.). difficulty: Int or (lo,hi) tuple.
+- emit(dict), run_batch(generate), steps(strings...), tex(expr)
+- CAS: @variables x y z, diff, expand, simplify, substitute, solve (use ~ for equations)
+- Random: randint(lo,hi), nonzero(lo,hi), choice(collection)
+- Formatting: fmt_set, fmt_tuple, fmt_list, fmt_matrix, fmt_interval, fmt_equation, fmt_multipart
+  (edge cases only — problem() auto-formats most types)
+- SVG: DiagramObj (geometry), GraphObj (plots), NumberLine (intervals)
+  - Diagram: line!, arrow!, polygon!, circle!, arc!, point!, angle_arc!, right_angle!, segment_label!, tick_marks!, text!
+  - Graph: plot!, fill_between!(g, expr1, expr2), point!, vline!, hline!
+  - NumberLine: open_point!, closed_point!, shade!, shade_left!, shade_right!
+  - All: svg = render(obj), pass to problem(..., image=svg)
 
 KEY SYMBOLICS.JL DIFFERENCES FROM SYMPY:
-- Declare symbols: @variables x y z  (not symbols('x y z'))
-- LaTeX: tex(expr)  (not latex(expr))
-- Rational: use Julia's //  (e.g. 1//3)
-- Equations use ~  (e.g. x^2 ~ 1), not Eq()
-- solve(eq, x) wraps Symbolics.solve_for
-- No FiniteSet; use Set([...]) for sets
-- No Matrix type; use Vector{Vector} for matrices
+- @variables x y z (not symbols), tex(expr) (not latex), // for rationals
+- Equations use ~ (x^2 ~ 1), not Eq(). solve wraps Symbolics.solve_for
+- No FiniteSet (use Set([])), no Matrix type (use Vector{Vector})
 
-EXAMPLE 1 (expression answer):
-```
-include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
-using .ProblemUtils
+RECIPE PATTERNS:
 
-function generate()
-    @variables x
-    n = randint(2, 7)
-    coeff = nonzero(-12, 12)
-    expr = coeff * x^n
-    ans = diff(expr, x)
-    return problem(
-        question="\\frac{d}{dx}\\left[$(tex(expr))\\right]",
-        answer=ans,
-        difficulty=(1000, 1200),
-        topic="calculus/derivatives",
-        solution=steps(
-            "Apply power rule to \$$(tex(expr))\$",
-            "\$$(tex(ans))\$",
-        ),
-    )
-end
+1. Solve-for-x — pick answer, build equation backward:
+  @variables x; ans = randint(-20,20); expr = expand(nonzero(-5,5)*(x - ans) + randint(-10,10))
+  problem(question="Solve \$$(tex(expr)) = $(randint(-10,10))\$", answer=ans, ...)
 
-run_batch(generate)
-```
+2. Evaluate/compute — substitute value into expression:
+  @variables x; val = randint(-5,5); expr = nonzero(-8,8)*x^2 + nonzero(-8,8)*x
+  problem(question="Evaluate \$$(tex(expr))\$ at \$x=$(val)\$", answer=substitute(expr, x=>val), ...)
 
-EXAMPLE 2 (numeric answer):
-```
-include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
-using .ProblemUtils
+3. Graph-based — plot + ask about features:
+  @variables x; g = GraphObj(x_range=(-5,5), y_range=(-10,10))
+  expr = x^2 - 4; plot!(g, expr)
+  problem(question="...", answer=..., image=render(g), ...)
 
-function generate()
-    a_val, b_val = nonzero(-50, 50), nonzero(-50, 50)
-    ans = a_val + b_val
-    return problem(
-        question="\$$(a_val) + $(b_val) = ?\$",
-        answer=ans,
-        difficulty=(1000, 1100),
-        topic="arithmetic/addition_subtraction",
-        solution="\$$(a_val) + $(b_val) = $(ans)\$",
-    )
-end
-
-run_batch(generate)
-```
-
-EXAMPLE 3 (factored form):
-```
-include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
-using .ProblemUtils
-
-function generate()
-    @variables x
-    a = choice([1, 2, 3, 4])
-    b = choice([1, 2, 3, 4])
-    r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
-    # Build factored form first, then expand for the question
-    factored = (a*x - r1) * (b*x - r2)
-    expr = expand(factored)
-    return problem(
-        question="Factor \$$(tex(expr))\$",
-        answer=factored,
-        difficulty=(1200, 1400),
-        topic="algebra1/factoring",
-        grading_mode="factor",
-        solution=steps(
-            "Use the AC method or factor by grouping",
-            "\$$(tex(factored))\$",
-        ),
-    )
-end
-
-run_batch(generate)
-```
+4. Geometry diagram — build shape + ask measurement:
+  d = DiagramObj(); polygon!(d, [(0,0),(4,0),(4,3)]; labels=["A","B","C"])
+  problem(question="Find the area of triangle ABC", answer=6, image=render(d), ...)
 
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
-2. Randomize parameters for variety — use LARGE ranges. Numbers don't need to be small.
-   - Coefficients: randint(-20, 20) or wider, not just (-3, 3)
-   - Factorable polynomials: pick roots first (e.g. r1=randint(-12,12), r2=randint(-12,12)),
-     then expand — 12x²+31x+20 is perfectly valid since it factors to (4x+5)(3x+4)
-   - Exponents: up to 6 or 8 for medium/hard
-   - Bounds and constants: scale with difficulty — hard problems should have harder numbers
+2. Randomize with LARGE ranges (coefficients ±20+, roots ±12, exponents up to 6-8)
 3. Always include a solution using steps()
 4. ELO must match actual complexity (see ELO guide above)
 5. Default calculator to "none" unless computation is heavy and not the focus
-6. Always set time= in problem() to the expected solve time in seconds.
-   Guidelines: easy 30-90s, medium 60-180s, hard 120-300s. Scale by problem complexity.
-7. Always end the script with run_batch(generate) — this handles --count N for batch execution
+6. Always set time= in problem() (easy 30-90s, medium 60-180s, hard 120-300s)
+7. Always end the script with run_batch(generate)
 
 Output ONLY the Julia script. No markdown fences, no explanation."""
 

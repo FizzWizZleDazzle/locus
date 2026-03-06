@@ -89,11 +89,9 @@ Axum REST API. Compiles to native target.
 | `src/api/leaderboard.rs` | `GET /leaderboard`: top 100 users by topic ELO |
 | `src/api/stats.rs` | `GET /user/stats`, `GET /user/elo-history`: per-topic stats and 30-day chart data |
 | `src/api/topics.rs` | `GET /topics`: enabled topics and subtopics from cache |
-| `src/api/factory.rs` | `POST /internal/problems`: problem creation (API key auth) |
 | `src/api/oauth.rs` | OAuth flows: Google/GitHub login, callback, account linking |
 | `src/auth/mod.rs` | Auth module re-exports |
 | `src/auth/jwt.rs` | JWT creation/verification (HS256, 24-hour expiry) |
-| `src/auth/api_key.rs` | `ApiKeyAuth` extractor from `x-api-key` header |
 | `src/auth/middleware.rs` | `AuthUser` extractor: verifies JWT, returns user UUID |
 | `src/models/mod.rs` | Model re-exports |
 | `src/models/user.rs` | `User`, `OAuthAccount`, `LeaderboardRow` with all DB queries |
@@ -110,10 +108,10 @@ Problem generation pipeline. See [`../factory/README.md`](../factory/README.md).
 factory/
   backend/              FastAPI app (port 9090)
     main.py             Entry point
-    config.py           LLM and Locus backend configuration
+    config.py           LLM + database configuration
     models.py           Pydantic models
     routes/             config_routes, problem_routes, script_routes
-    services/           LLM, script execution, problem staging
+    services/           LLM, script execution, DB access, validation
     scripts/src/        Generated Python problem scripts
   frontend/             TypeScript UI (port 9091)
   automate_pipeline.py  Full automation: topics -> scripts -> problems -> upload

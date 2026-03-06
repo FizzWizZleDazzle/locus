@@ -62,11 +62,6 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secrets
               key: jwt-secret
-        - name: API_KEY_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-secrets
-              key: api-key-secret
         - name: JWT_EXPIRY_HOURS
           value: {{ .Values.backend.jwtExpiryHours | quote }}
         - name: ALLOWED_ORIGINS
