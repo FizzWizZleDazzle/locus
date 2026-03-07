@@ -405,6 +405,7 @@ pub struct ChangeUsernameRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteAccountRequest {
     pub password: Option<String>,
+    pub confirmation: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -504,6 +505,112 @@ impl ApiError {
             error: error.into(),
         }
     }
+}
+
+// ============================================================================
+// Daily Puzzle Types
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailySubmitRequest {
+    pub daily_puzzle_id: Uuid,
+    pub user_input: String,
+    #[serde(default)]
+    pub hints_used: i32,
+    #[serde(default)]
+    pub time_taken_ms: Option<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyPuzzleResponse {
+    pub id: Uuid,
+    pub puzzle_date: NaiveDate,
+    pub title: String,
+    pub problem: ProblemResponse,
+    pub hints_available: usize,
+    pub source: String,
+    pub user_status: Option<DailyUserStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyUserStatus {
+    pub solved: bool,
+    pub solved_same_day: bool,
+    pub attempts: i64,
+    pub hints_revealed: i32,
+    pub streak: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailySubmitResponse {
+    pub is_correct: bool,
+    pub attempts: i64,
+    pub solved: bool,
+    pub streak: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyArchiveEntry {
+    pub puzzle_date: NaiveDate,
+    pub title: String,
+    pub difficulty: i32,
+    pub main_topic: String,
+    pub solve_rate: f64,
+    pub user_solved: Option<bool>,
+    pub user_solved_same_day: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyPuzzleDetailResponse {
+    pub id: Uuid,
+    pub puzzle_date: NaiveDate,
+    pub title: String,
+    pub problem: ProblemResponse,
+    pub editorial_latex: String,
+    pub hints: Vec<String>,
+    pub source: String,
+    pub stats: DailyPuzzleStats,
+    pub user_status: Option<DailyUserStatus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyPuzzleStats {
+    pub total_attempts: i64,
+    pub total_solves: i64,
+    pub solve_rate: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyActivityResponse {
+    pub streak: i32,
+    pub days: Vec<DailyActivityDay>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyActivityDay {
+    pub date: NaiveDate,
+    pub status: DailyDayStatus,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum DailyDayStatus {
+    NoPuzzle,
+    Missed,
+    SolvedLate,
+    SolvedSameDay,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DailyArchiveQuery {
+    #[serde(default = "default_archive_limit")]
+    pub limit: i64,
+    #[serde(default)]
+    pub offset: i64,
+}
+
+fn default_archive_limit() -> i64 {
+    30
 }
 
 // ============================================================================

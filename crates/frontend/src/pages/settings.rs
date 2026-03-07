@@ -30,6 +30,7 @@ pub fn Settings() -> impl IntoView {
     // Delete account state
     let (show_delete_modal, set_show_delete_modal) = signal(false);
     let (delete_password, set_delete_password) = signal(String::new());
+    let (delete_confirmation, set_delete_confirmation) = signal(String::new());
 
     // Fetch user profile and redirect if not authenticated
     let nav_check = navigate.clone();
@@ -121,8 +122,14 @@ pub fn Settings() -> impl IntoView {
         set_error.set(None);
         set_success.set(None);
 
-        let password = if profile.get().map(|p| p.has_password).unwrap_or(false) {
+        let has_password = profile.get().map(|p| p.has_password).unwrap_or(false);
+        let password = if has_password {
             Some(delete_password.get())
+        } else {
+            None
+        };
+        let confirmation = if !has_password {
+            Some(delete_confirmation.get())
         } else {
             None
         };
@@ -130,7 +137,7 @@ pub fn Settings() -> impl IntoView {
         set_loading.set(true);
 
         spawn_local(async move {
-            match api::delete_account(password.as_deref()).await {
+            match api::delete_account(password.as_deref(), confirmation.as_deref()).await {
                 Ok(_) => {
                     // Auth cleared by API client, navigate to home
                     auth.set_logged_in.set(false);
@@ -502,7 +509,18 @@ pub fn Settings() -> impl IntoView {
                                             </div>
                                         }.into_any())
                                     } else {
-                                        None
+                                        Some(view! {
+                                            <div class="mb-4">
+                                                <label class="block text-sm text-gray-600 mb-1">"Type your username to confirm"</label>
+                                                <input
+                                                    type="text"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-900 focus:outline-none"
+                                                    prop:value=delete_confirmation
+                                                    on:input=move |ev| set_delete_confirmation.set(event_target_value(&ev))
+                                                    placeholder="Username"
+                                                />
+                                            </div>
+                                        }.into_any())
                                     }
                                 }}
 
@@ -518,6 +536,7 @@ pub fn Settings() -> impl IntoView {
                                         on:click=move |_| {
                                             set_show_delete_modal.set(false);
                                             set_delete_password.set(String::new());
+                                            set_delete_confirmation.set(String::new());
                                         }
                                         class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
                                     >

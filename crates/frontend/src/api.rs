@@ -6,10 +6,12 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use web_sys::RequestCredentials;
 
 use locus_common::{
-    ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DeleteAccountRequest,
-    EloHistoryResponse, LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest,
-    SetPasswordRequest, SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest,
-    UserProfile, UserStatsResponse,
+    ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest,
+    DailyActivityResponse, DailyArchiveEntry, DailyPuzzleDetailResponse, DailyPuzzleResponse,
+    DailySubmitRequest, DailySubmitResponse, DeleteAccountRequest, EloHistoryResponse,
+    LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest, SetPasswordRequest,
+    SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest, UserProfile,
+    UserStatsResponse,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -141,6 +143,14 @@ impl std::fmt::Display for RequestError {
     }
 }
 
+/// On 401, clear local auth state and redirect to /login.
+fn handle_unauthorized() {
+    clear_auth();
+    if let Some(window) = web_sys::window() {
+        let _ = window.location().set_href("/login");
+    }
+}
+
 /// Make an authenticated GET request
 async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError> {
     let url = format!("{}{}", env::api_base(), path);
@@ -158,6 +168,9 @@ async fn get_request<T: DeserializeOwned>(path: &str) -> Result<T, RequestError>
             message: format!("Parse error: {}", e),
         })
     } else {
+        if resp.status() == 401 && is_logged_in() {
+            handle_unauthorized();
+        }
         let error: ApiError = resp.json().await.unwrap_or(ApiError::new("Unknown error"));
         Err(RequestError {
             message: error.error,
@@ -191,6 +204,9 @@ async fn post_request<T: DeserializeOwned, B: Serialize>(
             message: format!("Parse error: {}", e),
         })
     } else {
+        if resp.status() == 401 && is_logged_in() {
+            handle_unauthorized();
+        }
         let error: ApiError = resp.json().await.unwrap_or(ApiError::new("Unknown error"));
         Err(RequestError {
             message: error.error,
@@ -312,9 +328,10 @@ pub async fn change_username(new_username: &str) -> Result<UserProfile, RequestE
     Ok(profile)
 }
 
-pub async fn delete_account(password: Option<&str>) -> Result<SuccessResponse, RequestError> {
+pub async fn delete_account(password: Option<&str>, confirmation: Option<&str>) -> Result<SuccessResponse, RequestError> {
     let req = DeleteAccountRequest {
         password: password.map(|s| s.to_string()),
+        confirmation: confirmation.map(|s| s.to_string()),
     };
     let resp: SuccessResponse = post_request("/auth/delete-account", &req).await?;
     // Clear auth data after successful deletion
@@ -409,4 +426,31 @@ pub async fn get_user_stats() -> Result<UserStatsResponse, RequestError> {
 
 pub async fn get_elo_history(topic: &str) -> Result<EloHistoryResponse, RequestError> {
     get_request(&format!("/user/elo-history?topic={}", topic)).await
+}
+
+// ============================================================================
+// Daily Puzzle API
+// ============================================================================
+
+pub async fn get_daily_today() -> Result<DailyPuzzleResponse, RequestError> {
+    get_request("/daily/today").await
+}
+
+pub async fn get_daily_puzzle(date: &str) -> Result<DailyPuzzleDetailResponse, RequestError> {
+    get_request(&format!("/daily/puzzle/{}", date)).await
+}
+
+pub async fn submit_daily(req: &DailySubmitRequest) -> Result<DailySubmitResponse, RequestError> {
+    post_request("/daily/submit", req).await
+}
+
+pub async fn get_daily_archive(
+    limit: i64,
+    offset: i64,
+) -> Result<Vec<DailyArchiveEntry>, RequestError> {
+    get_request(&format!("/daily/archive?limit={}&offset={}", limit, offset)).await
+}
+
+pub async fn get_daily_activity() -> Result<DailyActivityResponse, RequestError> {
+    get_request("/daily/activity").await
 }

@@ -1,12 +1,18 @@
 //! API routes and handlers
 
 mod auth;
+mod daily;
 mod leaderboard;
 mod oauth;
 mod problems;
 mod stats;
 mod submit;
 mod topics;
+
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Instant;
+use tokio::sync::RwLock;
 
 use axum::{
     Json, Router,
@@ -16,7 +22,13 @@ use axum::{
 use sqlx::PgPool;
 
 use crate::rate_limit;
-use locus_common::ApiError;
+use locus_common::{ApiError, LeaderboardEntry};
+
+/// Cached leaderboard entry with timestamp
+pub type LeaderboardCache = Arc<RwLock<HashMap<String, (Instant, Vec<LeaderboardEntry>)>>>;
+
+/// Cached daily puzzle + problem for today
+pub type DailyPuzzleCache = Arc<RwLock<Option<(chrono::NaiveDate, crate::models::daily_puzzle::DailyPuzzle, crate::models::Problem)>>>;
 
 /// Shared application state
 #[derive(Clone)]
@@ -33,6 +45,8 @@ pub struct AppState {
     pub topic_cache: crate::topics::TopicCache,
     pub email_service: crate::email::EmailService,
     pub is_production: bool,
+    pub leaderboard_cache: LeaderboardCache,
+    pub daily_puzzle_cache: DailyPuzzleCache,
 }
 
 impl AppState {
@@ -63,12 +77,21 @@ impl AppState {
             topic_cache,
             email_service,
             is_production,
+            leaderboard_cache: Arc::new(RwLock::new(HashMap::new())),
+            daily_puzzle_cache: Arc::new(RwLock::new(None)),
         }
     }
 }
 
 /// Build the API router
 pub fn router() -> Router<AppState> {
+    // Sensitive auth routes with stricter rate limiting (5 per 15 min)
+    let sensitive_auth_routes = Router::new()
+        .route("/auth/forgot-password", post(auth::forgot_password))
+        .route("/auth/resend-verification", post(auth::resend_verification))
+        .route("/auth/reset-password", post(auth::reset_password))
+        .layer(rate_limit::sensitive_rate_limiter());
+
     Router::new()
         // Auth routes (with specific rate limiting)
         .route("/auth/register", post(auth::register))
@@ -82,13 +105,11 @@ pub fn router() -> Router<AppState> {
         .route("/auth/logout", post(auth::logout))
         .route("/auth/unlink-oauth", post(auth::unlink_oauth))
         .route("/auth/verify-email", post(auth::verify_email))
-        .route("/auth/resend-verification", post(auth::resend_verification))
-        .route("/auth/forgot-password", post(auth::forgot_password))
         .route(
             "/auth/validate-reset-token",
             post(auth::validate_reset_token),
         )
-        .route("/auth/reset-password", post(auth::reset_password))
+        .merge(sensitive_auth_routes)
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
         .route(
@@ -114,6 +135,12 @@ pub fn router() -> Router<AppState> {
         // User stats
         .route("/user/stats", get(stats::get_user_stats))
         .route("/user/elo-history", get(stats::get_elo_history))
+        // Daily puzzle
+        .route("/daily/today", get(daily::get_today))
+        .route("/daily/puzzle/{date}", get(daily::get_puzzle_by_date))
+        .route("/daily/submit", post(daily::submit_daily))
+        .route("/daily/archive", get(daily::get_archive))
+        .route("/daily/activity", get(daily::get_activity))
 }
 
 /// Health check endpoint

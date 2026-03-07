@@ -1,5 +1,8 @@
 //! Page components
 
+mod daily;
+mod daily_archive;
+mod daily_detail;
 mod forgot_password;
 mod home;
 mod leaderboard;
@@ -14,6 +17,9 @@ mod stats;
 mod terms_of_service;
 mod verify_email;
 
+pub use daily::Daily;
+pub use daily_archive::DailyArchive;
+pub use daily_detail::DailyPuzzleDetail;
 pub use forgot_password::ForgotPassword;
 pub use home::Home;
 pub use leaderboard::Leaderboard;

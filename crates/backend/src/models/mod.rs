@@ -1,6 +1,7 @@
 //! Database models
 
 mod attempt;
+pub mod daily_puzzle;
 mod email_verification;
 mod password_reset;
 mod problem;

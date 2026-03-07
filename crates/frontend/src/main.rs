@@ -141,8 +141,8 @@ use leptos_router::{
     path,
 };
 use pages::{
-    ForgotPassword, Home, Leaderboard, Login, Practice, PrivacyPolicy, Ranked, Register,
-    ResetPassword, Settings, Stats, TermsOfService, VerifyEmail,
+    Daily, DailyArchive, DailyPuzzleDetail, ForgotPassword, Home, Leaderboard, Login, Practice,
+    PrivacyPolicy, Ranked, Register, ResetPassword, Settings, Stats, TermsOfService, VerifyEmail,
 };
 
 fn main() {
@@ -216,6 +216,9 @@ fn App() -> impl IntoView {
                 )>
                     <Routes fallback=|| view! { <p class="text-center mt-12">"Page not found"</p> }>
                         <Route path=path!("/") view=Home />
+                        <Route path=path!("/daily") view=Daily />
+                        <Route path=path!("/daily/archive") view=DailyArchive />
+                        <Route path=path!("/daily/puzzle/:date") view=DailyPuzzleDetail />
                         <Route path=path!("/practice") view=Practice />
                         <Route path=path!("/ranked") view=Ranked />
                         <Route path=path!("/leaderboard") view=Leaderboard />
