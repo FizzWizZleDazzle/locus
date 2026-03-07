@@ -109,7 +109,7 @@ using .ProblemUtils
 
 ### Simplified API
 
-The `@script` macro, random expression generators, and `step()` helper reduce boilerplate significantly:
+The `@script` macro, random expression generators, and `sol()` helper reduce boilerplate significantly:
 
 **Before:**
 ```julia
@@ -157,7 +157,7 @@ using .ProblemUtils
         question="Find \\frac{d}{dx}[$(tex(q.expr))]",
         answer=df,
         difficulty=(1200, 1400),
-        solution=steps(step("Given", q.expr), "Apply power rule", step("Answer", df))
+        solution=steps(sol("Given", q.expr), "Apply power rule", sol("Answer", df))
     )
 end
 ```
@@ -168,7 +168,7 @@ end
 - `rand_quadratic(x)` → `(expr=ax²+bx+c, a, b, c)`
 - `rand_factorable(x)` → `(expr=a(x-r1)(x-r2) expanded, a, r1, r2)`
 - `rand_poly(x, n)` → `(expr, coeffs::Vector)`
-- `step("Label", expr)` → `"Label: $\LaTeX$"`, `step(expr)` → `"$\LaTeX$"`
+- `sol("Label", expr)` → `"Label: $\LaTeX$"`, `sol(expr)` → `"$\LaTeX$"`
 - `set_topic!("main/sub")` — set default topic for all `problem()` calls in a script
 
 ### SymPy -> Symbolics.jl Cheat Sheet

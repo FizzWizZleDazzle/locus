@@ -213,7 +213,7 @@ API SUMMARY:
 - problem(; question, answer, difficulty, solution, topic, grading_mode, answer_type, calculator, image, time) -> Dict
   topic defaults to set_topic!() value. answer_type auto-detected. difficulty: Int or (lo,hi) tuple.
 - steps(strings...) — join solution steps with <br>
-- step("Label", expr) -> "Label: $\LaTeX$", step(expr) -> "$\LaTeX$" — for use inside steps()
+- sol("Label", expr) -> "Label: $\LaTeX$", sol(expr) -> "$\LaTeX$" — for use inside steps()
 - tex(expr) — convert Symbolics expression to LaTeX string
 
 RANDOM EXPRESSION GENERATORS (return named tuples):
@@ -237,7 +237,7 @@ KEY SYMBOLICS.JL DIFFERENCES FROM SYMPY:
 - Equations use ~ (x^2 ~ 1), not Eq(). solve wraps Symbolics.solve_for
 - No FiniteSet (use Set([])), no Matrix type (use Vector{Vector})
 
-EXAMPLE 1 — derivative with rand_quadratic + step:
+EXAMPLE 1 — derivative with rand_quadratic + sol:
 ```
 include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
@@ -250,7 +250,7 @@ using .ProblemUtils
         question="Find \\frac{d}{dx}[$(tex(q.expr))]",
         answer=df,
         difficulty=(1000, 1200),
-        solution=steps(step("Given", q.expr), "Apply power rule", step("Answer", df)),
+        solution=steps(sol("Given", q.expr), "Apply power rule", sol("Answer", df)),
         time=60,
     )
 end
@@ -270,7 +270,7 @@ using .ProblemUtils
         difficulty=(1200, 1400),
         grading_mode="factor",
         solution=steps(
-            step("Expression", q.expr),
+            sol("Expression", q.expr),
             "Find two numbers that multiply to $(q.r1 * q.r2) and add to $(-(q.r1 + q.r2))",
             "Roots: $(q.r1), $(q.r2)",
         ),
@@ -294,7 +294,7 @@ using .ProblemUtils
         question="Solve \$$(tex(lhs)) = $(b)\$",
         answer=ans,
         difficulty=(700, 1000),
-        solution=steps(step("Given", lhs ~ b), "Solve for x", step("Answer", ans)),
+        solution=steps(sol("Given", lhs ~ b), "Solve for x", sol("Answer", ans)),
         time=60,
     )
 end
@@ -303,7 +303,7 @@ end
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
 2. Randomize with LARGE ranges (coefficients ±20+, roots ±12, exponents up to 6-8)
-3. Always include a solution using steps() with step() helpers
+3. Always include a solution using steps() with sol() helpers
 4. ELO must match actual complexity (see ELO guide above)
 5. Default calculator to "none" unless computation is heavy and not the focus
 6. Always set time= in problem() (easy 30-90s, medium 60-180s, hard 120-300s)
