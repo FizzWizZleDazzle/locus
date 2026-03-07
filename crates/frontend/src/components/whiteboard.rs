@@ -47,6 +47,18 @@ fn ensure_fabric_loaded(callback: impl FnOnce() + 'static) {
     document.head().unwrap().append_child(&script).unwrap();
 }
 
+/// Validate a hex color string (defense-in-depth for wb_eval inputs)
+fn sanitize_color(color: &str) -> &str {
+    if color.len() == 7
+        && color.starts_with('#')
+        && color[1..].chars().all(|c| c.is_ascii_hexdigit())
+    {
+        color
+    } else {
+        "#000000"
+    }
+}
+
 /// Run JS code that has access to the canvas via `window.__wb_canvas`.
 /// The code string can reference `c` as the canvas.
 fn wb_eval(code: &str) {
@@ -222,6 +234,7 @@ pub fn Whiteboard(
     // Update brush color
     Effect::new(move |_| {
         let color = active_color.get();
+        let color = sanitize_color(&color);
         if canvas_ready.get() && active_tool.get_untracked() == Tool::Pen {
             wb_eval(&format!("c.freeDrawingBrush.color = '{}';", color));
         }
@@ -230,7 +243,7 @@ pub fn Whiteboard(
             let _ = js_sys::Reflect::set(
                 &window,
                 &"__wb_text_color".into(),
-                &JsValue::from_str(&color),
+                &JsValue::from_str(color),
             );
         }
     });
@@ -259,6 +272,7 @@ pub fn Whiteboard(
         set_active_tool.set(Tool::Pen);
         set_text_mode(false);
         let color = active_color.get_untracked();
+        let color = sanitize_color(&color);
         wb_eval(&format!(
             "c.freeDrawingBrush = new fabric.PencilBrush(c); c.freeDrawingBrush.color = '{}'; c.freeDrawingBrush.width = {}; c.isDrawingMode = true;",
             color,
@@ -401,11 +415,12 @@ pub fn Whiteboard(
                             class:scale-110=move || active_color.get() == hex4
                             style=format!("background-color: {}", hex)
                             on:click=move |_| {
-                                set_active_color.set(hex_for_click.clone());
+                                let color = sanitize_color(&hex_for_click);
+                                set_active_color.set(color.to_string());
                                 if active_tool.get_untracked() == Tool::Pen {
                                     wb_eval(&format!(
                                         "c.freeDrawingBrush.color = '{}';",
-                                        hex_for_click
+                                        color
                                     ));
                                 }
                             }

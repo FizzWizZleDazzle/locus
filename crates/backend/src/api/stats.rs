@@ -29,7 +29,7 @@ pub async fn get_user_stats(
         FROM attempts a
         JOIN user_topic_elo ute ON ute.user_id = a.user_id AND ute.topic = a.main_topic
         WHERE a.user_id = $1
-        GROUP BY a.main_topic, ute.elo, ute.peak_elo, ute.topic_streak, ute.peak_topic_streak
+        GROUP BY a.main_topic, ute.user_id, ute.topic
         ORDER BY a.main_topic
         "#,
     )
@@ -60,11 +60,10 @@ pub async fn get_user_stats(
         SELECT
           COUNT(*) as total_attempts,
           COUNT(*) FILTER (WHERE a.is_correct) as correct_attempts,
-          COALESCE(u.current_streak, 0)
+          COALESCE(MAX(u.current_streak), 0)
         FROM attempts a
         JOIN users u ON u.id = a.user_id
         WHERE a.user_id = $1
-        GROUP BY u.current_streak
         "#,
     )
     .bind(user.id)

@@ -39,6 +39,7 @@ pub struct Config {
     pub resend_from_email: String,
     pub resend_from_name: String,
     pub frontend_base_url: String,
+    pub max_db_connections: u32,
 }
 
 impl Config {
@@ -69,6 +70,11 @@ impl Config {
             .map(|s| s.trim().to_string())
             .filter(|s| !s.is_empty())
             .collect();
+
+        let max_db_connections = env::var("MAX_DB_CONNECTIONS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(if environment == Environment::Production { 50 } else { 10 });
 
         Ok(Self {
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
@@ -102,6 +108,7 @@ impl Config {
             resend_from_name: env::var("RESEND_FROM_NAME").unwrap_or_else(|_| "Locus".to_string()),
             frontend_base_url: env::var("FRONTEND_BASE_URL")
                 .unwrap_or_else(|_| "http://localhost:8080".to_string()),
+            max_db_connections,
         })
     }
 }

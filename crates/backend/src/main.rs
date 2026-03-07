@@ -10,7 +10,7 @@ mod models;
 mod rate_limit;
 mod topics;
 
-use axum::{Router, http::Method, routing::get};
+use axum::{Router, http::Method, middleware, routing::get};
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -37,7 +37,8 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Environment: {:?}", config.environment);
     tracing::info!("Allowed CORS origins: {:?}", config.allowed_origins);
     // Connect to database
-    let pool = db::create_pool(&config.database_url).await?;
+    tracing::info!("DB pool max_connections: {}", config.max_db_connections);
+    let pool = db::create_pool(&config.database_url, config.max_db_connections).await?;
 
     // Run migrations (unless SKIP_MIGRATIONS=true)
     if std::env::var("SKIP_MIGRATIONS").unwrap_or_default() != "true" {
@@ -109,6 +110,7 @@ async fn main() -> anyhow::Result<()> {
             "/api",
             api::router().layer(rate_limit::general_rate_limiter()),
         )
+        .layer(middleware::from_fn(security_headers))
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_origins)
@@ -136,6 +138,23 @@ async fn main() -> anyhow::Result<()> {
     .await?;
 
     Ok(())
+}
+
+/// Security headers middleware
+async fn security_headers(
+    req: axum::extract::Request,
+    next: middleware::Next,
+) -> axum::response::Response {
+    let mut res = next.run(req).await;
+    let headers = res.headers_mut();
+    headers.insert("x-content-type-options", "nosniff".parse().unwrap());
+    headers.insert("x-frame-options", "DENY".parse().unwrap());
+    headers.insert(
+        "referrer-policy",
+        "strict-origin-when-cross-origin".parse().unwrap(),
+    );
+    headers.insert("x-xss-protection", "0".parse().unwrap());
+    res
 }
 
 // Re-export for convenience

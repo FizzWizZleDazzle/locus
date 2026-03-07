@@ -20,8 +20,8 @@ pub struct Attempt {
 
 impl Attempt {
     /// Record a new attempt
-    pub async fn create(
-        pool: &PgPool,
+    pub async fn create<'e, E>(
+        executor: E,
         user_id: Uuid,
         problem_id: Uuid,
         user_input: &str,
@@ -30,7 +30,10 @@ impl Attempt {
         elo_after: i32,
         time_taken_ms: Option<i32>,
         main_topic: &str,
-    ) -> Result<Self, sqlx::Error> {
+    ) -> Result<Self, sqlx::Error>
+    where
+        E: sqlx::PgExecutor<'e>,
+    {
         sqlx::query_as(
             r#"
             INSERT INTO attempts (user_id, problem_id, user_input, is_correct, elo_before, elo_after, time_taken_ms, main_topic)
@@ -46,7 +49,7 @@ impl Attempt {
         .bind(elo_after)
         .bind(time_taken_ms)
         .bind(main_topic)
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await
     }
 

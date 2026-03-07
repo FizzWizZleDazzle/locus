@@ -140,31 +140,28 @@ impl User {
     }
 
     /// Update ELO and streaks for a topic, returning the new topic_streak
-    pub async fn update_elo_and_streaks(
-        pool: &PgPool,
+    pub async fn update_elo_and_streaks<'e, E>(
+        executor: E,
         user_id: Uuid,
         topic: &str,
         new_elo: i32,
         is_correct: bool,
-    ) -> Result<i32, sqlx::Error> {
-        // Ensure the row exists first (upsert via PostgreSQL function)
-        sqlx::query("SELECT update_user_elo($1, $2, $3)")
-            .bind(user_id)
-            .bind(topic)
-            .bind(new_elo)
-            .execute(pool)
-            .await?;
-
+    ) -> Result<i32, sqlx::Error>
+    where
+        E: sqlx::PgExecutor<'e>,
+    {
+        // Use a single upsert + streak update query to avoid needing two executor uses
         let row: (i32,) = sqlx::query_as(
             r#"
-            UPDATE user_topic_elo SET
+            INSERT INTO user_topic_elo (user_id, topic, elo, peak_elo, topic_streak, peak_topic_streak)
+            VALUES ($1, $2, $3, $3, CASE WHEN $4 THEN 1 ELSE 0 END, CASE WHEN $4 THEN 1 ELSE 0 END)
+            ON CONFLICT (user_id, topic) DO UPDATE SET
               elo = $3,
-              topic_streak = CASE WHEN $4 THEN topic_streak + 1 ELSE 0 END,
-              peak_topic_streak = GREATEST(peak_topic_streak,
-                                   CASE WHEN $4 THEN topic_streak + 1 ELSE 0 END),
-              peak_elo = GREATEST(peak_elo, $3),
+              topic_streak = CASE WHEN $4 THEN user_topic_elo.topic_streak + 1 ELSE 0 END,
+              peak_topic_streak = GREATEST(user_topic_elo.peak_topic_streak,
+                                   CASE WHEN $4 THEN user_topic_elo.topic_streak + 1 ELSE 0 END),
+              peak_elo = GREATEST(user_topic_elo.peak_elo, $3),
               updated_at = NOW()
-            WHERE user_id = $1 AND topic = $2
             RETURNING topic_streak
             "#,
         )
@@ -172,14 +169,17 @@ impl User {
         .bind(topic)
         .bind(new_elo)
         .bind(is_correct)
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await?;
 
         Ok(row.0)
     }
 
     /// Update the global daily streak for a user (call only on correct answer)
-    pub async fn update_daily_streak(pool: &PgPool, user_id: Uuid) -> Result<(), sqlx::Error> {
+    pub async fn update_daily_streak<'e, E>(executor: E, user_id: Uuid) -> Result<(), sqlx::Error>
+    where
+        E: sqlx::PgExecutor<'e>,
+    {
         sqlx::query(
             r#"
             UPDATE users SET
@@ -193,7 +193,7 @@ impl User {
             "#,
         )
         .bind(user_id)
-        .execute(pool)
+        .execute(executor)
         .await?;
         Ok(())
     }
@@ -303,15 +303,31 @@ impl User {
         Ok(())
     }
 
-    /// Convert to API response type with all ELO ratings
+    /// Convert to API response type with all ELO ratings (single query)
     pub async fn to_profile(&self, pool: &PgPool) -> Result<UserProfile, sqlx::Error> {
-        let elos = Self::get_all_elos(pool, self.id).await?;
-        let oauth_providers = Self::get_oauth_providers(pool, self.id).await?;
-        let streak_row: (i32,) =
-            sqlx::query_as("SELECT COALESCE(current_streak, 0) FROM users WHERE id = $1")
-                .bind(self.id)
-                .fetch_one(pool)
-                .await?;
+        let row: (i32, serde_json::Value, serde_json::Value) = sqlx::query_as(
+            r#"
+            SELECT
+              COALESCE(u.current_streak, 0),
+              COALESCE(
+                (SELECT json_object_agg(topic, elo) FROM user_topic_elo WHERE user_id = $1),
+                '{}'::json
+              ),
+              COALESCE(
+                (SELECT json_agg(provider ORDER BY provider) FROM oauth_accounts WHERE user_id = $1),
+                '[]'::json
+              )
+            FROM users u WHERE u.id = $1
+            "#,
+        )
+        .bind(self.id)
+        .fetch_one(pool)
+        .await?;
+
+        let elos: HashMap<String, i32> =
+            serde_json::from_value(row.1).unwrap_or_default();
+        let oauth_providers: Vec<String> =
+            serde_json::from_value(row.2).unwrap_or_default();
 
         Ok(UserProfile {
             id: self.id,
@@ -322,7 +338,7 @@ impl User {
             has_password: self.password_hash.is_some(),
             oauth_providers,
             created_at: self.created_at,
-            current_streak: streak_row.0,
+            current_streak: row.0,
         })
     }
 }
