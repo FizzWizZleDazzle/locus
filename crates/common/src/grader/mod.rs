@@ -169,6 +169,10 @@ pub fn check_answer<E: ExprEngine>(
 /// Two-stage equivalence check:
 /// 1. Symbolic: expand(a - b) == 0
 /// 2. Numerical: evaluate at test points and check the difference is ~0
+///
+/// Before numerical fallback, we verify both expressions use the same set
+/// of free symbols. Otherwise substituting distinct variables (e.g. `X` vs `x`)
+/// with the same test value produces false positives.
 pub(crate) fn are_equivalent<E: ExprEngine>(a: &E, b: &E) -> bool {
     // Stage 1: exact symbolic check
     let diff = a.sub(b);
@@ -187,11 +191,24 @@ pub(crate) fn are_equivalent<E: ExprEngine>(a: &E, b: &E) -> bool {
         return false;
     }
 
-    // Substitute each variable with test values and check
-    for &test_val in TEST_POINTS {
+    // Guard: if expressions have different free symbols, the numerical check
+    // would give false positives by assigning the same value to distinct vars
+    let mut a_syms = a.free_symbols();
+    let mut b_syms = b.free_symbols();
+    a_syms.sort();
+    b_syms.sort();
+    if a_syms != b_syms {
+        return false;
+    }
+
+    // Substitute each variable with distinct test values and check
+    for (i, &base_val) in TEST_POINTS.iter().enumerate() {
         let mut subst = a.sub(b);
-        for sym in &symbols {
-            subst = subst.subs_float(sym, test_val);
+        for (j, sym) in symbols.iter().enumerate() {
+            // Use different values per variable to avoid masking errors
+            let val = base_val + (j as f64) * 1.7;
+            let _ = i; // base_val already varies per iteration
+            subst = subst.subs_float(sym, val);
         }
         match subst.to_float() {
             Some(val) if val.abs() < NUMERICAL_TOLERANCE => continue,
