@@ -146,18 +146,58 @@ Rate limiting table: 1 email per minute per user.
 | `user_id` | UUID | FK -> users ON DELETE CASCADE |
 | `sent_at` | TIMESTAMPTZ | default NOW() |
 
+### `daily_puzzles`
+
+Wraps a `problems` row with daily puzzle metadata (hints, editorial, scheduling).
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | UUID | PK, default `gen_random_uuid()` |
+| `problem_id` | UUID | FK -> problems ON DELETE RESTRICT, NOT NULL |
+| `puzzle_date` | DATE | UNIQUE, nullable (NULL = unscheduled/in pool) |
+| `title` | VARCHAR(200) | NOT NULL, default '' |
+| `hints` | JSONB | NOT NULL, default '[]' (array of LaTeX hint strings) |
+| `editorial_latex` | TEXT | NOT NULL, default '' |
+| `source` | VARCHAR(200) | NOT NULL, default '' |
+| `status` | VARCHAR(20) | NOT NULL, default 'draft', CHECK IN ('draft', 'scheduled', 'archived') |
+| `created_at` | TIMESTAMPTZ | default NOW() |
+
+### `daily_puzzle_attempts`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | UUID | PK, default `gen_random_uuid()` |
+| `user_id` | UUID | FK -> users ON DELETE CASCADE, NOT NULL |
+| `daily_puzzle_id` | UUID | FK -> daily_puzzles ON DELETE CASCADE, NOT NULL |
+| `user_input` | TEXT | NOT NULL |
+| `is_correct` | BOOLEAN | NOT NULL |
+| `hints_used` | INT | NOT NULL, default 0 |
+| `time_taken_ms` | INT | nullable |
+| `created_at` | TIMESTAMPTZ | default NOW() |
+
+**Additional columns on `users` table** (added by migration 019):
+
+| Column | Type | Constraints |
+|---|---|---|
+| `daily_puzzle_streak` | INT | NOT NULL, default 0 |
+| `daily_puzzle_last_solve` | DATE | nullable |
+
 ## Relationships
 
 ```
 users ──┬── user_topic_elo
         ├── oauth_accounts
         ├── attempts
+        ├── daily_puzzle_attempts
         ├── email_verification_tokens
         ├── email_verification_sends
         ├── password_reset_tokens
         └── password_reset_sends
 
-problems ── attempts
+problems ──┬── attempts
+           └── daily_puzzles
+
+daily_puzzles ── daily_puzzle_attempts
 
 topics ──── subtopics
 ```
@@ -211,6 +251,18 @@ idx_password_reset_tokens_user_id   ON password_reset_tokens(user_id)
 
 -- password_reset_sends
 idx_password_reset_sends_user_time  ON password_reset_sends(user_id, sent_at DESC)
+
+-- daily_puzzles
+idx_daily_puzzles_date              ON daily_puzzles(puzzle_date) WHERE puzzle_date IS NOT NULL
+idx_daily_puzzles_status            ON daily_puzzles(status)
+
+-- daily_puzzle_attempts
+idx_dpa_user_puzzle                 ON daily_puzzle_attempts(user_id, daily_puzzle_id)
+idx_dpa_puzzle                      ON daily_puzzle_attempts(daily_puzzle_id)
+
+-- performance indexes (migration 020)
+idx_attempts_user_topic_created     ON attempts(user_id, main_topic, created_at DESC)
+idx_daily_puzzles_date_status       ON daily_puzzles(puzzle_date, status) WHERE puzzle_date IS NOT NULL
 ```
 
 ## Migration History
@@ -234,3 +286,5 @@ idx_password_reset_sends_user_time  ON password_reset_sends(user_id, sent_at DES
 | 016 | streaks_and_peak_elo | current_streak + last_active_date on users, topic_streak + peak columns on user_topic_elo |
 | 017 | normalize_email | Lowercase all emails |
 | 018 | fix_answer_key_formats | Fix set Python list notation, delete broken list-of-Matrix problems |
+| 019 | daily_puzzles | daily_puzzles + daily_puzzle_attempts tables, daily_puzzle_streak + daily_puzzle_last_solve on users |
+| 020 | performance_indexes | Composite indexes for ELO history queries and daily puzzle lookups |

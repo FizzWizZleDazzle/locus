@@ -67,7 +67,7 @@ Leptos 0.7 CSR app. Compiles to `wasm32-unknown-unknown`.
 | `src/components/timer.rs` | Countdown timer |
 | `src/components/topic_selector.rs` | Topic/subtopic filter UI |
 | `src/formatters/` | `common.rs`, `equation.rs`, `inequality.rs`, `interval.rs`, `matrix.rs`, `multi_part.rs`, `set.rs`, `tests.rs` - Format grader results for display |
-| `src/pages/` | `home`, `login`, `register`, `verify_email`, `forgot_password`, `reset_password`, `practice`, `ranked`, `leaderboard`, `stats`, `settings`, `privacy_policy`, `terms_of_service` |
+| `src/pages/` | `home`, `login`, `register`, `verify_email`, `forgot_password`, `reset_password`, `practice`, `ranked`, `leaderboard`, `stats`, `settings`, `daily`, `daily_archive`, `privacy_policy`, `terms_of_service` |
 
 ### `backend` (locus-backend)
 
@@ -77,18 +77,19 @@ Axum REST API. Compiles to native target.
 |---|---|
 | `src/main.rs` | Server init: load config, connect DB, run migrations, build router, start Axum |
 | `src/config.rs` | `Config` struct loaded from environment variables |
-| `src/db.rs` | PostgreSQL connection pool (max 10 connections) |
+| `src/db.rs` | PostgreSQL connection pool (configurable via `MAX_DB_CONNECTIONS`, default 10 dev / 50 prod) |
 | `src/grader.rs` | Server-side grading wrapper: calls `locus_common::grader::grade_answer()` |
 | `src/email.rs` | `EmailService` using Resend: verification emails, password reset emails |
-| `src/rate_limit.rs` | IP-based rate limiting via governor: auth (5/15min), login (10/15min), general (1000/min) |
+| `src/rate_limit.rs` | IP-based rate limiting via governor: auth (5/15min), login (10/15min), sensitive (5/15min), general (1000/min) |
 | `src/topics.rs` | `TopicCache`: in-memory cache of enabled topics/subtopics, periodic refresh |
 | `src/api/mod.rs` | `AppState` struct, router assembly |
 | `src/api/auth.rs` | Auth endpoints: register, login, set-password, change-password, change-username, delete-account, unlink-oauth, verify-email, resend-verification, forgot-password, validate-reset-token, reset-password |
 | `src/api/problems.rs` | `GET /problems`: fetch random problems with topic/subtopic/ELO filters |
-| `src/api/submit.rs` | `POST /submit`: grade answer, update ELO and streaks, record attempt |
-| `src/api/leaderboard.rs` | `GET /leaderboard`: top 100 users by topic ELO |
+| `src/api/submit.rs` | `POST /submit`: grade answer (via `spawn_blocking`), update ELO and streaks in transaction, record attempt |
+| `src/api/leaderboard.rs` | `GET /leaderboard`: top 100 users by topic ELO (cached 5 min) |
 | `src/api/stats.rs` | `GET /user/stats`, `GET /user/elo-history`: per-topic stats and 30-day chart data |
 | `src/api/topics.rs` | `GET /topics`: enabled topics and subtopics from cache |
+| `src/api/daily.rs` | Daily puzzle endpoints: today, puzzle/{date}, submit, archive, activity |
 | `src/api/oauth.rs` | OAuth flows: Google/GitHub login, callback, account linking |
 | `src/auth/mod.rs` | Auth module re-exports |
 | `src/auth/jwt.rs` | JWT creation/verification (HS256, 24-hour expiry) |
@@ -99,6 +100,7 @@ Axum REST API. Compiles to native target.
 | `src/models/attempt.rs` | `Attempt` recording and aggregation |
 | `src/models/email_verification.rs` | `EmailVerificationToken`: generation, validation, rate limiting |
 | `src/models/password_reset.rs` | `PasswordResetToken`: generation, validation, rate limiting |
+| `src/models/daily_puzzle.rs` | `DailyPuzzle`, `DailyPuzzleAttempt`: daily puzzle + attempt models, activity matrix, streak tracking |
 
 ## Factory (Python)
 
@@ -118,6 +120,7 @@ factory/
   import_db.py          SQLite -> PostgreSQL importer
   publish_db.py         SQL -> SQLite -> GitHub Release
   topup.py              Re-run scripts for thin subtopics
+  generate_daily_puzzles.py  LLM-based olympiad puzzle generation (inserts draft daily puzzles)
 ```
 
 ## Grading System
@@ -144,7 +147,8 @@ factory/
 ### Two-Stage Expression Equivalence
 
 1. **Symbolic**: `expand(user - key) == 0`
-2. **Numerical**: Evaluate both at test points `[0.7, 1.3, 2.1, -0.4, 0.31]` with `|diff| < 1e-6` tolerance
+2. **Variable guard**: Both expressions must have the same set of free symbols (prevents false positives from different variable names like `X` vs `x`)
+3. **Numerical**: Evaluate both at test points `[0.7, 1.3, 2.1, -0.4, 0.31]` with distinct per-variable offsets, `|diff| < 1e-6` tolerance
 
 ### Input Pipeline
 
@@ -164,10 +168,10 @@ Standard ELO with time bonus. K-factor = 32. Per-topic ratings stored in `user_t
 ## Authentication
 
 ### Email/Password
-1. Register with email + password (Argon2 hashed)
-2. Verification email sent via Resend (1-hour token)
-3. Login returns JWT (HS256, 24-hour expiry)
-4. Password reset via email (30-minute token)
+1. Register with email + password (Argon2 hashed via `spawn_blocking`)
+2. Verification email sent via Resend (1-hour token, atomic verify via CTE)
+3. Login returns JWT (HS256, 24-hour expiry, password verify via `spawn_blocking`)
+4. Password reset via email (30-minute token, atomic reset via CTE)
 
 ### OAuth (Google, GitHub)
 1. Frontend opens popup to `/auth/oauth/{provider}`

@@ -24,8 +24,9 @@ IP-based via governor. Unlimited in debug builds.
 
 | Limiter | Limit | Applies to | Env var |
 |---|---|---|---|
-| Auth | 5 / 15 min | register, verify-email, resend-verification, forgot-password | `RATE_LIMIT_AUTH_PER_15MIN` |
+| Auth | 5 / 15 min | register | `RATE_LIMIT_AUTH_PER_15MIN` |
 | Login | 10 / 15 min | login | `RATE_LIMIT_LOGIN_PER_15MIN` |
+| Sensitive | 5 / 15 min | forgot-password, resend-verification, reset-password | `RATE_LIMIT_SENSITIVE_PER_15MIN` |
 | General | 1000 / min | all other endpoints | `RATE_LIMIT_GENERAL_PER_MIN` |
 
 ## Error Format
@@ -157,12 +158,17 @@ Cascading delete of all user data. Clears auth cookie.
 **Auth**: Cookie or Bearer
 
 ```json
-// Request
-{ "password": "P@ssw0rd!" }  // required if user has password
+// Request (password-based account)
+{ "password": "P@ssw0rd!" }
+
+// Request (OAuth-only account — confirm with username)
+{ "confirmation": "alice" }
 
 // Response 200 (with Set-Cookie: Max-Age=0)
 { "success": true, "message": "..." }
 ```
+
+Password is required if user has one; otherwise `confirmation` must match the username.
 
 #### `POST /auth/unlink-oauth`
 
@@ -204,7 +210,7 @@ Token expires after 1 hour.
 { "success": true, "message": "..." }
 ```
 
-Rate limited to 1 email per minute per user. Silently succeeds for non-existent emails.
+Rate limited to 1 email per minute per user. Returns generic success for non-existent, already-verified, or rate-limited emails (prevents enumeration).
 
 #### `POST /auth/forgot-password`
 
@@ -386,7 +392,7 @@ Served from in-memory cache.
 }
 ```
 
-Returns top 100 users.
+Returns top 100 users. Results cached for 5 minutes per topic.
 
 ---
 
@@ -432,6 +438,127 @@ Returns top 100 users.
 
 Returns last 30 days. One entry per day (last attempt's ELO).
 
+---
 
+### Daily Puzzle
+
+#### `GET /daily/today`
+
+Get today's daily puzzle. No answer key included.
+
+**Auth**: Optional (includes user_status + streak if authenticated)
+
+```json
+// Response 200
+{
+  "id": "uuid",
+  "puzzle_date": "2024-03-06",
+  "title": "Sum of Divisors",
+  "problem": { ProblemResponse },  // answer_key = null
+  "hints_available": 3,
+  "source": "AIME 2018 #7",
+  "user_status": {               // null if not authenticated
+    "solved": false,
+    "solved_same_day": false,
+    "attempts": 2,
+    "hints_revealed": 1,
+    "streak": 5
+  }
+}
+```
+
+Returns 404 if no puzzle is scheduled for today.
+
+#### `GET /daily/puzzle/{date}`
+
+Get a past puzzle with full details (answer, editorial, hints, stats).
+
+**Auth**: Optional | **Path params**: `date` = `YYYY-MM-DD`
+
+```json
+// Response 200
+{
+  "id": "uuid",
+  "puzzle_date": "2024-03-05",
+  "title": "Sum of Divisors",
+  "problem": { ProblemResponse },  // includes answer_key for past puzzles
+  "editorial_latex": "Step-by-step solution...",
+  "hints": ["Hint 1", "Hint 2", "Hint 3"],
+  "source": "AIME 2018 #7",
+  "stats": { "total_attempts": 150, "total_solves": 45, "solve_rate": 0.3 },
+  "user_status": { ... }  // null if not authenticated
+}
+```
+
+Returns 404 for future dates or unscheduled dates.
+
+#### `POST /daily/submit`
+
+Submit an answer for a daily puzzle. Unlimited retries. No ELO impact.
+
+**Auth**: Required
+
+```json
+// Request
+{
+  "daily_puzzle_id": "uuid",
+  "user_input": "42",
+  "hints_used": 1,
+  "time_taken_ms": 15000
+}
+
+// Response 200
+{
+  "is_correct": true,
+  "attempts": 3,
+  "solved": true,
+  "streak": 6
+}
+```
+
+Streak only updates on same-day correct solves. Uses existing `grade_answer()` grading.
+
+#### `GET /daily/archive`
+
+Paginated list of past daily puzzles.
+
+**Auth**: Optional (includes solve badges if authenticated)
+
+| Query param | Type | Default | Description |
+|---|---|---|---|
+| `limit` | i64 | 30 | Results per page (max 100) |
+| `offset` | i64 | 0 | Pagination offset |
+
+```json
+// Response 200
+[{
+  "puzzle_date": "2024-03-05",
+  "title": "Sum of Divisors",
+  "difficulty": 3200,
+  "main_topic": "number_theory",
+  "solve_rate": 0.3,
+  "user_solved": true,          // null if not authenticated
+  "user_solved_same_day": true  // null if not authenticated
+}]
+```
+
+#### `GET /daily/activity`
+
+Activity matrix data for GitHub-style contribution graph (last 365 days).
+
+**Auth**: Required
+
+```json
+// Response 200
+{
+  "streak": 5,
+  "days": [{
+    "date": "2024-03-06",
+    "status": "solved_same_day"  // no_puzzle | missed | solved_late | solved_same_day
+  }]
+}
+```
+
+---
 
 Note: The factory endpoint (`POST /internal/problems`) has been removed. The factory now inserts problems directly into PostgreSQL via `asyncpg`.

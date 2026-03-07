@@ -23,8 +23,10 @@
 | `RESEND_FROM_EMAIL` | no | - | Sender email address |
 | `RESEND_FROM_NAME` | no | - | Sender display name |
 | `FRONTEND_BASE_URL` | no | - | Frontend URL (for email links) |
+| `MAX_DB_CONNECTIONS` | no | 10 dev / 50 prod | PostgreSQL connection pool size |
 | `RATE_LIMIT_AUTH_PER_15MIN` | no | 5 | Auth endpoint rate limit |
 | `RATE_LIMIT_LOGIN_PER_15MIN` | no | 10 | Login rate limit |
+| `RATE_LIMIT_SENSITIVE_PER_15MIN` | no | 5 | Sensitive endpoint rate limit (forgot-password, resend-verification, reset-password) |
 | `RATE_LIMIT_GENERAL_PER_MIN` | no | 1000 | General rate limit |
 
 ### Frontend (compile-time)
