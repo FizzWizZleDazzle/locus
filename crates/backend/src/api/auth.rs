@@ -23,6 +23,33 @@ use locus_common::validation;
 
 use axum::http::header::SET_COOKIE;
 
+/// Hash a password using Argon2 on a blocking thread
+async fn hash_password_blocking(password: String) -> Result<String, AppError> {
+    tokio::task::spawn_blocking(move || {
+        let salt = SaltString::generate(&mut OsRng);
+        let argon2 = Argon2::default();
+        argon2
+            .hash_password(password.as_bytes(), &salt)
+            .map(|h| h.to_string())
+            .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))
+    })
+    .await
+    .map_err(|e| AppError::Internal(format!("Hash task failed: {}", e)))?
+}
+
+/// Verify a password against a hash using Argon2 on a blocking thread
+async fn verify_password_blocking(password: String, hash: String) -> Result<(), AppError> {
+    tokio::task::spawn_blocking(move || {
+        let parsed_hash = PasswordHash::new(&hash)
+            .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
+        Argon2::default()
+            .verify_password(password.as_bytes(), &parsed_hash)
+            .map_err(|_| AppError::Auth("Invalid email or password".into()))
+    })
+    .await
+    .map_err(|e| AppError::Internal(format!("Verify task failed: {}", e)))?
+}
+
 #[derive(Serialize)]
 pub struct RegisterResponse {
     pub success: bool,
@@ -61,13 +88,8 @@ pub async fn register(
         return Err(AppError::BadRequest("Email already registered".into()));
     }
 
-    // Hash password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(req.password.as_bytes(), &salt)
-        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
-        .to_string();
+    // Hash password (offloaded to blocking thread)
+    let password_hash = hash_password_blocking(req.password.clone()).await?;
 
     // Create user (email_verified defaults to FALSE)
     let user = User::create(&state.pool, &req.username, &req.email, &password_hash).await?;
@@ -113,13 +135,8 @@ pub async fn login(
             "This account uses social login. Sign in with Google or GitHub, or set a password in Settings.".into()
         ))?;
 
-    // Verify password
-    let parsed_hash = PasswordHash::new(password_hash)
-        .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
-
-    Argon2::default()
-        .verify_password(req.password.as_bytes(), &parsed_hash)
-        .map_err(|_| AppError::Auth("Invalid email or password".into()))?;
+    // Verify password (offloaded to blocking thread)
+    verify_password_blocking(req.password.clone(), password_hash.to_string()).await?;
 
     // Check if email is verified
     if !user.email_verified {
@@ -152,13 +169,8 @@ pub async fn set_password(
     validation::validate_password(&req.password)
         .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
-    // Hash password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(req.password.as_bytes(), &salt)
-        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
-        .to_string();
+    // Hash password (offloaded to blocking thread)
+    let password_hash = hash_password_blocking(req.password.clone()).await?;
 
     // Update user
     User::set_password_hash(&state.pool, auth_user.id, &password_hash).await?;
@@ -193,34 +205,41 @@ pub struct VerifyEmailResponse {
     pub message: String,
 }
 
-/// Verify email with token
+/// Verify email with token (atomic: marks token used + user verified in one query)
 pub async fn verify_email(
     State(state): State<AppState>,
     Json(req): Json<VerifyEmailRequest>,
 ) -> Result<Json<VerifyEmailResponse>, AppError> {
-    // Find token
-    let token = EmailVerificationToken::find_by_token(&state.pool, &req.token)
-        .await?
-        .ok_or_else(|| AppError::BadRequest("Invalid verification token".into()))?;
+    // Atomic CTE: mark token used AND verify user in a single query
+    let result: Option<(uuid::Uuid,)> = sqlx::query_as(
+        r#"
+        WITH verified AS (
+            UPDATE email_verification_tokens SET used_at = NOW()
+            WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()
+            RETURNING user_id
+        )
+        UPDATE users SET email_verified = TRUE, email_verified_at = NOW()
+        FROM verified WHERE users.id = verified.user_id
+        RETURNING users.id
+        "#,
+    )
+    .bind(&req.token)
+    .fetch_optional(&state.pool)
+    .await?;
 
-    // Check if token is valid (not expired, not used)
-    if !token.is_valid() {
-        if token.used_at.is_some() {
-            return Err(AppError::BadRequest(
-                "This verification link has already been used".into(),
-            ));
-        } else {
-            return Err(AppError::BadRequest(
+    if result.is_none() {
+        // Token was invalid, expired, or already used — check which for better error message
+        let token = EmailVerificationToken::find_by_token(&state.pool, &req.token).await?;
+        return Err(match token {
+            Some(t) if t.used_at.is_some() => {
+                AppError::BadRequest("This verification link has already been used".into())
+            }
+            Some(_) => AppError::BadRequest(
                 "This verification link has expired. Request a new one.".into(),
-            ));
-        }
+            ),
+            None => AppError::BadRequest("Invalid verification token".into()),
+        });
     }
-
-    // Mark user as verified
-    User::mark_email_verified(&state.pool, token.user_id).await?;
-
-    // Mark token as used
-    token.mark_used(&state.pool).await?;
 
     Ok(Json(VerifyEmailResponse {
         success: true,
@@ -244,27 +263,25 @@ pub async fn resend_verification(
     State(state): State<AppState>,
     Json(req): Json<ResendVerificationRequest>,
 ) -> Result<Json<ResendVerificationResponse>, AppError> {
-    // Find user by email
-    let user = User::find_by_email(&state.pool, &req.email)
-        .await?
-        .ok_or_else(|| {
-            AppError::BadRequest(
-                "If this email is registered, a verification link will be sent".into(),
-            )
-        })?;
+    // SECURITY: Always return generic success to prevent email enumeration
+    let generic_response = ResendVerificationResponse {
+        success: true,
+        message: "If this email is registered and unverified, a verification link will be sent."
+            .to_string(),
+    };
 
-    // Check if already verified
+    // Find user by email (silently succeed if not found)
+    let user = match User::find_by_email(&state.pool, &req.email).await? {
+        Some(user) => user,
+        None => return Ok(Json(generic_response)),
+    };
+
+    // Already verified or rate limited — return generic response
     if user.email_verified {
-        return Err(AppError::BadRequest(
-            "Your email is already verified".into(),
-        ));
+        return Ok(Json(generic_response));
     }
-
-    // Check rate limit
     if !EmailVerificationToken::can_send_email(&state.pool, user.id).await? {
-        return Err(AppError::BadRequest(
-            "Please wait 1 minute before requesting another verification email".into(),
-        ));
+        return Ok(Json(generic_response));
     }
 
     // Generate new token
@@ -318,11 +335,9 @@ pub async fn forgot_password(
         None => return Ok(generic_response),
     };
 
-    // Check rate limit (1 email per minute)
+    // Check rate limit (1 email per minute) — return generic response to prevent enumeration
     if !PasswordResetToken::can_send_email(&state.pool, user.id).await? {
-        return Err(AppError::BadRequest(
-            "Please wait 1 minute before requesting another reset link".into(),
-        ));
+        return Ok(generic_response);
     }
 
     // Generate reset token (30-minute expiry)
@@ -393,7 +408,7 @@ pub struct ResetPasswordResponse {
     pub message: String,
 }
 
-/// Reset password with token
+/// Reset password with token (atomic: marks token used + updates password in transaction)
 pub async fn reset_password(
     State(state): State<AppState>,
     Json(req): Json<ResetPasswordRequest>,
@@ -402,37 +417,39 @@ pub async fn reset_password(
     validation::validate_password(&req.new_password)
         .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
-    // Find token
-    let token = PasswordResetToken::find_by_token(&state.pool, &req.token)
-        .await?
-        .ok_or_else(|| AppError::BadRequest("Invalid reset token".into()))?;
+    // Hash new password (offloaded to blocking thread)
+    let password_hash = hash_password_blocking(req.new_password.clone()).await?;
 
-    // Check if token is valid
-    if !token.is_valid() {
-        if token.used_at.is_some() {
-            return Err(AppError::BadRequest(
-                "This reset link has already been used".into(),
-            ));
-        } else {
-            return Err(AppError::BadRequest(
-                "This reset link has expired. Request a new one.".into(),
-            ));
-        }
+    // Atomic CTE: mark token used AND update password in one query
+    let result: Option<(uuid::Uuid,)> = sqlx::query_as(
+        r#"
+        WITH used_token AS (
+            UPDATE password_reset_tokens SET used_at = NOW()
+            WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()
+            RETURNING user_id
+        )
+        UPDATE users SET password_hash = $2
+        FROM used_token WHERE users.id = used_token.user_id
+        RETURNING users.id
+        "#,
+    )
+    .bind(&req.token)
+    .bind(&password_hash)
+    .fetch_optional(&state.pool)
+    .await?;
+
+    if result.is_none() {
+        let token = PasswordResetToken::find_by_token(&state.pool, &req.token).await?;
+        return Err(match token {
+            Some(t) if t.used_at.is_some() => {
+                AppError::BadRequest("This reset link has already been used".into())
+            }
+            Some(_) => {
+                AppError::BadRequest("This reset link has expired. Request a new one.".into())
+            }
+            None => AppError::BadRequest("Invalid reset token".into()),
+        });
     }
-
-    // Hash new password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(req.new_password.as_bytes(), &salt)
-        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
-        .to_string();
-
-    // Update user's password
-    User::set_password_hash(&state.pool, token.user_id, &password_hash).await?;
-
-    // Mark token as used
-    token.mark_used(&state.pool).await?;
 
     Ok(Json(ResetPasswordResponse {
         success: true,
@@ -459,25 +476,17 @@ pub async fn change_password(
         )
     })?;
 
-    // Verify old password
-    let parsed_hash = PasswordHash::new(password_hash)
-        .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
-
-    Argon2::default()
-        .verify_password(req.old_password.as_bytes(), &parsed_hash)
+    // Verify old password (offloaded to blocking thread)
+    verify_password_blocking(req.old_password.clone(), password_hash.to_string())
+        .await
         .map_err(|_| AppError::Auth("Incorrect old password".into()))?;
 
     // Validate new password complexity
     validation::validate_password(&req.new_password)
         .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
-    // Hash new password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let new_password_hash = argon2
-        .hash_password(req.new_password.as_bytes(), &salt)
-        .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?
-        .to_string();
+    // Hash new password (offloaded to blocking thread)
+    let new_password_hash = hash_password_blocking(req.new_password.clone()).await?;
 
     // Update password
     User::set_password_hash(&state.pool, auth_user.id, &new_password_hash).await?;
@@ -570,12 +579,20 @@ pub async fn delete_account(
             .as_deref()
             .ok_or_else(|| AppError::BadRequest("Password required to delete account".into()))?;
 
-        let parsed_hash = PasswordHash::new(password_hash)
-            .map_err(|_| AppError::Internal("Invalid password hash in database".into()))?;
-
-        Argon2::default()
-            .verify_password(provided_password.as_bytes(), &parsed_hash)
+        verify_password_blocking(provided_password.to_string(), password_hash.to_string())
+            .await
             .map_err(|_| AppError::Auth("Incorrect password".into()))?;
+    } else {
+        // OAuth-only account: require username confirmation
+        let confirmation = req
+            .confirmation
+            .as_deref()
+            .ok_or_else(|| AppError::BadRequest("Please confirm by typing your username".into()))?;
+        if confirmation != user.username {
+            return Err(AppError::BadRequest(
+                "Confirmation does not match your username".into(),
+            ));
+        }
     }
 
     // Delete user (cascades to oauth_accounts, attempts, etc.)
