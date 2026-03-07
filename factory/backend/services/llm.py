@@ -198,15 +198,35 @@ include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
 using .ProblemUtils
 ```
 
+SCRIPT STRUCTURE — use @script macro (declares variables, wraps body, calls run_batch):
+```
+@script x y begin
+    set_topic!("main/sub")
+    # body returns a problem() Dict
+    problem(question=..., answer=..., difficulty=..., solution=...)
+end
+```
+
 API SUMMARY:
-- problem(; question, answer, difficulty, topic, solution, grading_mode, answer_type, calculator, image, time) -> Dict
-  answer_type auto-detected (Bool->boolean, Int->numeric, Set->set, etc.). difficulty: Int or (lo,hi) tuple.
-- emit(dict), run_batch(generate), steps(strings...), tex(expr)
-- CAS: @variables x y z, diff, expand, simplify, substitute, solve (use ~ for equations)
-- Random: randint(lo,hi), nonzero(lo,hi), choice(collection)
-- Formatting: fmt_set, fmt_tuple, fmt_list, fmt_matrix, fmt_interval, fmt_equation, fmt_multipart
-  (edge cases only — problem() auto-formats most types)
-- SVG: DiagramObj (geometry), GraphObj (plots), NumberLine (intervals)
+- @script x y begin ... end — declares @variables, wraps body in generate(), calls run_batch
+- set_topic!("main/sub") — set default topic for all problem() calls (call once at top of @script body)
+- problem(; question, answer, difficulty, solution, topic, grading_mode, answer_type, calculator, image, time) -> Dict
+  topic defaults to set_topic!() value. answer_type auto-detected. difficulty: Int or (lo,hi) tuple.
+- steps(strings...) — join solution steps with <br>
+- step("Label", expr) -> "Label: $\LaTeX$", step(expr) -> "$\LaTeX$" — for use inside steps()
+- tex(expr) — convert Symbolics expression to LaTeX string
+
+RANDOM EXPRESSION GENERATORS (return named tuples):
+- rand_linear(x) -> (expr=ax+b, a, b). Keywords: a=(-9,9), b=(-9,9), nonzero_a=true
+- rand_quadratic(x) -> (expr=ax²+bx+c, a, b, c). Keywords: a=(-5,5), b=(-9,9), c=(-9,9), nonzero_a=true
+- rand_factorable(x) -> (expr=expanded a(x-r1)(x-r2), a, r1, r2). Keywords: a=(1,1), roots=(-9,9)
+- rand_poly(x, n) -> (expr, coeffs::Vector). Keywords: coeff=(-9,9), nonzero_leading=true
+  Access fields: q = rand_quadratic(x); q.expr, q.a, q.b, q.c
+
+CAS: diff, expand, simplify, substitute(expr, x => val), solve (use ~ for equations)
+Random: randint(lo,hi), nonzero(lo,hi), choice(collection)
+Formatting: fmt_set, fmt_tuple, fmt_list, fmt_matrix, fmt_interval, fmt_equation, fmt_multipart
+SVG: DiagramObj (geometry), GraphObj (plots), NumberLine (intervals)
   - Diagram: line!, arrow!, polygon!, circle!, arc!, point!, angle_arc!, right_angle!, segment_label!, tick_marks!, text!
   - Graph: plot!, fill_between!(g, expr1, expr2), point!, vline!, hline!
   - NumberLine: open_point!, closed_point!, shade!, shade_left!, shade_right!
@@ -217,33 +237,78 @@ KEY SYMBOLICS.JL DIFFERENCES FROM SYMPY:
 - Equations use ~ (x^2 ~ 1), not Eq(). solve wraps Symbolics.solve_for
 - No FiniteSet (use Set([])), no Matrix type (use Vector{Vector})
 
-RECIPE PATTERNS:
+EXAMPLE 1 — derivative with rand_quadratic + step:
+```
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
 
-1. Solve-for-x — pick answer, build equation backward:
-  @variables x; ans = randint(-20,20); expr = expand(nonzero(-5,5)*(x - ans) + randint(-10,10))
-  problem(question="Solve \$$(tex(expr)) = $(randint(-10,10))\$", answer=ans, ...)
+@script x begin
+    set_topic!("calculus/derivatives")
+    q = rand_quadratic(x)
+    df = diff(q.expr, x)
+    problem(
+        question="Find \\frac{d}{dx}[$(tex(q.expr))]",
+        answer=df,
+        difficulty=(1000, 1200),
+        solution=steps(step("Given", q.expr), "Apply power rule", step("Answer", df)),
+        time=60,
+    )
+end
+```
 
-2. Evaluate/compute — substitute value into expression:
-  @variables x; val = randint(-5,5); expr = nonzero(-8,8)*x^2 + nonzero(-8,8)*x
-  problem(question="Evaluate \$$(tex(expr))\$ at \$x=$(val)\$", answer=substitute(expr, x=>val), ...)
+EXAMPLE 2 — factoring with rand_factorable:
+```
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
 
-3. Graph-based — plot + ask about features:
-  @variables x; g = GraphObj(x_range=(-5,5), y_range=(-10,10))
-  expr = x^2 - 4; plot!(g, expr)
-  problem(question="...", answer=..., image=render(g), ...)
+@script x begin
+    set_topic!("algebra1/factoring")
+    q = rand_factorable(x; roots=(-10,10))
+    problem(
+        question="Factor \$$(tex(q.expr))\$",
+        answer=q.expr,
+        difficulty=(1200, 1400),
+        grading_mode="factor",
+        solution=steps(
+            step("Expression", q.expr),
+            "Find two numbers that multiply to $(q.r1 * q.r2) and add to $(-(q.r1 + q.r2))",
+            "Roots: $(q.r1), $(q.r2)",
+        ),
+        time=120,
+    )
+end
+```
 
-4. Geometry diagram — build shape + ask measurement:
-  d = DiagramObj(); polygon!(d, [(0,0),(4,0),(4,3)]; labels=["A","B","C"])
-  problem(question="Find the area of triangle ABC", answer=6, image=render(d), ...)
+EXAMPLE 3 — manual coefficients (no rand_ helper needed):
+```
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+@script x begin
+    set_topic!("algebra1/linear_equations")
+    ans = randint(-20, 20)
+    a = nonzero(-5, 5)
+    b = randint(-10, 10)
+    lhs = expand(a*(x - ans) + b)
+    problem(
+        question="Solve \$$(tex(lhs)) = $(b)\$",
+        answer=ans,
+        difficulty=(700, 1000),
+        solution=steps(step("Given", lhs ~ b), "Solve for x", step("Answer", ans)),
+        time=60,
+    )
+end
+```
 
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
 2. Randomize with LARGE ranges (coefficients ±20+, roots ±12, exponents up to 6-8)
-3. Always include a solution using steps()
+3. Always include a solution using steps() with step() helpers
 4. ELO must match actual complexity (see ELO guide above)
 5. Default calculator to "none" unless computation is heavy and not the focus
 6. Always set time= in problem() (easy 30-90s, medium 60-180s, hard 120-300s)
-7. Always end the script with run_batch(generate)
+7. Use rand_linear/rand_quadratic/rand_factorable/rand_poly when generating random polynomials
+8. Always use @script macro — never write run_batch(generate) manually
 
 Output ONLY the Julia script. No markdown fences, no explanation."""
 

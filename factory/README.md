@@ -107,6 +107,70 @@ using .ProblemUtils
 - `DiagramObj`, `GraphObj`, `NumberLine` — SVG builders
 - `arrow!`, `fill_between!`, `open_point!`, `closed_point!`, `shade!`, `shade_left!`, `shade_right!`
 
+### Simplified API
+
+The `@script` macro, random expression generators, and `step()` helper reduce boilerplate significantly:
+
+**Before:**
+```julia
+push!(LOAD_PATH, joinpath(@__DIR__, "src"))
+include(joinpath(@__DIR__, "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+@variables x
+
+function generate()
+    a = nonzero(-5, 5)
+    b = randint(-9, 9)
+    c = randint(-9, 9)
+    f = a*x^2 + b*x + c
+    df = diff(f, x)
+
+    return problem(
+        question="Find \\frac{d}{dx}[$(tex(f))]",
+        answer=df,
+        difficulty=(1200, 1400),
+        topic="calculus/derivatives",
+        solution=steps(
+            "Given: \$$(tex(f))\$",
+            "Apply power rule",
+            "Answer: \$$(tex(df))\$"
+        )
+    )
+end
+
+run_batch(generate)
+```
+
+**After:**
+```julia
+push!(LOAD_PATH, joinpath(@__DIR__, "src"))
+include(joinpath(@__DIR__, "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+@script x begin
+    set_topic!("calculus/derivatives")
+    q = rand_quadratic(x)
+    df = diff(q.expr, x)
+
+    problem(
+        question="Find \\frac{d}{dx}[$(tex(q.expr))]",
+        answer=df,
+        difficulty=(1200, 1400),
+        solution=steps(step("Given", q.expr), "Apply power rule", step("Answer", df))
+    )
+end
+```
+
+**Helpers:**
+- `@script x y begin ... end` — declares variables, wraps body in generate function, calls `run_batch`
+- `rand_linear(x)` → `(expr=ax+b, a, b)` with keyword ranges
+- `rand_quadratic(x)` → `(expr=ax²+bx+c, a, b, c)`
+- `rand_factorable(x)` → `(expr=a(x-r1)(x-r2) expanded, a, r1, r2)`
+- `rand_poly(x, n)` → `(expr, coeffs::Vector)`
+- `step("Label", expr)` → `"Label: $\LaTeX$"`, `step(expr)` → `"$\LaTeX$"`
+- `set_topic!("main/sub")` — set default topic for all `problem()` calls in a script
+
 ### SymPy -> Symbolics.jl Cheat Sheet
 
 | Python (SymPy) | Julia (Symbolics.jl) |
