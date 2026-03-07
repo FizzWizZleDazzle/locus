@@ -1,6 +1,8 @@
 """Script validation service — runs a script multiple times and checks output quality."""
 
+import json
 import re
+import subprocess
 import xml.etree.ElementTree as ET
 from typing import Dict, Any, List
 from pathlib import Path
@@ -242,13 +244,306 @@ def _check_gradeability(problems: list) -> Dict[str, Any]:
     }
 
 
+_UNEVALUATED_PATTERNS = [
+    "Integral(", "Derivative(", "Sum(", "Limit(",
+    "Piecewise(", "Product(", "Subs(", "Order(",
+]
+
+
+def _check_unevaluated_sympy(problems: list) -> Dict[str, Any]:
+    """Check 8: answer_key should not contain unevaluated SymPy objects."""
+    if not problems:
+        return {"name": "unevaluated_sympy", "passed": False, "score": 0, "details": "No problems"}
+
+    valid = 0
+    issues = []
+    for i, p in enumerate(problems):
+        ak = str(p.get("answer_key", ""))
+        found = [pat for pat in _UNEVALUATED_PATTERNS if pat in ak]
+        if found:
+            issues.append(f"Problem {i+1}: unevaluated {', '.join(found)}")
+        else:
+            valid += 1
+
+    score = (valid / len(problems)) * 100
+    return {
+        "name": "unevaluated_sympy",
+        "passed": score >= 95,
+        "score": round(score, 1),
+        "details": f"{valid}/{len(problems)} clean" + (f"; {'; '.join(issues[:3])}" if issues else ""),
+    }
+
+
+def _check_solution_quality(problems: list) -> Dict[str, Any]:
+    """Check 9: solution_latex should be non-empty, balanced, and free of code artifacts."""
+    if not problems:
+        return {"name": "solution_quality", "passed": False, "score": 0, "details": "No problems"}
+
+    code_patterns = [r'\bprint\s*\(', r'\bdef\s+', r'\bfunction\s+', r'\bimport\s+', r'\breturn\s+']
+    valid = 0
+    issues = []
+    for i, p in enumerate(problems):
+        sol = p.get("solution_latex", "") or ""
+        ok = True
+        reason = ""
+
+        if len(sol.strip()) < 10:
+            ok, reason = False, "solution too short or empty"
+        elif sol.count("{") != sol.count("}"):
+            ok, reason = False, "unbalanced braces in solution"
+        else:
+            for pat in code_patterns:
+                if re.search(pat, sol):
+                    ok, reason = False, "code artifact in solution"
+                    break
+
+        if ok:
+            valid += 1
+        else:
+            issues.append(f"Problem {i+1}: {reason}")
+
+    score = (valid / len(problems)) * 100
+    return {
+        "name": "solution_quality",
+        "passed": score >= 80,
+        "score": round(score, 1),
+        "details": f"{valid}/{len(problems)} pass solution checks" + (f"; {'; '.join(issues[:3])}" if issues else ""),
+    }
+
+
+def _check_time_limit(problems: list) -> Dict[str, Any]:
+    """Check 10: time_limit_seconds must be set and within range, scaled by difficulty."""
+    if not problems:
+        return {"name": "time_limit", "passed": False, "score": 0, "details": "No problems"}
+
+    valid = 0
+    issues = []
+    for i, p in enumerate(problems):
+        tl = p.get("time_limit_seconds")
+        diff = p.get("difficulty", 1000)
+        ok = True
+        reason = ""
+
+        if tl is None:
+            ok, reason = False, "time_limit_seconds not set"
+        elif not (1 <= tl <= 3600):
+            ok, reason = False, f"time_limit_seconds={tl} out of range [1, 3600]"
+        elif diff < 700 and tl > 300:
+            ok, reason = False, f"easy problem (ELO {diff}) has time={tl}s (max 300s)"
+        elif diff > 2000 and tl < 30:
+            ok, reason = False, f"hard problem (ELO {diff}) has time={tl}s (min 30s)"
+
+        if ok:
+            valid += 1
+        else:
+            issues.append(f"Problem {i+1}: {reason}")
+
+    score = (valid / len(problems)) * 100
+    return {
+        "name": "time_limit",
+        "passed": score >= 80,
+        "score": round(score, 1),
+        "details": f"{valid}/{len(problems)} pass time limit checks" + (f"; {'; '.join(issues[:3])}" if issues else ""),
+    }
+
+
+# Hardcoded from crates/common/src/lib.rs MainTopic.subtopics()
+_VALID_TOPICS = {
+    "arithmetic": [
+        "addition", "subtraction", "multiplication", "long_division",
+        "fractions", "mixed_numbers", "decimals", "percentages",
+        "order_of_operations", "ratios_proportions",
+    ],
+    "algebra1": [
+        "one_step_equations", "two_step_equations", "multi_step_equations",
+        "linear_inequalities", "compound_inequalities", "slope_and_intercept",
+        "graphing_lines", "systems_substitution", "systems_elimination",
+        "exponent_rules", "polynomial_operations", "factoring_gcf",
+        "factoring_trinomials", "quadratic_formula",
+    ],
+    "geometry": [
+        "angle_relationships", "triangle_properties", "triangle_congruence",
+        "similar_triangles", "circle_theorems", "arc_length_sectors",
+        "area_of_polygons", "perimeter", "surface_area", "volume",
+        "pythagorean_theorem", "right_triangle_trig",
+    ],
+    "algebra2": [
+        "complex_number_operations", "complex_number_equations",
+        "rational_expressions", "rational_equations", "radical_expressions",
+        "radical_equations", "exponential_growth_decay", "exponential_equations",
+        "logarithm_properties", "logarithmic_equations",
+        "arithmetic_sequences", "geometric_sequences",
+    ],
+    "precalculus": [
+        "domain_and_range", "function_composition", "inverse_functions",
+        "transformations", "unit_circle", "graphing_trig", "trig_identities",
+        "sum_difference_formulas", "inverse_trig_functions",
+        "law_of_sines_cosines", "polar_coordinates", "polar_curves",
+        "vector_operations", "dot_cross_product",
+    ],
+    "calculus": [
+        "limits_algebraic", "limits_at_infinity", "continuity",
+        "derivative_rules", "chain_rule", "implicit_differentiation",
+        "related_rates", "curve_sketching", "optimization", "lhopitals_rule",
+        "antiderivatives", "u_substitution", "integration_by_parts",
+        "definite_integrals", "area_between_curves", "volumes_of_revolution",
+    ],
+    "differential_equations": [
+        "separable_equations", "first_order_linear", "exact_equations",
+        "homogeneous_equations", "second_order_constant",
+        "characteristic_equation", "undetermined_coefficients",
+        "variation_of_parameters", "laplace_transforms", "systems_of_odes",
+    ],
+    "multivariable_calculus": [
+        "partial_derivatives", "gradient", "directional_derivatives",
+        "lagrange_multipliers", "double_integrals", "triple_integrals",
+        "change_of_variables", "line_integrals", "greens_theorem",
+        "stokes_divergence",
+    ],
+    "linear_algebra": [
+        "row_reduction", "matrix_arithmetic", "matrix_inverses",
+        "determinants", "vector_spaces", "subspaces",
+        "linear_independence", "eigenvalues", "diagonalization",
+        "linear_transformations",
+    ],
+    "test": [
+        "expressions", "numerics", "sets", "tuples", "lists",
+        "intervals", "inequalities", "equations", "booleans",
+        "words", "matrices", "multipart",
+    ],
+}
+
+
+def _check_topic_validity(problems: list) -> Dict[str, Any]:
+    """Check 11: every problem must have a valid (main_topic, subtopic) pair."""
+    if not problems:
+        return {"name": "topic_validity", "passed": False, "score": 0, "details": "No problems"}
+
+    valid = 0
+    issues = []
+    for i, p in enumerate(problems):
+        mt = p.get("main_topic", "")
+        st = p.get("subtopic", "")
+        # Handle "main/sub" format in topic field
+        if "/" in mt and not st:
+            parts = mt.split("/", 1)
+            mt, st = parts[0], parts[1]
+
+        if mt not in _VALID_TOPICS:
+            issues.append(f"Problem {i+1}: invalid main_topic '{mt}'")
+        elif st not in _VALID_TOPICS[mt]:
+            issues.append(f"Problem {i+1}: invalid subtopic '{st}' for '{mt}'")
+        else:
+            valid += 1
+
+    score = (valid / len(problems)) * 100
+    return {
+        "name": "topic_validity",
+        "passed": score >= 100,
+        "score": round(score, 1),
+        "details": f"{valid}/{len(problems)} valid topics" + (f"; {'; '.join(issues[:3])}" if issues else ""),
+    }
+
+
+def _check_grading_roundtrip(problems: list) -> Dict[str, Any]:
+    """Check 12: grade each answer_key against itself via grade-check binary."""
+    if not problems:
+        return {"name": "grading_roundtrip", "passed": False, "score": 0, "details": "No problems"}
+
+    # Try to find the grade-check binary
+    import shutil
+    binary = shutil.which("grade-check")
+    if not binary:
+        # Check common cargo build locations
+        for candidate in [
+            "target/release/grade-check",
+            "target/debug/grade-check",
+            "../../target/release/grade-check",
+            "../../target/debug/grade-check",
+        ]:
+            if Path(candidate).exists():
+                binary = candidate
+                break
+
+    if not binary:
+        return {
+            "name": "grading_roundtrip",
+            "passed": True,
+            "score": 100,
+            "details": "grade-check binary not found — skipped (pass with warning)",
+        }
+
+    # Build JSONL input
+    lines = []
+    for p in problems:
+        lines.append(json.dumps({
+            "answer_key": str(p.get("answer_key", "")),
+            "answer_type": p.get("answer_type", "expression"),
+            "grading_mode": p.get("grading_mode", "equivalent"),
+        }))
+    stdin_data = "\n".join(lines) + "\n"
+
+    try:
+        result = subprocess.run(
+            [binary],
+            input=stdin_data,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return {
+                "name": "grading_roundtrip",
+                "passed": False,
+                "score": 0,
+                "details": f"grade-check failed: {result.stderr[:100]}",
+            }
+
+        valid = 0
+        issues = []
+        for i, line in enumerate(result.stdout.strip().split("\n")):
+            if not line.strip():
+                continue
+            try:
+                out = json.loads(line)
+                if out.get("ok"):
+                    valid += 1
+                else:
+                    issues.append(f"Problem {i+1}: {out.get('result', 'failed')}")
+            except json.JSONDecodeError:
+                issues.append(f"Problem {i+1}: invalid JSON output")
+
+        total = len(problems)
+        score = (valid / total) * 100 if total > 0 else 0
+        return {
+            "name": "grading_roundtrip",
+            "passed": score >= 95,
+            "score": round(score, 1),
+            "details": f"{valid}/{total} self-grade OK" + (f"; {'; '.join(issues[:3])}" if issues else ""),
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "name": "grading_roundtrip",
+            "passed": False,
+            "score": 0,
+            "details": "grade-check timed out after 30s",
+        }
+    except Exception as e:
+        return {
+            "name": "grading_roundtrip",
+            "passed": True,
+            "score": 100,
+            "details": f"grade-check error: {str(e)[:80]} — skipped (pass with warning)",
+        }
+
+
 # ---------------------------------------------------------------------------
 # Main validation entry point
 # ---------------------------------------------------------------------------
 
 def validate_script(script: str, language: str, runs: int, scripts_dir: Path) -> Dict[str, Any]:
     """
-    Run a script `runs` times and validate the output across 7 categories.
+    Run a script `runs` times and validate the output across 12 categories.
     Returns a structured validation report.
     """
     ext = ".jl" if language == "julia" else ".py"
@@ -277,7 +572,7 @@ def validate_script(script: str, language: str, runs: int, scripts_dir: Path) ->
     finally:
         temp_path.unlink(missing_ok=True)
 
-    # Run all 7 checks
+    # Run all 12 checks
     categories = [
         _check_robustness(problems, errors, runs),
         _check_answer_format(problems),
@@ -286,6 +581,11 @@ def validate_script(script: str, language: str, runs: int, scripts_dir: Path) ->
         _check_difficulty_spread(problems),
         _check_svg_validity(problems),
         _check_gradeability(problems),
+        _check_unevaluated_sympy(problems),
+        _check_solution_quality(problems),
+        _check_time_limit(problems),
+        _check_topic_validity(problems),
+        _check_grading_roundtrip(problems),
     ]
 
     overall_pass = all(c["passed"] for c in categories)

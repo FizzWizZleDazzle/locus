@@ -75,6 +75,22 @@ impl User {
         Ok(())
     }
 
+    /// Find user by username
+    pub async fn find_by_username(
+        pool: &PgPool,
+        username: &str,
+    ) -> Result<Option<Self>, sqlx::Error> {
+        sqlx::query_as(
+            r#"
+            SELECT id, username, email, password_hash, email_verified, email_verified_at, created_at
+            FROM users WHERE username = $1
+            "#,
+        )
+        .bind(username)
+        .fetch_optional(pool)
+        .await
+    }
+
     /// Find user by email (case-insensitive)
     pub async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Self>, sqlx::Error> {
         let email = email.to_lowercase();

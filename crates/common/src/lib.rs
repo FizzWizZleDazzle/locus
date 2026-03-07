@@ -1,5 +1,6 @@
 //! Common types shared between frontend and backend
 
+pub mod badges;
 pub mod constants;
 pub mod elo;
 pub mod grader;
@@ -634,6 +635,7 @@ pub struct UserStatsResponse {
     pub correct_attempts: i64,
     pub current_streak: i32,
     pub topics: Vec<TopicStatsEntry>,
+    pub badges: Vec<badges::BadgeDisplay>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -646,4 +648,17 @@ pub struct EloHistoryPoint {
 pub struct EloHistoryResponse {
     pub topic: String,
     pub history: Vec<EloHistoryPoint>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PublicProfileResponse {
+    pub username: String,
+    pub member_since: DateTime<Utc>,
+    pub badges: Vec<badges::BadgeDisplay>,
+    pub topics: Vec<TopicStatsEntry>,
+    pub total_attempts: i64,
+    pub correct_attempts: i64,
+    pub current_streak: i32,
+    pub daily_puzzle_streak: i32,
+    pub activity: DailyActivityResponse,
 }

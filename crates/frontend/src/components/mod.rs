@@ -1,6 +1,8 @@
 //! UI Components
 
+mod activity_matrix;
 mod answer_input;
+mod badge_grid;
 mod draggable;
 mod latex_renderer;
 mod math_field;
@@ -12,7 +14,9 @@ mod timer;
 mod topic_selector;
 mod whiteboard;
 
+pub use activity_matrix::ActivityMatrix;
 pub use answer_input::AnswerInput;
+pub use badge_grid::BadgeGrid;
 pub use draggable::Draggable;
 pub use latex_renderer::LatexRenderer;
 pub use navbar::Navbar;

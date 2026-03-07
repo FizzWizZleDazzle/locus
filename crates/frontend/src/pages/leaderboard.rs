@@ -2,7 +2,7 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_router::hooks::use_query_map;
+use leptos_router::{components::A, hooks::use_query_map};
 use locus_common::LeaderboardEntry;
 
 use crate::{api, api::Topic, utils::update_url};
@@ -101,11 +101,12 @@ pub fn Leaderboard() -> impl IntoView {
                     view! {
                         <div class="border border-gray-200 rounded divide-y divide-gray-100">
                             {current_entries.into_iter().map(|entry| {
+                                let profile_url = format!("/profile/{}", entry.username);
                                 view! {
                                     <div class="flex items-center justify-between px-4 py-3">
                                         <div class="flex items-center space-x-3">
                                             <span class="text-sm text-gray-500 w-8 text-right">{entry.rank}</span>
-                                            <span class="text-gray-900">{entry.username}</span>
+                                            <A href=profile_url attr:class="text-gray-900 hover:underline">{entry.username}</A>
                                         </div>
                                         <span class="font-mono text-gray-700">{entry.elo}</span>
                                     </div>

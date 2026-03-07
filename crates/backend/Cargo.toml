@@ -44,3 +44,7 @@ reqwest = { workspace = true }
 urlencoding = { workspace = true }
 resend-rs = "0.7"
 hex = "0.4"
+
+[[bin]]
+name = "grade-check"
+path = "src/bin/grade_check.rs"

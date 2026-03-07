@@ -6,10 +6,10 @@ use axum::{
 };
 use serde::Deserialize;
 
-use locus_common::{EloHistoryPoint, EloHistoryResponse, TopicStatsEntry, UserStatsResponse};
+use locus_common::{EloHistoryPoint, EloHistoryResponse, TopicStatsEntry, UserStatsResponse, badges::compute_all_badges};
 
 use super::AppState;
-use crate::{AppError, auth::AuthUser};
+use crate::{AppError, auth::AuthUser, models::daily_puzzle::get_daily_puzzle_streak};
 
 pub async fn get_user_stats(
     State(state): State<AppState>,
@@ -37,18 +37,18 @@ pub async fn get_user_stats(
     .fetch_all(&state.pool)
     .await?;
 
-    let topics = topic_rows
-        .into_iter()
+    let topics: Vec<TopicStatsEntry> = topic_rows
+        .iter()
         .map(
             |(topic, total, correct, elo, peak_elo, topic_streak, peak_topic_streak)| {
                 TopicStatsEntry {
-                    topic,
-                    total,
-                    correct,
-                    elo,
-                    peak_elo,
-                    topic_streak,
-                    peak_topic_streak,
+                    topic: topic.clone(),
+                    total: *total,
+                    correct: *correct,
+                    elo: *elo,
+                    peak_elo: *peak_elo,
+                    topic_streak: *topic_streak,
+                    peak_topic_streak: *peak_topic_streak,
                 }
             },
         )
@@ -71,11 +71,23 @@ pub async fn get_user_stats(
     .await?
     .unwrap_or((0, 0, 0));
 
+    // Daily puzzle streak for badge computation
+    let daily_puzzle_streak = get_daily_puzzle_streak(&state.pool, user.id).await?;
+
+    let badges = compute_all_badges(
+        global_row.2,
+        daily_puzzle_streak,
+        global_row.1,
+        global_row.0,
+        &topics,
+    );
+
     Ok(Json(UserStatsResponse {
         total_attempts: global_row.0,
         correct_attempts: global_row.1,
         current_streak: global_row.2,
         topics,
+        badges,
     }))
 }
 

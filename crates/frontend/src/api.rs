@@ -9,9 +9,9 @@ use locus_common::{
     ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest,
     DailyActivityResponse, DailyArchiveEntry, DailyPuzzleDetailResponse, DailyPuzzleResponse,
     DailySubmitRequest, DailySubmitResponse, DeleteAccountRequest, EloHistoryResponse,
-    LeaderboardResponse, LoginRequest, ProblemResponse, RegisterRequest, SetPasswordRequest,
-    SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest, UserProfile,
-    UserStatsResponse,
+    LeaderboardResponse, LoginRequest, ProblemResponse, PublicProfileResponse, RegisterRequest,
+    SetPasswordRequest, SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest,
+    UserProfile, UserStatsResponse,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -453,4 +453,12 @@ pub async fn get_daily_archive(
 
 pub async fn get_daily_activity() -> Result<DailyActivityResponse, RequestError> {
     get_request("/daily/activity").await
+}
+
+// ============================================================================
+// Profile API
+// ============================================================================
+
+pub async fn get_public_profile(username: &str) -> Result<PublicProfileResponse, RequestError> {
+    get_request(&format!("/profile/{}", username)).await
 }

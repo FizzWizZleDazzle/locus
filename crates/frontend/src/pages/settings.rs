@@ -469,6 +469,28 @@ pub fn Settings() -> impl IntoView {
                 })}
             </div>
 
+            // Logout Section
+            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-2">"Sign Out"</h2>
+                <p class="text-sm text-gray-500 mb-4">
+                    "Sign out of your account on this device."
+                </p>
+                <button
+                    on:click=move |_| {
+                        let nav = navigate.clone();
+                        spawn_local(async move {
+                            api::logout().await;
+                            auth.set_logged_in.set(false);
+                            auth.set_username.set(None);
+                            nav("/", Default::default());
+                        });
+                    }
+                    class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+                >
+                    "Sign Out"
+                </button>
+            </div>
+
             // Danger Zone Section
             <div class="bg-white border-2 border-red-200 rounded-lg p-6">
                 <h2 class="text-lg font-medium text-red-900 mb-2">"Danger Zone"</h2>

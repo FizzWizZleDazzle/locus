@@ -20,7 +20,8 @@ Shared between frontend and backend. Compiles to both WASM and native targets.
 
 | File | Purpose |
 |---|---|
-| `src/lib.rs` | Shared types: `MainTopic`, `AnswerType`, `GradingMode`, API request/response structs, topic definitions |
+| `src/badges.rs` | Badge definitions: `BadgeCategory`, `BadgeTier`, `EarnedBadge`, `BadgeDisplay`, `compute_badges()`, `compute_all_badges()` — 29 badges across 6 categories (Streak, Elo, Problems, TopicMastery, DailyPuzzle, Fun), computed dynamically from stats |
+| `src/lib.rs` | Shared types: `MainTopic`, `AnswerType`, `GradingMode`, API request/response structs (incl. `PublicProfileResponse`), topic definitions |
 | `src/constants.rs` | Game constants: `DEFAULT_ELO` (1500), `PROBLEM_BATCH_SIZE` |
 | `src/symengine.rs` | SymEngine FFI bindings: `Expr` type, `parse`, `expand`, `subs2`, `evalf`, `free_symbols`, `is_a_Number`, `number_is_zero`. Global `Mutex` on native; no-op on WASM |
 | `src/grader/mod.rs` | `ExprEngine` trait, `grade_answer()` dispatcher (routes by `AnswerType`), `check_answer_expr()` two-stage equivalence |
@@ -57,6 +58,8 @@ Leptos 0.7 CSR app. Compiles to `wasm32-unknown-unknown`.
 | `src/katex_bindings.rs` | KaTeX JS bindings for LaTeX rendering |
 | `src/utils.rs` | Utility functions |
 | `src/components/mod.rs` | Component re-exports |
+| `src/components/activity_matrix.rs` | GitHub-style activity matrix component (shared by stats and profile pages) |
+| `src/components/badge_grid.rs` | Badge grid component with SVG icons per category, tier colors for earned, mystery "?" for locked |
 | `src/components/math_field.rs` | MathQuill wrapper: creates MQ.MathField, edit/enter handlers, template pre-seeding, restriction support |
 | `src/components/answer_input.rs` | Per-AnswerType dispatcher: templates (Set/Tuple/List/Equation), restrictions (Numeric), affordances (Interval bracket toggles, Inequality palette, Matrix +/-row/col with dynamic template, Boolean True/False toggle, MultiPart stacked fields) |
 | `src/components/latex_renderer.rs` | KaTeX LaTeX renderer component |
@@ -67,7 +70,7 @@ Leptos 0.7 CSR app. Compiles to `wasm32-unknown-unknown`.
 | `src/components/timer.rs` | Countdown timer |
 | `src/components/topic_selector.rs` | Topic/subtopic filter UI |
 | `src/formatters/` | `common.rs`, `equation.rs`, `inequality.rs`, `interval.rs`, `matrix.rs`, `multi_part.rs`, `set.rs`, `tests.rs` - Format grader results for display |
-| `src/pages/` | `home`, `login`, `register`, `verify_email`, `forgot_password`, `reset_password`, `practice`, `ranked`, `leaderboard`, `stats`, `settings`, `daily`, `daily_archive`, `privacy_policy`, `terms_of_service` |
+| `src/pages/` | `home`, `login`, `register`, `verify_email`, `forgot_password`, `reset_password`, `practice`, `ranked`, `leaderboard`, `stats`, `settings`, `daily`, `daily_archive`, `profile`, `privacy_policy`, `terms_of_service` |
 
 ### `backend` (locus-backend)
 
@@ -90,6 +93,8 @@ Axum REST API. Compiles to native target.
 | `src/api/stats.rs` | `GET /user/stats`, `GET /user/elo-history`: per-topic stats and 30-day chart data |
 | `src/api/topics.rs` | `GET /topics`: enabled topics and subtopics from cache |
 | `src/api/daily.rs` | Daily puzzle endpoints: today, puzzle/{date}, submit, archive, activity |
+| `src/api/profile.rs` | `GET /profile/{username}`: public profile with badges, stats, activity matrix |
+| `src/bin/grade_check.rs` | Grade-check CLI binary: reads JSONL from stdin, self-grades answer_keys via `grade_answer()` |
 | `src/api/oauth.rs` | OAuth flows: Google/GitHub login, callback, account linking |
 | `src/auth/mod.rs` | Auth module re-exports |
 | `src/auth/jwt.rs` | JWT creation/verification (HS256, 24-hour expiry) |

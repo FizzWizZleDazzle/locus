@@ -5,6 +5,7 @@ mod daily;
 mod leaderboard;
 mod oauth;
 mod problems;
+mod profile;
 mod stats;
 mod submit;
 mod topics;
@@ -141,6 +142,8 @@ pub fn router() -> Router<AppState> {
         .route("/daily/submit", post(daily::submit_daily))
         .route("/daily/archive", get(daily::get_archive))
         .route("/daily/activity", get(daily::get_activity))
+        // Public profile
+        .route("/profile/{username}", get(profile::get_public_profile))
 }
 
 /// Health check endpoint

@@ -135,7 +135,7 @@ start_backend() {
     # Set CORS allowed origins from frontend URL
     local frontend_url="${LOCUS_FRONTEND_URL:-http://localhost:8080}"
     export ALLOWED_ORIGINS="$frontend_url"
-    cargo watch -w crates/backend/src -w crates/common/src -x 'run -p locus-backend' &
+    cargo watch -w crates/backend/src -w crates/common/src -x 'run --bin locus-backend' &
     BACKEND_PID=$!
     sleep 2
 }
@@ -190,6 +190,13 @@ main() {
     echo ""
 
     check_deps
+    # Kill anything occupying our ports
+    for port in 3000 8080; do
+        pid=$(lsof -ti ":$port" 2>/dev/null) && {
+            log_warn "Killing process on port $port (PID $pid)"
+            kill -9 $pid 2>/dev/null || true
+        }
+    done
     ensure_env
     validate_env || exit 1
     print_config

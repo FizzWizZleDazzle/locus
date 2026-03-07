@@ -252,6 +252,34 @@ python topup.py /tmp/locus_check.db --target 1500 --output exports/topup.sql
 
 Finds subtopics below the target count, locates their scripts, runs them with a 2x safety buffer. 8 parallel workers.
 
+## Validation
+
+Scripts are validated across 12 categories:
+
+| # | Check | Threshold | Description |
+|---|---|---|---|
+| 1 | Robustness | 90% | Error rate across runs |
+| 2 | Answer Format | 90% | answer_key matches declared answer_type |
+| 3 | LaTeX Quality | 90% | Balanced delimiters, no code artifacts |
+| 4 | Diversity | 50% | Unique answers and questions |
+| 5 | Difficulty Spread | any | Non-trivial ELO range |
+| 6 | SVG Validity | 90% | Valid XML with viewBox |
+| 7 | Gradeability | 90% | Valid grading_mode, answer_type, non-empty answer_key |
+| 8 | Unevaluated SymPy | 95% | No `Integral(`, `Derivative(`, etc. in answer_key |
+| 9 | Solution Quality | 80% | Non-empty solution, balanced braces, no code artifacts |
+| 10 | Time Limit | 80% | time_limit_seconds set, in range, scaled by difficulty |
+| 11 | Topic Validity | 100% | Valid (main_topic, subtopic) pair from lib.rs |
+| 12 | Grading Round-Trip | 95% | Self-grade via `grade-check` binary (skipped if not found) |
+
+### Grade-Check Binary
+
+Build with `cargo build --bin grade-check`. Used by check 12 to verify answer_keys grade correctly against themselves.
+
+```bash
+echo '{"answer_key":"2*x","answer_type":"expression","grading_mode":"equivalent"}' | ./target/debug/grade-check
+# {"ok":true,"result":"Correct"}
+```
+
 ## Problem Format
 
 Each generated problem must include:

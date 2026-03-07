@@ -40,7 +40,10 @@ _DIFFICULTY_TARGETS = {
 
 
 def _python_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
-    return f"""Generate a Python script that creates random math problems.
+    geo_note = ""
+    if main_topic == "geometry":
+        geo_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use Diagram for a visual diagram. Pass `image=d.render()` to problem().\n"
+    return f"""Generate a Python script that creates random math problems.{geo_note}
 
 {_ELO_GUIDE}
 
@@ -165,6 +168,59 @@ def generate():
 emit(generate())
 ```
 
+EXAMPLE 4 (set answer — quadratic roots):
+```
+from problem_utils import *
+
+def generate():
+    r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
+    expr = expand((x - r1) * (x - r2))
+    ans = fmt_set(FiniteSet(r1, r2))
+    return problem(
+        question=f"Find all solutions: ${latex(expr)} = 0$",
+        answer=ans,
+        difficulty=(1000, 1200),
+        topic="algebra1/quadratic_formula",
+        answer_type="set",
+        solution=steps(
+            f"Factor: ${latex(factor(expr))}$",
+            f"Roots: $x = {r1}$ or $x = {r2}$",
+            f"Solution set: ${{{r1}, {r2}}}$",
+        ),
+    )
+
+emit(generate())
+```
+
+EXAMPLE 5 (interval answer — linear inequality):
+```
+from problem_utils import *
+
+def generate():
+    a = nonzero(-8, 8)
+    b = randint(-20, 20)
+    # a*x + b > 0  =>  x > -b/a  or  x < -b/a  depending on sign of a
+    bound = Rational(-b, a)
+    if a > 0:
+        ans = fmt_interval(bound, "oo", left_open=True, right_open=True)
+    else:
+        ans = fmt_interval("-oo", bound, left_open=True, right_open=True)
+    return problem(
+        question=f"Solve ${latex(a*x + b)} > 0$",
+        answer=ans,
+        difficulty=(800, 1000),
+        topic="algebra1/linear_inequalities",
+        answer_type="interval",
+        solution=steps(
+            f"Given: ${latex(a*x + b)} > 0$",
+            f"Isolate $x$: $x {'>' if a > 0 else '<'} {latex(bound)}$",
+            f"Answer: ${latex(bound)}$ {'to' } $\\infty$" if a > 0 else f"Answer: $-\\infty$ to ${latex(bound)}$",
+        ),
+    )
+
+emit(generate())
+```
+
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
 2. Randomize parameters for variety — use LARGE ranges. Numbers don't need to be small.
@@ -175,16 +231,26 @@ RULES:
    - Bounds and constants: scale with difficulty — hard problems should have harder numbers
 3. Always include a solution using steps()
 4. ELO must match actual complexity (see ELO guide above)
-5. Default calculator to "none" unless computation is heavy and not the focus
+5. Calculator guidance:
+   - "none" for most problems (default)
+   - "scientific" for trig decimal approximations (e.g. sin(37°))
+   - "graphing" for coordinate geometry / function plotting
+   - "cas" only for CAS-allowed problems
 6. Use Diagram/Graph when a visual would help (geometry, graphing, coordinate problems)
 7. Always set time= in problem() to the expected solve time in seconds.
    Guidelines: easy 30-90s, medium 60-180s, hard 120-300s. Scale by problem complexity.
+8. Solutions MUST have >= 3 steps using steps(). Bad: `steps('The answer is 5')`. Good: `steps('Given: $...$', 'Subtract: $...$', 'Answer: $...$')`
+
+**IMPORTANT**: ALWAYS use fmt_interval() for interval answers. NEVER output raw `(-oo, oo)` or `(1, 7]`.
 
 Output ONLY the Python script. No markdown fences, no explanation."""
 
 
 def _julia_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
-    return f"""Generate a Julia script that creates random math problems.
+    geo_note = ""
+    if main_topic == "geometry":
+        geo_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use DiagramObj for a visual diagram. Pass `image=render(d)` to problem().\n"
+    return f"""Generate a Julia script that creates random math problems.{geo_note}
 
 {_ELO_GUIDE}
 
@@ -300,15 +366,76 @@ using .ProblemUtils
 end
 ```
 
+EXAMPLE 4 — set answer (quadratic roots):
+```
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+@script x begin
+    set_topic!("algebra1/quadratic_formula")
+    r1, r2 = nonzero(-10, 10), nonzero(-10, 10)
+    expr = expand((x - r1) * (x - r2))
+    problem(
+        question="Find all solutions: \$$(tex(expr)) = 0\$",
+        answer=fmt_set(Set([r1, r2])),
+        difficulty=(1000, 1200),
+        answer_type="set",
+        solution=steps(
+            sol("Given", expr ~ 0),
+            "Factor: \$$(tex((x - r1) * (x - r2))) = 0\$",
+            "Solution set: \$\\{$(r1), $(r2)\\}\$",
+        ),
+        time=90,
+    )
+end
+```
+
+EXAMPLE 5 — interval answer (linear inequality):
+```
+include(joinpath(@__DIR__, "..", "julia", "src", "ProblemUtils.jl"))
+using .ProblemUtils
+
+@script x begin
+    set_topic!("algebra1/linear_inequalities")
+    a = nonzero(-8, 8)
+    b = randint(-20, 20)
+    bound = -b // a
+    if a > 0
+        ans = fmt_interval(bound, Inf, true, true)
+    else
+        ans = fmt_interval(-Inf, bound, true, true)
+    end
+    problem(
+        question="Solve \$$(tex(a*x + b)) > 0\$",
+        answer=ans,
+        difficulty=(800, 1000),
+        answer_type="interval",
+        solution=steps(
+            sol("Given", a*x + b),
+            "Isolate x",
+            "Answer: \$x $(a > 0 ? ">" : "<") $(bound)\$",
+        ),
+        time=60,
+    )
+end
+```
+
 RULES:
 1. REVERSE ENGINEER: Pick clean answers first, construct the problem backward
 2. Randomize with LARGE ranges (coefficients ±20+, roots ±12, exponents up to 6-8)
 3. Always include a solution using steps() with sol() helpers
 4. ELO must match actual complexity (see ELO guide above)
-5. Default calculator to "none" unless computation is heavy and not the focus
+5. Calculator guidance:
+   - "none" for most problems (default)
+   - "scientific" for trig decimal approximations (e.g. sin(37°))
+   - "graphing" for coordinate geometry / function plotting
+   - "cas" only for CAS-allowed problems
 6. Always set time= in problem() (easy 30-90s, medium 60-180s, hard 120-300s)
 7. Use rand_linear/rand_quadratic/rand_factorable/rand_poly when generating random polynomials
 8. Always use @script macro — never write run_batch(generate) manually
+9. Solutions MUST have >= 3 steps using steps(). Bad: `steps("The answer is 5")`. Good: `steps(sol("Given", expr), "Subtract both sides", sol("Answer", ans))`
+
+**IMPORTANT**: ALWAYS use fmt_interval() for interval answers. NEVER output raw `(-oo, oo)` or `(1, 7]`.
 
 Output ONLY the Julia script. No markdown fences, no explanation."""
 

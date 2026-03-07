@@ -561,4 +561,37 @@ Activity matrix data for GitHub-style contribution graph (last 365 days).
 
 ---
 
+### Public Profile
+
+#### `GET /profile/{username}`
+
+Public user profile with badges, stats, and activity.
+
+**Auth**: None | **Path params**: `username` = string
+
+```json
+// Response 200
+{
+  "username": "alice",
+  "member_since": "2024-01-01T00:00:00Z",
+  "badges": [{
+    "id": "streak_7",
+    "name": "Week Warrior",
+    "description": "7-day streak",
+    "category": "streak",
+    "tier": "silver"
+  }],
+  "topics": [{ TopicStatsEntry }],
+  "total_attempts": 500,
+  "correct_attempts": 350,
+  "current_streak": 5,
+  "daily_puzzle_streak": 12,
+  "activity": { DailyActivityResponse }
+}
+```
+
+Returns 404 if user not found. Badges are computed dynamically from stats (no DB tables).
+
+---
+
 Note: The factory endpoint (`POST /internal/problems`) has been removed. The factory now inserts problems directly into PostgreSQL via `asyncpg`.
