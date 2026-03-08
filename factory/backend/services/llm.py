@@ -354,7 +354,7 @@ SVG: DiagramObj (geometry), GraphObj (plots), NumberLine (intervals)
   - Histogram: bins_from_data!(h, data; n_bins), bin!(h, lo, hi, count)
   - BoxPlot: add_data!(bp, data; label)
   - ScatterPlot: scatter_points!(sp, xs, ys), regression_line!(sp, slope, intercept)
-  - FreeBodyDiagram: add_force!(fbd, mag, angle_deg; label), set_object!(:box/:circle), add_surface!(; incline_deg)
+  - FreeBodyDiagram: add_force!(fbd, mag, angle_deg; label), set_object!(:box/:circle), add_surface!(; incline_deg). angle_deg is absolute (0=right, 90=up). On inclines the box is rotated to sit on the ramp, so use incline-relative angles: for θ° incline, Normal=(90+θ), friction along surface=(180+θ) or θ, mg=270 (always straight down).
   - ProjectilePath(v0, angle): add_label!(:range/:max_height/:angle/:v0)
   - CircuitDiagram: add_battery!(cd, V; label), add_resistor!(cd, Ω; label), add_capacitor!(cd, F; label), set_topology!(:series/:parallel/:combo)
   - WaveDiagram(; amplitude, wavelength, n_cycles): label_amplitude!, label_wavelength!, add_second_wave!
