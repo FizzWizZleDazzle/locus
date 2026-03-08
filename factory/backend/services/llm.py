@@ -40,10 +40,24 @@ _DIFFICULTY_TARGETS = {
 
 
 def _python_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
-    geo_note = ""
+    topic_note = ""
     if main_topic == "geometry":
-        geo_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use Diagram for a visual diagram. Pass `image=d.render()` to problem().\n"
-    return f"""Generate a Python script that creates random math problems.{geo_note}
+        topic_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use Diagram for a visual diagram. Pass `image=d.render()` to problem().\n"
+    elif main_topic == "statistics":
+        topic_note = """
+
+**STATISTICS NOTE**: Use Python's math/statistics libraries for stat computations.
+Use calculator="scientific" for problems requiring normal distribution tables or decimal approximations.
+ALWAYS reverse-engineer: pick clean answers first, construct the problem backward.
+"""
+    elif main_topic == "physics":
+        topic_note = """
+
+**PHYSICS NOTE**: Use Python's math library for physics computations. Define constants as needed (g=9.80, etc.).
+Use calculator="scientific" for problems requiring trig or decimal computation.
+ALWAYS reverse-engineer: pick clean answers first, compute the setup backward.
+"""
+    return f"""Generate a Python script that creates random math problems.{topic_note}
 
 {_ELO_GUIDE}
 
@@ -247,10 +261,51 @@ Output ONLY the Python script. No markdown fences, no explanation."""
 
 
 def _julia_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
-    geo_note = ""
+    topic_note = ""
     if main_topic == "geometry":
-        geo_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use DiagramObj for a visual diagram. Pass `image=render(d)` to problem().\n"
-    return f"""Generate a Julia script that creates random math problems.{geo_note}
+        topic_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use DiagramObj for a visual diagram. Pass `image=render(d)` to problem().\n"
+    elif main_topic == "statistics":
+        topic_note = """
+
+**STATISTICS HELPERS** (all exported from ProblemUtils):
+- Descriptive: stat_mean, stat_median, stat_mode, stat_variance, stat_stdev, stat_quartiles, stat_iqr, stat_five_number, stat_range
+- Generators: rand_dataset(; n, mean_range, spread) — reverse-engineers clean mean; rand_dataset_with_mode(; n, value_range) — guaranteed unique mode
+- Combinatorics: fact(n), comb(n,k), perm(n,k)
+- Probability: fmt_prob(num, den), fmt_prob_decimal(p)
+- Normal: z_score(x, mu, sigma), phi(z) (CDF approx), phi_inv(p), normal_cdf(x, mu, sigma), normal_between(a, b, mu, sigma)
+- Regression: least_squares(xs, ys) → (a, b, r); rand_regression(; n, slope_range, noise)
+- Confidence: confidence_interval(x_bar, sigma, n, z_star), margin_of_error(sigma, n, z_star), Z_90/Z_95/Z_99
+- Hypothesis: z_test_stat(x_bar, mu_0, sigma, n), p_value_two_tail(z), p_value_one_tail(z)
+- Sampling: se_mean(sigma, n), se_proportion(p, n)
+- SVG: Histogram (bin!, bins_from_data!), BoxPlot (add_data!), ScatterPlot (scatter_points!, regression_line!)
+- Use calculator="scientific" for problems requiring normal distribution tables or decimal approximations.
+- ALWAYS reverse-engineer: use rand_dataset() to get clean means, pick known z-scores, etc.
+"""
+    elif main_topic == "physics":
+        topic_note = """
+
+**PHYSICS HELPERS** (all exported from ProblemUtils):
+- Constants: PHYS.g, PHYS.G, PHYS.c, PHYS.k_e, PHYS.eps_0, PHYS.mu_0, PHYS.k_B, PHYS.e, PHYS.m_e, PHYS.m_p, PHYS.N_A, PHYS.R, PHYS.sigma, PHYS.atm
+- Kinematics: kinematic_1d(; v0, v, a, t, d) — give 3 get 2; projectile(v0, angle_deg), rand_projectile()
+- Forces: newton2(; F, m, a), weight(m), friction(mu, N), net_force([(F, angle)...])
+- Energy: ke(m,v), pe(m,h), pe_spring(k,x), work(F,d; theta_deg), power(W,t)
+- Momentum: momentum(m,v), impulse(F,dt), elastic_collision(m1,v1,m2,v2), inelastic_collision(m1,v1,m2,v2)
+- Rotation: angular_velocity(v,r), centripetal_accel(v,r), INERTIA.solid_sphere(m,r) etc., torque(r,F), ke_rotational(I,omega)
+- Oscillations: shm_period_spring(m,k), shm_period_pendulum(L), shm_frequency(T), shm_vmax(A,omega)
+- Waves: wave_speed(f,λ), wave_frequency(v,λ), wavelength(v,f), doppler(...), speed_of_sound(T_celsius)
+- Fluids: pressure(F,A), hydrostatic_pressure(rho,h), buoyant_force(rho,V), flow_rate(A,v)
+- Thermo: c_to_k/k_to_c/c_to_f/f_to_c, heat_transfer(m,c,dT), ideal_gas(;P,V,n,T), carnot_efficiency(T_cold,T_hot)
+- E&M: coulomb_force(q1,q2,r), electric_field_point(q,r), ohm(;V,I,R), resistance_series/parallel, electrical_power(;V,I,R), rand_circuit(), rc_time_constant(R,C), capacitance_parallel, capacitor_energy(C,V)
+- Magnetism: magnetic_force_charge(q,v,B), magnetic_force_wire(I,L,B), B_wire(I,r), B_solenoid(n,I)
+- Optics: snell(n1,theta1_deg,n2), critical_angle(n1,n2), thin_lens(;f,d_o,d_i), magnification(d_i,d_o)
+- Gravitation: gravity_force(m1,m2,r), orbital_velocity(M,r), orbital_period(M,r), escape_velocity(M,r)
+- Induction: magnetic_flux(B,A), faraday_emf(N,dPhi,dt), motional_emf(B,L,v), inductor_energy(L,I)
+- Formatting: fmt_phys(val; digits), convert_unit(val, key), UNIT_CONVERSIONS dict, rand_mech()
+- SVG: FreeBodyDiagram (add_force!, set_object!, add_surface!), ProjectilePath (add_label!), CircuitDiagram (add_battery!, add_resistor!, add_capacitor!, set_topology!), WaveDiagram (label_amplitude!, label_wavelength!, add_second_wave!), OpticsRay
+- Use calculator="scientific" for problems requiring trig or decimal computation.
+- ALWAYS reverse-engineer: pick clean answers, compute the setup backward. Use solver functions to verify.
+"""
+    return f"""Generate a Julia script that creates random math problems.{topic_note}
 
 {_ELO_GUIDE}
 
@@ -296,7 +351,19 @@ SVG: DiagramObj (geometry), GraphObj (plots), NumberLine (intervals)
   - Diagram: line!, arrow!, polygon!, circle!, arc!, point!, angle_arc!, right_angle!, segment_label!, tick_marks!, text!
   - Graph: plot!, fill_between!(g, expr1, expr2), point!, vline!, hline!
   - NumberLine: open_point!, closed_point!, shade!, shade_left!, shade_right!
+  - Histogram: bins_from_data!(h, data; n_bins), bin!(h, lo, hi, count)
+  - BoxPlot: add_data!(bp, data; label)
+  - ScatterPlot: scatter_points!(sp, xs, ys), regression_line!(sp, slope, intercept)
+  - FreeBodyDiagram: add_force!(fbd, mag, angle_deg; label), set_object!(:box/:circle), add_surface!(; incline_deg)
+  - ProjectilePath(v0, angle): add_label!(:range/:max_height/:angle/:v0)
+  - CircuitDiagram: add_battery!(cd, V; label), add_resistor!(cd, Ω; label), add_capacitor!(cd, F; label), set_topology!(:series/:parallel/:combo)
+  - WaveDiagram(; amplitude, wavelength, n_cycles): label_amplitude!, label_wavelength!, add_second_wave!
+  - OpticsRay(; element, f, d_o, h_o): element = :converging_lens/:diverging_lens/:concave_mirror/:convex_mirror
   - All: svg = render(obj), pass to problem(..., image=svg)
+
+STATISTICS helpers: stat_mean, stat_median, stat_mode, stat_variance, stat_stdev, stat_quartiles, stat_iqr, stat_five_number, stat_range, rand_dataset, rand_dataset_with_mode, fact, comb, perm, fmt_prob, fmt_prob_decimal, z_score, phi, phi_inv, normal_cdf, normal_between, least_squares, rand_regression, confidence_interval, margin_of_error, Z_90/Z_95/Z_99, z_test_stat, p_value_two_tail, p_value_one_tail, se_mean, se_proportion
+
+PHYSICS helpers: PHYS (constants named tuple), kinematic_1d, projectile, rand_projectile, newton2, weight, friction, net_force, ke, pe, pe_spring, work, power, momentum, impulse, elastic_collision, inelastic_collision, angular_velocity, centripetal_accel, INERTIA, torque, ke_rotational, shm_period_spring, shm_period_pendulum, shm_frequency, shm_vmax, wave_speed, wave_frequency, wavelength, doppler, speed_of_sound, pressure, hydrostatic_pressure, buoyant_force, flow_rate, c_to_k, k_to_c, c_to_f, f_to_c, heat_transfer, ideal_gas, carnot_efficiency, coulomb_force, electric_field_point, ohm, resistance_series, resistance_parallel, electrical_power, rand_circuit, rc_time_constant, capacitance_parallel, capacitor_energy, magnetic_force_charge, magnetic_force_wire, B_wire, B_solenoid, snell, critical_angle, thin_lens, magnification, gravity_force, orbital_velocity, orbital_period, escape_velocity, magnetic_flux, faraday_emf, motional_emf, inductor_energy, fmt_phys, convert_unit, UNIT_CONVERSIONS, rand_mech
 
 KEY SYMBOLICS.JL DIFFERENCES FROM SYMPY:
 - @variables x y z (not symbols), tex(expr) (not latex), // for rationals

@@ -406,6 +406,20 @@ _VALID_TOPICS = {
         "linear_independence", "eigenvalues", "diagonalization",
         "linear_transformations",
     ],
+    "statistics": [
+        "descriptive_statistics", "data_displays", "probability_basics",
+        "counting_principles", "normal_distribution", "sampling_distributions",
+        "confidence_intervals", "hypothesis_testing", "linear_regression",
+        "chi_square_tests",
+    ],
+    "physics": [
+        "kinematics_1d", "kinematics_2d", "newtons_laws", "friction_forces",
+        "work_energy", "conservation_of_energy", "momentum_collisions",
+        "rotational_motion", "simple_harmonic_motion", "wave_properties",
+        "sound_waves", "fluid_mechanics", "thermodynamics", "ideal_gas_law",
+        "electrostatics", "dc_circuits", "magnetism", "electromagnetic_induction",
+        "geometric_optics", "wave_optics", "gravitation",
+    ],
     "test": [
         "expressions", "numerics", "sets", "tuples", "lists",
         "intervals", "inequalities", "equations", "booleans",

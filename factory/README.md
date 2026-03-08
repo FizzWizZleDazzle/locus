@@ -106,6 +106,10 @@ using .ProblemUtils
 - `compress_svg(svg)`, `decompress_svg(s)`
 - `DiagramObj`, `GraphObj`, `NumberLine` — SVG builders
 - `arrow!`, `fill_between!`, `open_point!`, `closed_point!`, `shade!`, `shade_left!`, `shade_right!`
+- `Histogram`, `BoxPlot`, `ScatterPlot` — statistics SVG builders
+- `FreeBodyDiagram`, `ProjectilePath`, `CircuitDiagram`, `WaveDiagram`, `OpticsRay` — physics SVG builders
+- Statistics: `stat_mean`, `stat_median`, `stat_mode`, `stat_variance`, `stat_stdev`, `stat_quartiles`, `stat_iqr`, `stat_five_number`, `stat_range`, `rand_dataset`, `rand_dataset_with_mode`, `fact`, `comb`, `perm`, `fmt_prob`, `z_score`, `phi`, `phi_inv`, `normal_cdf`, `normal_between`, `least_squares`, `rand_regression`, `confidence_interval`, `margin_of_error`, `Z_90`/`Z_95`/`Z_99`, `z_test_stat`, `p_value_two_tail`, `p_value_one_tail`, `se_mean`, `se_proportion`
+- Physics: `PHYS` (constants), `kinematic_1d`, `projectile`, `newton2`, `weight`, `friction`, `net_force`, `ke`, `pe`, `pe_spring`, `work`, `power`, `momentum`, `impulse`, `elastic_collision`, `inelastic_collision`, `angular_velocity`, `centripetal_accel`, `INERTIA`, `torque`, `shm_period_spring`, `shm_period_pendulum`, `wave_speed`, `doppler`, `pressure`, `hydrostatic_pressure`, `buoyant_force`, `heat_transfer`, `ideal_gas`, `carnot_efficiency`, `coulomb_force`, `ohm`, `resistance_series`, `resistance_parallel`, `electrical_power`, `rand_circuit`, `snell`, `thin_lens`, `magnification`, `gravity_force`, `orbital_velocity`, `escape_velocity`, `magnetic_flux`, `faraday_emf`, `fmt_phys`, `convert_unit`, `rand_mech`
 
 ### Simplified API
 
