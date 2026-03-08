@@ -21,10 +21,20 @@ pub fn TopicSelector(
     /// Optional initial subtopics to pre-select
     #[prop(into, default = Vec::new())]
     initial_subtopics: Vec<String>,
+    /// When provided, show a split-button with warmup option
+    #[prop(optional)]
+    warmup_enabled: Option<ReadSignal<bool>>,
+    /// Writer for warmup toggle
+    #[prop(optional)]
+    set_warmup_enabled: Option<WriteSignal<bool>>,
 ) -> impl IntoView {
     let (selected_topic_id, set_selected_topic_id) = signal(initial_topic);
     let (selected_subtopics, set_selected_subtopics) =
         signal::<HashSet<String>>(initial_subtopics.into_iter().collect());
+
+    // Split-button dropdown state
+    let (menu_open, set_menu_open) = signal(false);
+    let has_warmup = warmup_enabled.is_some();
 
     // Fetch topics from API
     let (topics, set_topics) = signal(None::<Vec<Topic>>);
@@ -154,13 +164,106 @@ pub fn TopicSelector(
                                                     }).collect_view()}
                                                 </div>
 
-                                                <button
-                                                    class="mt-4 w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
-                                                    on:click=move |_| confirm()
-                                                    disabled=move || selected_subtopics.get().is_empty()
-                                                >
-                                                    "Start"
-                                                </button>
+                                                {if has_warmup {
+                                                    view! {
+                                                        <div class="mt-4 relative">
+                                                            <div class="flex">
+                                                                // Main start button
+                                                                <button
+                                                                    class="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-l hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                                                                    on:click=move |_| confirm()
+                                                                    disabled=move || selected_subtopics.get().is_empty()
+                                                                >
+                                                                    {move || {
+                                                                        if warmup_enabled.map(|s| s.get()).unwrap_or(false) {
+                                                                            "Start with Warmup"
+                                                                        } else {
+                                                                            "Start"
+                                                                        }
+                                                                    }}
+                                                                </button>
+                                                                // Dropdown arrow
+                                                                <button
+                                                                    class="px-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-r border-l border-gray-700 dark:border-gray-300 hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                                                                    on:click=move |_| set_menu_open.update(|v| *v = !*v)
+                                                                    disabled=move || selected_subtopics.get().is_empty()
+                                                                >
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            // Dropdown menu
+                                                            {move || menu_open.get().then(|| {
+                                                                view! {
+                                                                    <div class="absolute left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10 overflow-hidden">
+                                                                        <button
+                                                                            class=move || format!(
+                                                                                "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between transition-colors {}",
+                                                                                if !warmup_enabled.map(|s| s.get()).unwrap_or(false) {
+                                                                                    "text-gray-900 dark:text-white font-medium"
+                                                                                } else {
+                                                                                    "text-gray-600 dark:text-gray-400"
+                                                                                }
+                                                                            )
+                                                                            on:click=move |_| {
+                                                                                if let Some(setter) = set_warmup_enabled {
+                                                                                    setter.set(false);
+                                                                                }
+                                                                                set_menu_open.set(false);
+                                                                            }
+                                                                        >
+                                                                            <span>"Start"</span>
+                                                                            {move || (!warmup_enabled.map(|s| s.get()).unwrap_or(false)).then(|| view! {
+                                                                                <svg class="w-4 h-4 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                                </svg>
+                                                                            })}
+                                                                        </button>
+                                                                        <button
+                                                                            class=move || format!(
+                                                                                "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700 transition-colors {}",
+                                                                                if warmup_enabled.map(|s| s.get()).unwrap_or(false) {
+                                                                                    "text-gray-900 dark:text-white font-medium"
+                                                                                } else {
+                                                                                    "text-gray-600 dark:text-gray-400"
+                                                                                }
+                                                                            )
+                                                                            on:click=move |_| {
+                                                                                if let Some(setter) = set_warmup_enabled {
+                                                                                    setter.set(true);
+                                                                                }
+                                                                                set_menu_open.set(false);
+                                                                            }
+                                                                        >
+                                                                            <div class="flex items-center justify-between">
+                                                                                <div>
+                                                                                    <span>"Start with Warmup"</span>
+                                                                                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">"5 practice problems first"</div>
+                                                                                </div>
+                                                                                {move || warmup_enabled.map(|s| s.get()).unwrap_or(false).then(|| view! {
+                                                                                    <svg class="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                                    </svg>
+                                                                                })}
+                                                                            </div>
+                                                                        </button>
+                                                                    </div>
+                                                                }
+                                                            })}
+                                                        </div>
+                                                    }.into_any()
+                                                } else {
+                                                    view! {
+                                                        <button
+                                                            class="mt-4 w-full px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                                                            on:click=move |_| confirm()
+                                                            disabled=move || selected_subtopics.get().is_empty()
+                                                        >
+                                                            "Start"
+                                                        </button>
+                                                    }.into_any()
+                                                }}
                                             </div>
                                         }
                                     })

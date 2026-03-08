@@ -4,13 +4,16 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_query_map};
 use locus_common::ProblemResponse;
+use locus_common::constants::WARMUP_SIZE;
+use wasm_bindgen::prelude::*;
 
 use crate::{
     AuthContext, ThemeContext, api,
-    components::{ProblemInterface, TopicSelector, Whiteboard},
-    grader::preprocess_input,
+    components::{LatexRenderer, ProblemInterface, TopicSelector, Whiteboard},
+    formatters::format_answer_for_display,
+    grader::{GradeResult, check_answer, preprocess_input},
     problem_queue::ProblemQueue,
-    utils::{push_url_playing, setup_popstate_listener, update_url},
+    utils::{escape_html, push_url_playing, setup_popstate_listener, update_url},
 };
 
 #[derive(Clone)]
@@ -59,37 +62,48 @@ pub fn Ranked() -> impl IntoView {
     // Whiteboard mode
     let (whiteboard_mode, set_whiteboard_mode) = signal(false);
 
-    // Problem queue for batch fetching
+    // Warmup state
+    let (warmup_enabled, set_warmup_enabled) = signal(false);
+    let (warmup_active, set_warmup_active) = signal(false);
+    let (warmup_count, set_warmup_count) = signal(0usize);
+    let (warmup_result, set_warmup_result) = signal(None::<GradeResult>);
+
+    // Problem queues
     let queue = ProblemQueue::new(false);
+    let warmup_queue = ProblemQueue::new(true);
 
     let load_problem = move || {
         set_error.set(None);
         set_answer.set(String::new());
         set_result.set(None);
+        set_warmup_result.set(None);
 
         let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
 
-        if let Some(p) = queue.next(topic.clone(), subtopics.clone()) {
+        let q = if warmup_active.get_untracked() { warmup_queue } else { queue };
+
+        if let Some(p) = q.next(topic.clone(), subtopics.clone()) {
             set_problem.set(Some(p));
             set_loading.set(false);
             set_start_time.set(Some(js_sys::Date::now()));
         } else {
             set_loading.set(true);
-            queue.fetch(topic, subtopics);
+            q.fetch(topic, subtopics);
         }
     };
 
     // When the queue finishes loading and we're still waiting for a problem, pop one
     Effect::new(move |_| {
-        if loading.get() && !queue.loading() {
-            if let Some(err) = queue.error() {
+        let q = if warmup_active.get() { warmup_queue } else { queue };
+        if loading.get() && !q.loading() {
+            if let Some(err) = q.error() {
                 set_error.set(Some(err));
                 set_loading.set(false);
             } else {
                 let topic = selected_topic.get();
                 let subtopics = selected_subtopics.get();
-                if let Some(p) = queue.next(topic, subtopics) {
+                if let Some(p) = q.next(topic, subtopics) {
                     set_problem.set(Some(p));
                     set_loading.set(false);
                     set_start_time.set(Some(js_sys::Date::now()));
@@ -127,10 +141,20 @@ pub fn Ranked() -> impl IntoView {
 
         // Clear stale problems from previous topic selection
         queue.clear();
+        warmup_queue.clear();
 
         // Reset session state
         set_session_attempts.set(Vec::new());
         set_show_summary.set(false);
+
+        // Start warmup if enabled
+        if warmup_enabled.get_untracked() {
+            set_warmup_active.set(true);
+            set_warmup_count.set(0);
+            set_warmup_result.set(None);
+        } else {
+            set_warmup_active.set(false);
+        }
 
         // Create a history entry with 'playing' state so back button can return to topic selector
         let url = if subtopics.is_empty() {
@@ -192,6 +216,38 @@ pub fn Ranked() -> impl IntoView {
         });
     });
 
+    // Advance to next problem (handles warmup → ranked transition)
+    let advance_problem = move || {
+        if warmup_active.get_untracked() {
+            let count = warmup_count.get_untracked() + 1;
+            set_warmup_count.set(count);
+            if count >= WARMUP_SIZE {
+                // Transition to ranked
+                set_warmup_active.set(false);
+                set_warmup_count.set(0);
+            }
+        }
+        load_problem();
+    };
+
+    // Keyboard shortcut: Enter → next problem when result is showing
+    Effect::new(move |_| {
+        let handler = Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(
+            move |ev: web_sys::KeyboardEvent| {
+                let has_result = result.get().is_some() || warmup_result.get().is_some();
+                if ev.key() == "Enter" && has_result {
+                    ev.prevent_default();
+                    advance_problem();
+                }
+            },
+        );
+        let window = web_sys::window().unwrap();
+        window
+            .add_event_listener_with_callback("keydown", handler.as_ref().unchecked_ref())
+            .unwrap();
+        handler.forget();
+    });
+
     let submit = move || {
         if let Some(p) = problem.get() {
             set_submitting.set(true);
@@ -227,6 +283,8 @@ pub fn Ranked() -> impl IntoView {
                             elo_after: resp.elo_after,
                             elo_change: resp.elo_change,
                             topic_streak: resp.topic_streak,
+                            answer_key: resp.answer_key,
+                            solution_latex: resp.solution_latex,
                         }));
                         set_submitting.set(false);
                     }
@@ -239,8 +297,25 @@ pub fn Ranked() -> impl IntoView {
         }
     };
 
+    let warmup_submit = move || {
+        if let Some(p) = problem.get() {
+            let user_input = preprocess_input(&answer.get());
+            if let Some(answer_key) = &p.answer_key {
+                let grade = check_answer(&user_input, answer_key, p.grading_mode, p.answer_type);
+                set_warmup_result.set(Some(grade));
+            }
+        }
+    };
+
     let on_submit = Callback::new(move |_| {
-        if !submitting.get() && !answer.get().is_empty() && result.get().is_none() {
+        if answer.get().is_empty() {
+            return;
+        }
+        if warmup_active.get() {
+            if warmup_result.get().is_none() {
+                warmup_submit();
+            }
+        } else if !submitting.get() && result.get().is_none() {
             submit();
         }
     });
@@ -250,6 +325,9 @@ pub fn Ranked() -> impl IntoView {
         set_selected_subtopics.set(Vec::new());
         set_problem.set(None);
         set_result.set(None);
+        set_warmup_result.set(None);
+        set_warmup_active.set(false);
+        set_warmup_count.set(0);
         set_session_attempts.set(Vec::new());
         set_show_summary.set(false);
         set_session_start_elo.set(0);
@@ -354,13 +432,15 @@ pub fn Ranked() -> impl IntoView {
 
             // Show topic selector if no problem loaded
             {move || problem.get().is_none().then(|| view! {
-                <div class="border border-gray-200 rounded p-6">
+                <div class="border border-gray-200 dark:border-gray-700 rounded p-6">
                     <TopicSelector
                         on_confirm=on_topic_confirm
                         on_topic_change=on_topic_change
                         on_subtopics_change=on_subtopics_change
                         initial_topic=initial_topic.get()
                         initial_subtopics=initial_subtopics.get().unwrap_or_default()
+                        warmup_enabled=warmup_enabled
+                        set_warmup_enabled=set_warmup_enabled
                     />
                 </div>
             })}
@@ -377,67 +457,201 @@ pub fn Ranked() -> impl IntoView {
                         <div class="text-gray-500 text-sm">"Loading..."</div>
                     })}
 
+                    // Warmup banner
+                    {move || warmup_active.get().then(|| {
+                        let count = warmup_count.get();
+                        view! {
+                            <div class="flex items-center justify-between px-4 py-2 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded text-sm">
+                                <span class="text-amber-800 dark:text-amber-200 font-medium">
+                                    {format!("Warmup {}/{}", count + 1, WARMUP_SIZE)}
+                                </span>
+                                <button
+                                    class="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 text-xs"
+                                    on:click=move |_| {
+                                        set_warmup_active.set(false);
+                                        set_warmup_count.set(0);
+                                        set_warmup_result.set(None);
+                                        load_problem();
+                                    }
+                                >
+                                    "Skip to ranked"
+                                </button>
+                            </div>
+                        }
+                    })}
+
                     <ProblemInterface
                         problem=problem
                         answer=answer
                         set_answer=set_answer
                         on_submit=on_submit
                         whiteboard_mode=wb_signal
-                        render_controls=move || view! {
-                            <button
-                                class="w-full px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
-                                on:click=move |_| submit()
-                                disabled=move || answer.get().is_empty() || submitting.get() || result.get().is_some()
-                            >
-                                {move || if submitting.get() { "Submitting..." } else { "Submit" }}
-                            </button>
-                        }
-                        render_result=move || result.get().map(|r| {
-                            let elo_color = if r.elo_change >= 0 { "text-green-600" } else { "text-red-600" };
-                            let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
-
-                            view! {
-                                <div class="p-6 border rounded">
-                                    <div class="flex items-center gap-2 text-lg mb-2">
-                                        {if r.is_correct {
-                                            view! {
-                                                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span>"Correct"</span>
-                                            }.into_any()
-                                        } else {
-                                            view! {
-                                                <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                                <span>"Incorrect"</span>
-                                            }.into_any()
-                                        }}
+                        render_controls=move || {
+                            if warmup_active.get() {
+                                // Warmup controls: Check button + Next
+                                view! {
+                                    <div>
+                                        <button
+                                            class="w-full px-4 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 rounded"
+                                            on:click=move |_| warmup_submit()
+                                            disabled=move || answer.get().is_empty() || warmup_result.get().is_some()
+                                        >
+                                            "Check"
+                                        </button>
+                                        {move || warmup_result.get().is_some().then(|| view! {
+                                            <button
+                                                class="w-full px-4 py-3 mt-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
+                                                on:click=move |_| advance_problem()
+                                            >
+                                                {move || {
+                                                    let count = warmup_count.get();
+                                                    if count + 1 >= WARMUP_SIZE {
+                                                        "Start Ranked"
+                                                    } else {
+                                                        "Next Problem"
+                                                    }
+                                                }}
+                                            </button>
+                                        })}
                                     </div>
-                                    {(r.is_correct && r.topic_streak > 0).then(|| view! {
-                                        <div class="flex items-center gap-1 text-sm text-orange-600 mb-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                            </svg>
-                                            {format!("{} correct in a row", r.topic_streak)}
-                                        </div>
-                                    })}
-                                    <div class="text-sm text-gray-600 mb-4">
-                                        {format!("{} → {}", r.elo_before, r.elo_after)}
-                                        <span class=format!("ml-2 font-medium {}", elo_color)>
-                                            {format!("({}{})", elo_prefix, r.elo_change)}
-                                        </span>
-                                    </div>
+                                }.into_any()
+                            } else {
+                                // Ranked controls
+                                view! {
                                     <button
-                                        class="w-full px-4 py-3 border hover:bg-gray-50 rounded"
-                                        on:click=move |_| load_problem()
+                                        class="w-full px-4 py-3 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50"
+                                        on:click=move |_| submit()
+                                        disabled=move || answer.get().is_empty() || submitting.get() || result.get().is_some()
                                     >
-                                        "Next Problem"
+                                        {move || if submitting.get() { "Submitting..." } else { "Submit" }}
                                     </button>
-                                </div>
+                                }.into_any()
                             }
-                        })
+                        }
+                        render_result=move || {
+                            // Warmup result (client-side grading)
+                            if warmup_active.get() {
+                                warmup_result.get().map(|r| {
+                                    let (color, msg) = match &r {
+                                        GradeResult::Correct => ("text-green-600", "Correct".to_string()),
+                                        GradeResult::Incorrect => ("text-red-600", "Incorrect".to_string()),
+                                        GradeResult::Invalid(m) => ("text-yellow-600", m.clone()),
+                                        GradeResult::Error(m) => ("text-red-600", m.clone()),
+                                    };
+                                    let show_solution = !r.is_correct();
+                                    let answer_html = show_solution.then(|| {
+                                        problem.get().and_then(|p| {
+                                            let ans = p.answer_key.as_ref()?;
+                                            Some(format_answer_for_display(ans, p.answer_type)
+                                                .unwrap_or_else(|_| format!("<code>{}</code>", escape_html(ans))))
+                                        })
+                                    }).flatten();
+                                    let sol = show_solution.then(|| {
+                                        problem.get().and_then(|p| {
+                                            let s = p.solution_latex.clone();
+                                            if s.is_empty() { None } else { Some(s) }
+                                        })
+                                    }).flatten();
+                                    view! {
+                                        <div>
+                                            <div class=format!("text-sm {}", color)>{msg}</div>
+                                            {answer_html.map(|html| view! {
+                                                <div class="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded mt-2">
+                                                    <div class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">"Answer:"</div>
+                                                    <div class="text-blue-800 dark:text-blue-100 text-xl" inner_html=html></div>
+                                                </div>
+                                            })}
+                                            {sol.map(|s| view! {
+                                                <div class="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded mt-2">
+                                                    <div class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">"Solution:"</div>
+                                                    <div class="text-blue-800 dark:text-blue-100">
+                                                        <LatexRenderer content=s />
+                                                    </div>
+                                                </div>
+                                            })}
+                                        </div>
+                                    }.into_any()
+                                })
+                            } else {
+                                // Ranked result
+                                result.get().map(|r| {
+                                    let elo_color = if r.elo_change >= 0 { "text-green-600" } else { "text-red-600" };
+                                    let elo_prefix = if r.elo_change >= 0 { "+" } else { "" };
+
+                                    view! {
+                                        <div class="p-6 border dark:border-gray-700 rounded">
+                                            <div class="flex items-center gap-2 text-lg mb-2">
+                                                {if r.is_correct {
+                                                    view! {
+                                                        <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <span>"Correct"</span>
+                                                    }.into_any()
+                                                } else {
+                                                    view! {
+                                                        <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                        <span>"Incorrect"</span>
+                                                    }.into_any()
+                                                }}
+                                            </div>
+                                            {(r.is_correct && r.topic_streak > 0).then(|| view! {
+                                                <div class="flex items-center gap-1 text-sm text-orange-600 mb-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                    </svg>
+                                                    {format!("{} correct in a row", r.topic_streak)}
+                                                </div>
+                                            })}
+                                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                                {format!("{} → {}", r.elo_before, r.elo_after)}
+                                                <span class=format!("ml-2 font-medium {}", elo_color)>
+                                                    {format!("({}{})", elo_prefix, r.elo_change)}
+                                                </span>
+                                            </div>
+                                            // Show answer + solution on incorrect
+                                            {if !r.is_correct {
+                                                let answer_type = problem.get().map(|p| p.answer_type);
+                                                let answer_html = r.answer_key.as_ref().and_then(|ans| {
+                                                    let at = answer_type.unwrap_or_default();
+                                                    Some(format_answer_for_display(ans, at)
+                                                        .unwrap_or_else(|_| format!("<code>{}</code>", escape_html(ans))))
+                                                });
+                                                let sol = r.solution_latex.clone();
+                                                view! {
+                                                    <div>
+                                                        {answer_html.map(|html| view! {
+                                                            <div class="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded mb-2">
+                                                                <div class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">"Answer:"</div>
+                                                                <div class="text-blue-800 dark:text-blue-100 text-xl" inner_html=html></div>
+                                                            </div>
+                                                        })}
+                                                        {sol.map(|s| view! {
+                                                            <div class="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded mb-2">
+                                                                <div class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">"Solution:"</div>
+                                                                <div class="text-blue-800 dark:text-blue-100">
+                                                                    <LatexRenderer content=s />
+                                                                </div>
+                                                            </div>
+                                                        })}
+                                                    </div>
+                                                }.into_any()
+                                            } else {
+                                                view! { <div></div> }.into_any()
+                                            }}
+                                            <button
+                                                class="w-full px-4 py-3 border dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
+                                                on:click=move |_| advance_problem()
+                                            >
+                                                "Next Problem"
+                                            </button>
+                                        </div>
+                                    }.into_any()
+                                })
+                            }
+                        }
                     />
                 </div>
             })}
@@ -533,4 +747,6 @@ struct SubmitResult {
     elo_after: i32,
     elo_change: i32,
     topic_streak: i32,
+    answer_key: Option<String>,
+    solution_latex: Option<String>,
 }

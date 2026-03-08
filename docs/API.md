@@ -344,11 +344,15 @@ Submit an answer for grading (ranked mode).
   "elo_before": 1500,
   "elo_after": 1520,
   "elo_change": 20,
-  "topic_streak": 3
+  "topic_streak": 3,
+  "answer_key": null,
+  "solution_latex": null
 }
 ```
 
 Server-side grading. Updates ELO, streaks (topic + global daily), and records attempt.
+
+On incorrect answers, `answer_key` and `solution_latex` are returned (safe since the attempt is already recorded). On correct answers, both are `null`/omitted.
 
 ---
 
@@ -591,6 +595,31 @@ Public user profile with badges, stats, and activity.
 ```
 
 Returns 404 if user not found. Badges are computed dynamically from stats (no DB tables).
+
+---
+
+### Settings (via Auth endpoints)
+
+The Settings page uses the following auth endpoints for account management:
+
+| Action | Endpoint |
+|---|---|
+| Change password | `POST /auth/change-password` |
+| Set password (OAuth-only) | `POST /auth/set-password` |
+| Change username | `POST /auth/change-username` |
+| Delete account | `POST /auth/delete-account` |
+| Link OAuth provider | `GET /auth/oauth/link/{provider}` |
+| Unlink OAuth provider | `POST /auth/unlink-oauth` |
+
+---
+
+### Caching Behavior
+
+| Endpoint | Cache | TTL |
+|---|---|---|
+| `GET /topics` | In-memory TopicCache | Refreshed daily via background task |
+| `GET /leaderboard` | Per-topic in-memory | 5 minutes |
+| `GET /daily/today` | In-memory DailyPuzzleCache | Until date changes |
 
 ---
 

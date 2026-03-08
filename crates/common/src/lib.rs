@@ -457,6 +457,11 @@ pub struct SubmitResponse {
     pub elo_change: i32,
     #[serde(default)]
     pub topic_streak: i32,
+    /// Returned only when is_correct == false (safe since attempt is already recorded)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub answer_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub solution_latex: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

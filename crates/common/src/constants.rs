@@ -20,3 +20,6 @@ pub const PROBLEM_BATCH_MAX: u32 = 50;
 
 /// Refill the problem queue when it drops to this many remaining
 pub const PROBLEM_QUEUE_REFILL_THRESHOLD: usize = 5;
+
+/// Number of practice problems in ranked warmup
+pub const WARMUP_SIZE: usize = 5;

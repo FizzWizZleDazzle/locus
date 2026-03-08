@@ -3,6 +3,7 @@
 use leptos::prelude::*;
 use leptos_router::hooks::use_query_map;
 use locus_common::ProblemResponse;
+use wasm_bindgen::prelude::*;
 
 use crate::{
     ThemeContext,
@@ -162,6 +163,25 @@ pub fn Practice() -> impl IntoView {
         setup_popstate_listener(move || {
             set_problem.set(None);
         });
+    });
+
+    // Keyboard shortcut: Enter → next problem when result is showing or answer revealed
+    Effect::new(move |_| {
+        let handler = Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(
+            move |ev: web_sys::KeyboardEvent| {
+                let can_advance = result.get().map(|r| r.is_correct()).unwrap_or(false)
+                    || show_answer.get();
+                if ev.key() == "Enter" && can_advance {
+                    ev.prevent_default();
+                    load_problem();
+                }
+            },
+        );
+        let window = web_sys::window().unwrap();
+        window
+            .add_event_listener_with_callback("keydown", handler.as_ref().unchecked_ref())
+            .unwrap();
+        handler.forget();
     });
 
     // Copy signals for use in closures
