@@ -1,7 +1,7 @@
 //! Password reset token model
 
 use chrono::{DateTime, Duration, Utc};
-use rand::{Rng, rng};
+use rand;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -18,9 +18,8 @@ pub struct PasswordResetToken {
 impl PasswordResetToken {
     /// Generate a cryptographically secure random token
     pub fn generate_token() -> String {
-        let mut rng = rng();
         let mut bytes = [0u8; 32];
-        rng.fill(&mut bytes);
+        rand::fill(&mut bytes[..]);
         hex::encode(bytes)
     }
 

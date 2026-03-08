@@ -12,7 +12,7 @@ locus-common = { path = "../common" }
 leptos = { workspace = true }
 leptos_router = { workspace = true }
 leptos_meta = { workspace = true }
-leptos-use = "0.15"
+leptos-use = "0.18"
 
 # HTTP client
 gloo-net = { workspace = true }
@@ -51,5 +51,5 @@ serde-wasm-bindgen = "0.6"
 uuid = { version = "1", features = ["v4", "serde", "js"] }
 chrono = { workspace = true }
 thiserror = { workspace = true }
-getrandom = { version = "0.3", features = ["wasm_js"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 
