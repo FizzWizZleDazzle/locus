@@ -204,6 +204,8 @@ topics ──── subtopics
 
 All user FKs cascade on delete.
 
+**Note**: `accepted_tos` is validated at the API level during registration but NOT stored in the database.
+
 ## PostgreSQL Functions
 
 ### `get_user_elo(p_user_id UUID, p_topic VARCHAR) -> INTEGER`

@@ -1764,7 +1764,7 @@ dependencies = [
 
 [[package]]
 name = "locus-backend"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "argon2",
@@ -1796,7 +1796,7 @@ dependencies = [
 
 [[package]]
 name = "locus-common"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "cc",
  "chrono",
@@ -1808,7 +1808,7 @@ dependencies = [
 
 [[package]]
 name = "locus-frontend"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
