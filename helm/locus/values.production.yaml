@@ -31,9 +31,9 @@ ingress:
 # Backend configuration
 backend:
   environment: production
-  allowedOrigins: https://locus.yourdomain.com
-  frontendBaseUrl: https://locus.yourdomain.com
-  oauthRedirectBase: https://locus.yourdomain.com
+  allowedOrigins: https://locusmath.org
+  frontendBaseUrl: https://locusmath.org
+  oauthRedirectBase: https://api.locusmath.org
 
   resources:
     requests:

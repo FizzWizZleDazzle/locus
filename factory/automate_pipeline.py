@@ -256,7 +256,7 @@ async def generate_all_scripts(client: httpx.AsyncClient, config: PipelineConfig
 
     logger.section("STEP 2: Generating Scripts")
 
-    difficulties = ["easy", "medium", "hard"]
+    difficulties = ["very_easy", "easy", "medium", "hard", "very_hard", "competition"]
     total_combinations = sum(
         len(topic['subtopics']) * len(difficulties)
         for topic in topics
