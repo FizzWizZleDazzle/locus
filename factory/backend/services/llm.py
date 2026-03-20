@@ -263,7 +263,7 @@ Output ONLY the Python script. No markdown fences, no explanation."""
 def _julia_prompt(main_topic: str, subtopic: str, difficulty_level: str) -> str:
     topic_note = ""
     if main_topic == "geometry":
-        topic_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use DiagramObj for a visual diagram. Pass `image=render(d)` to problem().\n"
+        topic_note = "\n\n**GEOMETRY REQUIREMENT**: You MUST use DiagramObj for a visual diagram. Name it `diagram` (NEVER `d`). Pass `image=render(diagram)` to problem().\n"
     elif main_topic == "statistics":
         topic_note = """
 
@@ -503,6 +503,51 @@ RULES:
 9. Solutions MUST have >= 3 steps using steps(). Bad: `steps("The answer is 5")`. Good: `steps(sol("Given", expr), "Subtract both sides", sol("Answer", ans))`
 
 **IMPORTANT**: ALWAYS use fmt_interval() for interval answers. NEVER output raw `(-oo, oo)` or `(1, 7]`.
+
+COMMON MISTAKES (read carefully — these cause >90% of script failures):
+
+JULIA STRING PITFALLS (CRITICAL — most common source of errors):
+- $ is the interpolation operator in Julia strings. To include a literal $ (e.g. LaTeX), escape it as \$
+- PREFER tex() helper over hand-written LaTeX: question="Find \\frac{d}{dx}[$(tex(expr))]"
+- For LaTeX delimiters in question strings, use \\( and \\) NOT bare $ signs
+- NEVER put complex LaTeX with backslashes inside string interpolation — build with *:
+  BAD:  "The answer is $\\frac{$(a)}{$(b)}$"
+  GOOD: "The answer is \\(\\frac{$(a)}{$(b)}\\)"
+- Always close every opened string quote on the same logical line
+- Avoid triple-backslash sequences (\\\ ) — they cause parse ambiguity
+
+VARIABLE NAMING:
+- NEVER name a DiagramObj variable `d` — it conflicts with common math variable `d`.
+  Use `diagram` instead: `diagram = DiagramObj(width=400, height=300)`
+- Similarly, never shadow `a`, `b`, `c` etc. with diagram objects
+
+DIAGRAM API:
+- All styling parameters are KEYWORD arguments, not positional:
+  GOOD: line!(diagram, (0,0), (4,0); color="blue", stroke_width=2)
+  BAD:  line!(diagram, (0,0), (4,0), "blue", 2)
+- arrow! takes: arrow!(diagram, start_point, end_point; dashed, stroke_width, color)
+- polygon! takes: polygon!(diagram, [list_of_tuples]; labels, fill, stroke_width, color)
+
+SYMBOLICS.JL PITFALLS:
+- solve() (ProblemUtils wrapper for Symbolics.solve_for) ONLY works for LINEAR equations.
+  For nonlinear: reverse-engineer the answer. Pick answer first, build the problem.
+- Differential(x) takes a SINGLE variable, not a tuple. Never write Differential((x, 0, 1)).
+- Never use symbolic Num values in boolean context (if expr > 0). Use substitute() first:
+  BAD:  if diff(f, x) > 0
+  GOOD: val = substitute(diff(f, x), x => point); if Float64(val) > 0
+- @script declares @variables for you. Only list variables you actually USE in symbolic computation.
+  If you need `t` as a variable, include it: @script x t begin ... end
+
+TYPE CONVERSION:
+- NEVER use Int64(float) or Int(float) — it throws InexactError for non-exact values.
+  Use round(Int, value) instead.
+- For rationals, use // operator: 3 // 4 instead of 0.75
+
+OTHER:
+- Never use { } for vectors — Julia uses [ ] for arrays.
+- Unicode variable names like `side³` are fragile — use `side_cubed` or `side^3` instead.
+- Don't put `import` or `using` inside functions — only at top level.
+- Avoid DomainError: guard sqrt/log with positive inputs. Use abs() if needed.
 
 Output ONLY the Julia script. No markdown fences, no explanation."""
 
