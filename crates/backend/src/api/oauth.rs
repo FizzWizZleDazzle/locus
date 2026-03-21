@@ -460,6 +460,7 @@ async fn oauth_login_or_register(
             &profile,
             &state.frontend_base_url,
             secure,
+            state.cookie_domain.as_deref(),
         ));
     }
 
@@ -482,6 +483,7 @@ async fn oauth_login_or_register(
             &profile,
             &state.frontend_base_url,
             secure,
+            state.cookie_domain.as_deref(),
         ));
     }
 
@@ -518,6 +520,7 @@ async fn oauth_login_or_register(
         &profile,
         &state.frontend_base_url,
         secure,
+        state.cookie_domain.as_deref(),
     ))
 }
 
@@ -586,12 +589,13 @@ fn build_callback_html_success(
     profile: &locus_common::UserProfile,
     frontend_origin: &str,
     secure: bool,
+    cookie_domain: Option<&str>,
 ) -> Response {
     let data_json = serde_json::json!({
         "user": profile,
     });
     let origin_js = serde_json::to_string(frontend_origin).unwrap();
-    let cookie = crate::auth::build_auth_cookie(token, 24, secure);
+    let cookie = crate::auth::build_auth_cookie(token, 24, secure, cookie_domain);
 
     let html = format!(
         r#"<!DOCTYPE html>

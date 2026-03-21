@@ -92,6 +92,7 @@ async fn main() -> anyhow::Result<()> {
         topic_cache,
         email_service,
         is_production,
+        config.cookie_domain.clone(),
     );
 
     // Parse allowed origins for CORS

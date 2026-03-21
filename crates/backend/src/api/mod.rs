@@ -46,6 +46,7 @@ pub struct AppState {
     pub topic_cache: crate::topics::TopicCache,
     pub email_service: crate::email::EmailService,
     pub is_production: bool,
+    pub cookie_domain: Option<String>,
     pub leaderboard_cache: LeaderboardCache,
     pub daily_puzzle_cache: DailyPuzzleCache,
 }
@@ -64,6 +65,7 @@ impl AppState {
         topic_cache: crate::topics::TopicCache,
         email_service: crate::email::EmailService,
         is_production: bool,
+        cookie_domain: Option<String>,
     ) -> Self {
         Self {
             pool,
@@ -78,6 +80,7 @@ impl AppState {
             topic_cache,
             email_service,
             is_production,
+            cookie_domain,
             leaderboard_cache: Arc::new(RwLock::new(HashMap::new())),
             daily_puzzle_cache: Arc::new(RwLock::new(None)),
         }

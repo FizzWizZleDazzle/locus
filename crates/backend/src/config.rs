@@ -40,6 +40,7 @@ pub struct Config {
     pub resend_from_name: String,
     pub frontend_base_url: String,
     pub max_db_connections: u32,
+    pub cookie_domain: Option<String>,
 }
 
 impl Config {
@@ -109,6 +110,7 @@ impl Config {
             frontend_base_url: env::var("FRONTEND_BASE_URL")
                 .unwrap_or_else(|_| "http://localhost:8080".to_string()),
             max_db_connections,
+            cookie_domain: env::var("COOKIE_DOMAIN").ok().filter(|s| !s.is_empty()),
         })
     }
 }
