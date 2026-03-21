@@ -2,14 +2,54 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_router::{components::A, hooks::use_navigate};
+use leptos_router::{components::A, hooks::{use_navigate, use_query_map}};
 
 use crate::{AuthContext, api, components::EmailInput, oauth};
+
+/// Validate that a redirect URL is safe (prevents open redirect attacks).
+fn is_safe_redirect(url: &str) -> bool {
+    // Relative paths starting with / (but not //)
+    if let Some(rest) = url.strip_prefix('/') {
+        return !rest.starts_with('/');
+    }
+
+    // Parse as absolute URL
+    if let Ok(parsed) = web_sys::Url::new(url) {
+        let hostname = parsed.hostname();
+        // Allow locusmath.org and subdomains
+        if hostname == "locusmath.org" || hostname.ends_with(".locusmath.org") {
+            return true;
+        }
+        // Allow localhost/127.0.0.1 for dev
+        if hostname == "localhost" || hostname == "127.0.0.1" {
+            return true;
+        }
+    }
+
+    false
+}
+
+/// Perform post-login navigation: redirect to safe URL or fall back to home.
+fn do_post_login_redirect(redirect: &Option<String>) -> bool {
+    if let Some(url) = redirect.as_ref().filter(|u| is_safe_redirect(u)) {
+        if url.starts_with("http://") || url.starts_with("https://") {
+            if let Some(window) = web_sys::window() {
+                let _ = window.location().set_href(url);
+                return true;
+            }
+        }
+    }
+    false
+}
 
 #[component]
 pub fn Login() -> impl IntoView {
     let auth = expect_context::<AuthContext>();
     let navigate = use_navigate();
+    let query = use_query_map();
+
+    let redirect_url = query.read_untracked().get("redirect").unwrap_or_default();
+    let redirect_url = if redirect_url.is_empty() { None } else { Some(redirect_url) };
 
     let (email, set_email) = signal(String::new());
     let (password, set_password) = signal(String::new());
@@ -19,6 +59,7 @@ pub fn Login() -> impl IntoView {
     let (show_resend, set_show_resend) = signal(false);
     let (resending, set_resending) = signal(false);
 
+    let redirect_for_submit = redirect_url.clone();
     let submit = move |ev: web_sys::SubmitEvent| {
         ev.prevent_default();
         set_loading.set(true);
@@ -27,18 +68,26 @@ pub fn Login() -> impl IntoView {
         let email_val = email.get();
         let password_val = password.get();
         let nav = navigate.clone();
+        let redirect = redirect_for_submit.clone();
 
         spawn_local(async move {
             match api::login(&email_val, &password_val).await {
                 Ok(resp) => {
                     auth.set_logged_in.set(true);
                     auth.set_username.set(Some(resp.user.username));
-                    nav("/", Default::default());
+                    if !do_post_login_redirect(&redirect) {
+                        // Relative path redirect or no redirect
+                        let path = redirect
+                            .as_ref()
+                            .filter(|u| is_safe_redirect(u) && u.starts_with('/'))
+                            .map(|u| u.as_str())
+                            .unwrap_or("/");
+                        nav(path, Default::default());
+                    }
                 }
                 Err(e) => {
                     let msg = e.message.clone();
                     set_error.set(Some(msg.clone()));
-                    // Show resend button if error is about email verification
                     set_show_resend
                         .set(msg.contains("verify your email") || msg.contains("verification"));
                     set_loading.set(false);
@@ -47,33 +96,51 @@ pub fn Login() -> impl IntoView {
         });
     };
 
+    let redirect_for_google = redirect_url.clone();
     let nav_google = use_navigate();
     let on_google = move |_| {
         set_error.set(None);
         let nav = nav_google.clone();
+        let redirect = redirect_for_google.clone();
         oauth::open_oauth_login_popup(
             "google",
             move |resp| {
                 api::store_username(&resp.user.username);
                 auth.set_logged_in.set(true);
                 auth.set_username.set(Some(resp.user.username));
-                nav("/", Default::default());
+                if !do_post_login_redirect(&redirect) {
+                    let path = redirect
+                        .as_ref()
+                        .filter(|u| is_safe_redirect(u) && u.starts_with('/'))
+                        .map(|u| u.as_str())
+                        .unwrap_or("/");
+                    nav(path, Default::default());
+                }
             },
             move |err| set_error.set(Some(err)),
         );
     };
 
+    let redirect_for_github = redirect_url.clone();
     let nav_github = use_navigate();
     let on_github = move |_| {
         set_error.set(None);
         let nav = nav_github.clone();
+        let redirect = redirect_for_github.clone();
         oauth::open_oauth_login_popup(
             "github",
             move |resp| {
                 api::store_username(&resp.user.username);
                 auth.set_logged_in.set(true);
                 auth.set_username.set(Some(resp.user.username));
-                nav("/", Default::default());
+                if !do_post_login_redirect(&redirect) {
+                    let path = redirect
+                        .as_ref()
+                        .filter(|u| is_safe_redirect(u) && u.starts_with('/'))
+                        .map(|u| u.as_str())
+                        .unwrap_or("/");
+                    nav(path, Default::default());
+                }
             },
             move |err| set_error.set(Some(err)),
         );
