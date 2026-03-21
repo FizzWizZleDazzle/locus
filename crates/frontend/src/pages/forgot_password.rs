@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::components::A;
 
-use crate::api;
+use crate::{api, components::EmailInput};
 
 #[component]
 pub fn ForgotPassword() -> impl IntoView {
@@ -12,6 +12,7 @@ pub fn ForgotPassword() -> impl IntoView {
     let (error, set_error) = signal(None::<String>);
     let (success, set_success) = signal(None::<String>);
     let (loading, set_loading) = signal(false);
+    let (email_valid, set_email_valid) = signal(false);
 
     let submit = move |ev: web_sys::SubmitEvent| {
         ev.prevent_default();
@@ -55,22 +56,12 @@ pub fn ForgotPassword() -> impl IntoView {
             })}
 
             <form on:submit=submit class="space-y-4">
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">"Email"</label>
-                    <input
-                        type="email"
-                        class="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-900 focus:outline-none"
-                        prop:value=email
-                        on:input=move |ev| set_email.set(event_target_value(&ev))
-                        required
-                        placeholder="your@email.com"
-                    />
-                </div>
+                <EmailInput value=email set_value=set_email valid=set_email_valid placeholder="your@email.com" />
 
                 <button
                     type="submit"
                     class="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
-                    disabled=loading
+                    disabled=move || loading.get() || !email_valid.get()
                 >
                     {move || if loading.get() { "Sending..." } else { "Send Reset Link" }}
                 </button>

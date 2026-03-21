@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::{components::A, hooks::use_navigate};
 
-use crate::{AuthContext, api, oauth};
+use crate::{AuthContext, api, components::EmailInput, oauth};
 
 #[component]
 pub fn Login() -> impl IntoView {
@@ -15,6 +15,7 @@ pub fn Login() -> impl IntoView {
     let (password, set_password) = signal(String::new());
     let (error, set_error) = signal(None::<String>);
     let (loading, set_loading) = signal(false);
+    let (email_valid, set_email_valid) = signal(false);
     let (show_resend, set_show_resend) = signal(false);
     let (resending, set_resending) = signal(false);
 
@@ -143,16 +144,7 @@ pub fn Login() -> impl IntoView {
             </div>
 
             <form on:submit=submit class="space-y-4">
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">"Email"</label>
-                    <input
-                        type="email"
-                        class="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-900 focus:outline-none"
-                        prop:value=email
-                        on:input=move |ev| set_email.set(event_target_value(&ev))
-                        required
-                    />
-                </div>
+                <EmailInput value=email set_value=set_email valid=set_email_valid />
 
                 <div>
                     <div class="flex justify-between items-center mb-1">
@@ -171,7 +163,7 @@ pub fn Login() -> impl IntoView {
                 <button
                     type="submit"
                     class="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 disabled:opacity-50"
-                    disabled=loading
+                    disabled=move || loading.get() || !email_valid.get()
                 >
                     {move || if loading.get() { "Loading..." } else { "Login" }}
                 </button>
