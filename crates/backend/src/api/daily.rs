@@ -165,6 +165,21 @@ pub async fn submit_daily(
     .await
     .map_err(|e| crate::AppError::Internal(format!("Grading task failed: {}", e)))?;
 
+    // Reject post-solve submissions to prevent attempt count inflation
+    let puzzle_date = dp.puzzle_date.unwrap_or_else(|| Utc::now().date_naive());
+    let existing = DailyPuzzleAttempt::get_user_status(&state.pool, user.id, dp.id, puzzle_date).await?;
+    if let Some(ref s) = existing {
+        if s.solved.unwrap_or(false) {
+            let streak = get_daily_puzzle_streak(&state.pool, user.id).await?;
+            return Ok(Json(DailySubmitResponse {
+                is_correct,
+                attempts: s.attempts,
+                solved: true,
+                streak,
+            }));
+        }
+    }
+
     // Wrap attempt + streak update in a transaction
     let mut tx = state.pool.begin().await?;
 
@@ -181,7 +196,6 @@ pub async fn submit_daily(
     .await?;
 
     // Update streak on correct answer (only for same-day solves)
-    let puzzle_date = dp.puzzle_date.unwrap_or_else(|| Utc::now().date_naive());
     let today = Utc::now().date_naive();
     let mut streak = get_daily_puzzle_streak(&state.pool, user.id).await?;
 

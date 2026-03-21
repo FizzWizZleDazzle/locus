@@ -245,12 +245,12 @@ pub fn Daily() -> impl IntoView {
                                                 value=answer
                                                 set_value=set_answer
                                                 on_submit=on_sub2
-                                                disabled=submitting.get_untracked()
+                                                disabled=submitting.get_untracked() || is_solved
                                             />
                                             <button
                                                 class="w-full px-4 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors"
                                                 on:click=move |_| on_submit.run(answer.get_untracked())
-                                                disabled=move || answer.get().is_empty() || submitting.get()
+                                                disabled=move || answer.get().is_empty() || submitting.get() || is_solved
                                             >
                                                 {move || if submitting.get() { "Checking..." } else { "Submit Answer" }}
                                                 </button>
