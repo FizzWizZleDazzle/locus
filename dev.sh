@@ -25,6 +25,9 @@ cleanup() {
     log_info "Shutting down..."
     kill $BACKEND_PID 2>/dev/null || true
     kill $FRONTEND_PID 2>/dev/null || true
+    kill $SERVICES_PID 2>/dev/null || true
+    kill $FORUM_PID 2>/dev/null || true
+    kill $STATUS_PID 2>/dev/null || true
     exit 0
 }
 
@@ -181,7 +184,45 @@ start_frontend() {
     cd ../..
 }
 
+# Start community services backend
+start_services_backend() {
+    log_info "Starting services backend on http://localhost:8090"
+    PORT=8090 ALLOWED_ORIGINS="http://localhost:8081,http://localhost:8082" \
+        cargo watch -w crates/services-backend/src -x 'run -p locus-services-backend' &
+    SERVICES_PID=$!
+    sleep 2
+}
+
+# Start forum frontend
+start_forum_frontend() {
+    log_info "Starting forum frontend on http://localhost:8081"
+    export COMMUNITY_API_URL="http://localhost:8090/api"
+    export LOCUS_FRONTEND_URL="http://localhost:8080"
+    cd crates/forum
+    trunk serve &
+    FORUM_PID=$!
+    cd ../..
+}
+
+# Start status frontend
+start_status_frontend() {
+    log_info "Starting status frontend on http://localhost:8082"
+    export COMMUNITY_API_URL="http://localhost:8090/api"
+    cd crates/status
+    trunk serve &
+    STATUS_PID=$!
+    cd ../..
+}
+
 main() {
+    local run_community=false
+
+    for arg in "$@"; do
+        case "$arg" in
+            --community) run_community=true ;;
+        esac
+    done
+
     echo ""
     echo "  ╦  ╔═╗╔═╗╦ ╦╔═╗"
     echo "  ║  ║ ║║  ║ ║╚═╗"
@@ -190,28 +231,53 @@ main() {
     echo ""
 
     check_deps
-    # Kill anything occupying our ports
-    for port in 3000 8080; do
-        pid=$(lsof -ti ":$port" 2>/dev/null) && {
-            log_warn "Killing process on port $port (PID $pid)"
-            kill -9 $pid 2>/dev/null || true
-        }
-    done
-    ensure_env
-    validate_env || exit 1
-    print_config
-    start_db
-    start_backend
-    start_frontend
 
-    echo ""
-    log_success "Development servers running!"
-    echo ""
-    log_info "Press Ctrl+C to stop all servers"
-    echo ""
+    if [ "$run_community" = true ]; then
+        # Community services mode
+        for port in 8090 8081 8082; do
+            pid=$(lsof -ti ":$port" 2>/dev/null) && {
+                log_warn "Killing process on port $port (PID $pid)"
+                kill -9 $pid 2>/dev/null || true
+            }
+        done
+        start_db
+        start_services_backend
+        start_forum_frontend
+        start_status_frontend
 
-    # Wait for either process to exit
-    wait $BACKEND_PID $FRONTEND_PID
+        echo ""
+        log_success "Community services running!"
+        echo "  Services API:  http://localhost:8090"
+        echo "  Forum:         http://localhost:8081/forum"
+        echo "  Status:        http://localhost:8082/status"
+        echo ""
+        log_info "Press Ctrl+C to stop all servers"
+        echo ""
+
+        wait $SERVICES_PID $FORUM_PID $STATUS_PID
+    else
+        # Main app mode
+        for port in 3000 8080; do
+            pid=$(lsof -ti ":$port" 2>/dev/null) && {
+                log_warn "Killing process on port $port (PID $pid)"
+                kill -9 $pid 2>/dev/null || true
+            }
+        done
+        ensure_env
+        validate_env || exit 1
+        print_config
+        start_db
+        start_backend
+        start_frontend
+
+        echo ""
+        log_success "Development servers running!"
+        echo ""
+        log_info "Press Ctrl+C to stop all servers"
+        echo ""
+
+        wait $BACKEND_PID $FRONTEND_PID
+    fi
 }
 
 main "$@"

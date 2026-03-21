@@ -2065,6 +2065,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "locus-forum"
+version = "0.1.5"
+dependencies = [
+ "chrono",
+ "console_error_panic_hook",
+ "getrandom 0.4.2",
+ "gloo-net",
+ "js-sys",
+ "leptos",
+ "leptos_router",
+ "serde",
+ "serde_json",
+ "uuid",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "locus-frontend"
 version = "0.1.5"
 dependencies = [
@@ -2084,6 +2102,45 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.18",
  "uuid",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "locus-services-backend"
+version = "0.1.5"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono",
+ "dotenvy",
+ "governor",
+ "jsonwebtoken",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror 2.0.18",
+ "tokio",
+ "tower-http",
+ "tower_governor",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "locus-status"
+version = "0.1.5"
+dependencies = [
+ "chrono",
+ "console_error_panic_hook",
+ "getrandom 0.4.2",
+ "gloo-net",
+ "leptos",
+ "leptos_router",
+ "serde",
+ "serde_json",
  "wasm-bindgen",
  "web-sys",
 ]

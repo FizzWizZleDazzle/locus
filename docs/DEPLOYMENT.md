@@ -92,8 +92,8 @@ Starts factory backend (port 9090) and frontend (port 9091). Creates Python venv
 ### Initial Setup
 
 ```bash
-make init                   # Generate secrets -> .env.production
-# Edit .env.production with real values (OAuth, email, domains)
+make init                   # Generate production secrets in .env
+# Edit .env — configure PRODUCTION_ variables (OAuth, email, domains)
 ```
 
 ### Build and Deploy
@@ -119,7 +119,7 @@ Multi-stage build (`Dockerfile`):
 
 Helm chart in `helm/locus/`. Key resources:
 - Deployment with backend container + Cloudflare Tunnel sidecar
-- Secret with all env vars from `.env.production`
+- Secret with all env vars from `.env` (PRODUCTION_ prefixed vars)
 - ClusterIP Service (port 80 -> 28743)
 - Ingress with nginx + cert-manager TLS
 - Optional HPA for autoscaling
@@ -173,5 +173,49 @@ npx wrangler pages deploy dist --project-name locus --branch main
 | 5433 | PostgreSQL | Development |
 | 5432 | PostgreSQL | Production |
 | 28743 | Backend (Docker) | Production |
+| 8090 | Services backend | Both |
+| 8081 | Forum frontend (Trunk) | Development |
+| 8082 | Status frontend (Trunk) | Development |
 | 9090 | Factory backend | Development |
 | 9091 | Factory frontend | Development |
+
+## Community Services
+
+### Services Backend Env Vars
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `DATABASE_URL` | yes | - | PostgreSQL connection string |
+| `JWT_SECRET` | yes | - | JWT signing secret (must match main backend) |
+| `PORT` | no | 8090 | Bind port |
+| `ENVIRONMENT` | no | development | `development` or `production` |
+| `ALLOWED_ORIGINS` | no | localhost:8081,8082 | Comma-separated CORS origins |
+| `HEALTH_CHECK_URL` | no | api.locusmath.org/api/health | URL to monitor |
+| `HEALTH_CHECK_INTERVAL_SECS` | no | 300 | Health check interval (seconds) |
+
+### Env Files
+
+All environment configuration lives in a single `.env` file. Community services dev vars (`PORT`, `ALLOWED_ORIGINS`) are passed as inline overrides in `dev.sh`. Production community vars use the `PRODUCTION_COMMUNITY_` prefix in `.env`.
+
+### Deployment
+
+```bash
+# Backend (Docker + K8s)
+make build-services-backend
+make push-services-backend
+
+# Forum frontend (Cloudflare Pages)
+make deploy-forum-frontend
+
+# Status frontend (Cloudflare Pages)
+make deploy-status-frontend
+```
+
+### Helm Chart
+
+`helm/community/` -- separate chart from main backend. Includes cloudflared sidecar for Cloudflare Tunnel.
+
+### Cloudflare Setup
+
+- Tunnel: `community-api.locusmath.org` -> K8s community service pod
+- Pages: `forum.locusmath.org` (locus-forum project), `status.locusmath.org` (locus-status project)

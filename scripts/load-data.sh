@@ -20,7 +20,7 @@ fi
 # Check DATABASE_URL
 if [ -z "$DATABASE_URL" ]; then
     echo "ERROR: DATABASE_URL not set"
-    echo "Source .env.production first or set DATABASE_URL"
+    echo "Source .env first or set DATABASE_URL"
     exit 1
 fi
 

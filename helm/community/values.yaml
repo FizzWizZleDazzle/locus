@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/fizzwizzledazzle/locus-services
+  tag: latest
+  pullPolicy: Always
+
+backend:
+  port: "8090"
+  environment: development
+  allowedOrigins: "http://localhost:8081,http://localhost:8082"
+  healthCheckUrl: "https://api.locusmath.org/api/health"
+  healthCheckIntervalSecs: "300"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8090
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8090
+    initialDelaySeconds: 5
+    periodSeconds: 10

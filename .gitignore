@@ -47,7 +47,7 @@ factory/exports/
 *.swp
 *.swo
 
-.env.production
+# .env.production no longer used — all values in .env with PRODUCTION_ prefix
 
 *.log
 

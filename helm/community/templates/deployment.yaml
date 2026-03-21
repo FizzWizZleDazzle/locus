@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-community
+  labels:
+    app: {{ .Release.Name }}-community
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-community
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-community
+    spec:
+      containers:
+      # Cloudflared tunnel sidecar
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        command: ["cloudflared", "tunnel", "run"]
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-community-secrets
+              key: cloudflared-token
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+      # Services backend
+      - name: backend
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8090
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.backend.environment | quote }}
+        - name: PORT
+          value: {{ .Values.backend.port | quote }}
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-community-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-community-secrets
+              key: jwt-secret
+        - name: ALLOWED_ORIGINS
+          value: {{ .Values.backend.allowedOrigins | quote }}
+        - name: HEALTH_CHECK_URL
+          value: {{ .Values.backend.healthCheckUrl | quote }}
+        - name: HEALTH_CHECK_INTERVAL_SECS
+          value: {{ .Values.backend.healthCheckIntervalSecs | quote }}
+        livenessProbe:
+          {{- toYaml .Values.backend.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.backend.readinessProbe | nindent 10 }}
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 10 }}

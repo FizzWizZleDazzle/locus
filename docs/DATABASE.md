@@ -1,6 +1,6 @@
 # Database Schema
 
-PostgreSQL 16. Migrations managed by SQLx in `crates/backend/migrations/`.
+PostgreSQL 16. Migrations managed by SQLx in `crates/backend/migrations/` (main) and `crates/services-backend/migrations/` (community services).
 
 ## Tables
 
@@ -290,3 +290,63 @@ idx_daily_puzzles_date_status       ON daily_puzzles(puzzle_date, status) WHERE 
 | 018 | fix_answer_key_formats | Fix set Python list notation, delete broken list-of-Matrix problems |
 | 019 | daily_puzzles | daily_puzzles + daily_puzzle_attempts tables, daily_puzzle_streak + daily_puzzle_last_solve on users |
 | 020 | performance_indexes | Composite indexes for ELO history queries and daily puzzle lookups |
+
+### Community Services Migrations (`crates/services-backend/migrations/`)
+
+| # | Name | Description |
+|---|---|---|
+| 001 | forum_tables | forum_posts, forum_comments, forum_votes, forum_admins tables |
+| 002 | status_checks | status_checks table for uptime monitoring |
+
+### `forum_posts`
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | SERIAL | PK |
+| user_id | UUID | FK users(id) ON DELETE CASCADE |
+| username | TEXT | NOT NULL |
+| category | TEXT | CHECK (feature_request, bug_report) |
+| title | TEXT | NOT NULL |
+| body | TEXT | NOT NULL |
+| upvotes | INTEGER | DEFAULT 0 |
+| comment_count | INTEGER | DEFAULT 0 |
+| status | TEXT | CHECK (open, planned, in_progress, done, wontfix) |
+| pinned | BOOLEAN | DEFAULT FALSE |
+| locked | BOOLEAN | DEFAULT FALSE |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() |
+| updated_at | TIMESTAMPTZ | DEFAULT NOW() |
+
+### `forum_comments`
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | SERIAL | PK |
+| post_id | INTEGER | FK forum_posts(id) ON DELETE CASCADE |
+| user_id | UUID | FK users(id) ON DELETE CASCADE |
+| username | TEXT | NOT NULL |
+| body | TEXT | NOT NULL |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() |
+
+### `forum_votes`
+
+| Column | Type | Constraints |
+|---|---|---|
+| user_id | UUID | FK users(id), PK (user_id, post_id) |
+| post_id | INTEGER | FK forum_posts(id) |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() |
+
+### `forum_admins`
+
+| Column | Type | Constraints |
+|---|---|---|
+| user_id | UUID | PK, FK users(id) ON DELETE CASCADE |
+
+### `status_checks`
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | SERIAL | PK |
+| status_code | INTEGER | nullable |
+| response_time_ms | INTEGER | nullable |
+| is_healthy | BOOLEAN | NOT NULL |
+| checked_at | TIMESTAMPTZ | DEFAULT NOW() |

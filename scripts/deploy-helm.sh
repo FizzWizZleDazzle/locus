@@ -28,36 +28,45 @@ echo "Namespace: $NAMESPACE"
 echo "Release: $RELEASE_NAME"
 echo ""
 
-# Check if .env.production exists
-if [ ! -f .env.production ]; then
-    echo "ERROR: .env.production not found!"
-    echo "Run ./generate-secrets.sh first and configure it."
+# Check if .env exists
+if [ ! -f .env ]; then
+    echo "ERROR: .env not found!"
+    echo "Run ./scripts/generate-secrets.sh first and configure it."
     exit 1
 fi
 
-# Source .env.production
+# Source .env and remap PRODUCTION_ vars
 set -a
-source .env.production
+source .env
 set +a
+
+DATABASE_URL="${PRODUCTION_DATABASE_URL}"
+DB_PASSWORD="${PRODUCTION_DB_PASSWORD}"
+JWT_SECRET="${PRODUCTION_JWT_SECRET}"
+ALLOWED_ORIGINS="${PRODUCTION_ALLOWED_ORIGINS}"
+FRONTEND_BASE_URL="${PRODUCTION_FRONTEND_BASE_URL}"
+OAUTH_REDIRECT_BASE="${PRODUCTION_OAUTH_REDIRECT_BASE}"
+RESEND_FROM_EMAIL="${PRODUCTION_RESEND_FROM_EMAIL}"
+CLOUDFLARED_TUNNEL="${PRODUCTION_CLOUDFLARED_TUNNEL}"
 
 # Verify required variables
 if [ -z "$JWT_SECRET" ] || [ -z "$DB_PASSWORD" ]; then
-    echo "ERROR: Required secrets not found in .env.production"
+    echo "ERROR: Required secrets not found in .env (PRODUCTION_JWT_SECRET, PRODUCTION_DB_PASSWORD)"
     exit 1
 fi
 
 if [ -z "$RESEND_API_KEY" ] || [ "$RESEND_API_KEY" = "re_your_resend_api_key_here" ]; then
-    echo "ERROR: RESEND_API_KEY must be set in .env.production"
+    echo "ERROR: RESEND_API_KEY must be set in .env"
     exit 1
 fi
 
 if [ -z "$GOOGLE_CLIENT_ID" ] || [ "$GOOGLE_CLIENT_ID" = "your_google_client_id_here" ]; then
-    echo "ERROR: GOOGLE_CLIENT_ID must be set in .env.production"
+    echo "ERROR: GOOGLE_CLIENT_ID must be set in .env"
     exit 1
 fi
 
 if [ -z "$GITHUB_CLIENT_ID" ] || [ "$GITHUB_CLIENT_ID" = "your_github_client_id_here" ]; then
-    echo "ERROR: GITHUB_CLIENT_ID must be set in .env.production"
+    echo "ERROR: GITHUB_CLIENT_ID must be set in .env"
     exit 1
 fi
 
@@ -69,7 +78,7 @@ echo ""
 
 # Check for Cloudflare Tunnel token
 if [ -z "$CLOUDFLARED_TUNNEL" ]; then
-    echo "WARNING: CLOUDFLARED_TUNNEL not set in .env.production"
+    echo "WARNING: PRODUCTION_CLOUDFLARED_TUNNEL not set in .env"
     echo "Get it from: cloudflared tunnel token locus-backend"
     read -p "Continue without tunnel? (y/N) " -n 1 -r
     echo

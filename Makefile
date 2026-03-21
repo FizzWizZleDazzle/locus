@@ -1,4 +1,4 @@
-.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help tunnel-instructions restart-backend delete-secrets
+.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help tunnel-instructions restart-backend delete-secrets build-services-backend push-services-backend deploy-services-backend deploy-forum-frontend deploy-status-frontend
 
 # Configuration
 REGISTRY := ghcr.io/fizzwizzledazzle
@@ -27,16 +27,16 @@ all: build push deploy data
 init:
 	@echo "Initializing Locus deployment..."
 	@echo ""
-	@if [ ! -f .env.production ]; then \
+	@if ! grep -q '^PRODUCTION_JWT_SECRET' .env 2>/dev/null; then \
 		./scripts/generate-secrets.sh; \
 	else \
-		echo "✓ .env.production already exists"; \
+		echo "✓ Production secrets already exist in .env"; \
 		echo ""; \
-		echo "Edit .env.production and configure:"; \
+		echo "Edit .env and configure the PRODUCTION_ variables:"; \
 		echo "  - OAuth credentials (Google/GitHub)"; \
 		echo "  - Resend API key"; \
-		echo "  - Frontend URLs"; \
-		echo "  - Cloudflare Tunnel token (see: make tunnel-instructions)"; \
+		echo "  - PRODUCTION_FRONTEND_BASE_URL"; \
+		echo "  - PRODUCTION_CLOUDFLARED_TUNNEL (see: make tunnel-instructions)"; \
 		echo ""; \
 		echo "Then run: make all"; \
 	fi
@@ -85,11 +85,11 @@ deploy: deploy-backend deploy-frontend
 
 # Load problems and clean duplicates
 data:
-	@if [ ! -f .env.production ]; then \
-		echo "ERROR: .env.production not found. Run: make init"; \
+	@if [ ! -f .env ]; then \
+		echo "ERROR: .env not found. Run: make init"; \
 		exit 1; \
 	fi
-	@. .env.production && ./scripts/load-data.sh
+	@. .env && DATABASE_URL="$${PRODUCTION_DATABASE_URL}" ./scripts/load-data.sh
 
 # Check deployment status
 status:
@@ -117,6 +117,28 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@cd crates/frontend && rm -rf dist/
 	@echo "✓ Frontend dist/ cleaned"
+
+# === Community Services ===
+
+build-services-backend:
+	@echo "Building services backend Docker image..."
+	docker build -f crates/services-backend/Dockerfile -t $(REGISTRY)/locus-services:$(IMAGE_TAG) .
+	@echo "✓ Services image built"
+
+push-services-backend:
+	docker push $(REGISTRY)/locus-services:$(IMAGE_TAG)
+	@echo "✓ Services image pushed"
+
+deploy-services-backend: build-services-backend push-services-backend
+	@echo "✓ Services backend deployed"
+
+deploy-forum-frontend:
+	cd crates/forum && COMMUNITY_API_URL=https://community-api.locusmath.org/api trunk build --release && wrangler pages deploy dist --project-name locus-forum
+	@echo "✓ Forum frontend deployed"
+
+deploy-status-frontend:
+	cd crates/status && COMMUNITY_API_URL=https://community-api.locusmath.org/api trunk build --release && wrangler pages deploy dist --project-name locus-status
+	@echo "✓ Status frontend deployed"
 
 # Show help
 help:
@@ -149,7 +171,7 @@ help:
 	@echo ""
 	@echo "Quick Start:"
 	@echo "  1. make init                      (generate secrets)"
-	@echo "  2. Edit .env.production           (add OAuth, Resend, URLs)"
+	@echo "  2. Edit .env PRODUCTION_ vars     (add OAuth, Resend, URLs)"
 	@echo "  3. make tunnel-instructions       (get Cloudflare token)"
 	@echo "  4. make all                       (complete deployment)"
 	@echo ""

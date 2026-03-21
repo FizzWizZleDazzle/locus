@@ -11,14 +11,19 @@ echo "Locus Deployment Status"
 echo "============================================"
 echo ""
 
-# Check if .env.production exists
-if [ -f .env.production ]; then
+# Check if .env exists
+if [ -f .env ]; then
     echo "✓ Configuration file exists"
-    source .env.production
+    source .env
 else
-    echo "✗ .env.production not found"
+    echo "✗ .env not found"
     exit 1
 fi
+
+# Remap PRODUCTION_ vars for status checks
+DATABASE_URL="${PRODUCTION_DATABASE_URL}"
+FRONTEND_BASE_URL="${PRODUCTION_FRONTEND_BASE_URL}"
+CLOUDFLARED_TUNNEL="${PRODUCTION_CLOUDFLARED_TUNNEL}"
 
 echo ""
 echo "1. Kubernetes Backend"
@@ -60,9 +65,9 @@ echo "2. Cloudflare Tunnel"
 echo "--------------------"
 
 if [ -z "$CLOUDFLARED_TUNNEL" ]; then
-    echo "✗ CLOUDFLARED_TUNNEL not configured"
+    echo "✗ PRODUCTION_CLOUDFLARED_TUNNEL not configured"
 else
-    echo "✓ CLOUDFLARED_TUNNEL configured"
+    echo "✓ PRODUCTION_CLOUDFLARED_TUNNEL configured"
     if kubectl get pods -n $NAMESPACE -l app=cloudflared &> /dev/null 2>&1; then
         TUNNEL_STATUS=$(kubectl get pods -n $NAMESPACE -l app=cloudflared -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "NotFound")
         if [ "$TUNNEL_STATUS" = "Running" ]; then
@@ -91,7 +96,7 @@ if [ -n "$FRONTEND_BASE_URL" ]; then
         echo "  (curl not available for health check)"
     fi
 else
-    echo "✗ FRONTEND_BASE_URL not configured"
+    echo "✗ PRODUCTION_FRONTEND_BASE_URL not configured"
 fi
 
 echo ""
@@ -113,7 +118,7 @@ if [ -n "$DATABASE_URL" ]; then
         echo "  (psql not available for health check)"
     fi
 else
-    echo "✗ DATABASE_URL not configured"
+    echo "✗ PRODUCTION_DATABASE_URL not configured"
 fi
 
 echo ""

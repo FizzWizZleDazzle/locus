@@ -45,7 +45,7 @@ This starts PostgreSQL (port 5433), the backend (port 3000), and the frontend (p
 ### Production
 
 ```bash
-make init       # Generate secrets, create .env.production
+make init       # Generate production secrets in .env
 make all        # Build, push, deploy backend + frontend, load data
 make status     # Verify deployment health
 ```

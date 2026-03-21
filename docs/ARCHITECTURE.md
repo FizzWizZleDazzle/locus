@@ -2,15 +2,33 @@
 
 ## Workspace
 
-Rust workspace with three crates. The `common` crate is shared between frontend (WASM) and backend (native) via conditional compilation.
+Rust workspace with six crates. The `common` crate is shared between frontend (WASM) and backend (native) via conditional compilation. The `services-backend`, `forum`, and `status` crates are standalone (no dependency on `common`).
 
 ```
 Cargo.toml              Workspace root
 crates/
   common/               Shared library (grading, SymEngine FFI, types)
-  frontend/             Leptos 0.7 CSR app (wasm32-unknown-unknown)
+  frontend/             Leptos 0.8 CSR app (wasm32-unknown-unknown)
   backend/              Axum REST API (native target)
+  services-backend/     Community services API (forum + status, Axum)
+  forum/                Forum frontend (Leptos WASM, Cloudflare Pages)
+  status/               Status page frontend (Leptos WASM, Cloudflare Pages)
 ```
+
+### Services Architecture
+
+```
+forum.locusmath.org  -> Cloudflare Pages (crates/forum WASM)   -+
+status.locusmath.org -> Cloudflare Pages (crates/status WASM)  -+-- API calls
+                                                                  v
+                        crates/services-backend (K8s pod, port 8090)
+                             |
+                             v
+                        PostgreSQL (shared with main backend)
+                             + pings api.locusmath.org/api/health
+```
+
+Services backend runs its own migrations (`crates/services-backend/migrations/`), manages forum tables (`forum_posts`, `forum_comments`, `forum_votes`, `forum_admins`) and status tables (`status_checks`). Auth reads the main `users` table directly (shared JWT_SECRET).
 
 ## Crate Map
 

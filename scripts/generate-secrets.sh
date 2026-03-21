@@ -1,5 +1,5 @@
 #!/bin/bash
-# Generate secure secrets for .env.production
+# Generate secure secrets and append PRODUCTION_ vars to .env
 
 set -e
 
@@ -10,65 +10,53 @@ echo ""
 JWT_SECRET=$(openssl rand -base64 32)
 DB_PASSWORD=$(openssl rand -base64 32)
 
-# Create .env.production with generated secrets
-cat > .env.production << EOF
-# ========================================
-# Locus Production Configuration
-# Generated: $(date)
-# ========================================
+# Check if .env exists; if not, copy from .env.example
+if [ ! -f .env ]; then
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo "✓ Created .env from .env.example"
+    else
+        echo "ERROR: Neither .env nor .env.example found"
+        exit 1
+    fi
+fi
 
-# Environment
-ENVIRONMENT=production
+# Remove existing PRODUCTION_ lines to avoid duplicates
+sed -i '/^PRODUCTION_/d' .env
+sed -i '/^# ── Production/d' .env
 
-# Database
-DATABASE_URL=postgresql://locus_srv:${DB_PASSWORD}@YOUR_DB_HOST:5432/locus
+# Append production vars
+cat >> .env << EOF
 
-# Security Secrets (auto-generated)
-JWT_SECRET=${JWT_SECRET}
-
-# Email (Resend) - CONFIGURE THESE!
-RESEND_API_KEY=re_your_resend_api_key_here
-RESEND_FROM_EMAIL=noreply@yourdomain.com
-RESEND_FROM_NAME=Locus
-
-# OAuth Providers - CONFIGURE THESE!
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-GITHUB_CLIENT_ID=your_github_client_id_here
-GITHUB_CLIENT_SECRET=your_github_client_secret_here
-
-# Frontend URLs - CONFIGURE THESE!
-FRONTEND_BASE_URL=https://locus.pages.dev
-ALLOWED_ORIGINS=https://locus.pages.dev
-OAUTH_REDIRECT_BASE=https://locus.pages.dev
-
-# Cloudflare Tunnel - Run setup-cloudflare-tunnel.sh to get this
-CLOUDFLARED_TUNNEL=
-
-# Cloudflare Pages
-CLOUDFLARE_PROJECT_NAME=locus
-CLOUDFLARE_BRANCH=main
-
-# Database password (for PostgreSQL user creation)
-DB_PASSWORD=${DB_PASSWORD}
+# ── Production (used by deploy scripts only) ──
+PRODUCTION_DATABASE_URL=postgresql://locus_srv:${DB_PASSWORD}@YOUR_DB_HOST:5432/locus
+PRODUCTION_DB_PASSWORD=${DB_PASSWORD}
+PRODUCTION_JWT_SECRET=${JWT_SECRET}
+PRODUCTION_ALLOWED_ORIGINS=https://locus.pages.dev
+PRODUCTION_FRONTEND_BASE_URL=https://locus.pages.dev
+PRODUCTION_OAUTH_REDIRECT_BASE=https://locus.pages.dev
+PRODUCTION_RESEND_FROM_EMAIL=noreply@yourdomain.com
+PRODUCTION_CLOUDFLARED_TUNNEL=
+PRODUCTION_COMMUNITY_ALLOWED_ORIGINS=https://forum.locusmath.org,https://status.locusmath.org
+PRODUCTION_COMMUNITY_CLOUDFLARED_TOKEN=
 EOF
 
-chmod 600 .env.production
+chmod 600 .env
 
-echo "✓ Secrets generated and saved to .env.production"
+echo "✓ Production secrets generated and saved to .env"
 echo ""
 echo "NEXT STEPS:"
 echo "============"
 echo ""
-echo "1. Edit .env.production and configure:"
+echo "1. Edit .env and configure the PRODUCTION_ variables:"
 echo "   - RESEND_API_KEY (from resend.com)"
 echo "   - GOOGLE_CLIENT_ID/SECRET (from Google Cloud Console)"
 echo "   - GITHUB_CLIENT_ID/SECRET (from GitHub OAuth Apps)"
-echo "   - FRONTEND_BASE_URL (your actual domain)"
+echo "   - PRODUCTION_FRONTEND_BASE_URL (your actual domain)"
 echo ""
 echo "2. Get Cloudflare Tunnel token:"
 echo "   Run: make tunnel-instructions"
-echo "   Then add CLOUDFLARED_TUNNEL to .env.production"
+echo "   Then set PRODUCTION_CLOUDFLARED_TUNNEL in .env"
 echo ""
 echo "3. Update database password for locus_srv user:"
 echo "   psql -h YOUR_DB_HOST -U postgres -d locus -c \"ALTER USER locus_srv PASSWORD '${DB_PASSWORD}';\""

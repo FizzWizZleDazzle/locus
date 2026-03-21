@@ -4,6 +4,9 @@ members = [
     "crates/common",
     "crates/frontend",
     "crates/backend",
+    "crates/services-backend",
+    "crates/forum",
+    "crates/status",
 ]
 exclude = ["symengine.js/examples/rust-trunk"]
 
