@@ -4,6 +4,7 @@ pub mod badges;
 pub mod constants;
 pub mod elo;
 pub mod grader;
+pub mod katex_validate;
 pub mod latex;
 pub mod svg_compress;
 pub mod symengine;
