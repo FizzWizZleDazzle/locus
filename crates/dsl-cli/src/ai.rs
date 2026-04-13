@@ -1,14 +1,13 @@
 //! AI YAML generation pipeline
 //!
 //! Fires N requests concurrently, validates as they return,
-//! retries failures independently. No waiting in sequence.
+//! retries failures independently. Uses prompt caching + prefilling.
 
 use std::sync::Arc;
 
 const MAX_RETRIES: usize = 3;
 
 /// Generate multiple problem YAMLs concurrently.
-/// Returns vec of (index, Result<yaml, error>).
 pub async fn generate_batch(
     topic: &str,
     difficulty: &str,
@@ -33,16 +32,13 @@ pub async fn generate_batch(
         let handle = tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
             eprintln!("[{}/{}] Starting...", i + 1, count);
-
             let result = generate_one(&client, &topic, &difficulty, &api_key, &model).await;
-
             match &result {
                 Ok(_) => eprintln!("[{}/{}] OK", i + 1, count),
                 Err(e) => eprintln!("[{}/{}] Failed: {}", i + 1, count, e),
             }
             result
         });
-
         handles.push(handle);
     }
 
@@ -53,7 +49,6 @@ pub async fn generate_batch(
     results
 }
 
-/// Single YAML generation with retry loop
 async fn generate_one(
     client: &reqwest::Client,
     topic: &str,
@@ -64,28 +59,32 @@ async fn generate_one(
     let mut last_yaml = String::new();
     let mut last_errors = Vec::new();
 
+    let examples = select_examples(topic);
+
     for attempt in 0..=MAX_RETRIES {
-        let prompt = if attempt == 0 {
-            build_initial_prompt(topic, difficulty)
+        let user_msg = if attempt == 0 {
+            format!(
+                "Generate a problem YAML for topic: {topic}, difficulty: {difficulty}\n\n\
+                 Make it pedagogically useful with appropriate constraints for clean numbers."
+            )
         } else {
-            build_retry_prompt(topic, difficulty, &last_yaml, &last_errors)
+            format!(
+                "Your YAML for '{topic}' ({difficulty}) had errors:\n\
+                 ```yaml\n{last_yaml}\n```\n\
+                 Errors:\n{}\n\
+                 Fix and output ONLY the corrected YAML.",
+                last_errors.iter().map(|e| format!("- {e}")).collect::<Vec<_>>().join("\n")
+            )
         };
 
-        let yaml = call_llm(client, api_key, model, &prompt).await?;
+        let yaml = call_llm(client, api_key, model, &examples, &user_msg).await?;
         let cleaned = extract_yaml(&yaml);
 
         match validate_yaml(&cleaned) {
             Ok(()) => return Ok(cleaned),
             Err(errors) => {
-                eprintln!(
-                    "  Attempt {}/{}: {} error(s)",
-                    attempt + 1,
-                    MAX_RETRIES + 1,
-                    errors.len()
-                );
-                for e in &errors {
-                    eprintln!("    - {e}");
-                }
+                eprintln!("  Attempt {}/{}: {} error(s)", attempt + 1, MAX_RETRIES + 1, errors.len());
+                for e in &errors { eprintln!("    - {e}"); }
                 last_yaml = cleaned;
                 last_errors = errors;
             }
@@ -93,35 +92,32 @@ async fn generate_one(
     }
 
     Err(format!(
-        "Failed after {} attempts. Last errors: {}",
+        "Failed after {} attempts. Errors: {}",
         MAX_RETRIES + 1,
         last_errors.join("; ")
     ))
 }
 
-fn build_initial_prompt(topic: &str, difficulty: &str) -> String {
-    format!(
-        "{SYSTEM_PROMPT}\n\n\
-         Generate a problem YAML for:\n\
-         - Topic: {topic}\n\
-         - Difficulty: {difficulty}\n\n\
-         Output ONLY the YAML, nothing else."
-    )
-}
+/// Select 2 relevant examples based on topic
+fn select_examples(topic: &str) -> String {
+    let main = topic.split('/').next().unwrap_or("");
 
-fn build_retry_prompt(topic: &str, difficulty: &str, yaml: &str, errors: &[String]) -> String {
-    format!(
-        "{SYSTEM_PROMPT}\n\n\
-         Your previous YAML for topic '{topic}' (difficulty: {difficulty}) had errors:\n\
-         ```yaml\n{yaml}\n```\n\n\
-         Errors:\n{error_list}\n\n\
-         Fix these errors and output ONLY the corrected YAML, nothing else.",
-        error_list = errors
-            .iter()
-            .map(|e| format!("- {e}"))
-            .collect::<Vec<_>>()
-            .join("\n")
-    )
+    let relevant = match main {
+        "arithmetic" => EXAMPLE_ARITHMETIC,
+        "calculus" | "multivariable_calculus" => EXAMPLE_CALCULUS,
+        "algebra1" | "algebra2" => EXAMPLE_ALGEBRA,
+        "geometry" => EXAMPLE_GEOMETRY,
+        _ => EXAMPLE_ALGEBRA,
+    };
+
+    // Always include one contrasting example for variety
+    let contrast = if relevant == EXAMPLE_CALCULUS {
+        EXAMPLE_GEOMETRY
+    } else {
+        EXAMPLE_CALCULUS
+    };
+
+    format!("{relevant}\n\n{contrast}")
 }
 
 fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
@@ -129,34 +125,28 @@ fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
         Ok(s) => s,
         Err(e) => return Err(vec![format!("Parse error: {e}")]),
     };
-
     let mut errors = Vec::new();
     for i in 0..3 {
         match locus_dsl::generate(&spec) {
             Ok(_) => {}
-            Err(e) => errors.push(format!("Generation attempt {}: {e}", i + 1)),
+            Err(e) => errors.push(format!("Generation {}: {e}", i + 1)),
         }
     }
-
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err(errors)
-    }
+    if errors.is_empty() { Ok(()) } else { Err(errors) }
 }
 
 fn extract_yaml(response: &str) -> String {
     let trimmed = response.trim();
     if trimmed.starts_with("```") {
         let lines: Vec<&str> = trimmed.lines().collect();
-        let start = 1; // skip ```yaml line
         let end = if lines.last().map_or(false, |l| l.trim() == "```") {
             lines.len() - 1
         } else {
             lines.len()
         };
-        return lines[start..end].join("\n");
+        return lines[1..end].join("\n");
     }
+    // If response starts with "topic:", it's already clean YAML
     trimmed.to_string()
 }
 
@@ -164,15 +154,24 @@ async fn call_llm(
     client: &reqwest::Client,
     api_key: &str,
     model: &str,
-    prompt: &str,
+    examples: &str,
+    user_message: &str,
 ) -> Result<String, String> {
+    let system_with_examples = format!("{SYSTEM_PROMPT}\n\n# EXAMPLES\n\n{examples}");
+
     let body = serde_json::json!({
         "model": model,
         "max_tokens": 2048,
-        "messages": [{
-            "role": "user",
-            "content": prompt
-        }]
+        "temperature": 0.4,
+        "system": [{
+            "type": "text",
+            "text": system_with_examples,
+            "cache_control": {"type": "ephemeral"}
+        }],
+        "messages": [
+            {"role": "user", "content": user_message},
+            {"role": "assistant", "content": "topic:"}
+        ]
     });
 
     let resp = client
@@ -196,143 +195,114 @@ async fn call_llm(
         .await
         .map_err(|e| format!("JSON parse error: {e}"))?;
 
-    json["content"][0]["text"]
+    let text = json["content"][0]["text"]
         .as_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| "No text in API response".to_string())
+        .ok_or_else(|| "No text in API response".to_string())?;
+
+    // Prepend "topic:" since we prefilled it
+    Ok(format!("topic:{text}"))
 }
 
-const SYSTEM_PROMPT: &str = r#"You are a math problem generator. You output YAML files in the LocusDSL format.
+// =============================================================================
+// System prompt (static, cached by Anthropic)
+// =============================================================================
 
-RULES:
-- Output ONLY valid YAML. No explanations, no markdown, no commentary.
-- NEVER write LaTeX. Use {var} refs and {display_func()} for all math rendering.
-- All math expressions use plain notation: *, ^, /, +, - (compatible with SymEngine).
-- Variables are either samplers or derived expressions. Never write code.
-- Strings containing : or { must be quoted in YAML.
+const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files in LocusDSL format. Output ONLY valid YAML.
 
-SAMPLER TYPES:
-  integer(lo, hi)       # random integer in [lo, hi]
-  nonzero(lo, hi)       # integer excluding 0
-  decimal(lo, hi, n)    # decimal with n places
-  choice(a, b, c)       # pick from list
-  prime(lo, hi)         # random prime
-  rational(lo, hi, max) # random fraction
+# FORMAT
 
-BUILT-IN FUNCTIONS (for derived variables):
-  derivative(expr, var)         # differentiate
-  integral(expr, var)           # antiderivative
-  evaluate(expr, var, value)    # plug in value
-  solve(expr, var)              # find roots (linear/quadratic)
-  expand(expr)                  # expand expression
-  simplify(expr)                # simplify
-  sqrt(expr)                    # square root
-  abs(expr)                     # absolute value
-  sin, cos, tan, asin, acos, atan, log, ln, exp  # standard functions
-  round(expr, places)           # round decimal
-  max(a, b), min(a, b)          # min/max
-
-DISPLAY FUNCTIONS (for question/solution text):
-  {var_name}                        # inline math: $...$
-  {derivative_of(f, x)}            # d/dx[f]
-  {integral_of(f, x)}              # ∫ f dx
-  {definite_integral_of(f, x, a, b)} # ∫_a^b f dx
-  {limit_of(f, x, val)}            # lim_{x→val} f
-  {equation(lhs, rhs)}             # lhs = rhs
-  {system(eq1, eq2)}               # system of equations
-  {matrix_of(M)}                   # pmatrix
-  {det_of(M)}                      # |M|
-  {vec(v)}                         # vector arrow
-  {abs_of(x)}                      # |x|
-  {set_of(s)}                      # {s}
-  {binomial(n, k)}                 # (n choose k)
-
-ANSWER:
-  - "answer" field is a variable name (not an expression)
-  - For multi-value answers, use intermediate variables, then: "answer: var_name"
-  - For tuples: "answer: x, y" (comma-separated variable names)
-  - Parser auto-detects answer_type, or override with answer_type field
-  - If the answer is a computed expression (e.g. num/den), define it as a variable first
-
-CONSTRAINTS:
-  - List boolean conditions: a != 0, b > a, is_integer(answer), etc.
-  - Parser resamples up to 1000 times to satisfy all constraints
-
-IMPORTANT:
-  - Every expression in a display function or equation() gets variable substitution.
-    So {equation(a*x + b, c)} will substitute a, b, c with their numeric values.
-  - If you need to show intermediate computations, define them as variables.
-  - Strings in YAML that contain { or : MUST be quoted.
-
-STRUCTURE:
-```yaml
 topic: main_topic/subtopic
 difficulty: easy|medium|hard|very_hard|competition
 calculator: none|scientific|graphing
+variables: (samplers, derived expressions, or function calls)
+constraints: (boolean conditions for clean numbers)
+question: "Text with {var} and {display_func()} refs"
+answer: variable_name
+mode: equivalent|factor|expand
+solution: (step-by-step with {var} refs)
 
-variables:
-  name1: sampler_or_expression
-  name2: sampler_or_expression
-  answer: derived_or_function
+# VARIABLE TYPES
 
-constraints:
-  - condition1
-  - condition2
+Samplers: integer(lo, hi)  nonzero(lo, hi)  decimal(lo, hi, places)  choice(a, b, c)  prime(lo, hi)  rational(lo, hi, max_denom)
+Derived: f: a * x^n + b  (plain math using other vars)
+Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  sin cos tan asin acos atan log ln exp  round(x, n)  max(a, b)  min(a, b)
 
-question: "Text with {var} refs and {display_func()} calls"
+# DISPLAY FUNCTIONS (produce LaTeX in question/solution text)
 
-answer: answer_variable_name
-mode: equivalent
+{var}  {derivative_of(f, x)}  {integral_of(f, x)}  {definite_integral_of(f, x, a, b)}  {limit_of(f, x, val)}  {equation(lhs, rhs)}  {system(eq1, eq2)}  {matrix_of(M)}  {det_of(M)}  {vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
 
-solution:
-  - "Step 1 with {var} refs"
-  - "Step 2 with {display_func()} calls"
-```
+Display functions substitute variables — {equation(a*x + b, c)} shows numeric values.
 
-EXAMPLE 1 (arithmetic):
-```yaml
-topic: arithmetic/addition
+# RULES
+
+1. The answer field must be a variable name. Define intermediate variables for computed answers.
+2. YAML strings containing { or : must be quoted.
+3. Use display functions instead of LaTeX. Never write \frac, \int, etc.
+4. Use constraints to ensure clean answers (is_integer, nonzero denominators, distinct roots).
+5. Solution steps should show work, not just state the answer.
+6. Each problem tests one concept clearly.
+
+# ANSWER TYPES (auto-detected from value, or set answer_type)
+
+numeric: 42  expression: 3*x+5  tuple: "answer: x, y"  set: answer_type: set  boolean: true/false  interval: open:0,closed:5  matrix: [[1,2],[3,4]]"#;
+
+// =============================================================================
+// Examples (selected by topic relevance)
+// =============================================================================
+
+const EXAMPLE_ARITHMETIC: &str = r#"topic: arithmetic/fractions
 difficulty: easy
 calculator: none
 
 variables:
-  a: integer(10, 99)
-  b: integer(10, 99)
-  answer: a + b
+  a: integer(1, 9)
+  b: integer(2, 9)
+  c: integer(1, 9)
+  d: integer(2, 9)
+  num: a*d + c*b
+  den: b*d
+  answer: num/den
 
-question: What is {a} + {b}?
+constraints:
+  - b != d
+  - a < b
+  - c < d
 
+question: "Add: {a}/{b} + {c}/{d}"
 answer: answer
-
 solution:
-  - Add {a} and {b}
-  - Answer is {answer}
-```
+  - "Common denominator: {b} x {d} = {den}"
+  - "{a}/{b} + {c}/{d} = {answer}"
+"#;
 
-EXAMPLE 2 (calculus):
-```yaml
-topic: calculus/derivative_rules
+const EXAMPLE_CALCULUS: &str = r#"topic: calculus/definite_integrals
 difficulty: medium
 calculator: none
 
 variables:
-  a: nonzero(-8, 8)
-  n: integer(2, 6)
+  a: nonzero(-5, 5)
+  n: integer(1, 4)
   f: a * x^n
-  answer: derivative(f, x)
+  lo: integer(0, 3)
+  hi: integer(4, 8)
+  F: integral(f, x)
+  F_hi: evaluate(F, x, hi)
+  F_lo: evaluate(F, x, lo)
+  result: F_hi - F_lo
 
-question: "Find {derivative_of(f, x)}"
+constraints:
+  - lo < hi
+  - is_integer(result)
 
-answer: answer
-
+question: "Evaluate {definite_integral_of(f, x, lo, hi)}"
+answer: result
 solution:
-  - "Apply the power rule to {f}"
-  - "{derivative_of(f, x)} = {answer}"
-```
+  - "Antiderivative: {integral_of(f, x)} = {F} + C"
+  - "Evaluate from {lo} to {hi}"
+  - "= {result}"
+"#;
 
-EXAMPLE 3 (algebra with solve):
-```yaml
-topic: algebra1/quadratic_formula
+const EXAMPLE_ALGEBRA: &str = r#"topic: algebra1/quadratic_formula
 difficulty: medium
 calculator: none
 
@@ -348,55 +318,34 @@ constraints:
   - r1 < r2
 
 question: "Solve {equation(expanded, 0)} for x."
-
 answer: answer
 answer_type: set
-
 solution:
   - "Start with {equation(expanded, 0)}"
   - "Factor: {equation(f, 0)}"
   - "x = {r1} or x = {r2}"
-```
+"#;
 
-EXAMPLE 4 (definite integral):
-```yaml
-topic: calculus/definite_integrals
-difficulty: medium
-calculator: none
+const EXAMPLE_GEOMETRY: &str = r#"topic: geometry/pythagorean_theorem
+difficulty: easy
+calculator: scientific
 
 variables:
-  a: nonzero(-5, 5)
-  n: integer(1, 4)
-  f: a * x^n
-  lo: integer(0, 3)
-  hi: integer(4, 8)
-  F: integral(f, x)
-  F_hi: evaluate(F, x, hi)
-  F_lo: evaluate(F, x, lo)
-  answer: F_hi - F_lo
+  a: choice(3, 5, 6, 7, 8, 9)
+  b: choice(4, 8, 9, 12, 15)
+  a2: a^2
+  b2: b^2
+  sum_sq: a2 + b2
+  answer: sqrt(sum_sq)
 
 constraints:
-  - lo < hi
+  - a < b
   - is_integer(answer)
 
-question: "Evaluate {definite_integral_of(f, x, lo, hi)}"
-
+question: "Find the hypotenuse of a right triangle with legs {a} and {b}."
 answer: answer
-
 solution:
-  - "Find antiderivative: {integral_of(f, x)} = {F} + C"
-  - "Evaluate from {lo} to {hi}"
-  - "= {answer}"
-```
-
-VALID TOPICS:
-arithmetic/{addition,subtraction,multiplication,long_division,fractions,decimals,mixed_numbers,order_of_operations,percentages,ratios_proportions}
-algebra1/{one_step_equations,two_step_equations,multi_step_equations,linear_inequalities,compound_inequalities,exponent_rules,polynomial_operations,factoring_gcf,factoring_trinomials,quadratic_formula,graphing_lines,slope_and_intercept,systems_substitution,systems_elimination}
-algebra2/{complex_number_operations,complex_number_equations,exponential_equations,exponential_growth_decay,logarithm_properties,logarithmic_equations,radical_expressions,radical_equations,rational_expressions,rational_equations,arithmetic_sequences,geometric_sequences}
-geometry/{angle_relationships,triangle_properties,triangle_congruence,similar_triangles,pythagorean_theorem,right_triangle_trig,perimeter,area_of_polygons,circle_theorems,arc_length_sectors,surface_area,volume,coordinate_geometry}
-precalculus/{domain_and_range,function_composition,inverse_functions,transformations,unit_circle,graphing_trig,trig_identities,sum_difference_formulas,inverse_trig_functions,law_of_sines_cosines,vector_operations,dot_cross_product,polar_coordinates,polar_curves}
-calculus/{continuity,lhopitals_rule,limits_at_infinity,derivative_rules,chain_rule,implicit_differentiation,related_rates,curve_sketching,optimization,antiderivatives,u_substitution,integration_by_parts,definite_integrals,area_between_curves,volumes_of_revolution}
-multivariable_calculus/{partial_derivatives,gradient,directional_derivatives,lagrange_multipliers,double_integrals,triple_integrals,change_of_variables,line_integrals,greens_theorem,stokes_divergence}
-linear_algebra/{matrix_arithmetic,matrix_inverses,determinants,row_reduction,eigenvalues,diagonalization,vector_spaces,subspaces,linear_independence,linear_transformations}
-differential_equations/{separable_equations,first_order_linear,exact_equations,homogeneous_equations,second_order_constant,characteristic_equation,undetermined_coefficients,variation_of_parameters,laplace_transforms,systems_of_odes}
+  - "Pythagorean theorem: a^2 + b^2 = c^2"
+  - "{a}^2 + {b}^2 = {sum_sq}"
+  - "c = {answer}"
 "#;
