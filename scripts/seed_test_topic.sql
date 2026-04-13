@@ -1,5 +1,5 @@
 -- Seed script: Add "Test" topic with one problem per answer type
--- Run directly against local DB: psql -U locus -d locus -f seed_test_topic.sql
+-- Run directly against local DB: psql -U locus -d locus -f scripts/seed_test_topic.sql
 
 BEGIN;
 

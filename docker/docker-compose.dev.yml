@@ -1,5 +1,5 @@
 # Docker Compose for Locus development (replaces dev.sh)
-# Usage: docker compose -f docker-compose.dev.yml up
+# Usage: docker compose -f docker/docker-compose.dev.yml up
 #
 # First run builds the dev image (~10 min for SymEngine).
 # Subsequent starts are fast thanks to cached volumes.
@@ -24,14 +24,14 @@ services:
 
   dev:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: docker/Dockerfile.dev
     container_name: locus-dev
     ports:
       - "3000:3000"
       - "8080:8080"
     volumes:
-      - .:/workspace
+      - ..:/workspace
       - cargo-registry:/usr/local/cargo/registry
       - cargo-git:/usr/local/cargo/git
       - target-cache:/workspace/target

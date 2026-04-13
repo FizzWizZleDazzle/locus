@@ -24,8 +24,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: locus-backend-prod
     depends_on:
       postgres:

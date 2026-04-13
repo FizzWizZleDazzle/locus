@@ -74,10 +74,10 @@ Prerequisites: `cargo`, `trunk`, `cargo-watch`, `docker`, SymEngine installed at
 ### Option 3: Full Docker
 
 ```bash
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 ```
 
-Builds from `Dockerfile.dev`. Mounts workspace with cargo caches. Same ports as dev.sh.
+Builds from `docker/Dockerfile.dev`. Mounts workspace with cargo caches. Same ports as dev.sh.
 
 ### Factory
 
@@ -111,7 +111,7 @@ Or all at once: `make all`
 
 ### Docker Image
 
-Multi-stage build (`Dockerfile`):
+Multi-stage build (`docker/Dockerfile`):
 1. `rust:1.93.0-slim` builder: compiles SymEngine from source, builds backend in release mode
 2. `debian:trixie-slim` runtime: copies binary + migrations, runs as non-root `locus` user on port 28743
 
@@ -155,14 +155,16 @@ npx wrangler pages deploy dist --project-name locus --branch main
 | `scripts/deploy-cloudflare-pages.sh` | Build frontend and deploy to Cloudflare Pages |
 | `scripts/check-status.sh` | Check pods, tunnel, frontend, DB, OAuth, email |
 | `scripts/load-data.sh` | Load problems into database |
+| `scripts/seed_test_topic.sql` | Seed test topic with one problem per answer type |
+| `scripts/fix-katex-rendering.sql` | Fix KaTeX rendering issues in problem data |
 
 ## Docker Compose Files
 
 | File | Purpose | Services |
 |---|---|---|
-| `docker-compose.yml` | Dev database only | PostgreSQL (port 5433) |
-| `docker-compose.dev.yml` | Full dev environment | PostgreSQL + app (ports 3000, 8080) |
-| `docker-compose.prod.yml` | Production-like local | PostgreSQL + backend (port 28743) |
+| `docker/docker-compose.yml` | Dev database only | PostgreSQL (port 5433) |
+| `docker/docker-compose.dev.yml` | Full dev environment | PostgreSQL + app (ports 3000, 8080) |
+| `docker/docker-compose.prod.yml` | Production-like local | PostgreSQL + backend (port 28743) |
 
 ## Port Reference
 

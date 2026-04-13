@@ -125,7 +125,7 @@ start_db() {
         fi
     else
         # Container doesn't exist, create it
-        docker_compose up -d
+        docker_compose -f docker/docker-compose.yml up -d
         log_info "Waiting for PostgreSQL to be ready..."
         sleep 3
         log_success "PostgreSQL started"

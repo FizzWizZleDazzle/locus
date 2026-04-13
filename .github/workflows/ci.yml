@@ -89,7 +89,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - dockerfile: Dockerfile
+          - dockerfile: docker/Dockerfile
             image: locus
           - dockerfile: crates/services-backend/Dockerfile
             image: locus-services

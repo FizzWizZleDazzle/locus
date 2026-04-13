@@ -1,6 +1,6 @@
 # Development Dockerfile for Locus
 # Provides a full Rust dev environment with SymEngine pre-built.
-# Usage: docker compose -f docker-compose.dev.yml up
+# Usage: docker compose -f docker/docker-compose.dev.yml up
 
 FROM rust:1.93.0-slim
 
@@ -41,7 +41,7 @@ WORKDIR /workspace
 EXPOSE 3000 8080
 
 # Bake entrypoint script into the image
-COPY docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint.dev.sh
+COPY docker/entrypoint.dev.sh /usr/local/bin/docker-entrypoint.dev.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.dev.sh"]

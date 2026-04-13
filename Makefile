@@ -47,7 +47,7 @@ build:
 	@echo "============================================"
 	@echo "Building Docker image..."
 	@echo "============================================"
-	docker build -t $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) .
+	docker build -f docker/Dockerfile -t $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) .
 	@echo ""
 	@echo "✓ Image built: $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)"
 
