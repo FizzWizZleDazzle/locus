@@ -1,0 +1,38 @@
+name: New Problem YAML
+description: Submit a new problem definition
+labels: [problem, contribution]
+body:
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: "e.g. calculus/chain_rule"
+      placeholder: "main_topic/subtopic"
+    validations:
+      required: true
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options:
+        - very_easy
+        - easy
+        - medium
+        - hard
+        - very_hard
+        - competition
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Problem YAML
+      description: Paste your .yaml file contents
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing
+      description: "Did you run `dsl-cli validate` on it? Paste output."

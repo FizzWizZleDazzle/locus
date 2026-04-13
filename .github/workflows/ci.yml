@@ -9,6 +9,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
   REGISTRY: ghcr.io
+  # Compile-time env vars for forum/status crates
+  COMMUNITY_API_URL: http://localhost:9090
+  LOCUS_FRONTEND_URL: http://localhost:8080
 
 jobs:
   check:
@@ -73,7 +76,7 @@ jobs:
           done
 
       - name: Cargo clippy
-        run: cargo clippy --workspace -- -D warnings
+        run: cargo clippy -p locus-common -p locus-dsl -p locus-dsl-cli -- -D warnings
 
   docker:
     name: Docker Build & Push

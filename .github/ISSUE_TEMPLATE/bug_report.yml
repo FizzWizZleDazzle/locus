@@ -1,0 +1,42 @@
+name: Bug Report
+description: Report a bug or rendering issue
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Problem rendering (KaTeX/LaTeX)
+        - Grading (wrong answer marked correct/incorrect)
+        - DSL parser (problem generation)
+        - Frontend (UI/UX)
+        - Backend (API)
+        - Deployment
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, problem IDs, browser info, etc.

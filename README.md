@@ -1,78 +1,101 @@
 # Locus
 
-A competitive math learning platform where users solve problems, earn ELO ratings across topics, and climb leaderboards. Problems are graded symbolically using a computer algebra system (SymEngine) that runs both client-side (WASM) and server-side (native).
+Competitive math learning platform. Solve problems, earn ELO ratings, climb leaderboards. Problems graded symbolically via SymEngine CAS — runs both client-side (WASM) and server-side (native).
+
+**Live at [locusmath.org](https://locusmath.org)**
 
 ## Features
 
-- **Symbolic grading** - SymEngine CAS checks mathematical equivalence, not just string matching
-- **12 answer types** - Expressions, equations, inequalities, intervals, sets, tuples, matrices, and more
-- **Per-topic ELO ratings** - Track skill across 9 math topics from arithmetic to linear algebra
-- **Practice and ranked modes** - Untimed practice with solutions, or ranked with ELO stakes
-- **Client-side pre-grading** - Instant feedback via WASM before server confirmation
-- **MathLive input** - Rich math editor with MathJSON output
-- **OAuth** - Google and GitHub login alongside email/password
-- **Problem factory** - LLM-powered pipeline generates and validates thousands of problems
+- **Symbolic grading** — SymEngine CAS checks mathematical equivalence, not string matching
+- **12 answer types** — Expressions, equations, inequalities, intervals, sets, tuples, matrices, and more
+- **Per-topic ELO** — Track skill across 10+ math topics from arithmetic to differential equations
+- **Practice + ranked modes** — Untimed practice with solutions, or ranked with ELO stakes
+- **Client-side grading** — Instant feedback via WASM before server confirmation
+- **DSL problem generation** — AI writes YAML descriptions, Rust parser handles all computation and LaTeX
+- **OAuth** — Google and GitHub login
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Leptos 0.7 (Rust WASM, CSR) |
+| Frontend | Leptos 0.8 (Rust → WASM, CSR) |
 | Backend | Axum (Rust) |
 | Database | PostgreSQL 16 |
-| CAS | SymEngine (WASM + native) |
-| Math input | MathLive + KaTeX |
-| Auth | JWT + Argon2 + OAuth (Google, GitHub) |
-| Email | Resend |
-| Factory | FastAPI (Python) + LLM |
-| Deployment | Docker, Kubernetes (Helm), Cloudflare Pages |
+| CAS | SymEngine (WASM + native FFI) |
+| Math input | MathQuill + KaTeX |
+| Auth | JWT + Argon2 + OAuth |
+| Problem gen | LocusDSL (Rust) + Claude API |
+| Deployment | Docker, Kubernetes (Helm), Cloudflare |
 
 ## Quick Start
 
-### Dev container (recommended)
-
-Open in VS Code with the Dev Containers extension or GitHub Codespaces. Everything is pre-installed.
-
-### Local development
-
 ```bash
-# Prerequisites: cargo, trunk, cargo-watch, docker, SymEngine
-./dev.sh
+# Prerequisites: cargo, trunk, cargo-watch, docker
+git clone https://github.com/FizzWizZleDazzle/locus.git
+cd locus
+./dev.sh    # Starts DB (5433), backend (3000), frontend (8080)
 ```
 
-This starts PostgreSQL (port 5433), the backend (port 3000), and the frontend (port 8080).
+## Problem Generation
 
-### Production
+Problems are defined in YAML — AI describes math, Rust does all computation:
 
-```bash
-make init       # Generate production secrets in .env
-make all        # Build, push, deploy backend + frontend, load data
-make status     # Verify deployment health
+```yaml
+topic: calculus/derivative_rules
+difficulty: medium
+
+variables:
+  a: nonzero(-8, 8)
+  n: integer(2, 6)
+  f: a * x^n
+  answer: derivative(f, x)
+
+question: "Find {derivative_of(f, x)}"
+answer: answer
 ```
 
-See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for full details.
+No LaTeX, no code. Parser handles sampling, SymEngine evaluation, LaTeX rendering, self-grading.
+
+```bash
+# Generate problems from YAML
+cargo run --bin dsl-cli -- generate problems/calculus/derivative_rules.yaml -n 10
+
+# AI-generate new YAML files (concurrent)
+cargo run --bin dsl-cli -- ai "algebra1/quadratic_formula" -n 20 -j 5 -o problems/algebra1/
+
+# Validate all problem files
+cargo run --bin dsl-cli -- validate problems/
+```
+
+See [`docs/DSL_SPEC.md`](docs/DSL_SPEC.md) for the full DSL reference.
 
 ## Project Structure
 
 ```
 crates/
-  common/       Shared types, SymEngine FFI, grading engine, ELO, validation
-  frontend/     Leptos WASM app (MathLive input, client-side grading, OAuth)
-  backend/      Axum REST API (auth, problems, submit, leaderboard, stats)
-factory/        Python problem generation pipeline (FastAPI + LLM)
-helm/           Kubernetes Helm chart
-scripts/        Deployment and data loading scripts
-.devcontainer/  VS Code dev container configuration
+  common/       Shared types, SymEngine FFI, grading, KaTeX validation
+  dsl/          LocusDSL parser (YAML → problems)
+  dsl-cli/      CLI for problem generation + AI pipeline
+  frontend/     Leptos WASM app
+  backend/      Axum REST API
+problems/       YAML problem definitions (organized by topic)
+docs/           Architecture, API, database, deployment docs
+helm/           Kubernetes Helm charts
 ```
 
 ## Documentation
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - Crate map, grading system, build system
-- [`docs/API.md`](docs/API.md) - HTTP endpoint reference
-- [`docs/DATABASE.md`](docs/DATABASE.md) - Schema, migrations, functions
-- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) - Environment variables, Docker, Kubernetes
-- [`factory/README.md`](factory/README.md) - Problem generation pipeline
+- [`docs/DSL_SPEC.md`](docs/DSL_SPEC.md) — Problem generation DSL reference
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Crate map, grading system, build system
+- [`docs/API.md`](docs/API.md) — HTTP endpoint reference
+- [`docs/DATABASE.md`](docs/DATABASE.md) — Schema, migrations, functions
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Environment variables, Docker, Kubernetes
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — How to contribute problems and code
+
+## Contributing
+
+The easiest way to contribute is writing problem YAML files. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
-All rights reserved.
+[GPL-3.0](LICENSE)

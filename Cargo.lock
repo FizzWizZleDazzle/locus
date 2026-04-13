@@ -2184,8 +2184,12 @@ name = "locus-dsl-cli"
 version = "0.1.5"
 dependencies = [
  "clap",
+ "dotenvy",
  "locus-dsl",
+ "reqwest",
+ "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
