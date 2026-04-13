@@ -1,0 +1,18 @@
+[package]
+name = "locus-dsl"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "DSL parser for generating math/physics problems from YAML definitions"
+
+[dependencies]
+locus-common = { path = "../common" }
+serde = { workspace = true }
+serde_yaml = "0.9"
+rand = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]

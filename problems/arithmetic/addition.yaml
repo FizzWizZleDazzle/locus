@@ -1,0 +1,16 @@
+topic: arithmetic/addition
+difficulty: easy
+calculator: none
+
+variables:
+  a: integer(10, 99)
+  b: integer(10, 99)
+  answer: a + b
+
+question: What is {a} + {b}?
+
+answer: answer
+
+solution:
+  - Add {a} and {b}
+  - Answer is {answer}

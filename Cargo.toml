@@ -2,6 +2,8 @@
 resolver = "2"
 members = [
     "crates/common",
+    "crates/dsl",
+    "crates/dsl-cli",
     "crates/frontend",
     "crates/backend",
     "crates/services-backend",
@@ -14,7 +16,7 @@ exclude = ["symengine.js/examples/rust-trunk"]
 version = "0.1.5"
 edition = "2024"
 authors = ["FizzWizzleDazzle <arturmisiurev@gmail.com>"]
-license = "MIT"
+license = "GPL-3.0"
 
 [workspace.dependencies]
 # Shared
