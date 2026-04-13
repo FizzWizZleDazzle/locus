@@ -1,0 +1,27 @@
+topic: calculus/definite_integrals
+difficulty: medium
+calculator: none
+
+variables:
+  a: nonzero(-5, 5)
+  n: integer(1, 4)
+  f: a * x^n
+  lo: integer(0, 3)
+  hi: integer(4, 8)
+  F: integral(f, x)
+  F_hi: evaluate(F, x, hi)
+  F_lo: evaluate(F, x, lo)
+  answer: F_hi - F_lo
+
+constraints:
+  - lo < hi
+  - is_integer(answer)
+
+question: "Evaluate {definite_integral_of(f, x, lo, hi)}"
+
+answer: answer
+
+solution:
+  - "Find antiderivative: {integral_of(f, x)} = {F} + C"
+  - "Evaluate from {lo} to {hi}"
+  - "= {answer}"

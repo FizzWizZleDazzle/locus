@@ -13,15 +13,26 @@ pub fn render_display_func(
     args_str: &str,
     vars: &VarMap,
 ) -> Result<String, DslError> {
-    let args: Vec<&str> = args_str.split(',').map(|s| s.trim()).collect();
+    let args: Vec<&str> = split_display_args(args_str);
     let resolved: Vec<String> = args
         .iter()
         .map(|a| {
-            if let Some(val) = vars.get(*a) {
-                expr_to_latex(val).unwrap_or_else(|_| a.to_string())
-            } else {
-                a.to_string()
+            let trimmed = a.trim();
+            // Direct variable lookup
+            if let Some(val) = vars.get(trimmed) {
+                return expr_to_latex(val).unwrap_or_else(|_| trimmed.to_string());
             }
+            // Try evaluating as expression with variable substitution
+            let mut substituted = trimmed.to_string();
+            let mut sorted: Vec<(&String, &String)> = vars.iter().collect();
+            sorted.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+            for (name, value) in &sorted {
+                let pattern = format!(r"\b{}\b", regex::escape(name));
+                if let Ok(re) = regex::Regex::new(&pattern) {
+                    substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+                }
+            }
+            expr_to_latex(&substituted).unwrap_or_else(|_| substituted)
         })
         .collect();
 
@@ -202,4 +213,28 @@ fn check_arity(name: &str, args: &[String], expected: usize) -> Result<(), DslEr
     } else {
         Ok(())
     }
+}
+
+/// Split comma-separated args respecting nested parentheses
+fn split_display_args(s: &str) -> Vec<&str> {
+    let mut result = Vec::new();
+    let mut depth = 0;
+    let mut start = 0;
+
+    for (i, c) in s.char_indices() {
+        match c {
+            '(' | '[' => depth += 1,
+            ')' | ']' => depth -= 1,
+            ',' if depth == 0 => {
+                result.push(s[start..i].trim());
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+    let last = s[start..].trim();
+    if !last.is_empty() {
+        result.push(last);
+    }
+    result
 }

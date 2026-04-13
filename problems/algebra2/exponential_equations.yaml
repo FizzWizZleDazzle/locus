@@ -1,0 +1,17 @@
+topic: algebra2/exponential_equations
+difficulty: medium
+calculator: scientific
+
+variables:
+  base: choice(2, 3, 5, 10)
+  answer: integer(1, 6)
+  result: base^answer
+
+question: "Solve for x: {equation(base^x, result)}"
+
+answer: answer
+
+solution:
+  - "{base}^x = {result}"
+  - "x = log_{base}({result})"
+  - "x = {answer}"

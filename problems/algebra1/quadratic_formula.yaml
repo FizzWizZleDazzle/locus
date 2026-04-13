@@ -1,0 +1,24 @@
+topic: algebra1/quadratic_formula
+difficulty: medium
+calculator: none
+
+variables:
+  r1: integer(-8, 8)
+  r2: integer(-8, 8)
+  f: (x - r1) * (x - r2)
+  expanded: expand(f)
+  answer: solve(expanded, x)
+
+constraints:
+  - r1 != r2
+  - r1 < r2
+
+question: "Solve {equation(expanded, 0)} for x."
+
+answer: answer
+answer_type: set
+
+solution:
+  - "Start with {equation(expanded, 0)}"
+  - "Factor: {equation(f, 0)}"
+  - "x = {r1} or x = {r2}"

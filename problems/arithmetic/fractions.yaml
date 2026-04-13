@@ -1,0 +1,25 @@
+topic: arithmetic/fractions
+difficulty: easy
+calculator: none
+
+variables:
+  a: integer(1, 9)
+  b: integer(2, 9)
+  c: integer(1, 9)
+  d: integer(2, 9)
+  num: a*d + c*b
+  den: b*d
+  answer: num/den
+
+constraints:
+  - b != d
+  - a < b
+  - c < d
+
+question: "Add: {a}/{b} + {c}/{d}"
+
+answer: answer
+
+solution:
+  - "Common denominator: {b} x {d} = {den}"
+  - "{a}/{b} + {c}/{d} = {answer}"

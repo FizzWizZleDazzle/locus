@@ -29,12 +29,28 @@ pub fn format(
         return Ok(parts?.iter().map(|p| normalize_for_grader(p)).collect::<Vec<_>>().join(", "));
     }
 
-    // Single variable ref — normalize SymEngine output for grader
-    vars.get(ref_trimmed)
-        .map(|v| normalize_for_grader(v))
-        .ok_or_else(|| DslError::UndefinedVariable {
+    // Single variable ref
+    if let Some(val) = vars.get(ref_trimmed) {
+        return Ok(normalize_for_grader(val));
+    }
+
+    // Not a direct variable — try evaluating as expression with substitution
+    let mut substituted = ref_trimmed.to_string();
+    let mut sorted_vars: Vec<(&String, &String)> = vars.iter().collect();
+    sorted_vars.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    for (name, value) in &sorted_vars {
+        let pattern = format!(r"\b{}\b", regex::escape(name));
+        if let Ok(re) = regex::Regex::new(&pattern) {
+            substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+        }
+    }
+
+    match locus_common::symengine::Expr::parse(&substituted) {
+        Ok(expr) => Ok(normalize_for_grader(&expr.to_string())),
+        Err(_) => Err(DslError::UndefinedVariable {
             name: ref_trimmed.to_string(),
-        })
+        }),
+    }
 }
 
 /// Normalize SymEngine output for the grader.
