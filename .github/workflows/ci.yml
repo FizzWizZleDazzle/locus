@@ -9,7 +9,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   check:
@@ -17,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -32,16 +33,44 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Cache SymEngine
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/libsymengine.a
+          key: symengine-static-v1
+
       - name: Install system deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgmp-dev libsymengine-dev
+          sudo apt-get install -y libgmp-dev cmake g++ pkg-config libssl-dev
+
+      - name: Build SymEngine
+        run: |
+          if [ ! -f /usr/local/lib/libsymengine.a ]; then
+            git clone --depth 1 https://github.com/symengine/symengine.git /tmp/symengine
+            cd /tmp/symengine && mkdir build && cd build
+            cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            make -j$(nproc)
+            sudo make install
+            cd / && rm -rf /tmp/symengine
+          fi
 
       - name: Cargo check
         run: cargo check --workspace
 
-      - name: Cargo test
+      - name: Cargo test (common)
         run: cargo test -p locus-common
+
+      - name: Cargo test (dsl)
+        run: cargo test -p locus-dsl
+
+      - name: Validate problem files
+        run: |
+          cargo build --bin dsl-cli
+          for f in problems/*/*.yaml; do
+            echo "Validating $f..."
+            cargo run --bin dsl-cli -- generate "$f" -n 3 || exit 1
+          done
 
       - name: Cargo clippy
         run: cargo clippy --workspace -- -D warnings
@@ -63,6 +92,8 @@ jobs:
             image: locus-services
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
