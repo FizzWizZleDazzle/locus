@@ -26,9 +26,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     wget \
     ca-certificates \
-    python3 \
-    python3-pip \
-    python3-venv \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
@@ -102,12 +99,6 @@ RUN cd /tmp/symengine-wasm-build \
     && cd / && rm -rf /tmp/symengine-wasm-build
 ENV SYMENGINE_LIB_DIR="/opt/symengine-wasm/lib"
 
-# 8. Factory Python deps (pre-built venv)
-COPY factory/backend/requirements.txt /tmp/factory-requirements.txt
-RUN python3 -m venv /opt/factory-venv \
-    && /opt/factory-venv/bin/pip install --no-cache-dir -r /tmp/factory-requirements.txt \
-    && rm /tmp/factory-requirements.txt
-
 # ---- Planner stage: generate cargo-chef recipe from workspace manifests ----
 FROM base AS planner
 USER vscode
@@ -116,11 +107,13 @@ COPY --chown=vscode:vscode Cargo.toml Cargo.lock ./
 COPY --chown=vscode:vscode crates/common/Cargo.toml crates/common/Cargo.toml
 COPY --chown=vscode:vscode crates/backend/Cargo.toml crates/backend/Cargo.toml
 COPY --chown=vscode:vscode crates/frontend/Cargo.toml crates/frontend/Cargo.toml
+COPY --chown=vscode:vscode crates/dsl/Cargo.toml crates/dsl/Cargo.toml
+COPY --chown=vscode:vscode crates/dsl-cli/Cargo.toml crates/dsl-cli/Cargo.toml
 COPY --chown=vscode:vscode crates/common/build.rs crates/common/build.rs
 COPY --chown=vscode:vscode crates/common/wasi_stub.c crates/common/wasi_stub.c
 # cargo-chef needs stub source files to satisfy Cargo's manifest validation
-RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src \
-    && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs \
+RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src crates/dsl/src crates/dsl-cli/src \
+    && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs crates/dsl/src/lib.rs crates/dsl-cli/src/main.rs \
     && cargo chef prepare --recipe-path /tmp/recipe.json
 
 # ---- Final stage: cook (pre-build) all dependency crates ----

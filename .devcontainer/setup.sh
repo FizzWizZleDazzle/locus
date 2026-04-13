@@ -8,7 +8,6 @@
 
 set -e
 
-# Colors
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -65,9 +64,8 @@ check_tool "trunk"       "trunk --version"
 check_tool "cargo-watch" "cargo watch --version"
 check_tool "node"        "node --version"
 check_tool "tsc"         "tsc --version"
-check_tool "python3"     "python3 --version"
 check_tool "cmake"       "cmake --version"
-check_tool "docker"      "docker --version"  # provided by docker-in-docker feature
+check_tool "docker"      "docker --version"
 check_file "/usr/local/lib/libsymengine.a"
 check_dir  "/opt/wasi-sdk"
 check_dir  "/opt/symengine-wasm/lib"
@@ -78,165 +76,44 @@ if [ "$MISSING" -gt 0 ]; then
 fi
 
 # =============================================================================
-# 2. Git submodules (defensive — initializeCommand should handle this)
+# 2. Git submodules
 # =============================================================================
 
 log_info "Ensuring git submodules are initialized..."
 git submodule update --init --recursive
 
 # =============================================================================
-# 3. Cargo fetch (mostly no-op — registry is cached in image)
+# 3. Cargo fetch
 # =============================================================================
 
-log_info "Fetching Cargo registry (catches any new deps since image build)..."
+log_info "Fetching Cargo registry..."
 cargo fetch --quiet
 
 # =============================================================================
-# 4. Factory Python venv
-# =============================================================================
-
-if [ -d /opt/factory-venv ] && [ -f "$REPO_ROOT/factory/backend/requirements.txt" ]; then
-    log_info "Copying pre-built factory venv..."
-    cp -a /opt/factory-venv "$REPO_ROOT/factory/backend/venv"
-    # Install any new deps added since the image was built
-    "$REPO_ROOT/factory/backend/venv/bin/pip" install --quiet \
-        -r "$REPO_ROOT/factory/backend/requirements.txt" 2>/dev/null || true
-    log_success "Factory venv ready at factory/backend/venv"
-elif [ -f "$REPO_ROOT/factory/backend/requirements.txt" ]; then
-    log_info "Pre-built venv not found, creating fresh..."
-    python3 -m venv "$REPO_ROOT/factory/backend/venv"
-    "$REPO_ROOT/factory/backend/venv/bin/pip" install --quiet \
-        -r "$REPO_ROOT/factory/backend/requirements.txt"
-    log_success "Factory venv ready at factory/backend/venv"
-fi
-
-# =============================================================================
-# 5. Create .env files from examples if missing
+# 4. Create .env from example if missing
 # =============================================================================
 
 if [ -f "$REPO_ROOT/.env.example" ] && [ ! -f "$REPO_ROOT/.env" ]; then
     cp "$REPO_ROOT/.env.example" "$REPO_ROOT/.env"
     log_success "Created .env from .env.example"
 else
-    log_info ".env already exists or no .env.example found"
-fi
-
-if [ -f "$REPO_ROOT/factory/backend/.env.example" ] && [ ! -f "$REPO_ROOT/factory/backend/.env" ]; then
-    cp "$REPO_ROOT/factory/backend/.env.example" "$REPO_ROOT/factory/backend/.env"
-    log_success "Created factory/backend/.env from .env.example"
-else
-    log_info "factory/backend/.env already exists or no .env.example found"
+    log_info ".env already exists"
 fi
 
 # =============================================================================
-# 6. Download latest problem DB and seed Postgres
+# 5. Validate problem YAML files
 # =============================================================================
 
-PROBLEMS_REPO="FizzWizZleDazzle/locus-scripts"
-PROBLEMS_DIR="$REPO_ROOT/.devcontainer"
-PROBLEMS_DB=""
-
-log_info "Fetching latest problem database release..."
-if command -v gh &> /dev/null; then
-    # Get the latest release tag that has a .db asset
-    LATEST_TAG=$(gh release list --repo "$PROBLEMS_REPO" --limit 20 --json tagName,assets \
-        -q '.[] | select(.assets[].name | endswith(".db")) | .tagName' 2>/dev/null | head -1)
-
-    if [ -n "$LATEST_TAG" ]; then
-        # Find the .db asset name
-        DB_NAME=$(gh release view "$LATEST_TAG" --repo "$PROBLEMS_REPO" --json assets \
-            -q '.assets[] | select(.name | endswith(".db")) | .name' 2>/dev/null | head -1)
-
-        if [ -n "$DB_NAME" ]; then
-            PROBLEMS_DB="$PROBLEMS_DIR/$DB_NAME"
-            if [ ! -f "$PROBLEMS_DB" ]; then
-                log_info "Downloading $DB_NAME from release $LATEST_TAG..."
-                if gh release download "$LATEST_TAG" \
-                    --repo "$PROBLEMS_REPO" \
-                    -p "$DB_NAME" \
-                    -D "$PROBLEMS_DIR" 2>&1; then
-                    log_success "Downloaded $DB_NAME"
-                else
-                    log_error "Failed to download $DB_NAME"
-                    PROBLEMS_DB=""
-                fi
-            else
-                log_info "$DB_NAME already downloaded"
-            fi
-        else
-            log_warn "Could not parse .db asset name from release $LATEST_TAG"
-        fi
+log_info "Building DSL CLI..."
+if cargo build --bin dsl-cli --quiet 2>/dev/null; then
+    log_info "Validating problem files..."
+    if cargo run --bin dsl-cli -- validate problems/ --runs 3 2>/dev/null; then
+        log_success "All problem files valid"
     else
-        log_warn "No releases with .db assets found in $PROBLEMS_REPO"
+        log_warn "Some problem files failed validation"
     fi
 else
-    log_warn "gh CLI not available — skipping problem DB download"
-fi
-
-if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
-    log_info "Starting Postgres to seed problem data..."
-    
-    # Try to start docker compose
-    if ! docker compose up -d 2>&1; then
-        if ! docker-compose up -d 2>&1; then
-            log_error "Failed to start docker compose services"
-            PROBLEMS_DB=""
-        fi
-    fi
-    
-    # Only proceed if we have a valid DB file
-    if [ -n "$PROBLEMS_DB" ] && [ -f "$PROBLEMS_DB" ]; then
-        # Wait for Postgres to accept connections (up to 60 seconds)
-        RETRIES=30
-        while ! docker exec locus-db pg_isready -U locus -d locus &>/dev/null && [ "$RETRIES" -gt 0 ]; do
-            RETRIES=$((RETRIES - 1))
-            sleep 2
-        done
-
-        if docker exec locus-db pg_isready -U locus -d locus &>/dev/null; then
-            # Run migrations so the problems table exists
-            log_info "Running database migrations..."
-            MIGRATIONS_DIR="$REPO_ROOT/crates/backend/migrations"
-            if [ -d "$MIGRATIONS_DIR" ]; then
-                MIGRATION_ERRORS=0
-                for sql in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do
-                    if ! docker exec -i locus-db psql -U locus -d locus < "$sql" 2>&1; then
-                        log_warn "Migration $(basename "$sql") reported errors"
-                        MIGRATION_ERRORS=$((MIGRATION_ERRORS + 1))
-                    fi
-                done
-                if [ "$MIGRATION_ERRORS" -eq 0 ]; then
-                    log_success "All migrations applied successfully"
-                else
-                    log_warn "$MIGRATION_ERRORS migration(s) had issues — continuing anyway"
-                fi
-            fi
-
-            log_info "Importing problems into Postgres..."
-            FACTORY_VENV="$REPO_ROOT/factory/backend/venv"
-            if [ -f "$FACTORY_VENV/bin/python3" ]; then
-                if "$FACTORY_VENV/bin/python3" "$REPO_ROOT/factory/import_db.py" "$PROBLEMS_DB" 2>&1; then
-                    log_success "Problem database seeded successfully"
-                else
-                    log_error "Import failed"
-                    log_info "Retry manually with:"
-                    log_info "  $FACTORY_VENV/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
-                fi
-            else
-                log_warn "Factory venv not found, skipping import"
-                log_info "Create venv and run:"
-                log_info "  python3 -m venv $FACTORY_VENV"
-                log_info "  $FACTORY_VENV/bin/pip install -r $REPO_ROOT/factory/backend/requirements.txt"
-                log_info "  $FACTORY_VENV/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
-            fi
-        else
-            log_error "Postgres failed to start or refused connections after 60 seconds"
-            log_info "Troubleshoot with:"
-            log_info "  docker compose logs locus-db"
-            log_info "When fixed, run:"
-            log_info "  $REPO_ROOT/factory/backend/venv/bin/python3 $REPO_ROOT/factory/import_db.py $PROBLEMS_DB"
-        fi
-    fi
+    log_warn "DSL CLI build failed — skipping problem validation"
 fi
 
 # =============================================================================
@@ -257,6 +134,7 @@ echo ""
 echo "To start development:"
 echo "  ./dev.sh              # Start backend + frontend"
 echo ""
-echo "Factory:"
-echo "  cd factory && ./start.sh"
+echo "Problem generation:"
+echo "  cargo run --bin dsl-cli -- generate problems/calculus/derivative_rules.yaml -n 10"
+echo "  cargo run --bin dsl-cli -- ai 'algebra1/quadratic_formula' -n 5 -j 3"
 echo ""
