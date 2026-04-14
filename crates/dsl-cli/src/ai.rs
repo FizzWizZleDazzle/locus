@@ -241,7 +241,7 @@ Display functions substitute variables — {equation(a*x + b, c)} shows numeric 
 4. Use constraints to ensure clean answers (is_integer, nonzero denominators, distinct roots).
 5. Solution steps should show work, not just state the answer.
 6. Each problem tests one concept clearly.
-7. Constraints are one condition per line. No "and", "or", or compound logic. Split into separate lines.
+7. Constraints support "and" / "or" for compound conditions. Prefer separate lines when possible.
 
 # ANSWER TYPES (auto-detected from value, or set answer_type)
 

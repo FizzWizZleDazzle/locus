@@ -165,6 +165,20 @@ fn check_constraints(vars: &VarMap, constraints: &[String]) -> Result<bool, DslE
 fn eval_constraint(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {
     let c = constraint.trim();
 
+    // Handle "or" — split and return true if ANY sub-constraint passes
+    if let Some(pos) = c.find(" or ") {
+        let left = &c[..pos];
+        let right = &c[pos + 4..];
+        return Ok(eval_constraint(left, vars)? || eval_constraint(right, vars)?);
+    }
+
+    // Handle "and" — split and return true if ALL sub-constraints pass
+    if let Some(pos) = c.find(" and ") {
+        let left = &c[..pos];
+        let right = &c[pos + 5..];
+        return Ok(eval_constraint(left, vars)? && eval_constraint(right, vars)?);
+    }
+
     // Try comparison operators (longest first to avoid partial matches)
     for (op, _) in &[("!=", 2), (">=", 2), ("<=", 2), ("==", 2), (">", 1), ("<", 1)] {
         if let Some(pos) = c.find(op) {
