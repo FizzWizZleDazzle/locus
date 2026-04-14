@@ -161,13 +161,12 @@ fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<String>, DslErr
     Ok(order)
 }
 
-/// Strip redundant parens around numbers in matrix notation.
+/// Strip redundant parens around numbers/fractions in expressions.
 /// [[(−2), (1)]] → [[-2, 1]]
+/// open:(-5/3) → open:-5/3
 fn clean_matrix_parens(s: &str) -> String {
-    if !s.contains("[[") {
-        return s.to_string();
-    }
-    let re = regex::Regex::new(r"\((-?\d+(?:\.\d+)?)\)").unwrap();
+    // Strip parens wrapping numbers or fractions: (N) or (N/M) or (-N/M)
+    let re = regex::Regex::new(r"\((-?\d+(?:/\d+)?(?:\.\d+)?)\)").unwrap();
     re.replace_all(s, "$1").to_string()
 }
 

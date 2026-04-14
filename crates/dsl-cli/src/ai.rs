@@ -239,33 +239,58 @@ solution: (step-by-step with {var} refs)
 
 Samplers: integer(lo, hi)  nonzero(lo, hi)  decimal(lo, hi, places)  choice(a, b, c)  prime(lo, hi)  rational(lo, hi, max_denom)
 Derived: f: a * x^n + b  (plain math using other vars)
-Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  sin cos tan asin acos atan log ln exp  round(x, n)  max(a, b)  min(a, b)
+Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  floor(x)  ceil(x)  round(x, n)  max(a, b)  min(a, b)  sin cos tan asin acos atan log ln exp
 
-# DISPLAY FUNCTIONS (produce LaTeX in question/solution text)
+# DISPLAY FUNCTIONS (for {ref} in question/solution text — produce LaTeX)
 
-{var}  {derivative_of(f, x)}  {integral_of(f, x)}  {definite_integral_of(f, x, a, b)}  {limit_of(f, x, val)}  {equation(lhs, rhs)}  {system(eq1, eq2)}  {matrix_of(M)}  {det_of(M)}  {vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
+{var_name}                   — inline math (variable must exist)
+{derivative_of(f, x)}       — d/dx notation
+{integral_of(f, x)}         — indefinite integral
+{definite_integral_of(f, x, a, b)} — definite integral
+{limit_of(f, x, val)}       — limit notation
+{equation(lhs, rhs)}        — equation with = sign
+{system(eq1, eq2)}           — system of equations
+{matrix_of(M)}               — pmatrix
+{det_of(M)}                  — determinant
+{vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
 
 Display functions substitute variables — {equation(a*x + b, c)} shows numeric values.
 
 # RULES
 
-1. The answer field must be a variable name. Define intermediate variables for computed answers.
-2. YAML strings containing { or : must be quoted.
-3. Use display functions instead of LaTeX. Never write \frac, \int, etc.
-4. Use constraints to ensure clean answers (is_integer, nonzero denominators, distinct roots).
-5. Solution steps should show work, not just state the answer.
-   FORMAT FIELD: Use when the question asks for a specific form.
-   - Tags: factored, expanded, simplified, reduced_fraction
-   - Custom: "degree(answer, x) == 2", "count(log, answer) == 1"
-   - When using format: factored, the answer variable must BE the factored expression (e.g. gcf*(c1*x + c2)), not the expanded form.
-6. Each problem tests one concept clearly.
-7. Constraints support "and" / "or" for compound conditions. Prefer separate lines when possible.
-8. Do NOT include a "difficulty" field — it is injected by the system. But calibrate problem complexity to the difficulty level given in the user message:
-   - easy: single-step, small numbers, direct application
+1. Inside {}, ONLY use variable names or display functions listed above.
+   {b*c} is WRONG — define product: b*c as a variable first, then use {product}.
+   {sqrt(x)} is WRONG — sqrt is NOT a display function. Define result: sqrt(x) as a variable, use {result}.
+   {round(x, 2)} is WRONG — define rounded: round(x, 2) as a variable.
+   {choice(...)} is WRONG — choice is a sampler, only valid in variables section.
+
+2. The answer field must be a variable name. Define intermediate variables for computed answers.
+
+3. YAML strings containing { or : MUST be double-quoted.
+
+4. Use display functions instead of LaTeX. Never write \frac, \int, $, $$, or any LaTeX markup.
+   Never use % for modulo — use mod(a, b) function instead.
+   Never put dollar signs in question or solution text.
+
+5. Use constraints to ensure clean answers. Keep constraints simple:
+   - is_integer(answer), a != 0, a < b, b != d
+   - Avoid overly complex constraints that are hard to satisfy.
+   - Make ranges wide enough that constraints are easily satisfiable.
+
+6. Do NOT include a "difficulty" field — it is injected by the system. But calibrate problem complexity to the difficulty level given in the user message:
+   - easy/very_easy: single-step, small numbers, direct application
    - medium: 2-3 steps, moderate numbers, standard techniques
-   - hard: multi-step, larger numbers or fractions, combined concepts
-   - very_hard: complex setup, non-obvious approach, edge cases
+   - hard/very_hard: multi-step, larger numbers or fractions, combined concepts
    - competition: creative insight required, elegant solutions
+
+7. Matrices: use matrix(rows, cols, lo, hi) sampler. Do NOT construct matrices manually.
+
+8. Intervals: format is "open:value,closed:value" e.g. "open:-3,closed:5" for (-3, 5].
+   Use answer_type: interval when the answer is an interval.
+
+9. Format field (optional): factored, expanded, simplified, reduced_fraction, or custom predicate.
+
+10. Constraints support "and" / "or". Prefer separate lines when possible.
 
 # ANSWER TYPES (auto-detected from value, or set answer_type)
 

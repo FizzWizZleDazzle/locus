@@ -126,8 +126,11 @@ pub fn evaluate(definition: &str, vars: &VarMap) -> Result<String, DslError> {
         "log" | "ln" => fn_simple_func("log", &resolved_args),
         "exp" => fn_simple_func("exp", &resolved_args),
         "round" => fn_round(&resolved_args),
+        "floor" => fn_floor(&resolved_args),
+        "ceil" => fn_ceil(&resolved_args),
         "max" => fn_max(&resolved_args),
         "min" => fn_min(&resolved_args),
+        "mod" => fn_mod(&resolved_args),
         _ => Err(DslError::UnknownFunction {
             name: name.to_string(),
         }),
@@ -451,6 +454,49 @@ fn fn_definite_integral(args: &[String]) -> Result<String, DslError> {
 
     let result = f_hi - f_lo;
     Ok(format_root(result))
+}
+
+fn fn_floor(args: &[String]) -> Result<String, DslError> {
+    if args.len() != 1 {
+        return Err(DslError::FunctionArity { name: "floor".into(), expected: 1, got: args.len() });
+    }
+    let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    if let Some(f) = expr.to_float() {
+        Ok(format!("{}", f.floor() as i64))
+    } else {
+        Ok(expr.to_string())
+    }
+}
+
+fn fn_ceil(args: &[String]) -> Result<String, DslError> {
+    if args.len() != 1 {
+        return Err(DslError::FunctionArity { name: "ceil".into(), expected: 1, got: args.len() });
+    }
+    let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    if let Some(f) = expr.to_float() {
+        Ok(format!("{}", f.ceil() as i64))
+    } else {
+        Ok(expr.to_string())
+    }
+}
+
+fn fn_mod(args: &[String]) -> Result<String, DslError> {
+    if args.len() != 2 {
+        return Err(DslError::FunctionArity { name: "mod".into(), expected: 2, got: args.len() });
+    }
+    let a = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    let b = Expr::parse(&args[1]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    match (a.to_float(), b.to_float()) {
+        (Some(fa), Some(fb)) if fb.abs() > 1e-10 => {
+            let result = ((fa % fb) + fb) % fb; // always positive
+            if (result - result.round()).abs() < 1e-10 {
+                Ok(format!("{}", result.round() as i64))
+            } else {
+                Ok(format!("{result}"))
+            }
+        }
+        _ => Err(DslError::Evaluation("mod: can't evaluate".into())),
+    }
 }
 
 fn gcd_i64(mut a: u64, mut b: u64) -> u64 {

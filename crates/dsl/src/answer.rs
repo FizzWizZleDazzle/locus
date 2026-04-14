@@ -54,9 +54,12 @@ pub fn format(
 }
 
 /// Normalize SymEngine output for the grader.
-/// SymEngine uses `**` for power, grader expects `^`.
 fn normalize_for_grader(value: &str) -> String {
-    value.replace("**", "^")
+    let mut s = value.replace("**", "^");
+    // Strip redundant parens around numbers/fractions: (-5/3) → -5/3
+    let re = regex::Regex::new(r"\((-?\d+(?:/\d+)?(?:\.\d+)?)\)").unwrap();
+    s = re.replace_all(&s, "$1").to_string();
+    s
 }
 
 /// Infer answer_type from the answer value

@@ -10,7 +10,7 @@ members = [
     "crates/forum",
     "crates/status",
 ]
-exclude = ["symengine.js/examples/rust-trunk"]
+exclude = ["symengine.js/examples/rust-trunk", "crates/simulations"]
 
 [workspace.package]
 version = "0.1.5"
