@@ -52,7 +52,7 @@ enum Command {
 
     /// Use AI to generate new problem YAML files (concurrent)
     Ai {
-        /// Topic (e.g. "calculus/derivative_rules")
+        /// Topics, comma-separated (e.g. "calculus/derivative_rules,algebra1/quadratic_formula")
         topic: String,
         /// Difficulty level
         #[arg(short, long, default_value = "medium")]
@@ -233,66 +233,77 @@ fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize) {
 }
 
 fn cmd_ai(
-    topic: &str,
+    topics_str: &str,
     difficulty: &str,
     output: Option<&std::path::Path>,
     model: &str,
     count: usize,
     concurrency: usize,
 ) {
-    let api_key = std::env::var("ANTHROPIC_API_KEY").unwrap_or_else(|_| {
-        eprintln!("ANTHROPIC_API_KEY not set. Set it in .env or environment.");
-        std::process::exit(1);
-    });
+    let api_key = std::env::var("FACTORY_AI_API_KEY")
+        .or_else(|_| std::env::var("ANTHROPIC_API_KEY"))
+        .unwrap_or_else(|_| {
+            eprintln!("FACTORY_AI_API_KEY not set. Set it in .env or environment.");
+            std::process::exit(1);
+        });
+
+    let topics: Vec<&str> = topics_str.split(',').map(|s| s.trim()).collect();
+    let total = topics.len() * count;
 
     eprintln!(
-        "Generating {} YAML(s) for {topic} ({difficulty}) with {concurrency} concurrent requests...",
-        count
+        "Generating {count} YAML(s) x {} topic(s) = {total} total, concurrency {concurrency}",
+        topics.len()
     );
 
     let rt = tokio::runtime::Runtime::new().unwrap();
-    let results = rt.block_on(ai::generate_batch(
-        topic,
+
+    // Build all tasks: (topic, index) pairs
+    let mut all_tasks: Vec<(String, usize)> = Vec::new();
+    for topic in &topics {
+        for i in 0..count {
+            all_tasks.push((topic.to_string(), i));
+        }
+    }
+
+    // Run all concurrently
+    let results = rt.block_on(ai::generate_batch_multi(
+        &all_tasks,
         difficulty,
         &api_key,
         model,
-        count,
         concurrency,
     ));
 
     let mut success = 0;
     let mut failed = 0;
 
-    for (i, result) in results.iter().enumerate() {
+    for ((topic, idx), result) in all_tasks.iter().zip(results.iter()) {
         match result {
             Ok(yaml) => {
                 if let Some(dir) = output {
-                    std::fs::create_dir_all(dir).ok();
-                    let filename = format!(
-                        "{}_{}.yaml",
-                        topic.replace('/', "_"),
-                        i + 1
-                    );
-                    let file_path = dir.join(&filename);
+                    let topic_dir = dir.join(topic.replace('/', "_"));
+                    std::fs::create_dir_all(&topic_dir).ok();
+                    let filename = format!("{}.yaml", idx + 1);
+                    let file_path = topic_dir.join(&filename);
                     std::fs::write(&file_path, yaml).unwrap_or_else(|e| {
                         eprintln!("Failed to write {}: {e}", file_path.display());
                     });
                     eprintln!("Wrote {}", file_path.display());
                 } else {
-                    println!("--- Problem {} ---", i + 1);
+                    println!("--- {topic} #{} ---", idx + 1);
                     println!("{yaml}");
                 }
                 success += 1;
             }
             Err(e) => {
-                eprintln!("Problem {} failed: {e}", i + 1);
+                eprintln!("{topic} #{} failed: {e}", idx + 1);
                 failed += 1;
             }
         }
     }
 
-    eprintln!("\nDone: {success} succeeded, {failed} failed");
-    if failed > 0 {
+    eprintln!("\nDone: {success}/{total} succeeded, {failed} failed");
+    if failed > 0 && success == 0 {
         std::process::exit(1);
     }
 }

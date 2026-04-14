@@ -7,42 +7,42 @@ use std::sync::Arc;
 
 const MAX_RETRIES: usize = 3;
 
-/// Generate multiple problem YAMLs concurrently.
-pub async fn generate_batch(
-    topic: &str,
+/// Generate YAMLs for multiple (topic, index) pairs concurrently.
+pub async fn generate_batch_multi(
+    tasks: &[(String, usize)],
     difficulty: &str,
     api_key: &str,
     model: &str,
-    count: usize,
     concurrency: usize,
 ) -> Vec<Result<String, String>> {
     let client = Arc::new(reqwest::Client::new());
     let semaphore = Arc::new(tokio::sync::Semaphore::new(concurrency));
+    let total = tasks.len();
 
     let mut handles = Vec::new();
 
-    for i in 0..count {
+    for (i, (topic, _idx)) in tasks.iter().enumerate() {
         let client = client.clone();
         let sem = semaphore.clone();
-        let topic = topic.to_string();
+        let topic = topic.clone();
         let difficulty = difficulty.to_string();
         let api_key = api_key.to_string();
         let model = model.to_string();
 
         let handle = tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
-            eprintln!("[{}/{}] Starting...", i + 1, count);
+            eprintln!("[{}/{}] {topic}...", i + 1, total);
             let result = generate_one(&client, &topic, &difficulty, &api_key, &model).await;
             match &result {
-                Ok(_) => eprintln!("[{}/{}] OK", i + 1, count),
-                Err(e) => eprintln!("[{}/{}] Failed: {}", i + 1, count, e),
+                Ok(_) => eprintln!("[{}/{}] {topic} OK", i + 1, total),
+                Err(e) => eprintln!("[{}/{}] {topic} FAIL: {e}", i + 1, total),
             }
             result
         });
         handles.push(handle);
     }
 
-    let mut results = Vec::with_capacity(count);
+    let mut results = Vec::with_capacity(total);
     for handle in handles {
         results.push(handle.await.unwrap_or_else(|e| Err(format!("Task panic: {e}"))));
     }
@@ -241,6 +241,7 @@ Display functions substitute variables — {equation(a*x + b, c)} shows numeric 
 4. Use constraints to ensure clean answers (is_integer, nonzero denominators, distinct roots).
 5. Solution steps should show work, not just state the answer.
 6. Each problem tests one concept clearly.
+7. Constraints are one condition per line. No "and", "or", or compound logic. Split into separate lines.
 
 # ANSWER TYPES (auto-detected from value, or set answer_type)
 
