@@ -227,7 +227,6 @@ const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files in LocusDSL 
 # FORMAT
 
 topic: main_topic/subtopic
-difficulty: easy|medium|hard|very_hard|competition
 calculator: none|scientific|graphing
 variables: (samplers, derived expressions, or function calls)
 constraints: (boolean conditions for clean numbers)
@@ -257,6 +256,12 @@ Display functions substitute variables — {equation(a*x + b, c)} shows numeric 
 5. Solution steps should show work, not just state the answer.
 6. Each problem tests one concept clearly.
 7. Constraints support "and" / "or" for compound conditions. Prefer separate lines when possible.
+8. Do NOT include a "difficulty" field — it is injected by the system. But calibrate problem complexity to the difficulty level given in the user message:
+   - easy: single-step, small numbers, direct application
+   - medium: 2-3 steps, moderate numbers, standard techniques
+   - hard: multi-step, larger numbers or fractions, combined concepts
+   - very_hard: complex setup, non-obvious approach, edge cases
+   - competition: creative insight required, elegant solutions
 
 # ANSWER TYPES (auto-detected from value, or set answer_type)
 
