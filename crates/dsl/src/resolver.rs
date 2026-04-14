@@ -84,6 +84,14 @@ fn eval_derived(expr_str: &str, vars: &VarMap) -> Result<String, DslError> {
         }
     }
 
+    // Clean up matrix notation: [[(−2), (1)]] → [[-2, 1]]
+    let substituted = clean_matrix_parens(&substituted);
+
+    // Matrix literals [[...]] can't be parsed by SymEngine — return as-is
+    if substituted.trim().starts_with("[[") {
+        return Ok(substituted);
+    }
+
     let expr = Expr::parse(&substituted)
         .map_err(|e| DslError::ExpressionParse(format!("{}: '{}'", e, substituted)))?;
 
@@ -151,6 +159,16 @@ fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<String>, DslErr
     }
 
     Ok(order)
+}
+
+/// Strip redundant parens around numbers in matrix notation.
+/// [[(−2), (1)]] → [[-2, 1]]
+fn clean_matrix_parens(s: &str) -> String {
+    if !s.contains("[[") {
+        return s.to_string();
+    }
+    let re = regex::Regex::new(r"\((-?\d+(?:\.\d+)?)\)").unwrap();
+    re.replace_all(s, "$1").to_string()
 }
 
 fn check_constraints(vars: &VarMap, constraints: &[String]) -> Result<bool, DslError> {

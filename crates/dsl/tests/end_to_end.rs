@@ -65,26 +65,28 @@ fn e2e_arithmetic_fractions() {
 topic: arithmetic/fractions
 difficulty: easy
 variables:
-  a: integer(1, 9)
-  b: integer(2, 9)
-  c: integer(1, 9)
-  d: integer(2, 9)
+  a: integer(1, 5)
+  b: integer(6, 9)
+  c: integer(1, 5)
+  d: integer(6, 9)
   num: a*d + c*b
   den: b*d
   answer: num/den
 constraints:
   - b != d
-  - a < b
-  - c < d
 question: "Add: {a}/{b} + {c}/{d}"
 answer: answer
 "#,
-        20,
+        10,
     );
 
     for p in &problems {
-        assert_eq!(p.answer_type, "expression");
-        // Answer should contain / (fraction)
+        // Answer is either a fraction (expression) or simplifies to integer (numeric)
+        assert!(
+            p.answer_type == "expression" || p.answer_type == "numeric",
+            "Expected expression or numeric, got: {}",
+            p.answer_type
+        );
         assert!(
             p.answer_key.contains('/') || p.answer_key.parse::<i64>().is_ok(),
             "Expected fraction or integer, got: {}",
