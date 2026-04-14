@@ -38,8 +38,12 @@ pub struct ProblemSpec {
     /// Override answer type (auto-inferred if omitted)
     pub answer_type: Option<String>,
 
-    /// Grading mode
+    /// Grading mode (default: equivalent)
     pub mode: Option<String>,
+
+    /// Format check — tag name or predicate expression.
+    /// Applied after equivalence check. Both must pass.
+    pub format: Option<String>,
 
     /// Solution steps
     pub solution: Option<Vec<String>>,
@@ -109,7 +113,7 @@ fn validate_spec(spec: &ProblemSpec) -> Result<(), DslError> {
     // Validate mode
     if let Some(ref mode) = spec.mode {
         match mode.as_str() {
-            "equivalent" | "factor" | "expand" => {}
+            "equivalent" => {}
             other => {
                 return Err(DslError::InvalidSampler(format!(
                     "Unknown grading mode: '{other}'"

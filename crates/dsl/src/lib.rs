@@ -9,6 +9,7 @@ pub mod answer;
 pub mod constraints;
 pub mod display;
 pub mod error;
+pub mod format;
 pub mod functions;
 pub mod latex;
 pub mod resolver;
@@ -58,6 +59,16 @@ pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
 
     // Self-grade: answer_key must grade as Correct against itself
     validate::self_grade(&output)?;
+
+    // Format check: if spec has a format requirement, verify answer satisfies it
+    if let Some(ref fmt) = spec.format {
+        if !format::check_format(fmt, &output.answer_key)? {
+            return Err(error::DslError::Evaluation(format!(
+                "Answer '{}' does not satisfy format '{}'",
+                output.answer_key, fmt
+            )));
+        }
+    }
 
     // Validate LaTeX renders correctly
     validate::check_latex(&output.question_latex)?;

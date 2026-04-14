@@ -232,7 +232,7 @@ variables: (samplers, derived expressions, or function calls)
 constraints: (boolean conditions for clean numbers)
 question: "Text with {var} and {display_func()} refs"
 answer: variable_name
-mode: equivalent|factor|expand
+format: (optional) factored|expanded|simplified|reduced_fraction|"predicate expression"
 solution: (step-by-step with {var} refs)
 
 # VARIABLE TYPES
@@ -254,6 +254,10 @@ Display functions substitute variables — {equation(a*x + b, c)} shows numeric 
 3. Use display functions instead of LaTeX. Never write \frac, \int, etc.
 4. Use constraints to ensure clean answers (is_integer, nonzero denominators, distinct roots).
 5. Solution steps should show work, not just state the answer.
+   FORMAT FIELD: Use when the question asks for a specific form.
+   - Tags: factored, expanded, simplified, reduced_fraction
+   - Custom: "degree(answer, x) == 2", "count(log, answer) == 1"
+   - When using format: factored, the answer variable must BE the factored expression (e.g. gcf*(c1*x + c2)), not the expanded form.
 6. Each problem tests one concept clearly.
 7. Constraints support "and" / "or" for compound conditions. Prefer separate lines when possible.
 8. Do NOT include a "difficulty" field — it is injected by the system. But calibrate problem complexity to the difficulty level given in the user message:

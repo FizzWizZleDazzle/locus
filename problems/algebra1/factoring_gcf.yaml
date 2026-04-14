@@ -9,7 +9,7 @@ variables:
   a: gcf * c1
   b: gcf * c2
   f: a*x + b
-  answer: f
+  answer: gcf * (c1*x + c2)
 
 constraints:
   - c1 != c2
@@ -17,8 +17,8 @@ constraints:
 question: "Factor out the GCF: {f}"
 
 answer: answer
-mode: factor
+format: factored
 
 solution:
   - "The GCF of {a} and {b} is {gcf}"
-  - "Factor: {gcf}({c1}x + {c2})"
+  - "Factor: {answer}"
