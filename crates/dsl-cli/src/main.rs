@@ -54,7 +54,7 @@ enum Command {
     Ai {
         /// Topics, comma-separated (e.g. "calculus/derivative_rules,algebra1/quadratic_formula")
         topic: String,
-        /// Difficulty level
+        /// Difficulty levels, comma-separated (generates one per topic×difficulty combo)
         #[arg(short, long, default_value = "medium")]
         difficulty: String,
         /// Output directory (default: stdout)
@@ -248,27 +248,34 @@ fn cmd_ai(
         });
 
     let topics: Vec<&str> = topics_str.split(',').map(|s| s.trim()).collect();
-    let total = topics.len() * count;
+    let difficulties: Vec<&str> = difficulty.split(',').map(|s| s.trim()).collect();
 
+    // Build cross-product: topic × difficulty × count
+    let mut all_tasks: Vec<(String, String, usize)> = Vec::new();
+    for topic in &topics {
+        for diff in &difficulties {
+            for i in 0..count {
+                all_tasks.push((topic.to_string(), diff.to_string(), i));
+            }
+        }
+    }
+
+    let total = all_tasks.len();
     eprintln!(
-        "Generating {count} YAML(s) x {} topic(s) = {total} total, concurrency {concurrency}",
-        topics.len()
+        "{} topic(s) x {} difficulty(s) x {count} = {total} total, concurrency {concurrency}",
+        topics.len(),
+        difficulties.len()
     );
 
     let rt = tokio::runtime::Runtime::new().unwrap();
 
-    // Build all tasks: (topic, index) pairs
-    let mut all_tasks: Vec<(String, usize)> = Vec::new();
-    for topic in &topics {
-        for i in 0..count {
-            all_tasks.push((topic.to_string(), i));
-        }
-    }
+    // Convert to (topic, index) pairs + separate difficulty vec for the API
+    let task_pairs: Vec<(String, usize)> = all_tasks.iter().map(|(t, _, i)| (t.clone(), *i)).collect();
+    let task_diffs: Vec<String> = all_tasks.iter().map(|(_, d, _)| d.clone()).collect();
 
-    // Run all concurrently
-    let results = rt.block_on(ai::generate_batch_multi(
-        &all_tasks,
-        difficulty,
+    let results = rt.block_on(ai::generate_batch_multi_diff(
+        &task_pairs,
+        &task_diffs,
         &api_key,
         model,
         concurrency,
@@ -277,26 +284,26 @@ fn cmd_ai(
     let mut success = 0;
     let mut failed = 0;
 
-    for ((topic, idx), result) in all_tasks.iter().zip(results.iter()) {
+    for ((topic, diff, idx), result) in all_tasks.iter().zip(results.iter()) {
         match result {
             Ok(yaml) => {
                 if let Some(dir) = output {
                     let topic_dir = dir.join(topic.replace('/', "_"));
                     std::fs::create_dir_all(&topic_dir).ok();
-                    let filename = format!("{}.yaml", idx + 1);
+                    let filename = format!("{}_{}.yaml", diff, idx + 1);
                     let file_path = topic_dir.join(&filename);
                     std::fs::write(&file_path, yaml).unwrap_or_else(|e| {
                         eprintln!("Failed to write {}: {e}", file_path.display());
                     });
                     eprintln!("Wrote {}", file_path.display());
                 } else {
-                    println!("--- {topic} #{} ---", idx + 1);
+                    println!("--- {topic} ({diff}) #{} ---", idx + 1);
                     println!("{yaml}");
                 }
                 success += 1;
             }
             Err(e) => {
-                eprintln!("{topic} #{} failed: {e}", idx + 1);
+                eprintln!("{topic} ({diff}) #{} failed: {e}", idx + 1);
                 failed += 1;
             }
         }

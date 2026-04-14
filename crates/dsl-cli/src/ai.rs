@@ -7,10 +7,10 @@ use std::sync::Arc;
 
 const MAX_RETRIES: usize = 3;
 
-/// Generate YAMLs for multiple (topic, index) pairs concurrently.
-pub async fn generate_batch_multi(
+/// Generate YAMLs for multiple (topic, index) pairs with per-task difficulty.
+pub async fn generate_batch_multi_diff(
     tasks: &[(String, usize)],
-    difficulty: &str,
+    difficulties: &[String],
     api_key: &str,
     model: &str,
     concurrency: usize,
@@ -21,21 +21,21 @@ pub async fn generate_batch_multi(
 
     let mut handles = Vec::new();
 
-    for (i, (topic, _idx)) in tasks.iter().enumerate() {
+    for (i, ((topic, _idx), difficulty)) in tasks.iter().zip(difficulties.iter()).enumerate() {
         let client = client.clone();
         let sem = semaphore.clone();
         let topic = topic.clone();
-        let difficulty = difficulty.to_string();
+        let difficulty = difficulty.clone();
         let api_key = api_key.to_string();
         let model = model.to_string();
 
         let handle = tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
-            eprintln!("[{}/{}] {topic}...", i + 1, total);
+            eprintln!("[{}/{}] {topic} ({difficulty})...", i + 1, total);
             let result = generate_one(&client, &topic, &difficulty, &api_key, &model).await;
             match &result {
-                Ok(_) => eprintln!("[{}/{}] {topic} OK", i + 1, total),
-                Err(e) => eprintln!("[{}/{}] {topic} FAIL: {e}", i + 1, total),
+                Ok(_) => eprintln!("[{}/{}] {topic} ({difficulty}) OK", i + 1, total),
+                Err(e) => eprintln!("[{}/{}] {topic} ({difficulty}) FAIL: {e}", i + 1, total),
             }
             result
         });
@@ -80,6 +80,9 @@ async fn generate_one(
         let yaml = call_llm(client, api_key, model, &examples, &user_msg).await?;
         let cleaned = extract_yaml(&yaml);
 
+        // Force difficulty to match CLI arg
+        let cleaned = inject_difficulty(&cleaned, difficulty);
+
         match validate_yaml(&cleaned) {
             Ok(()) => return Ok(cleaned),
             Err(errors) => {
@@ -118,6 +121,18 @@ fn select_examples(topic: &str) -> String {
     };
 
     format!("{relevant}\n\n{contrast}")
+}
+
+/// Override difficulty in generated YAML to match CLI arg
+fn inject_difficulty(yaml: &str, difficulty: &str) -> String {
+    let re = regex::Regex::new(r"(?m)^difficulty:.*$").unwrap();
+    if re.is_match(yaml) {
+        re.replace(yaml, format!("difficulty: {difficulty}")).to_string()
+    } else {
+        // No difficulty line — insert after topic line
+        let topic_re = regex::Regex::new(r"(?m)^(topic:.*)$").unwrap();
+        topic_re.replace(yaml, format!("$1\ndifficulty: {difficulty}")).to_string()
+    }
 }
 
 fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
