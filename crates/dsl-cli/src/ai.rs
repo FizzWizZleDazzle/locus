@@ -222,102 +222,89 @@ async fn call_llm(
 // System prompt (static, cached by Anthropic)
 // =============================================================================
 
-const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files in LocusDSL format. Output ONLY valid YAML.
+const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files. Output ONLY valid YAML.
+
+# DESIGN METHOD: WORK BACKWARDS FROM THE ANSWER
+
+ALWAYS design problems answer-first:
+1. Pick a CLEAN answer (small integer, simple fraction, clean expression).
+2. Work BACKWARDS to build the problem that produces this answer.
+3. Choose variable ranges that GUARANTEE the answer works.
+4. Constraints should be trivially satisfied by your construction — not aspirational filters.
+
+Example of backward design:
+- Want students to solve a quadratic with roots 3 and -5
+- Pick r1: integer(-8, 8), r2: integer(-8, 8), constrain r1 != r2
+- Build f: (x - r1) * (x - r2), expanded: expand(f)
+- The roots are guaranteed by construction — no need for is_integer(roots)
+
+NEVER do forward design:
+- Do NOT pick random coefficients then hope the answer is clean
+- Do NOT use is_integer(answer) to filter — construct integrality instead
+- Do NOT write 4+ constraints to force a specific outcome
 
 # FORMAT
 
 topic: main_topic/subtopic
 calculator: none|scientific|graphing
-variables: (samplers, derived expressions, or function calls)
-constraints: (boolean conditions for clean numbers)
+variables: (samplers, derived, or functions)
+constraints: (max 3, trivially satisfiable)
 question: "Text with {var} and {display_func()} refs"
 answer: variable_name
-format: (optional) factored|expanded|simplified|reduced_fraction|"predicate expression"
 solution: (step-by-step with {var} refs)
 
-# VARIABLE TYPES
+# VARIABLES
 
-Samplers: integer(lo, hi)  nonzero(lo, hi)  decimal(lo, hi, places)  choice(a, b, c)  prime(lo, hi)  rational(lo, hi, max_denom)
-Derived: f: a * x^n + b  (plain math using other vars)
-Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  floor(x)  ceil(x)  round(x, n)  max(a, b)  min(a, b)  sin cos tan asin acos atan log ln exp
+Samplers: integer(lo, hi)  nonzero(lo, hi)  decimal(lo, hi, places)  choice(a, b, c)  prime(lo, hi)
+Derived: f: a * x^n + b
+Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  floor(x)  ceil(x)  round(x, n)  mod(a, b)  max(a, b)  min(a, b)  sin cos tan asin acos atan log ln exp
 
-# DISPLAY FUNCTIONS (for {ref} in question/solution text — produce LaTeX)
+# DISPLAY FUNCTIONS (for {ref} in question/solution text)
 
-{var_name}                   — inline math (variable must exist)
-{derivative_of(f, x)}       — d/dx notation
-{integral_of(f, x)}         — indefinite integral
-{definite_integral_of(f, x, a, b)} — definite integral
-{limit_of(f, x, val)}       — limit notation
-{equation(lhs, rhs)}        — equation with = sign
-{system(eq1, eq2)}           — system of equations
-{matrix_of(M)}               — pmatrix
-{det_of(M)}                  — determinant
-{vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
+{var_name}  {derivative_of(f, x)}  {integral_of(f, x)}  {definite_integral_of(f, x, a, b)}
+{limit_of(f, x, val)}  {equation(lhs, rhs)}  {system(eq1, eq2)}  {matrix_of(M)}
+{det_of(M)}  {vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
 
-Display functions substitute variables — {equation(a*x + b, c)} shows numeric values.
+# STRICT RULES
 
-# RULES
+1. Inside {} in question/solution: ONLY variable names or display functions above.
+   {b*c} is INVALID — define product: b*c as variable, use {product}.
+   {sqrt(x)} is INVALID — define val: sqrt(x) as variable, use {val}.
 
-1. Inside {}, ONLY use variable names or display functions listed above.
-   {b*c} is WRONG — define product: b*c as a variable first, then use {product}.
-   {sqrt(x)} is WRONG — sqrt is NOT a display function. Define result: sqrt(x) as a variable, use {result}.
-   {round(x, 2)} is WRONG — define rounded: round(x, 2) as a variable.
-   {choice(...)} is WRONG — choice is a sampler, only valid in variables section.
+2. The answer field must be a variable name, never an expression.
 
-2. The answer field must be a variable name. Define intermediate variables for computed answers.
+3. YAML strings with { or : MUST be double-quoted.
 
-3. YAML strings containing { or : MUST be double-quoted.
+4. Never write LaTeX, $, $$, or %. Use display functions for all math notation.
 
-4. Use display functions instead of LaTeX. Never write \frac, \int, $, $$, or any LaTeX markup.
-   Never use % for modulo — use mod(a, b) function instead.
-   Never put dollar signs in question or solution text.
+5. Max 3 constraints. Every constraint must pass for >80% of the sample space.
+   If you need is_integer, redesign so integrality is guaranteed by construction.
 
-5. Use constraints to ensure clean answers. Keep constraints simple:
-   - is_integer(answer), a != 0, a < b, b != d
-   - Avoid overly complex constraints that are hard to satisfy.
-   - Make ranges wide enough that constraints are easily satisfiable.
+6. No difficulty field (injected by system). Calibrate complexity to the difficulty in the user message.
 
-6. Do NOT include a "difficulty" field — it is injected by the system. But calibrate problem complexity to the difficulty level given in the user message:
-   - easy/very_easy: single-step, small numbers, direct application
-   - medium: 2-3 steps, moderate numbers, standard techniques
-   - hard/very_hard: multi-step, larger numbers or fractions, combined concepts
-   - competition: creative insight required, elegant solutions
+7. Matrices: use matrix(rows, cols, lo, hi) sampler, never manual [[...]].
 
-7. Matrices: use matrix(rows, cols, lo, hi) sampler. Do NOT construct matrices manually.
-
-8. Intervals: format is "open:value,closed:value" e.g. "open:-3,closed:5" for (-3, 5].
-   Use answer_type: interval when the answer is an interval.
-
-9. Format field (optional): factored, expanded, simplified, reduced_fraction, or custom predicate.
-
-10. Constraints support "and" / "or". Prefer separate lines when possible.
-
-# ANSWER TYPES (auto-detected from value, or set answer_type)
-
-numeric: 42  expression: 3*x+5  tuple: "answer: x, y"  set: answer_type: set  boolean: true/false  interval: open:0,closed:5  matrix: [[1,2],[3,4]]"#;
+8. Before outputting: mentally substitute one concrete value for each sampler and verify all constraints pass and the answer is clean."#;
 
 // =============================================================================
 // Examples (selected by topic relevance)
 // =============================================================================
 
-const EXAMPLE_ARITHMETIC: &str = r#"topic: arithmetic/fractions
-difficulty: easy
-calculator: none
+// Examples demonstrate backward design: answer chosen first, problem built around it
 
+const EXAMPLE_ARITHMETIC: &str = r#"## Backward design: pick nice denominators, build fractions from them
+topic: arithmetic/fractions
+calculator: none
 variables:
-  a: integer(1, 9)
-  b: integer(2, 9)
-  c: integer(1, 9)
-  d: integer(2, 9)
+  a: integer(1, 5)
+  b: integer(6, 9)
+  c: integer(1, 5)
+  d: integer(6, 9)
   num: a*d + c*b
   den: b*d
   answer: num/den
-
 constraints:
   - b != d
-  - a < b
-  - c < d
-
 question: "Add: {a}/{b} + {c}/{d}"
 answer: answer
 solution:
@@ -325,48 +312,34 @@ solution:
   - "{a}/{b} + {c}/{d} = {answer}"
 "#;
 
-const EXAMPLE_CALCULUS: &str = r#"topic: calculus/definite_integrals
-difficulty: medium
+const EXAMPLE_CALCULUS: &str = r#"## Backward design: pick simple polynomial, integral is always clean
+topic: calculus/derivative_rules
 calculator: none
-
 variables:
-  a: nonzero(-5, 5)
-  n: integer(1, 4)
+  a: nonzero(-8, 8)
+  n: integer(2, 6)
   f: a * x^n
-  lo: integer(0, 3)
-  hi: integer(4, 8)
-  F: integral(f, x)
-  F_hi: evaluate(F, x, hi)
-  F_lo: evaluate(F, x, lo)
-  result: F_hi - F_lo
-
-constraints:
-  - lo < hi
-  - is_integer(result)
-
-question: "Evaluate {definite_integral_of(f, x, lo, hi)}"
-answer: result
+  answer: derivative(f, x)
+question: "Find {derivative_of(f, x)}"
+answer: answer
 solution:
-  - "Antiderivative: {integral_of(f, x)} = {F} + C"
-  - "Evaluate from {lo} to {hi}"
-  - "= {result}"
+  - "Apply the power rule to {f}"
+  - "{derivative_of(f, x)} = {answer}"
 "#;
 
-const EXAMPLE_ALGEBRA: &str = r#"topic: algebra1/quadratic_formula
-difficulty: medium
+const EXAMPLE_ALGEBRA: &str = r#"## Backward design: pick roots first, build quadratic from them
+## Roots are guaranteed integer by construction — no is_integer constraint needed
+topic: algebra1/quadratic_formula
 calculator: none
-
 variables:
   r1: integer(-8, 8)
   r2: integer(-8, 8)
   f: (x - r1) * (x - r2)
   expanded: expand(f)
   answer: solve(expanded, x)
-
 constraints:
   - r1 != r2
   - r1 < r2
-
 question: "Solve {equation(expanded, 0)} for x."
 answer: answer
 answer_type: set
@@ -376,26 +349,19 @@ solution:
   - "x = {r1} or x = {r2}"
 "#;
 
-const EXAMPLE_GEOMETRY: &str = r#"topic: geometry/pythagorean_theorem
-difficulty: easy
+const EXAMPLE_GEOMETRY: &str = r#"## Backward design: use known Pythagorean triples via choice()
+## Hypotenuse is integer by construction — no is_integer constraint needed
+topic: geometry/pythagorean_theorem
 calculator: scientific
-
 variables:
-  a: choice(3, 5, 6, 7, 8, 9)
-  b: choice(4, 8, 9, 12, 15)
-  a2: a^2
-  b2: b^2
-  sum_sq: a2 + b2
-  answer: sqrt(sum_sq)
-
-constraints:
-  - a < b
-  - is_integer(answer)
-
+  triple: choice(1, 2, 3, 4)
+  a: choice(3, 5, 8, 7)
+  b: choice(4, 12, 15, 24)
+  c: choice(5, 13, 17, 25)
+  answer: c
 question: "Find the hypotenuse of a right triangle with legs {a} and {b}."
 answer: answer
 solution:
   - "Pythagorean theorem: a^2 + b^2 = c^2"
-  - "{a}^2 + {b}^2 = {sum_sq}"
   - "c = {answer}"
 "#;
