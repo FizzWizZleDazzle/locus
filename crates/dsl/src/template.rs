@@ -14,36 +14,39 @@ use crate::resolver::VarMap;
 /// - Plain text passes through unchanged
 pub fn render(template: &str, vars: &VarMap) -> Result<String, DslError> {
     let mut result = String::with_capacity(template.len());
-    let chars: Vec<char> = template.chars().collect();
+    // Work with byte offsets — safe as long as we check char boundaries
+    let bytes = template.as_bytes();
     let mut i = 0;
 
-    while i < chars.len() {
-        if chars[i] == '{' {
-            // Check for display mode: {{...}}
-            let display_mode = i + 1 < chars.len() && chars[i + 1] == '{';
+    while i < bytes.len() {
+        if bytes[i] == b'{' {
+            let display_mode = i + 1 < bytes.len() && bytes[i + 1] == b'{';
             let start = if display_mode { i + 2 } else { i + 1 };
 
-            // Find matching closing brace(s)
             let close = if display_mode { "}}" } else { "}" };
-            if let Some(end) = find_closing(&template[start..], close) {
-                let content = &template[start..start + end];
+            if let Some(end_rel) = template[start..].find(close) {
+                let content = &template[start..start + end_rel];
+                if content.trim().is_empty() {
+                    i = start + end_rel + close.len();
+                    continue;
+                }
                 let rendered = render_ref(content.trim(), vars)?;
 
                 if display_mode {
                     result.push_str(&format!("$${}$$", rendered));
-                    i = start + end + 2;
                 } else {
                     result.push_str(&format!("${}$", rendered));
-                    i = start + end + 1;
                 }
+                i = start + end_rel + close.len();
             } else {
-                // No closing brace — pass through literally
                 result.push('{');
                 i += 1;
             }
         } else {
-            result.push(chars[i]);
-            i += 1;
+            // Push full UTF-8 char
+            let c = template[i..].chars().next().unwrap();
+            result.push(c);
+            i += c.len_utf8();
         }
     }
 
@@ -69,13 +72,29 @@ fn render_ref(content: &str, vars: &VarMap) -> Result<String, DslError> {
 
     // Simple variable reference
     if let Some(value) = vars.get(content) {
-        expr_to_latex(value)
-    } else {
-        Err(DslError::TemplateRef {
-            name: content.to_string(),
-            field: "question/solution".to_string(),
-        })
+        return expr_to_latex(value);
     }
+
+    // Fallback: try evaluating as expression with variable substitution
+    // Handles cases like {a*b} or {n-1} that AI writes despite being told not to
+    let mut substituted = content.to_string();
+    let mut sorted: Vec<(&String, &String)> = vars.iter().collect();
+    sorted.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    for (name, value) in &sorted {
+        let pattern = format!(r"\b{}\b", regex::escape(name));
+        if let Ok(re) = regex::Regex::new(&pattern) {
+            substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+        }
+    }
+    // If substitution changed something, try to render it
+    if substituted != content {
+        return expr_to_latex(&substituted);
+    }
+
+    Err(DslError::TemplateRef {
+        name: content.to_string(),
+        field: "question/solution".to_string(),
+    })
 }
 
 /// Convert a SymEngine expression string to LaTeX

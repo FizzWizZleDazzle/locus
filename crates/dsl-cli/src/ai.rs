@@ -189,33 +189,56 @@ async fn call_llm(
         ]
     });
 
-    let resp = client
-        .post("https://api.anthropic.com/v1/messages")
-        .header("x-api-key", api_key)
-        .header("anthropic-version", "2023-06-01")
-        .header("content-type", "application/json")
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| format!("HTTP error: {e}"))?;
+    // Retry HTTP errors with backoff
+    for attempt in 0..3 {
+        let resp = client
+            .post("https://api.anthropic.com/v1/messages")
+            .header("x-api-key", api_key)
+            .header("anthropic-version", "2023-06-01")
+            .header("content-type", "application/json")
+            .json(&body)
+            .send()
+            .await;
 
-    if !resp.status().is_success() {
-        let status = resp.status();
-        let text = resp.text().await.unwrap_or_default();
-        return Err(format!("API error {status}: {text}"));
+        let resp = match resp {
+            Ok(r) => r,
+            Err(e) => {
+                if attempt < 2 {
+                    eprintln!("    HTTP error, retrying in {}s: {e}", (attempt + 1) * 5);
+                    tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 5)).await;
+                    continue;
+                }
+                return Err(format!("HTTP error after 3 attempts: {e}"));
+            }
+        };
+
+        if resp.status().as_u16() == 429 || resp.status().as_u16() == 529 {
+            if attempt < 2 {
+                eprintln!("    Rate limited, retrying in {}s", (attempt + 1) * 10);
+                tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 10)).await;
+                continue;
+            }
+        }
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let text = resp.text().await.unwrap_or_default();
+            return Err(format!("API error {status}: {text}"));
+        }
+
+        let json: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| format!("JSON parse error: {e}"))?;
+
+        let text = json["content"][0]["text"]
+            .as_str()
+            .ok_or_else(|| "No text in API response".to_string())?;
+
+        return Ok(format!("topic:{text}"));
     }
 
-    let json: serde_json::Value = resp
-        .json()
-        .await
-        .map_err(|e| format!("JSON parse error: {e}"))?;
-
-    let text = json["content"][0]["text"]
-        .as_str()
-        .ok_or_else(|| "No text in API response".to_string())?;
-
-    // Prepend "topic:" since we prefilled it
-    Ok(format!("topic:{text}"))
+    Err("Unreachable".into())
 }
 
 // =============================================================================
@@ -284,7 +307,15 @@ Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(
 
 7. Matrices: use matrix(rows, cols, lo, hi) sampler, never manual [[...]].
 
-8. Before outputting: mentally substitute one concrete value for each sampler and verify all constraints pass and the answer is clean."#;
+8. Before outputting: mentally substitute one concrete value for each sampler and verify all constraints pass and the answer is clean.
+
+9. INTERVALS: If the answer is an interval, define the bounds as variables and build the interval string.
+   Example for compound inequality answer (-3, 5]:
+     lo: ...computed...
+     hi: ...computed...
+     answer: "open:lo,closed:hi"   ← WRONG, this is a literal string
+   Instead, just use answer_type: tuple and return the bounds, OR avoid interval type entirely.
+   For compound inequalities, return the boundary values as a tuple: answer: lo, hi"#;
 
 // =============================================================================
 // Examples (selected by topic relevance)

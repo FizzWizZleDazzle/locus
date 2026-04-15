@@ -46,9 +46,13 @@ const BUILTIN_FUNCTIONS: &[&str] = &[
     "exp",
 ];
 
-/// Check if a definition string is a built-in function call
+/// Check if a definition string is a pure built-in function call (not part of a larger expression).
+/// "floor(x)" → true. "floor(x) * 10" → false (that's a derived expression).
 pub fn is_builtin_call(definition: &str) -> bool {
     let def = definition.trim();
+    if !def.ends_with(')') {
+        return false;
+    }
     if let Some(paren) = def.find('(') {
         let name = &def[..paren];
         BUILTIN_FUNCTIONS.contains(&name)
