@@ -2186,6 +2186,7 @@ dependencies = [
  "clap",
  "dotenvy",
  "locus-dsl",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

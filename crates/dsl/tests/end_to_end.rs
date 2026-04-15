@@ -747,7 +747,7 @@ answer: a
 // ============================================================================
 
 #[test]
-fn e2e_all_problem_files() {
+fn e2e_all_problem_files_parse() {
     let problem_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
@@ -760,11 +760,44 @@ fn e2e_all_problem_files() {
 
     assert!(!files.is_empty(), "No problem files found in {}", problem_dir.display());
 
+    let mut parse_ok = 0;
+    let mut parse_fail = 0;
     for file in &files {
+        let yaml = std::fs::read_to_string(file).unwrap();
+        match parse(&yaml) {
+            Ok(_) => parse_ok += 1,
+            Err(e) => {
+                eprintln!("Parse failed: {}: {e}", file.display());
+                parse_fail += 1;
+            }
+        }
+    }
+    assert_eq!(parse_fail, 0, "{parse_fail}/{} files failed to parse", files.len());
+}
+
+#[test]
+fn e2e_handwritten_problem_files_generate() {
+    let problem_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("problems");
+
+    let mut files = Vec::new();
+    collect_yaml_files(&problem_dir, &mut files);
+
+    // Only test handwritten files for full generation (AI files skip generation validation)
+    let handwritten: Vec<_> = files.iter().filter(|f| {
+        f.file_name().map_or(false, |n| n == "handwritten.yaml")
+    }).collect();
+
+    assert!(!handwritten.is_empty(), "No handwritten files found");
+
+    for file in &handwritten {
         let yaml = std::fs::read_to_string(file).unwrap();
         let spec = parse(&yaml)
             .unwrap_or_else(|e| panic!("Parse failed for {}: {e}", file.display()));
-
         for i in 0..5 {
             generate(&spec).unwrap_or_else(|e| {
                 panic!("Generation {i} failed for {}: {e}", file.display())

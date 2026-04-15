@@ -258,8 +258,17 @@ fn cmd_ai(
             for i in 0..count {
                 // Check if output file already exists
                 if let Some(dir) = output {
-                    let topic_dir = dir.join(topic.replace('/', "_"));
-                    let filename = format!("{}_{}.yaml", diff, i + 1);
+                    let topic_dir = if topic.contains('/') {
+                        let parts: Vec<&str> = topic.splitn(2, '/').collect();
+                        dir.join(parts[0]).join(parts[1])
+                    } else {
+                        dir.join(topic.replace('/', "_"))
+                    };
+                    let filename = if i == 0 {
+                        format!("{}.yaml", diff)
+                    } else {
+                        format!("{}_{}.yaml", diff, i + 1)
+                    };
                     if topic_dir.join(&filename).exists() {
                         skipped += 1;
                         continue;
@@ -303,9 +312,19 @@ fn cmd_ai(
         match result {
             Ok(yaml) => {
                 if let Some(dir) = output {
-                    let topic_dir = dir.join(topic.replace('/', "_"));
+                    // problems/main_topic/subtopic/difficulty.yaml
+                    let topic_dir = if topic.contains('/') {
+                        let parts: Vec<&str> = topic.splitn(2, '/').collect();
+                        dir.join(parts[0]).join(parts[1])
+                    } else {
+                        dir.join(topic)
+                    };
                     std::fs::create_dir_all(&topic_dir).ok();
-                    let filename = format!("{}_{}.yaml", diff, idx + 1);
+                    let filename = if *idx == 0 {
+                        format!("{}.yaml", diff)
+                    } else {
+                        format!("{}_{}.yaml", diff, idx + 1)
+                    };
                     let file_path = topic_dir.join(&filename);
                     std::fs::write(&file_path, yaml).unwrap_or_else(|e| {
                         eprintln!("Failed to write {}: {e}", file_path.display());
