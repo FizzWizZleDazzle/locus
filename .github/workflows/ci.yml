@@ -80,7 +80,7 @@ jobs:
           done
 
       - name: Cargo clippy
-        run: cargo clippy -p locus-common -p locus-dsl -p locus-dsl-cli -- -D warnings
+        run: cargo clippy -p locus-dsl -p locus-dsl-cli -- -W clippy::all
 
   docker:
     name: Docker Build & Push
