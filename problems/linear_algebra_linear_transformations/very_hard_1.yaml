@@ -1,0 +1,26 @@
+topic: linear_algebra/linear_transformations
+difficulty: very_hard
+calculator: none
+variables:
+  # Design diagonal transformation for clean computation
+  lambda1: integer(2, 5)
+  lambda2: integer(-4, -1)
+  # Build diagonal matrix A
+  A: matrix(2, 2, -5, 5)
+  # Compute A² entries
+  a2_11: lambda1 * lambda1
+  a2_22: lambda2 * lambda2
+  # Build answer matrix
+  answer: matrix(2, 2, 1, 25)
+constraints:
+  - lambda1 != lambda2
+  - A[0][0] == lambda1
+  - A[1][1] == lambda2
+question: "Let T: R² → R² be the linear transformation with matrix {matrix_of(A)}. Find the matrix representation of T∘T."
+answer: answer
+answer_type: matrix
+solution:
+  - "The composition T∘T has matrix A² where A = {matrix_of(A)}"
+  - "Since A is diagonal with entries {lambda1} and {lambda2}:"
+  - "A² is also diagonal with entries {lambda1}² = {a2_11} and {lambda2}² = {a2_22}"
+  - "Therefore A² = {matrix_of(answer)}"

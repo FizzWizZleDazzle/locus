@@ -1,0 +1,32 @@
+topic: multivariable_calculus/gradient
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  f: a*x^3 + b*x*y^2 + c*y^3
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  x0: nonzero(-3, 3)
+  y0: nonzero(-3, 3)
+  grad_x: evaluate(fx, x, x0)
+  grad_y: evaluate(fy, y, y0)
+  answer_x: evaluate(grad_x, y, y0)
+  answer_y: evaluate(grad_y, y, y0)
+constraints:
+  - a != b
+  - b != c
+  - x0 != y0
+question: "Find the gradient vector of f(x,y) = {f} at the point ({x0}, {y0})."
+answer: answer_x
+solution:
+  - "To find the gradient, compute partial derivatives:"
+  - "{derivative_of(f, x)} = {fx}"
+  - "{derivative_of(f, y)} = {fy}"
+  - "Evaluate at ({x0}, {y0}):"
+  - "At x = {x0}: {derivative_of(f, x)} = {grad_x}"
+  - "At y = {y0}: {derivative_of(f, y)} = {grad_y}"
+  - "Substituting y = {y0} into {grad_x}: {answer_x}"
+  - "Substituting y = {y0} into {grad_y}: {answer_y}"
+  - "Therefore, ∇f({x0}, {y0}) = ({answer_x}, {answer_y})"

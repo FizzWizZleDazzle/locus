@@ -1,0 +1,28 @@
+topic: algebra2/logarithmic_equations
+difficulty: very_hard
+calculator: scientific
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  k: integer(2, 4)
+  m: integer(1, 3)
+  n: integer(1, 3)
+  base: a^k
+  val1: base^m
+  val2: base^n
+  sum: m + n
+  answer: base^sum
+constraints:
+  - a != b
+  - m != n
+  - gcd(a, b) == 1
+question: "Solve for x: {equation(log(val1, a) + log(val2, a), log(x, b))}"
+answer: answer
+solution:
+  - "Simplify the left side using logarithm properties"
+  - "Since {val1} = {base}^{m} = {a}^{k*m}, we have {equation(log(val1, a), k*m)}"
+  - "Since {val2} = {base}^{n} = {a}^{k*n}, we have {equation(log(val2, a), k*n)}"
+  - "So {equation(log(val1, a) + log(val2, a), k*m + k*n)} = {k*sum}"
+  - "Now we need {equation(k*sum, log(x, b))}"
+  - "Therefore {equation(x, b^(k*sum))}"
+  - "Since {base} = {a}^{k} and {sum} = {m} + {n}, we get x = {answer}"

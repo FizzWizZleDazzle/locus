@@ -1,0 +1,27 @@
+topic: geometry/angle_relationships
+difficulty: hard
+calculator: none
+variables:
+  k: integer(2, 5)
+  m: integer(3, 8)
+  base_angle: integer(10, 30)
+  angle1: k * base_angle
+  angle2: m * base_angle
+  angle3: 180 - angle1 - angle2
+  ratio_sum: k + m
+  angle3_multiple: 180 / base_angle - ratio_sum
+constraints:
+  - angle3 > 0
+  - angle3 < 180
+  - mod(180, base_angle) == 0
+question: "In a triangle, two angles are in the ratio {k}:{m}. If the third angle is {angle3}°, find the measure of the smallest angle in the triangle."
+answer: angle1
+solution:
+  - "Let the two angles in ratio {k}:{m} be {k}x and {m}x for some value x"
+  - "Since the angles of a triangle sum to 180°: {k}x + {m}x + {angle3} = 180"
+  - "Combining like terms: {ratio_sum}x + {angle3} = 180"
+  - "Solving for x: {ratio_sum}x = 180 - {angle3} = {angle1 + angle2}"
+  - "Therefore: x = {base_angle}"
+  - "The two angles are: {k} × {base_angle} = {angle1}° and {m} × {base_angle} = {angle2}°"
+  - "The three angles are {angle1}°, {angle2}°, and {angle3}°"
+  - "The smallest angle is {angle1}°"

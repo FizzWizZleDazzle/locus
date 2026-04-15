@@ -1,0 +1,20 @@
+topic: arithmetic/long_division
+difficulty: medium
+calculator: none
+variables:
+  q: integer(12, 25)
+  d: integer(11, 19)
+  r: integer(0, 10)
+  dividend: q * d + r
+constraints:
+  - r < d
+  - d > 10
+question: "Divide {dividend} by {d}. Find the quotient and remainder."
+answer: q
+solution:
+  - "Set up long division: {dividend} ÷ {d}"
+  - "How many times does {d} go into {dividend}?"
+  - "{d} × {q} = {q * d}"
+  - "Subtract: {dividend} - {q * d} = {r}"
+  - "Since {r} < {d}, we stop here"
+  - "Quotient = {q}, Remainder = {r}"

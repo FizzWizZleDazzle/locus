@@ -1,0 +1,29 @@
+topic: precalculus/polar_curves
+difficulty: competition
+calculator: graphing
+variables:
+  n: choice(3, 5, 7)
+  k: integer(2, 4)
+  a: integer(2, 6)
+  r_func: a * (1 + cos(n*theta))
+  area_integrand: (1/2) * (r_func)^2
+  expanded_integrand: expand(area_integrand)
+  period: 2*pi/n
+  full_area_raw: integral(expanded_integrand, theta)
+  full_area_at_2pi: evaluate(full_area_raw, theta, 2*pi) - evaluate(full_area_raw, theta, 0)
+  petal_area: full_area_at_2pi / n
+  inner_radius: a/k
+  inner_area: pi * (inner_radius)^2
+  answer: simplify(petal_area - inner_area)
+constraints:
+  - k <= a
+  - mod(a, k) == 0
+question: "Consider the rose curve r = {r_func}. Find the area of exactly one petal that lies outside the circle r = {inner_radius}."
+answer: answer
+solution:
+  - "The rose r = {r_func} has {n} petals since n = {n} is odd"
+  - "Total area of the rose: {integral_of(expanded_integrand, theta)} from 0 to 2π"
+  - "Evaluating: {full_area_at_2pi}"
+  - "Area of one petal: {full_area_at_2pi}/{n} = {petal_area}"
+  - "Area inside circle r = {inner_radius}: π({inner_radius})² = {inner_area}"
+  - "Area of petal outside circle: {petal_area} - {inner_area} = {answer}"

@@ -1,0 +1,23 @@
+topic: calculus/limits_at_infinity
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(2, 6)
+  d: nonzero(-3, 3)
+  e: integer(1, 3)
+  numerator: a * x^3 + b * x^2 + d
+  denominator: c * x^3 - e * x
+  f: numerator / denominator
+  answer: a / c
+constraints:
+  - a != c
+  - gcd(a, c) == 1
+question: "Find {limit_of(f, x, infinity)}"
+answer: answer
+solution:
+  - "For rational functions, when the degrees of numerator and denominator are equal, the limit at infinity is the ratio of leading coefficients"
+  - "The numerator {numerator} has degree 3 with leading coefficient {a}"
+  - "The denominator {denominator} has degree 3 with leading coefficient {c}"
+  - "Therefore, {limit_of(f, x, infinity)} = {answer}"

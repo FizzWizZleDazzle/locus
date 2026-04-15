@@ -1,0 +1,16 @@
+topic: algebra2/logarithmic_equations
+difficulty: easy
+calculator: none
+variables:
+  b: choice(2, 3, 5, 10)
+  k: integer(1, 5)
+  answer: b^k
+  equation: log(answer, b)
+constraints:
+  - answer <= 125
+question: "Solve for x: {equation(log(x, b), k)}"
+answer: answer
+solution:
+  - "Start with {equation(log(x, b), k)}"
+  - "Convert to exponential form: {equation(x, b^k)}"
+  - "Calculate: {equation(x, answer)}"

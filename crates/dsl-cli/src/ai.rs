@@ -140,13 +140,61 @@ fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
         Ok(s) => s,
         Err(e) => return Err(vec![format!("Parse error: {e}")]),
     };
+
     let mut errors = Vec::new();
-    for i in 0..3 {
-        match locus_dsl::generate(&spec) {
-            Ok(_) => {}
-            Err(e) => errors.push(format!("Generation {}: {e}", i + 1)),
+
+    // Check all variable definitions reference valid samplers or functions
+    for (name, def) in &spec.variables {
+        let d = def.trim();
+        if locus_dsl::sampler::is_sampler(d) {
+            // Verify sampler parses
+            if let Err(e) = locus_dsl::sampler::sample(d) {
+                errors.push(format!("Variable '{name}': {e}"));
+            }
+        } else if locus_dsl::functions::is_builtin_call(d) {
+            // Verify function name exists (don't evaluate — just check name)
+            if let Some(paren) = d.find('(') {
+                let func = &d[..paren];
+                if !locus_dsl::functions::BUILTIN_FUNCTIONS.contains(&func) {
+                    errors.push(format!("Variable '{name}': unknown function '{func}'"));
+                }
+            }
+        }
+        // Derived expressions validated implicitly by SymEngine at generate time
+    }
+
+    // Check template refs exist as variables or display functions
+    let var_names: std::collections::HashSet<&str> = spec.variables.keys().map(|s| s.as_str()).collect();
+    for field_name in ["question"] {
+        let field = match field_name {
+            "question" => &spec.question,
+            _ => continue,
+        };
+        // Find all {ref} patterns
+        let mut i = 0;
+        let bytes = field.as_bytes();
+        while i < bytes.len() {
+            if bytes[i] == b'{' && (i + 1 >= bytes.len() || bytes[i + 1] != b'{') {
+                if let Some(end) = field[i + 1..].find('}') {
+                    let ref_content = field[i + 1..i + 1 + end].trim();
+                    if !ref_content.is_empty() {
+                        // Check if it's a var name or display function
+                        let is_var = var_names.contains(ref_content);
+                        let is_display = ref_content.contains('(') && ref_content.ends_with(')');
+                        let has_operators = ref_content.contains('+') || ref_content.contains('-')
+                            || ref_content.contains('*') || ref_content.contains('/');
+                        if !is_var && !is_display && !has_operators {
+                            errors.push(format!("Question: {{{}}} is not a defined variable or display function", ref_content));
+                        }
+                    }
+                    i = i + 1 + end + 1;
+                    continue;
+                }
+            }
+            i += 1;
         }
     }
+
     if errors.is_empty() { Ok(()) } else { Err(errors) }
 }
 

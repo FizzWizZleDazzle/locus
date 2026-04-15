@@ -1,0 +1,27 @@
+topic: precalculus/transformations
+difficulty: medium
+calculator: none
+variables:
+  a: choice(2, 3, 4)
+  h: integer(-5, 5)
+  k: integer(-6, 6)
+  f: sqrt(x)
+  g: a * sqrt(x - h) + k
+  x_val: integer(1, 25)
+  x_transformed: x_val + h
+  y_original: evaluate(f, x, x_transformed)
+  y_transformed: evaluate(g, x, x_val)
+constraints:
+  - x_transformed >= 0
+  - x_transformed == floor(sqrt(x_transformed))^2
+question: "The function {equation(f(x), sqrt(x))} is transformed to create {equation(g(x), a * sqrt(x - h) + k)}. If the point ({x_transformed}, {y_original}) is on the graph of f, what is the corresponding point on the graph of g?"
+answer: y_transformed
+solution:
+  - "The transformation from f to g involves:"
+  - "- Horizontal shift right by {h} units"
+  - "- Vertical stretch by factor {a}"
+  - "- Vertical shift up by {k} units"
+  - "Point ({x_transformed}, {y_original}) on f corresponds to:"
+  - "x-coordinate: {x_transformed} - {h} = {x_val}"
+  - "y-coordinate: {a} × {y_original} + {k} = {y_transformed}"
+  - "The corresponding point is ({x_val}, {y_transformed})"

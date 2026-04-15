@@ -1,0 +1,19 @@
+topic: geometry/right_triangle_trig
+difficulty: easy
+calculator: scientific
+variables:
+  angle_deg: choice(30, 45, 60)
+  angle_rad: angle_deg * 3.14159 / 180
+  adjacent: choice(3, 4, 5, 6, 8)
+  opposite: adjacent * tan(angle_rad)
+  opposite_rounded: round(opposite, 0)
+  hypotenuse: adjacent / cos(angle_rad)
+  hyp_rounded: round(hypotenuse, 0)
+constraints:
+  - angle_deg <= 60
+question: "A right triangle has an angle of {angle_deg}° and an adjacent side of length {adjacent}. Find the length of the opposite side (round to the nearest integer)."
+answer: opposite_rounded
+solution:
+  - "In a right triangle, tan(θ) = opposite/adjacent"
+  - "tan({angle_deg}°) × {adjacent} = opposite"
+  - "opposite = {opposite_rounded}"

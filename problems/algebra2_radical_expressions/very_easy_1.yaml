@@ -1,0 +1,18 @@
+topic: algebra2/radical_expressions
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  perfect_square: a^2
+  radicand: perfect_square * b
+  answer: a * sqrt(b)
+constraints:
+  - b <= 5
+question: "Simplify {sqrt(radicand)}."
+answer: answer
+solution:
+  - "Factor {radicand} = {perfect_square} × {b}"
+  - "Since {perfect_square} = {a}², we have {sqrt(radicand)} = {sqrt(perfect_square * b)}"
+  - "This equals {sqrt(perfect_square)} × {sqrt(b)} = {a} × {sqrt(b)}"
+  - "Therefore {sqrt(radicand)} = {answer}"

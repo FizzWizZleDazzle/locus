@@ -1,0 +1,30 @@
+topic: precalculus/polar_curves
+difficulty: hard
+calculator: graphing
+variables:
+  a: integer(2, 6)
+  b: integer(2, 6)
+  k: integer(2, 5)
+  r: a + b * cos(k * theta)
+  r_at_0: evaluate(r, theta, 0)
+  r_at_pi: evaluate(r, theta, pi)
+  r_at_pi_2: evaluate(r, theta, pi/2)
+  r_at_pi_k: evaluate(r, theta, pi/k)
+  petals: 2 * k
+  inner_radius: a - b
+  outer_radius: a + b
+constraints:
+  - b < a
+  - gcd(k, 2) == 1
+question: "Consider the polar curve r = {r}. Find the total number of petals in the rose curve, and determine the maximum distance from the origin."
+answer: outer_radius
+solution:
+  - "The curve r = {r} is a rose curve with cosine term."
+  - "For r = a + b cos(kθ), when k is odd, the number of petals equals k."
+  - "Since k = {k} (odd), this rose has {k} petals."
+  - "The maximum value of r occurs when cos({k}θ) = 1."
+  - "This gives r_max = {a} + {b}(1) = {outer_radius}."
+  - "The minimum value occurs when cos({k}θ) = -1."
+  - "This gives r_min = {a} + {b}(-1) = {inner_radius}."
+  - "Since {inner_radius} > 0, the curve doesn't pass through the origin."
+  - "The maximum distance from the origin is {outer_radius}."

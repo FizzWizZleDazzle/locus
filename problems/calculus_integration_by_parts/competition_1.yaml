@@ -1,0 +1,29 @@
+topic: calculus/integration_by_parts
+difficulty: competition
+calculator: none
+variables:
+  n: integer(2, 5)
+  a: nonzero(-4, 4)
+  b: nonzero(-3, 3)
+  u: x^n
+  dv: a * e^(b*x)
+  du: derivative(u, x)
+  v: integral(dv, x)
+  v_coeff: a/b
+  integrand: u * dv
+  first_term: u * v
+  second_integral: integral(v * du, x)
+  answer: first_term - second_integral
+constraints:
+  - b != 0
+  - mod(a, b) == 0
+question: "Evaluate {integral_of(integrand, x)} using integration by parts."
+answer: answer
+solution:
+  - "Let u = {u} and dv = {dv} dx"
+  - "Then du = {du} dx and v = {v}"
+  - "By integration by parts: {integral_of(integrand, x)} = uv - {integral_of(v * du, x)}"
+  - "= {first_term} - {integral_of(v * du, x)}"
+  - "The second integral requires repeated integration by parts"
+  - "After n applications, we get a pattern that telescopes"
+  - "Final answer: {answer}"

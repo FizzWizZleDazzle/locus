@@ -1,0 +1,32 @@
+topic: multivariable_calculus/lagrange_multipliers
+difficulty: very_hard
+calculator: none
+variables:
+  k: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(2, 4)
+  c: integer(20, 40)
+  f: k * x^2 + m * y^2 + n * z^2
+  g: x + y + z - c
+  lambda_val: 2 * k * c / 3
+  x_opt: c / 3
+  y_opt: c / 3
+  z_opt: c / 3
+  answer: evaluate(f, [x, y, z], [x_opt, y_opt, z_opt])
+constraints:
+  - k == m
+  - m == n
+  - mod(c, 3) == 0
+question: "Find the minimum value of {f} subject to the constraint {equation(x + y + z, c)} where x, y, z ≥ 0."
+answer: answer
+solution:
+  - "Set up Lagrangian: L = {f} - λ({g})"
+  - "Find critical points: ∇f = λ∇g"
+  - "∂L/∂x = 2kx - λ = 0 → x = λ/(2k)"
+  - "∂L/∂y = 2my - λ = 0 → y = λ/(2m)"
+  - "∂L/∂z = 2nz - λ = 0 → z = λ/(2n)"
+  - "Since k = m = n, we have x = y = z = λ/(2k)"
+  - "Substitute into constraint: 3λ/(2k) = {c}"
+  - "Solve for λ: λ = {lambda_val}"
+  - "Therefore x = y = z = {x_opt}"
+  - "Minimum value: f({x_opt}, {y_opt}, {z_opt}) = {answer}"

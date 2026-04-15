@@ -1,0 +1,21 @@
+topic: algebra2/rational_expressions
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(2, 8)
+  c: integer(2, 8)
+  numerator: a * (x - b)
+  denominator: c * (x - b)
+  simplified: a / c
+constraints:
+  - gcd(a, c) == 1
+  - a != c
+question: "Simplify the rational expression {equation(numerator, denominator)}, stating any restrictions on x."
+answer: simplified
+solution:
+  - "Factor out the common factor (x - {b}) from numerator and denominator"
+  - "{equation(numerator, denominator)} = {equation(a * (x - b), c * (x - b))}"
+  - "Cancel the common factor: {equation(a, c)}"
+  - "The simplified expression is {simplified}"
+  - "Restriction: x ≠ {b} (to avoid division by zero)"

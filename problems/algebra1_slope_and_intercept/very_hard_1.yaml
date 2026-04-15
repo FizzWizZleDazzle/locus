@@ -1,0 +1,30 @@
+topic: algebra1/slope_and_intercept
+difficulty: very_hard
+calculator: none
+variables:
+  x1: integer(-8, 8)
+  y1: integer(-8, 8)
+  dx: nonzero(-6, 6)
+  dy: nonzero(-6, 6)
+  x2: x1 + dx
+  y2: y1 + dy
+  m: dy / dx
+  b: y1 - m * x1
+  line: m * x + b
+  x3: integer(-8, 8)
+  y3: evaluate(line, x, x3)
+  x4: integer(-8, 8)
+  y4: evaluate(line, x, x4)
+constraints:
+  - abs(dx) != abs(dy)
+  - x3 != x1 and x3 != x2
+  - x4 != x1 and x4 != x2 and x4 != x3
+question: "A line passes through ({x1}, {y1}) and ({x2}, {y2}). Two other points on this line are ({x3}, ?) and ({x4}, ?). Find the sum of the missing y-coordinates."
+answer: y3 + y4
+solution:
+  - "Find the slope: m = ({y2} - {y1}) / ({x2} - {x1}) = {dy} / {dx} = {m}"
+  - "Use point-slope form with ({x1}, {y1}): y - {y1} = {m}(x - {x1})"
+  - "Simplify to slope-intercept form: y = {line}"
+  - "For x = {x3}: y = {y3}"
+  - "For x = {x4}: y = {y4}"
+  - "Sum of missing y-coordinates: {y3} + {y4} = {y3 + y4}"

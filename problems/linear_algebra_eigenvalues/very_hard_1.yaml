@@ -1,0 +1,47 @@
+topic: linear_algebra/eigenvalues
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design 3x3 matrix with known eigenvalues by similarity transformation
+  # Start with diagonal matrix D with eigenvalues λ1, λ2, λ3
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  lambda3: integer(-5, 5)
+  # Create invertible transformation matrix P with small integers
+  p11: nonzero(-2, 2)
+  p12: integer(-2, 2)
+  p13: integer(-2, 2)
+  p21: integer(-2, 2)
+  p22: nonzero(-2, 2)
+  p23: integer(-2, 2)
+  p31: integer(-2, 2)
+  p32: integer(-2, 2)
+  p33: nonzero(-2, 2)
+  P: matrix(3, 3, -2, 2)
+  D: matrix(3, 3, -5, 5)
+  # Set diagonal entries of D to our eigenvalues
+  D_diag: set_diagonal(D, [lambda1, lambda2, lambda3])
+  # A = PDP^(-1) has same eigenvalues as D
+  P_inv: inverse(P)
+  A_temp: P * D_diag * P_inv
+  A: round_matrix(A_temp, 0)
+  char_poly: det(A - t*identity(3))
+  expanded_poly: expand(char_poly)
+  eigenvalues: solve(expanded_poly, t)
+  trace_val: lambda1 + lambda2 + lambda3
+  det_val: lambda1 * lambda2 * lambda3
+constraints:
+  - det(P) != 0
+  - lambda1 <= lambda2
+  - lambda2 <= lambda3
+question: "Find all eigenvalues of the matrix {matrix_of(A)}. Then compute the trace and determinant of A and verify they match the sum and product of eigenvalues respectively."
+answer: eigenvalues
+answer_type: set
+solution:
+  - "To find eigenvalues, solve {equation(det(A - t*identity(3)), 0)}"
+  - "The characteristic polynomial is {equation(char_poly, 0)}"
+  - "Expanding: {equation(expanded_poly, 0)}"
+  - "The eigenvalues are t = {lambda1}, {lambda2}, {lambda3}"
+  - "Trace(A) = {lambda1} + {lambda2} + {lambda3} = {trace_val}"
+  - "Det(A) = {lambda1} × {lambda2} × {lambda3} = {det_val}"
+  - "These match tr(A) and det(A) of the original matrix, confirming our eigenvalues."

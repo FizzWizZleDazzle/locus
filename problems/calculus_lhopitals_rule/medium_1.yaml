@@ -1,0 +1,24 @@
+topic: calculus/lhopitals_rule
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: integer(2, 5)
+  numerator: (x - c) * (a*x + b)
+  denominator: (x - c)
+  f_expanded: expand(numerator)
+  g: denominator
+  limit_point: c
+  answer: a*c + b
+constraints:
+  - a*c + b != 0
+question: "Find {limit_of(f_expanded/g, x, limit_point)}"
+answer: answer
+solution:
+  - "Direct substitution gives 0/0, so we apply L'Hôpital's rule"
+  - "Let f(x) = {f_expanded} and g(x) = {g}"
+  - "{derivative_of(f_expanded, x)} = {derivative(f_expanded, x)}"
+  - "{derivative_of(g, x)} = {derivative(g, x)}"
+  - "By L'Hôpital's rule: {limit_of(f_expanded/g, x, limit_point)} = {limit_of(derivative(f_expanded, x)/derivative(g, x), x, limit_point)}"
+  - "Substituting x = {limit_point}: {answer}"

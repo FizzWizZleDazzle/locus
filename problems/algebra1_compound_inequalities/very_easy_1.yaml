@@ -1,0 +1,21 @@
+topic: algebra1/compound_inequalities
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(6, 10)
+  c: integer(11, 15)
+  left_ineq: a < x
+  right_ineq: x < c
+  compound: a < x < c
+  answer: (a, c)
+constraints:
+  - b > a + 2
+  - c > b + 2
+question: "Solve the compound inequality {compound} and express your answer in interval notation."
+answer: answer
+answer_type: interval
+solution:
+  - "The compound inequality {compound} means x is greater than {a} AND less than {c}"
+  - "In interval notation, this is the open interval from {a} to {c}"
+  - "Answer: ({a}, {c})"

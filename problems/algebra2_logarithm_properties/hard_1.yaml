@@ -1,0 +1,26 @@
+topic: algebra2/logarithm_properties
+difficulty: hard
+calculator: scientific
+variables:
+  base: choice(2, 3, 5)
+  k: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(1, 3)
+  power: base^k
+  arg1: power^m
+  arg2: power^n
+  expr: log(arg1, base) + log(arg2, base) - log(power, base)
+  answer: simplify(expr)
+constraints:
+  - m + n > k
+  - k * m <= 20
+question: "Simplify the expression: log_{base}({arg1}) + log_{base}({arg2}) - log_{base}({power})"
+answer: answer
+solution:
+  - "Recognize that {arg1} = ({base}^{k})^{m} = {base}^{k*m}"
+  - "So log_{base}({arg1}) = {k*m}"
+  - "Similarly, {arg2} = ({base}^{k})^{n} = {base}^{k*n}"
+  - "So log_{base}({arg2}) = {k*n}"
+  - "And log_{base}({power}) = log_{base}({base}^{k}) = {k}"
+  - "Therefore: {k*m} + {k*n} - {k} = {k}({m} + {n} - 1)"
+  - "= {k} × {m + n - 1} = {answer}"

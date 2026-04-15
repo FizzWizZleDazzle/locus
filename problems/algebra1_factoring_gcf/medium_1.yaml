@@ -1,0 +1,24 @@
+topic: algebra1/factoring_gcf
+difficulty: medium
+calculator: none
+variables:
+  gcf: integer(2, 8)
+  a: integer(2, 6)
+  b: integer(2, 6)
+  c: integer(2, 6)
+  coef1: gcf * a
+  coef2: gcf * b
+  coef3: gcf * c
+  expr: coef1 * x^2 + coef2 * x + coef3
+  inner: a * x^2 + b * x + c
+  answer: gcf * inner
+constraints:
+  - a != b
+  - b != c
+question: "Factor out the greatest common factor from {expr}"
+answer: answer
+solution:
+  - "Find the GCF of the coefficients {coef1}, {coef2}, and {coef3}"
+  - "The GCF is {gcf}"
+  - "Factor out {gcf}: {gcf}({inner})"
+  - "Answer: {answer}"

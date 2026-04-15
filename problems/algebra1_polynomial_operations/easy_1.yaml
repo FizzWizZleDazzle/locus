@@ -1,0 +1,21 @@
+topic: algebra1/polynomial_operations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(-4, 4)
+  c: integer(1, 3)
+  d: integer(-3, 3)
+  p: a*x + b
+  q: c*x + d
+  sum: p + q
+  answer: simplify(sum)
+constraints:
+  - b != 0
+  - d != 0
+question: "Add the polynomials {p} and {q}."
+answer: answer
+solution:
+  - "Add {p} and {q}"
+  - "Combine like terms: ({a} + {c})x + ({b} + {d})"
+  - "Result: {answer}"

@@ -1,0 +1,17 @@
+topic: algebra1/one_step_equations
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-12, 12)
+  b: integer(-20, 20)
+  solution: integer(-15, 15)
+  c: a * solution + b
+constraints:
+  - abs(a) >= 2
+  - abs(c) <= 50
+question: "Solve for x: {equation(a*x + b, c)}"
+answer: solution
+solution:
+  - "Start with {equation(a*x + b, c)}"
+  - "Subtract {b} from both sides: {equation(a*x, c - b)}"
+  - "Divide both sides by {a}: {equation(x, solution)}"

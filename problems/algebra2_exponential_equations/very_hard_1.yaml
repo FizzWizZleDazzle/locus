@@ -1,0 +1,35 @@
+topic: algebra2/exponential_equations
+difficulty: very_hard
+calculator: scientific
+variables:
+  k: integer(2, 5)
+  m: integer(2, 4)
+  base: prime(2, 7)
+  p: k * m
+  q: k + m
+  left: base^(x^2 - p*x)
+  right: base^(-q*x)
+  equation: x^2 - p*x + q*x
+  simplified: x^2 - (p - q)*x
+  diff: p - q
+  factored: x * (x - diff)
+  x1: 0
+  x2: diff
+  answer: solve(simplified, x)
+constraints:
+  - p > q
+  - diff > 0
+question: "Solve for x: {equation(left, right)}"
+answer: answer
+answer_type: set
+solution:
+  - "Given: {equation(left, right)}"
+  - "Since the bases are equal, set exponents equal: {equation(x^2 - p*x, -q*x)}"
+  - "Move all terms to one side: {equation(equation, 0)}"
+  - "Simplify: {equation(simplified, 0)}"
+  - "Since p = {p} and q = {q}, we have: {equation(x^2 - diff*x, 0)}"
+  - "Factor: {equation(factored, 0)}"
+  - "So x = {x1} or x = {x2}"
+  - "Check x = {x1}: {base}^0 = {base}^0 ✓"
+  - "Check x = {x2}: {base}^({x2}^2 - {p}·{x2}) = {base}^{-q·x2}"
+  - "Both solutions work: x = {x1} or x = {x2}"

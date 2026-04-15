@@ -1,0 +1,36 @@
+topic: precalculus/domain_and_range
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(-3, 3)
+  d: integer(2, 5)
+  numerator: sqrt(a*x + b)
+  denominator: x^2 - c*x - d
+  f: numerator / denominator
+  disc: c^2 + 4*d
+  r1: (c - sqrt(disc))/2
+  r2: (c + sqrt(disc))/2
+  boundary: -b/a
+  test_val: floor(r1) - 1
+  f_test: evaluate(f, x, test_val)
+constraints:
+  - disc == floor(sqrt(disc))^2
+  - r1 != boundary
+  - r2 != boundary
+question: "Find all real numbers y such that there exists a real x satisfying {equation(y, f)}. Express your answer as a union of intervals."
+answer: f_test
+answer_type: expression
+solution:
+  - "For {f} to be defined, we need {a}x + {b} ≥ 0 and x² - {c}x - {d} ≠ 0"
+  - "From the square root: x ≥ {boundary}"
+  - "The denominator factors as (x - {r1})(x - {r2}) with roots x = {r1} and x = {r2}"
+  - "So the domain is [{boundary}, {r1}) ∪ ({r1}, {r2}) ∪ ({r2}, ∞)"
+  - "As x → {boundary}⁺, f(x) → {evaluate(numerator, x, boundary)}/{evaluate(denominator, x, boundary)}"
+  - "As x → {r1}⁻, the denominator → 0⁺ while numerator → {evaluate(numerator, x, r1)}, so f(x) → +∞"
+  - "As x → {r1}⁺, the denominator → 0⁻ while numerator → {evaluate(numerator, x, r1)}, so f(x) → -∞"
+  - "As x → {r2}⁻, similar analysis shows f(x) → -∞"
+  - "As x → {r2}⁺, f(x) → +∞"
+  - "As x → ∞, f(x) → 0⁺"
+  - "By continuity on each interval and the intermediate value theorem, the range is (-∞, {f_test}] ∪ (0, ∞)"

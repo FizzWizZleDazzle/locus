@@ -1,0 +1,22 @@
+topic: differential_equations/laplace_transforms
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(1, 3)
+  f: c * e^(a*t) * cos(b*t)
+  s_shift: s - a
+  denominator: s_shift^2 + b^2
+  answer: c * b / denominator
+constraints:
+  - a != b
+  - gcd(a, b) == 1
+question: "Find the Laplace transform of {f}."
+answer: answer
+solution:
+  - "Use the shifting theorem: L[e^(at)g(t)] = G(s-a)"
+  - "First find L[cos(bt)] = s/(s^2 + b^2)"
+  - "Apply shifting: L[e^({a}t)cos({b}t)] = {s_shift}/({s_shift}^2 + {b}^2)"
+  - "Multiply by {c}: L[{f}] = {c} * {s_shift}/({denominator})"
+  - "Simplify: L[{f}] = {answer}"

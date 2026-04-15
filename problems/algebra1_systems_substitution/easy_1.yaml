@@ -1,0 +1,27 @@
+topic: algebra1/systems_substitution
+difficulty: easy
+calculator: none
+variables:
+  x_val: integer(1, 5)
+  y_val: integer(1, 5)
+  a: integer(2, 4)
+  b: x_val + y_val
+  c: integer(2, 5)
+  d: c * x_val - y_val
+  eq1: y = x + b
+  eq2: c * x - y = d
+constraints:
+  - c != a
+  - x_val != y_val
+question: "Solve the system of equations: {system(eq1, eq2)}"
+answer: x_val
+answer_type: coordinate
+solution:
+  - "From the first equation: {equation(y, x + b)}"
+  - "Substitute into the second equation: {equation(c * x - (x + b), d)}"
+  - "Simplify: {equation(c * x - x - b, d)}"
+  - "Factor: {equation((c - 1) * x, d + b)}"
+  - "Since {c} - 1 = {c - 1}, we get: {equation(x, (d + b)/(c - 1))}"
+  - "Calculate: x = {x_val}"
+  - "Substitute back: y = {x_val} + {b} = {y_val}"
+  - "Solution: ({x_val}, {y_val})"

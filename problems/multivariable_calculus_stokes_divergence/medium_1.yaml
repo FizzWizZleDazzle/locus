@@ -1,0 +1,26 @@
+topic: multivariable_calculus/stokes_divergence
+difficulty: medium
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(1, 4)
+  F_x: a * y
+  F_y: b * x
+  F_z: c * z
+  curl_F_x: 0
+  curl_F_y: 0
+  curl_F_z: b - a
+  R: integer(1, 3)
+  flux: R * R * (b - a)
+constraints:
+  - a != b
+question: "Let {vec(F)} = {equation(F_x, F_y, F_z)}. Use Stokes' theorem to find the circulation of {vec(F)} around the circle x^2 + y^2 = {R}^2, z = 0, oriented counterclockwise when viewed from above."
+answer: flux
+solution:
+  - "By Stokes' theorem, circulation = {integral_of(curl F · n dS, S)}"
+  - "Calculate curl F: {vec(curl F)} = {equation(curl_F_x, curl_F_y, curl_F_z)}"
+  - "The surface S is the disk x^2 + y^2 ≤ {R}^2 in the xy-plane"
+  - "Normal vector n = k (pointing up), so curl F · n = {curl_F_z}"
+  - "Flux integral = {integral_of(curl_F_z dA, disk)} = {curl_F_z} · π{R}^2"
+  - "Circulation = {flux}π"

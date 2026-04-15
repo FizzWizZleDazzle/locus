@@ -1,0 +1,29 @@
+topic: linear_algebra/determinants
+difficulty: hard
+calculator: none
+variables:
+  a: integer(-3, 3)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(-3, 3)
+  M: matrix(3, 3, -10, 10)
+  det_M: determinant(M)
+  k: integer(2, 5)
+  kM: k * M
+  det_kM: determinant(kM)
+  k_cubed: k^3
+  answer: det_M
+constraints:
+  - det_M != 0
+  - abs(det_M) <= 50
+question: "Let M = {matrix_of(M)}. Find {det_of(M)} and verify that {det_of(kM)} = {k}³{det_of(M)} where k = {k}."
+answer: answer
+solution:
+  - "For the 3×3 matrix M = {matrix_of(M)}, we calculate the determinant"
+  - "Using cofactor expansion or the rule of Sarrus"
+  - "We find that det(M) = {det_M}"
+  - "For kM where k = {k}, we have {matrix_of(kM)}"
+  - "Computing det(kM) = {det_kM}"
+  - "Note that {k}³ = {k_cubed}"
+  - "And {k}³ · det(M) = {k_cubed} · {det_M} = {det_kM}"
+  - "This verifies the property that det(kA) = k^n · det(A) for an n×n matrix"

@@ -1,0 +1,37 @@
+topic: precalculus/dot_cross_product
+difficulty: very_hard
+calculator: scientific
+variables:
+  a1: integer(-4, 4)
+  a2: integer(-4, 4)
+  a3: integer(-4, 4)
+  b1: integer(-4, 4)
+  b2: integer(-4, 4)
+  b3: integer(-4, 4)
+  c1: integer(-3, 3)
+  c2: integer(-3, 3)
+  c3: integer(-3, 3)
+  cross_ab_1: a2*b3 - a3*b2
+  cross_ab_2: a3*b1 - a1*b3
+  cross_ab_3: a1*b2 - a2*b1
+  dot_cross_c: cross_ab_1*c1 + cross_ab_2*c2 + cross_ab_3*c3
+  cross_bc_1: b2*c3 - b3*c2
+  cross_bc_2: b3*c1 - b1*c3
+  cross_bc_3: b1*c2 - b2*c1
+  dot_a_cross: a1*cross_bc_1 + a2*cross_bc_2 + a3*cross_bc_3
+  answer: dot_cross_c - dot_a_cross
+constraints:
+  - abs(a1) + abs(a2) + abs(a3) > 2
+  - abs(b1) + abs(b2) + abs(b3) > 2
+  - abs(c1) + abs(c2) + abs(c3) > 1
+question: "Let {vec(a)} = ({a1}, {a2}, {a3}), {vec(b)} = ({b1}, {b2}, {b3}), and {vec(c)} = ({c1}, {c2}, {c3}). Compute ({vec(a)} × {vec(b)}) · {vec(c)} - {vec(a)} · ({vec(b)} × {vec(c)})."
+answer: answer
+solution:
+  - "First compute {vec(a)} × {vec(b)}:"
+  - "{vec(a)} × {vec(b)} = ({cross_ab_1}, {cross_ab_2}, {cross_ab_3})"
+  - "Then ({vec(a)} × {vec(b)}) · {vec(c)} = {dot_cross_c}"
+  - "Next compute {vec(b)} × {vec(c)}:"
+  - "{vec(b)} × {vec(c)} = ({cross_bc_1}, {cross_bc_2}, {cross_bc_3})"
+  - "Then {vec(a)} · ({vec(b)} × {vec(c)}) = {dot_a_cross}"
+  - "Therefore ({vec(a)} × {vec(b)}) · {vec(c)} - {vec(a)} · ({vec(b)} × {vec(c)}) = {dot_cross_c} - {dot_a_cross} = {answer}"
+  - "Note: This equals 0 by the scalar triple product identity."

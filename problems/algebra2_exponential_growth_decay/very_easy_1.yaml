@@ -1,0 +1,19 @@
+topic: algebra2/exponential_growth_decay
+difficulty: very_easy
+calculator: scientific
+variables:
+  initial: choice(100, 200, 500, 1000)
+  rate: choice(0.05, 0.1, 0.2, 0.25)
+  time: integer(1, 5)
+  growth_factor: 1 + rate
+  answer: initial * growth_factor^time
+constraints:
+  - time <= 3
+question: "A population starts at {initial} and grows at a rate of {rate} (as a decimal) per year. What is the population after {time} years?"
+answer: answer
+solution:
+  - "Use the exponential growth formula: P = P₀(1 + r)^t"
+  - "P₀ = {initial}, r = {rate}, t = {time}"
+  - "P = {initial}(1 + {rate})^{time}"
+  - "P = {initial}({growth_factor})^{time}"
+  - "P = {answer}"

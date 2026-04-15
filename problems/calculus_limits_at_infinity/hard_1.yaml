@@ -1,0 +1,25 @@
+topic: calculus/limits_at_infinity
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-8, 8)
+  c: nonzero(-6, 6)
+  d: nonzero(-4, 4)
+  numerator: a * x^3 + b * x^2 + c * x + d
+  e: nonzero(-3, 3)
+  f: nonzero(-5, 5)
+  g: nonzero(-7, 7)
+  denominator: e * x^3 + f * x^2 + g * x
+  ratio: a / e
+  answer: simplify(ratio)
+constraints:
+  - a % e == 0
+  - abs(a) != abs(e)
+question: "Find {limit_of(numerator / denominator, x, infinity)}"
+answer: answer
+solution:
+  - "For rational functions, when the degrees of numerator and denominator are equal, the limit at infinity is the ratio of leading coefficients"
+  - "Numerator: {numerator} has degree 3 with leading coefficient {a}"
+  - "Denominator: {denominator} has degree 3 with leading coefficient {e}"
+  - "Therefore, {limit_of(numerator / denominator, x, infinity)} = {a}/{e} = {answer}"

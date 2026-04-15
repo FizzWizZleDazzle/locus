@@ -1,0 +1,18 @@
+topic: algebra1/multi_step_equations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 8)
+  c: integer(1, 8)
+  answer: integer(1, 9)
+  right_side: a * answer + b
+constraints:
+  - right_side <= 50
+  - mod(right_side - b, a) == 0
+question: "Solve for x: {equation(a*x + b, right_side)}"
+answer: answer
+solution:
+  - "Start with {equation(a*x + b, right_side)}"
+  - "Subtract {b} from both sides: {equation(a*x, right_side - b)}"
+  - "Divide both sides by {a}: {equation(x, answer)}"

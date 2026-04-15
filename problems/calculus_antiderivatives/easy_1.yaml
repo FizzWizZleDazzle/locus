@@ -1,0 +1,14 @@
+topic: calculus/antiderivatives
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  n: integer(2, 5)
+  f: a * x^n
+  answer: integral(f, x)
+question: "Find {integral_of(f, x)}"
+answer: answer
+solution:
+  - "Apply the power rule for integration to {f}"
+  - "For {integral_of(a * x^n, x)}, we get a * x^(n+1)/(n+1) + C"
+  - "{integral_of(f, x)} = {answer}"

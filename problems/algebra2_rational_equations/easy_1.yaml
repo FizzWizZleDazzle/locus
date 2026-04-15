@@ -1,0 +1,19 @@
+topic: algebra2/rational_equations
+difficulty: easy
+calculator: none
+variables:
+  x_val: integer(1, 8)
+  k: integer(2, 6)
+  numerator: k * x_val
+  f: numerator / x
+  answer: x_val
+constraints:
+  - x_val != k
+question: "Solve for x: {equation(f, k)}"
+answer: answer
+solution:
+  - "Start with {equation(f, k)}"
+  - "This means {equation(numerator/x, k)}"
+  - "Multiply both sides by x: {numerator} = {k}x"
+  - "Divide both sides by {k}: x = {numerator}/{k}"
+  - "Simplify: x = {answer}"

@@ -1,0 +1,17 @@
+topic: multivariable_calculus/triple_integrals
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  integrand: 1
+  volume: a * b * c
+question: "Evaluate the triple integral {definite_integral_of(integrand, z, 0, c)} {definite_integral_of(1, y, 0, b)} {definite_integral_of(1, x, 0, a)} dV"
+answer: volume
+solution:
+  - "This integral computes the volume of a rectangular box"
+  - "Integrate with respect to x: {definite_integral_of(1, x, 0, a)} = {a}"
+  - "Integrate with respect to y: {definite_integral_of(a, y, 0, b)} = {a} * {b}"
+  - "Integrate with respect to z: {definite_integral_of(a*b, z, 0, c)} = {a} * {b} * {c}"
+  - "Volume = {volume}"

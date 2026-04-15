@@ -1,0 +1,25 @@
+topic: differential_equations/separable_equations
+difficulty: easy
+calculator: none
+variables:
+  k: nonzero(-5, 5)
+  C: integer(1, 5)
+  solution_form: C * e^(k * x)
+  dy_dx: k * y
+  separated_lhs: 1/y
+  separated_rhs: k
+  integrated_lhs: ln(abs(y))
+  integrated_rhs: k * x + c
+  general_solution: A * e^(k * x)
+constraints:
+  - abs(k) <= 3
+question: "Solve the differential equation {equation(dy_dx, k * y)} with initial condition y(0) = {C}."
+answer: solution_form
+solution:
+  - "Start with {equation(dy_dx, k * y)}"
+  - "Separate variables: {equation(separated_lhs * dy, separated_rhs * dx)}"
+  - "Integrate both sides: {equation(integral_of(separated_lhs, y), integral_of(separated_rhs, x))}"
+  - "This gives: {equation(integrated_lhs, integrated_rhs)}"
+  - "Exponentiate: {equation(y, general_solution)} where A = ±e^c"
+  - "Apply initial condition y(0) = {C}: {C} = A * e^0 = A"
+  - "Therefore A = {C}, so {equation(y, solution_form)}"

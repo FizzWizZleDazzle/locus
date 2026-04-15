@@ -1,0 +1,32 @@
+topic: precalculus/law_of_sines_cosines
+difficulty: easy
+calculator: scientific
+variables:
+  # Start with a clean angle and its sine value
+  angle_A: choice(30, 45, 60)
+  # Pick side a to make calculations clean
+  a: choice(5, 10, 15, 20)
+  # For angle_A = 30°, sin(A) = 1/2
+  # For angle_A = 45°, sin(A) = √2/2
+  # For angle_A = 60°, sin(A) = √3/2
+  # Design b so that sin(B) is also a nice value
+  b: choice(5, 10, 15, 20)
+  # Use law of sines: a/sin(A) = b/sin(B)
+  # So sin(B) = b*sin(A)/a
+  sin_A: sin(angle_A * 3.14159 / 180)
+  sin_B: b * sin_A / a
+  angle_B_rad: asin(sin_B)
+  angle_B: angle_B_rad * 180 / 3.14159
+  answer: round(angle_B, 1)
+constraints:
+  - b < a  # Ensures angle B < angle A, unique solution
+  - sin_B <= 0.866  # Ensures valid arcsin input (sin(60°) ≈ 0.866)
+question: "In triangle ABC, angle A = {angle_A}°, side a = {a}, and side b = {b}. Find angle B in degrees. Round to the nearest tenth."
+answer: answer
+solution:
+  - "Use the Law of Sines: {equation('a/sin(A)', 'b/sin(B)')}"
+  - "Substitute known values: {equation(a + '/sin(' + angle_A + '°)', b + '/sin(B)')}"
+  - "Cross multiply: {a} · sin(B) = {b} · sin({angle_A}°)"
+  - "sin(B) = {b} · sin({angle_A}°) / {a}"
+  - "sin(B) ≈ {round(sin_B, 4)}"
+  - "B = arcsin({round(sin_B, 4)}) ≈ {answer}°"

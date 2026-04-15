@@ -1,0 +1,24 @@
+topic: geometry/angle_relationships
+difficulty: competition
+calculator: none
+variables:
+  k: integer(3, 8)
+  base: integer(10, 25)
+  angle1: k * base
+  angle2: (k + 2) * base
+  angle3: (k - 1) * base
+  sum: angle1 + angle2 + angle3
+  answer: angle2
+constraints:
+  - sum == 360
+question: "Three angles around a point are in the ratio {k}:{k + 2}:{k - 1}. Find the measure of the largest angle in degrees."
+answer: answer
+solution:
+  - "Let the common factor be x degrees"
+  - "The three angles are {k}x, {k + 2}x, and {k - 1}x"
+  - "Since they form a complete rotation: {k}x + {k + 2}x + {k - 1}x = 360°"
+  - "Combining: ({k} + {k + 2} + {k - 1})x = 360°"
+  - "This gives us {3*k + 1}x = 360°"
+  - "So x = 360/{3*k + 1} = {base}°"
+  - "The three angles are {angle1}°, {angle2}°, and {angle3}°"
+  - "The largest angle is {answer}°"

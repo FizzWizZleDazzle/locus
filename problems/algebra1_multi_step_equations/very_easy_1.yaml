@@ -1,0 +1,18 @@
+topic: algebra1/multi_step_equations
+difficulty: very_easy
+calculator: none
+variables:
+  x_val: integer(1, 9)
+  a: integer(2, 5)
+  b: integer(1, 20)
+  left: a * x + b
+  right: evaluate(left, x, x_val)
+constraints:
+  - right <= 50
+question: "Solve for x: {equation(left, right)}"
+answer: x_val
+solution:
+  - "Start with {equation(left, right)}"
+  - "Subtract {b} from both sides: {equation(a * x, right - b)}"
+  - "Divide both sides by {a}: {equation(x, (right - b) / a)}"
+  - "Simplify: x = {x_val}"

@@ -1,0 +1,24 @@
+topic: linear_algebra/vector_spaces
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(1, 5)
+  v1: matrix(3, 1, 0, 0)
+  v2: matrix(3, 1, 0, 0)
+  v3: matrix(3, 1, 0, 0)
+  answer: 3
+constraints:
+  - v1[0][0] = a
+  - v2[1][0] = b
+  - v3[2][0] = c
+question: "Consider the set S = {{vec(v1)}, {vec(v2)}, {vec(v3)}} in R³. What is the dimension of the span of S?"
+answer: answer
+solution:
+  - "The vectors are {vec(v1)}, {vec(v2)}, and {vec(v3)}"
+  - "These are scalar multiples of the standard basis vectors e₁, e₂, and e₃"
+  - "Since {a}, {b}, and {c} are all nonzero, each vector is nonzero"
+  - "The vectors are linearly independent (no vector is in the span of the others)"
+  - "Three linearly independent vectors in R³ span a 3-dimensional subspace"
+  - "Therefore, dim(span(S)) = 3"

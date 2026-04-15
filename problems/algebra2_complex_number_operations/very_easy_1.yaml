@@ -1,0 +1,21 @@
+topic: algebra2/complex_number_operations
+difficulty: very_easy
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  b1: integer(-5, 5)
+  a2: integer(-5, 5)
+  b2: integer(-5, 5)
+  z1: a1 + b1*i
+  z2: a2 + b2*i
+  answer: z1 + z2
+constraints:
+  - b1 != 0
+  - b2 != 0
+question: "Add the complex numbers {z1} and {z2}."
+answer: answer
+solution:
+  - "To add complex numbers, add the real parts and add the imaginary parts separately"
+  - "Real part: {a1} + {a2} = {a1 + a2}"
+  - "Imaginary part: {b1}i + {b2}i = {b1 + b2}i"
+  - "Therefore, {z1} + {z2} = {answer}"

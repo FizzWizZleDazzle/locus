@@ -1,0 +1,25 @@
+topic: calculus/definite_integrals
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-3, 3)
+  b: integer(1, 4)
+  c: nonzero(-4, 4)
+  lower: 0
+  upper: 2
+  f: a * x^2 + b * x + c
+  antiderivative: (a/3) * x^3 + (b/2) * x^2 + c * x
+  upper_eval: evaluate(antiderivative, x, upper)
+  lower_eval: evaluate(antiderivative, x, lower)
+  answer: upper_eval - lower_eval
+constraints:
+  - a != 0 or b != 0
+question: "Evaluate {definite_integral_of(f, x, lower, upper)}"
+answer: answer
+solution:
+  - "Find the antiderivative of {f}"
+  - "The antiderivative is F(x) = {antiderivative}"
+  - "Apply the fundamental theorem: F({upper}) - F({lower})"
+  - "F({upper}) = {upper_eval}"
+  - "F({lower}) = {lower_eval}"
+  - "Therefore, {definite_integral_of(f, x, lower, upper)} = {answer}"

@@ -1,0 +1,23 @@
+topic: calculus/lhopitals_rule
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(2, 6)
+  numerator: (x - a) * (x + b)
+  denominator: (x - a) * (x + c)
+  f: numerator / denominator
+  limit_point: a
+  answer: (a + b) / (a + c)
+constraints:
+  - b != c
+question: "Find {limit_of(f, x, limit_point)}"
+answer: answer
+solution:
+  - "As x approaches {limit_point}, both numerator and denominator approach 0"
+  - "This is a 0/0 indeterminate form, so we can apply L'Hôpital's Rule"
+  - "Take the derivative of the numerator: {derivative_of(numerator, x)} = 2x + {b} - {a}"
+  - "Take the derivative of the denominator: {derivative_of(denominator, x)} = 2x + {c} - {a}"
+  - "Apply L'Hôpital's Rule: {limit_of(f, x, limit_point)} = (2({limit_point}) + {b} - {a}) / (2({limit_point}) + {c} - {a})"
+  - "Simplify: ({a} + {b}) / ({a} + {c}) = {answer}"

@@ -1,0 +1,33 @@
+topic: differential_equations/first_order_linear
+difficulty: medium
+calculator: scientific
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: nonzero(-5, 5)
+  p: a
+  q: b * x + c
+  f: p * y + q
+  integrating_factor: exp(a * x)
+  rhs_integrated: simplify((b * x + c) * exp(a * x))
+  general_solution: simplify((integral(rhs_integrated, x) + C) / exp(a * x))
+  y0: integer(-3, 3)
+  x0: 0
+  C_value: simplify(y0 * exp(a * x0) - evaluate(integral(rhs_integrated, x), x, x0))
+  particular: simplify((evaluate(integral(rhs_integrated, x), x, x) + C_value) / exp(a * x))
+constraints:
+  - abs(a) != abs(b)
+  - a != b
+question: "Solve the initial value problem {derivative_of(y, x)} + {a}y = {q} with y(0) = {y0}"
+answer: particular
+solution:
+  - "This is a first-order linear ODE in standard form {derivative_of(y, x)} + P(x)y = Q(x)"
+  - "Here P(x) = {a} and Q(x) = {q}"
+  - "The integrating factor is μ(x) = {integrating_factor}"
+  - "Multiply both sides by μ(x): {integrating_factor} · {derivative_of(y, x)} + {integrating_factor} · {a}y = {integrating_factor} · ({q})"
+  - "The left side is the derivative of {integrating_factor} · y"
+  - "So {derivative_of({integrating_factor} · y, x)} = {rhs_integrated}"
+  - "Integrate both sides: {integrating_factor} · y = {integral_of(rhs_integrated, x)} + C"
+  - "Therefore y = {general_solution}"
+  - "Apply initial condition y(0) = {y0} to find C = {C_value}"
+  - "The particular solution is y = {particular}"

@@ -1,0 +1,31 @@
+topic: algebra2/arithmetic_sequences
+difficulty: very_hard
+calculator: none
+variables:
+  d: nonzero(-12, 12)
+  k: integer(15, 25)
+  m: integer(30, 50)
+  n: integer(60, 80)
+  a1: integer(-20, 20)
+  ak: a1 + (k-1)*d
+  am: a1 + (m-1)*d
+  an: a1 + (n-1)*d
+  sum_diff: (n-m)*a1 + d*((n-1)*n/2 - (m-1)*m/2)
+  answer: simplify(sum_diff)
+constraints:
+  - abs(d) >= 3
+  - m > k + 10
+  - n > m + 20
+question: "In an arithmetic sequence, the {k}th term is {ak} and the {m}th term is {am}. Find the sum of all terms from the {m}th term to the {n}th term inclusive."
+answer: answer
+solution:
+  - "Let the first term be a₁ and common difference be d"
+  - "From a_{k} = {ak}: a₁ + ({k}-1)d = {ak}"
+  - "From a_{m} = {am}: a₁ + ({m}-1)d = {am}"
+  - "Subtracting first from second: ({m}-{k})d = {am} - {ak} = {am - ak}"
+  - "So d = {d}"
+  - "Substituting back: a₁ = {ak} - ({k}-1)({d}) = {a1}"
+  - "Sum from {m}th to {n}th term = S_{n} - S_{{m}-1}"
+  - "S_{n} = {n}/2 * (2({a1}) + ({n}-1)({d}))"
+  - "S_{{m}-1} = ({m}-1)/2 * (2({a1}) + ({m}-2)({d}))"
+  - "Final answer: {answer}"

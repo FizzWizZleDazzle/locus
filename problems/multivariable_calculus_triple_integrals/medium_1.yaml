@@ -1,0 +1,30 @@
+topic: multivariable_calculus/triple_integrals
+difficulty: medium
+calculator: none
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  integrand: a * x + b * y + c * z
+  x_bound: integer(1, 2)
+  y_bound: integer(1, 2)
+  z_bound: integer(1, 2)
+  inner: integral(integrand, z)
+  inner_eval: evaluate(inner, z, z_bound) - evaluate(inner, z, 0)
+  middle: integral(inner_eval, y)
+  middle_eval: evaluate(middle, y, y_bound) - evaluate(middle, y, 0)
+  outer: integral(middle_eval, x)
+  answer: evaluate(outer, x, x_bound) - evaluate(outer, x, 0)
+constraints:
+  - a != b
+  - b != c
+question: "Evaluate the triple integral {integral_of(integral_of(integral_of(integrand, z), y), x)} where the region is 0 ≤ x ≤ {x_bound}, 0 ≤ y ≤ {y_bound}, 0 ≤ z ≤ {z_bound}."
+answer: answer
+solution:
+  - "Set up the iterated integral with bounds"
+  - "Inner integral: {integral_of(integrand, z)} from 0 to {z_bound}"
+  - "This gives {inner_eval}"
+  - "Middle integral: {integral_of(inner_eval, y)} from 0 to {y_bound}"
+  - "This gives {middle_eval}"
+  - "Outer integral: {integral_of(middle_eval, x)} from 0 to {x_bound}"
+  - "Final answer: {answer}"

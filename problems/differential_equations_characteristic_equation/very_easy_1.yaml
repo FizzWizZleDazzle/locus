@@ -1,0 +1,20 @@
+topic: differential_equations/characteristic_equation
+difficulty: very_easy
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_eq: (r - r1) * (r - r2)
+  expanded: expand(char_eq)
+  a: -r1 - r2
+  b: r1 * r2
+constraints:
+  - r1 != r2
+  - r1 != 0
+  - r2 != 0
+question: "Find the characteristic equation for the differential equation {equation(y'' + a*y' + b*y, 0)}."
+answer: expanded
+solution:
+  - "For a differential equation of the form y'' + ay' + by = 0, the characteristic equation is r² + ar + b = 0"
+  - "Here we have a = {a} and b = {b}"
+  - "So the characteristic equation is {equation(expanded, 0)}"

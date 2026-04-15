@@ -1,0 +1,29 @@
+topic: arithmetic/ratios_proportions
+difficulty: hard
+calculator: none
+variables:
+  # Design backward: pick scale factor first, then build consistent ratios
+  k: integer(2, 5)
+  # First ratio parts
+  a: integer(2, 8)
+  b: integer(3, 9)
+  # Scale up for second ratio
+  c: a * k
+  d: b * k
+  # Missing value in proportion
+  x: integer(10, 30)
+  # Build the fourth term to ensure integer answer
+  y: (b * x) / a
+constraints:
+  - gcd(a, b) == 1  # First ratio in simplest form
+  - mod(b * x, a) == 0  # Ensures y is integer
+  - x != y  # Non-trivial proportion
+question: "If {a}:{b} = {c}:{d}, and {a}:{b} = {x}:?, find the missing value."
+answer: y
+solution:
+  - "Given that {a}:{b} = {c}:{d}, we can verify the ratios are equal"
+  - "The ratio {a}:{b} means for every {a} units of the first quantity, there are {b} units of the second"
+  - "Setting up the proportion: {a}:{b} = {x}:?"
+  - "Cross multiply: {a} × ? = {b} × {x}"
+  - "? = ({b} × {x}) / {a} = {y}"
+  - "Check: {a}:{b} = {x}:{y} ✓"

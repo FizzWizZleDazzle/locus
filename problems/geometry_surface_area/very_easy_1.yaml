@@ -1,0 +1,11 @@
+topic: geometry/surface_area
+difficulty: very_easy
+calculator: none
+variables:
+  side: integer(2, 8)
+  area: 6 * side^2
+question: "Find the surface area of a cube with side length {side} units."
+answer: area
+solution:
+  - "A cube has 6 faces, each a square with area {side}^2 = {evaluate(side^2, side, side)}"
+  - "Surface area = 6 × {evaluate(side^2, side, side)} = {area} square units"

@@ -1,0 +1,21 @@
+topic: multivariable_calculus/gradient
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(2, 8)
+  c: integer(-5, 5)
+  f: a*x^2 + b*y^2 + c
+  grad_x: derivative(f, x)
+  grad_y: derivative(f, y)
+  answer: (grad_x, grad_y)
+constraints:
+  - a != b
+question: "Find the gradient of {f}"
+answer: answer
+solution:
+  - "The gradient is {vec(grad f)} = ({derivative_of(f, x)}, {derivative_of(f, y)})"
+  - "Taking partial derivatives:"
+  - "{derivative_of(f, x)} = {grad_x}"
+  - "{derivative_of(f, y)} = {grad_y}"
+  - "Therefore, {vec(grad f)} = {answer}"

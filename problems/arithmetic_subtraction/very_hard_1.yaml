@@ -1,0 +1,27 @@
+topic: arithmetic/subtraction
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(7, 9)
+  b: integer(1, 6)
+  c: integer(7, 9)
+  d: integer(1, 6)
+  e: integer(7, 9)
+  f: integer(1, 6)
+  first: 1000*a + 100*b + 10*c + d
+  second: 100*e + 10*f + b
+  answer: first - second
+constraints:
+  - a > e
+  - c > f
+  - d >= b
+question: "Calculate: {first} - {second}"
+answer: answer
+solution:
+  - "Align the numbers vertically and subtract column by column"
+  - "Ones place: {d} - {b} = {d - b}"
+  - "Tens place: {c} - {f} = {c - f}"
+  - "Hundreds place: {b} - {e} requires borrowing from thousands"
+  - "After borrowing: {b + 10} - {e} = {b + 10 - e}"
+  - "Thousands place: {a - 1} (after lending 1)"
+  - "Result: {answer}"

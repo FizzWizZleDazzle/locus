@@ -1,0 +1,32 @@
+topic: linear_algebra/matrix_arithmetic
+difficulty: competition
+calculator: none
+variables:
+  A: matrix(3, 3, -2, 2)
+  B: matrix(3, 3, -2, 2)
+  C: matrix(3, 3, -2, 2)
+  det_A: det(A)
+  det_B: det(B)
+  det_C: det(C)
+  X: A + B - C
+  det_X: det(X)
+  trace_A: A[0][0] + A[1][1] + A[2][2]
+  trace_B: B[0][0] + B[1][1] + B[2][2]
+  trace_C: C[0][0] + C[1][1] + C[2][2]
+  trace_X: X[0][0] + X[1][1] + X[2][2]
+  answer: det_A + det_B - det_C
+constraints:
+  - abs(det_A) > 0
+  - abs(det_B) > 0
+  - abs(det_C) > 0
+question: "Given matrices {matrix_of(A)}, {matrix_of(B)}, and {matrix_of(C)}, let X = A + B - C. If {det_of(X)} = {det_X} and tr(X) = {trace_X}, find {det_of(A)} + {det_of(B)} - {det_of(C)}."
+answer: answer
+solution:
+  - "First compute X = A + B - C = {matrix_of(X)}"
+  - "We're given that {det_of(X)} = {det_X} and tr(X) = {trace_X}"
+  - "Verify: tr(X) = {trace_X} ✓"
+  - "Now calculate the individual determinants:"
+  - "{det_of(A)} = {det_A}"
+  - "{det_of(B)} = {det_B}"
+  - "{det_of(C)} = {det_C}"
+  - "Therefore {det_of(A)} + {det_of(B)} - {det_of(C)} = {det_A} + {det_B} - {det_C} = {answer}"

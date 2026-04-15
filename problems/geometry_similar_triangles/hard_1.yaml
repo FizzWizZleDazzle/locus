@@ -1,0 +1,33 @@
+topic: geometry/similar_triangles
+difficulty: hard
+calculator: scientific
+variables:
+  # First triangle with clean side lengths
+  a1: integer(3, 8)
+  b1: integer(4, 10)
+  c1: integer(5, 12)
+  # Scale factor as a fraction for complexity
+  scale_num: integer(2, 5)
+  scale_den: integer(3, 7)
+  # Second triangle sides (scaled)
+  a2: a1 * scale_num / scale_den
+  b2: b1 * scale_num / scale_den
+  c2: c1 * scale_num / scale_den
+  # Area calculations
+  s1: (a1 + b1 + c1) / 2
+  area1: sqrt(s1 * (s1 - a1) * (s1 - b1) * (s1 - c1))
+  s2: (a2 + b2 + c2) / 2
+  area2: sqrt(s2 * (s2 - a2) * (s2 - b2) * (s2 - c2))
+  # The answer is the area ratio
+  answer: area2 / area1
+constraints:
+  - a1 < b1
+  - b1 < c1
+  - scale_num != scale_den
+question: "Two similar triangles have corresponding sides in the ratio {scale_num}:{scale_den}. If the first triangle has sides {a1}, {b1}, and {c1}, find the ratio of the area of the second triangle to the area of the first triangle."
+answer: answer
+solution:
+  - "For similar triangles, if the ratio of corresponding sides is k, then the ratio of areas is k²"
+  - "The scale factor k = {scale_num}/{scale_den}"
+  - "Area ratio = k² = ({scale_num}/{scale_den})²"
+  - "Area ratio = {answer}"

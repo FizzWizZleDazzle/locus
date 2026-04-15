@@ -1,0 +1,21 @@
+topic: arithmetic/subtraction
+difficulty: hard
+calculator: none
+variables:
+  a: integer(7, 9)
+  b: integer(1, 6)
+  c: integer(100, 999)
+  d: integer(10, 99)
+  first: a * c
+  second: b * d
+  answer: first - second
+constraints:
+  - first > second
+  - mod(c, 10) < mod(d, 10)
+question: "Calculate: {first} - {second}"
+answer: answer
+solution:
+  - "Rewrite {first} as {a} × {c} and {second} as {b} × {d}"
+  - "Since {c} ends in {mod(c, 10)} and {d} ends in {mod(d, 10)}, we need to borrow"
+  - "Perform the subtraction with borrowing across multiple place values"
+  - "{first} - {second} = {answer}"

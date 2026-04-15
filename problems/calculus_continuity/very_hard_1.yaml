@@ -1,0 +1,32 @@
+topic: calculus/continuity
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(-5, 5)
+  b: nonzero(-4, 4)
+  c: integer(-3, 3)
+  d: nonzero(-3, 3)
+  k: integer(-2, 2)
+  f_left: a * x^3 + b * x^2 + c
+  f_right: d * x^2 + k * x + m
+  f_left_at_2: evaluate(f_left, x, 2)
+  f_prime_left: derivative(f_left, x)
+  f_prime_right: derivative(f_right, x)
+  f_prime_left_at_2: evaluate(f_prime_left, x, 2)
+  f_prime_right_at_2_expr: 4*d + k
+  m: f_left_at_2 - 4*d - 2*k
+  answer: m
+constraints:
+  - a != 0
+  - 12*a + 4*b != 4*d + k
+question: "Let {equation(f(x), f_left)} for x < 2 and {equation(f(x), f_right)} for x ≥ 2. Find the value of m that makes f continuous but NOT differentiable at x = 2."
+answer: answer
+solution:
+  - "For continuity at x = 2, we need {limit_of(f(x), x, 2^-)} = {limit_of(f(x), x, 2^+)} = f(2)"
+  - "From the left: {limit_of(f(x), x, 2^-)} = {f_left_at_2}"
+  - "From the right: {limit_of(f(x), x, 2^+)} = 4d + 2k + m"
+  - "Setting equal: {f_left_at_2} = 4d + 2k + m"
+  - "So m = {f_left_at_2} - 4d - 2k = {answer}"
+  - "Check non-differentiability: {derivative_of(f_left, x)} at x = 2 gives {f_prime_left_at_2}"
+  - "And {derivative_of(f_right, x)} at x = 2 gives {f_prime_right_at_2_expr}"
+  - "Since {f_prime_left_at_2} ≠ {f_prime_right_at_2_expr}, f is not differentiable at x = 2"

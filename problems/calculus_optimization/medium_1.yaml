@@ -1,0 +1,23 @@
+topic: calculus/optimization
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(10, 20)
+  c: integer(1, 4)
+  f: a*x^2 - b*x + c
+  f_prime: derivative(f, x)
+  critical_x: b/(2*a)
+  f_at_critical: evaluate(f, x, critical_x)
+  f_second: derivative(f_prime, x)
+constraints:
+  - mod(b, 2*a) == 0
+question: "A function is given by f(x) = {f}. Find the x-coordinate of the critical point and determine whether it is a maximum or minimum."
+answer: critical_x
+solution:
+  - "To find critical points, we solve {derivative_of(f, x)} = 0"
+  - "Taking the derivative: {derivative_of(f, x)} = {f_prime}"
+  - "Setting equal to zero: {equation(f_prime, 0)}"
+  - "Solving for x: x = {critical_x}"
+  - "To classify, we check the second derivative: {derivative_of(f_prime, x)} = {f_second}"
+  - "Since {f_second} > 0, the critical point at x = {critical_x} is a minimum"

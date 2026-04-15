@@ -1,0 +1,40 @@
+topic: precalculus/polar_coordinates
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design backward: pick clean angle that gives exact trig values
+  angle_num: choice(1, 2, 3, 4, 5, 7)
+  angle_den: choice(3, 4, 6)
+  theta: angle_num * pi / angle_den
+  # Pick r to ensure clean rectangular coords
+  r: integer(2, 8)
+  # Rectangular coordinates
+  x: r * cos(theta)
+  y: r * sin(theta)
+  # Convert back to verify
+  r_check: sqrt(x^2 + y^2)
+  theta_check: atan2(y, x)
+  # Second point for distance calculation
+  r2: integer(2, 8)
+  theta2_num: choice(1, 2, 3, 4, 5, 7)
+  theta2_den: choice(3, 4, 6)
+  theta2: theta2_num * pi / theta2_den
+  x2: r2 * cos(theta2)
+  y2: r2 * sin(theta2)
+  # Distance between points
+  dist_squared: (x2 - x)^2 + (y2 - y)^2
+  dist: sqrt(dist_squared)
+  # Area of triangle with origin
+  area: abs(x * y2 - y * x2) / 2
+constraints:
+  - angle_num < angle_den
+  - theta2_num < theta2_den
+  - abs(theta - theta2) > pi/6
+question: "Two points have polar coordinates ({r}, {theta}) and ({r2}, {theta2}). Find the exact area of the triangle formed by these two points and the origin."
+answer: area
+solution:
+  - "Convert first point to rectangular: x₁ = {r}cos({theta}) = {x}, y₁ = {r}sin({theta}) = {y}"
+  - "Convert second point to rectangular: x₂ = {r2}cos({theta2}) = {x2}, y₂ = {r2}sin({theta2}) = {y2}"
+  - "For a triangle with vertices at origin (0,0), (x₁,y₁), and (x₂,y₂):"
+  - "Area = ½|x₁y₂ - y₁x₂| = ½|({x})({y2}) - ({y})({x2})|"
+  - "Area = ½|{simplify(x * y2 - y * x2)}| = {area}"

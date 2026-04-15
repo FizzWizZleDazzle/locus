@@ -1,0 +1,22 @@
+topic: algebra2/radical_expressions
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  perfect_square: a^2 * b
+  expr: sqrt(perfect_square * c)
+  simplified: a * sqrt(b * c)
+  answer: simplified
+constraints:
+  - b != c
+  - b * c < 50
+question: "Simplify {expr}."
+answer: answer
+solution:
+  - "Start with {expr}"
+  - "Factor the radicand: {sqrt(perfect_square * c)} = {sqrt((a^2) * b * c)}"
+  - "Separate perfect square: {sqrt(a^2)} * {sqrt(b * c)}"
+  - "Simplify: {a} * {sqrt(b * c)}"
+  - "Final answer: {simplified}"

@@ -1,0 +1,15 @@
+topic: precalculus/graphing_trig
+difficulty: very_easy
+calculator: none
+variables:
+  a: choice(1, 2, 3, 4)
+  period: choice(1, 2, 4)
+  b: 2*pi/period
+  f: a * sin(b * x)
+  answer: period
+question: "What is the period of the function f(x) = {f}?"
+answer: answer
+solution:
+  - "The general form is f(x) = A sin(Bx), where the period is 2π/B"
+  - "Here we have f(x) = {f}, so B = {b}"
+  - "Period = 2π/{b} = 2π/(2π/{period}) = {period}"

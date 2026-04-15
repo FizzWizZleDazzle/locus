@@ -1,0 +1,26 @@
+topic: calculus/related_rates
+difficulty: hard
+calculator: scientific
+variables:
+  r_rate: choice(2, 3, 4, 6)
+  h_rate: choice(8, 12, 16, 24)
+  r_at_t: choice(10, 15, 20, 25)
+  h_at_t: choice(40, 60, 80, 100)
+  V: pi * r^2 * h / 3
+  dV_dt_expr: pi * r^2 * h_rate / 3 + 2 * pi * r * h * r_rate / 3
+  answer: evaluate(dV_dt_expr, r, r_at_t) * evaluate(dV_dt_expr, h, h_at_t) / evaluate(dV_dt_expr, h, h_at_t)
+constraints:
+  - h_at_t == 4 * r_at_t
+  - h_rate == 4 * r_rate
+question: "A conical tank is being filled with water. The radius r and height h are related by h = 4r. At the instant when r = {r_at_t} cm, the radius is increasing at {r_rate} cm/min. Find the rate at which the volume is changing at this instant."
+answer: answer
+solution:
+  - "Volume of a cone: V = πr²h/3"
+  - "Given constraint: h = 4r, so dh/dt = 4(dr/dt)"
+  - "At the given instant: dr/dt = {r_rate} cm/min, so dh/dt = {h_rate} cm/min"
+  - "Differentiate V with respect to t using the product rule:"
+  - "dV/dt = π/3 · d/dt(r²h) = π/3 · (2r(dr/dt)h + r²(dh/dt))"
+  - "Substitute h = 4r: dV/dt = π/3 · (2r(dr/dt)(4r) + r²(4dr/dt))"
+  - "Simplify: dV/dt = π/3 · (8r²(dr/dt) + 4r²(dr/dt)) = 4πr²(dr/dt)"
+  - "At r = {r_at_t} cm with dr/dt = {r_rate} cm/min:"
+  - "dV/dt = 4π({r_at_t})²({r_rate}) = {answer} cm³/min"

@@ -1,0 +1,26 @@
+topic: arithmetic/multiplication
+difficulty: competition
+calculator: none
+variables:
+  # Pick factors that create interesting patterns
+  a: integer(11, 19)
+  b: integer(11, 19)
+  # Create a near-square scenario
+  c: a + 1
+  d: a - 1
+  # The difference of squares pattern
+  product1: a * b
+  product2: c * d
+  diff_squares: a^2 - 1
+  # The key insight is recognizing (a+1)(a-1) = a² - 1
+  answer: product1 - product2
+constraints:
+  - a != b
+  - mod(a, 2) == 1  # Odd numbers make cleaner mental math
+question: "Without calculating each product separately, find: {a} × {b} - {c} × {d}"
+answer: answer
+solution:
+  - "Notice that {c} = {a} + 1 and {d} = {a} - 1"
+  - "So {c} × {d} = ({a} + 1)({a} - 1) = {a}² - 1 = {diff_squares}"
+  - "Therefore: {a} × {b} - {c} × {d} = {product1} - {diff_squares}"
+  - "= {product1} - {diff_squares} = {answer}"

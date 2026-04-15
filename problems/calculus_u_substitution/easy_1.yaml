@@ -1,0 +1,22 @@
+topic: calculus/u_substitution
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  n: integer(2, 4)
+  inner: a*x + b
+  f: inner^n
+  integrand: a * inner^(n-1)
+  answer: simplify(inner^n / n)
+constraints:
+  - a != n
+question: "Find {integral_of(integrand, x)}"
+answer: answer
+solution:
+  - "Let u = {inner}, then du = {a} dx"
+  - "So dx = du/{a}"
+  - "The integral becomes {integral_of(u^(n-1), u)}"
+  - "= u^{n}/{n} + C"
+  - "Substituting back: ({inner})^{n}/{n} + C"
+  - "= {answer} + C"

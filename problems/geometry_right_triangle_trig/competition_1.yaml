@@ -1,0 +1,35 @@
+topic: geometry/right_triangle_trig
+difficulty: competition
+calculator: scientific
+variables:
+  # Use Pythagorean triple (5,12,13) scaled by factor k
+  k: choice(2, 3, 4)
+  a: 5 * k
+  b: 12 * k
+  c: 13 * k
+  # Pick angle at vertex A (opposite side a)
+  angle_deg: choice(30, 45, 60)
+  # Height from right angle to hypotenuse
+  h: (a * b) / c
+  # Segments created by altitude
+  p: (a * a) / c
+  q: (b * b) / c
+  # Area using multiple methods
+  area1: (a * b) / 2
+  area2: (c * h) / 2
+  # Inradius of right triangle
+  r: (a + b - c) / 2
+  answer: h
+constraints:
+  - p + q == c
+  - area1 == area2
+question: "A right triangle has legs of length {a} and {b}. An altitude is drawn from the right angle to the hypotenuse, creating two smaller right triangles. Find the length of this altitude."
+answer: answer
+solution:
+  - "First, find the hypotenuse using the Pythagorean theorem: c = {c}"
+  - "For a right triangle with legs a and b and hypotenuse c, the altitude h from the right angle to the hypotenuse satisfies: h = (a × b) / c"
+  - "Substituting: h = ({a} × {b}) / {c} = {answer}"
+  - "We can verify this using areas: Area = (1/2) × base × height"
+  - "Using legs as base and height: Area = (1/2) × {a} × {b} = {area1}"
+  - "Using hypotenuse as base: Area = (1/2) × {c} × h = {area2}"
+  - "The altitude also divides the hypotenuse into segments of length {p} and {q}"

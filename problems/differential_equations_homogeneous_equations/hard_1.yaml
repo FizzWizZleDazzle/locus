@@ -1,0 +1,31 @@
+topic: differential_equations/homogeneous_equations
+difficulty: hard
+calculator: none
+variables:
+  r1: integer(-5, -1)
+  r2: integer(1, 5)
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  a: -r1 - r2
+  b: r1 * r2
+  c1: nonzero(-4, 4)
+  c2: nonzero(-4, 4)
+  general_solution: c1 * e^(r1 * x) + c2 * e^(r2 * x)
+  y0: c1 + c2
+  yp0: c1 * r1 + c2 * r2
+  answer: general_solution
+constraints:
+  - r1 != -r2
+  - abs(a) <= 10
+  - abs(b) <= 20
+question: "Solve the differential equation {equation(derivative_of(derivative_of(y, x), x) + a * derivative_of(y, x) + b * y, 0)} with initial conditions y(0) = {y0} and y'(0) = {yp0}."
+answer: answer
+solution:
+  - "The characteristic equation is {equation(expanded_char, 0)}"
+  - "Factor: {equation(char_poly, 0)}"
+  - "So r = {r1} or r = {r2}"
+  - "General solution: y = C₁e^({r1}x) + C₂e^({r2}x)"
+  - "Apply y(0) = {y0}: C₁ + C₂ = {y0}"
+  - "Apply y'(0) = {yp0}: {r1}C₁ + {r2}C₂ = {yp0}"
+  - "Solving the system: C₁ = {c1}, C₂ = {c2}"
+  - "Therefore: y = {answer}"

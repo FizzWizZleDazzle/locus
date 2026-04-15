@@ -1,0 +1,19 @@
+topic: precalculus/polar_curves
+difficulty: easy
+calculator: scientific
+variables:
+  a: integer(2, 8)
+  n: choice(2, 3, 4, 6)
+  r: a * cos(n * theta)
+  petals: 2 * n
+  max_r: a
+  theta_0: 0
+  theta_1: 2 * pi
+question: "Consider the polar curve r = {r}. How many petals does this rose curve have?"
+answer: petals
+solution:
+  - "The polar equation r = {r} represents a rose curve"
+  - "For r = a cos(n θ), the number of petals is 2n when n is even"
+  - "Since n = {n}, the rose has 2({n}) = {petals} petals"
+  - "The petals occur when cos({n}θ) = ±1"
+  - "Maximum distance from origin is |r| = {max_r}"

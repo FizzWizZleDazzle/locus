@@ -1,0 +1,22 @@
+topic: algebra1/compound_inequalities
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-8, 8)
+  b: integer(-8, 8)
+  c: integer(-8, 8)
+  left_bound: min(a, c)
+  right_bound: max(a, c)
+  middle: b
+constraints:
+  - a != c
+  - left_bound < middle
+  - middle < right_bound
+question: "Solve the compound inequality: {equation(a, '<', x + b, '<', c)}"
+answer: middle
+answer_type: inequality
+solution:
+  - "Start with {equation(a, '<', x + b, '<', c)}"
+  - "Subtract {b} from all parts: {equation(a - b, '<', x, '<', c - b)}"
+  - "Simplify: {equation(left_bound - middle, '<', x, '<', right_bound - middle)}"
+  - "Solution: {equation(left_bound - middle, '<', x, '<', right_bound - middle)}"

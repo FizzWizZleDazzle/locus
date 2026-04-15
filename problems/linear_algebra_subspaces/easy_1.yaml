@@ -1,0 +1,27 @@
+topic: linear_algebra/subspaces
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  c: nonzero(-3, 3)
+  v1: matrix(3, 1, 0, 0)
+  v2: matrix(3, 1, 0, 0)
+  v3: matrix(3, 1, 0, 0)
+  test_vec: matrix(3, 1, 0, 0)
+  answer: True
+constraints:
+  - a != b
+  - b != c
+question: "Let S = span({vec(v1)}, {vec(v2)}, {vec(v3)}). Is {vec(test_vec)} in S?"
+answer: answer
+answer_type: boolean
+solution:
+  - "S consists of all linear combinations of {vec(v1)}, {vec(v2)}, and {vec(v3)}"
+  - "Any vector in S has the form c1{vec(v1)} + c2{vec(v2)} + c3{vec(v3)}"
+  - "This gives us [{a}c1, {b}c2, {c}c3]"
+  - "To check if {vec(test_vec)} is in S, we need:"
+  - "{a}c1 = 2, {b}c2 = 3, {c}c3 = 5"
+  - "Since {a}, {b}, {c} are all nonzero, we can solve:"
+  - "c1 = 2/{a}, c2 = 3/{b}, c3 = 5/{c}"
+  - "Therefore {vec(test_vec)} is in S"

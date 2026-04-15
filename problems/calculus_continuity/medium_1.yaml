@@ -1,0 +1,23 @@
+topic: calculus/continuity
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-5, 5)
+  b: integer(-8, 8)
+  c: integer(2, 6)
+  k: integer(-10, 10)
+  left_value: a * c + b
+  right_value: k + c
+  continuous_k: left_value - c
+constraints:
+  - a != 0
+  - continuous_k != k
+question: "Let {equation(f(x), piecewise(ax + b for x < c, kx + c for x >= c))}. For what value of k is f(x) continuous at x = {c}?"
+answer: continuous_k
+solution:
+  - "For continuity at x = {c}, we need {limit_of(f(x), x, c^-)} = {limit_of(f(x), x, c^+)} = f({c})"
+  - "Left-hand limit: {limit_of(f(x), x, c^-)} = {a}({c}) + {b} = {left_value}"
+  - "Right-hand limit: {limit_of(f(x), x, c^+)} = k({c}) + {c} = k({c}) + {c}"
+  - "For continuity: {left_value} = k({c}) + {c}"
+  - "Solving for k: {left_value} - {c} = k({c})"
+  - "k = {continuous_k}"

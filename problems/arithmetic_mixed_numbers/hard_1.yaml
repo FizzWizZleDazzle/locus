@@ -1,0 +1,36 @@
+topic: arithmetic/mixed_numbers
+difficulty: hard
+calculator: none
+variables:
+  # Design for subtraction requiring borrowing
+  a_whole: integer(5, 9)
+  a_num: integer(1, 4)
+  a_den: choice(5, 6, 8)
+  b_whole: integer(2, 4)
+  b_num: integer(3, 7)
+  b_den: choice(5, 6, 8)
+  # Convert to improper fractions
+  a_improper: a_whole * a_den + a_num
+  b_improper: b_whole * b_den + b_num
+  # Find common denominator and subtract
+  lcm: a_den * b_den / gcd(a_den, b_den)
+  a_scaled: a_improper * (lcm / a_den)
+  b_scaled: b_improper * (lcm / b_den)
+  diff_num: a_scaled - b_scaled
+  # Convert back to mixed number
+  ans_whole: floor(diff_num / lcm)
+  ans_num: mod(diff_num, lcm)
+  ans_gcd: gcd(ans_num, lcm)
+  final_num: ans_num / ans_gcd
+  final_den: lcm / ans_gcd
+constraints:
+  - a_den != b_den
+  - b_num > a_num
+  - a_improper > b_improper
+question: "Subtract: {a_whole} {a_num}/{a_den} - {b_whole} {b_num}/{b_den}"
+answer: ans_whole
+solution:
+  - "Convert to improper fractions: {a_whole} {a_num}/{a_den} = {a_improper}/{a_den} and {b_whole} {b_num}/{b_den} = {b_improper}/{b_den}"
+  - "Common denominator is {lcm}: {a_improper}/{a_den} = {a_scaled}/{lcm} and {b_improper}/{b_den} = {b_scaled}/{lcm}"
+  - "Subtract: {a_scaled}/{lcm} - {b_scaled}/{lcm} = {diff_num}/{lcm}"
+  - "Convert to mixed number: {diff_num}/{lcm} = {ans_whole} {final_num}/{final_den}"

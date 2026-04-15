@@ -1,0 +1,29 @@
+topic: geometry/volume
+difficulty: easy
+calculator: none
+variables:
+  shape: choice(1, 2, 3)
+  # Box dimensions
+  length: choice(2, 3, 4, 5, 6)
+  width: choice(2, 3, 4, 5, 6)
+  height: choice(2, 3, 4, 5, 6)
+  box_volume: length * width * height
+  # Cube dimension
+  side: choice(2, 3, 4, 5)
+  cube_volume: side^3
+  # Cylinder dimensions (using pi-friendly radii)
+  radius: choice(1, 2, 3)
+  cyl_height: choice(4, 5, 6, 8, 10)
+  cyl_volume: 3.14159 * radius^2 * cyl_height
+  cyl_volume_rounded: round(cyl_volume, 0)
+  answer: choice(box_volume, cube_volume, cyl_volume_rounded)
+constraints:
+  - shape == 1 implies answer == box_volume
+  - shape == 2 implies answer == cube_volume
+  - shape == 3 implies answer == cyl_volume_rounded
+question: "Find the volume of a {choice('rectangular box with length ' + str(length) + ', width ' + str(width) + ', and height ' + str(height), 'cube with side length ' + str(side), 'cylinder with radius ' + str(radius) + ' and height ' + str(cyl_height) + ' (use π ≈ 3.14)')}."
+answer: answer
+solution:
+  - "For a {choice('rectangular box', 'cube', 'cylinder')}, use the formula {choice('V = length × width × height', 'V = side³', 'V = πr²h')}"
+  - "{choice('V = ' + str(length) + ' × ' + str(width) + ' × ' + str(height), 'V = ' + str(side) + '³', 'V = 3.14 × ' + str(radius) + '² × ' + str(cyl_height))}"
+  - "V = {answer} cubic units"

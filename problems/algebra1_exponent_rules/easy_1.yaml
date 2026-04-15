@@ -1,0 +1,17 @@
+topic: algebra1/exponent_rules
+difficulty: easy
+calculator: none
+variables:
+  base: integer(2, 9)
+  m: integer(2, 5)
+  n: integer(2, 5)
+  left: base^m * base^n
+  answer: base^(m + n)
+constraints:
+  - m + n <= 8
+question: "Simplify {left}"
+answer: answer
+solution:
+  - "When multiplying powers with the same base, add the exponents"
+  - "{base}^{m} × {base}^{n} = {base}^({m} + {n})"
+  - "{base}^{m} × {base}^{n} = {answer}"

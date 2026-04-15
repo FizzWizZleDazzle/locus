@@ -1,0 +1,16 @@
+topic: arithmetic/order_of_operations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(2, 6)
+  product: a * b
+  answer: product + c
+constraints:
+  - product <= 20
+question: "Calculate: {a} × {b} + {c}"
+answer: answer
+solution:
+  - "First multiply: {a} × {b} = {product}"
+  - "Then add: {product} + {c} = {answer}"

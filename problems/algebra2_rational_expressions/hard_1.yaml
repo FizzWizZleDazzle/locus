@@ -1,0 +1,34 @@
+topic: algebra2/rational_expressions
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(-8, -2)
+  c: integer(2, 8)
+  d: integer(-8, -2)
+  k: integer(2, 5)
+  numerator1: (x - a) * (x - b)
+  denominator1: (x - c) * (x - d)
+  numerator2: k * (x - c)
+  denominator2: (x - a) * (x - b)
+  f1: numerator1 / denominator1
+  f2: numerator2 / denominator2
+  product_num: numerator1 * numerator2
+  product_den: denominator1 * denominator2
+  simplified_num: k * (x - c) * (x - a) * (x - b)
+  simplified_den: (x - c) * (x - d) * (x - a) * (x - b)
+  answer: k / (x - d)
+constraints:
+  - a != c
+  - b != d
+  - a != d
+question: "Simplify the product {equation(f1 * f2, '?')} and state any restrictions on x."
+answer: answer
+solution:
+  - "Start with {f1} · {f2}"
+  - "Multiply numerators: {numerator1} · {numerator2} = {product_num}"
+  - "Multiply denominators: {denominator1} · {denominator2} = {product_den}"
+  - "Cancel common factor (x - c) from numerator and denominator"
+  - "Cancel common factors (x - a)(x - b) from numerator and denominator"
+  - "Result: {answer}"
+  - "Restrictions: x ≠ {a}, x ≠ {b}, x ≠ {c}, x ≠ {d}"

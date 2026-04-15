@@ -1,0 +1,38 @@
+topic: linear_algebra/diagonalization
+difficulty: very_hard
+calculator: none
+variables:
+  # Design eigenvalues first for clean computation
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  lambda3: integer(-5, 5)
+  # Build diagonal matrix D
+  D: matrix(3, 3, 0, 0)
+  D_11: lambda1
+  D_22: lambda2
+  D_33: lambda3
+  # Design simple invertible P
+  P: matrix(3, 3, -3, 3)
+  det_P: det(P)
+  # Construct A = PDP^(-1) to guarantee diagonalizability
+  P_inv: inverse(P)
+  A: P * D * P_inv
+  # Compute D^5
+  D5: matrix(3, 3, 0, 0)
+  D5_11: lambda1^5
+  D5_22: lambda2^5
+  D5_33: lambda3^5
+  # Compute A^5
+  answer: P * D5 * P_inv
+constraints:
+  - det_P != 0
+  - lambda1 != lambda2
+  - lambda2 != lambda3
+question: "Given that matrix A = {matrix_of(A)} is diagonalizable with A = PDP^(-1) where P = {matrix_of(P)} and D is diagonal with eigenvalues {lambda1}, {lambda2}, {lambda3}, compute A^5."
+answer: answer
+answer_type: matrix
+solution:
+  - "Since A = PDP^(-1), we have A^5 = (PDP^(-1))^5"
+  - "Using the property (PDP^(-1))^n = PD^nP^(-1), we get A^5 = PD^5P^(-1)"
+  - "D^5 has diagonal entries {lambda1}^5 = {D5_11}, {lambda2}^5 = {D5_22}, {lambda3}^5 = {D5_33}"
+  - "Therefore A^5 = P · D^5 · P^(-1) = {matrix_of(answer)}"

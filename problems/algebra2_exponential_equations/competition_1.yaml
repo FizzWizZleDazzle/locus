@@ -1,0 +1,34 @@
+topic: algebra2/exponential_equations
+difficulty: competition
+calculator: none
+variables:
+  k: integer(2, 5)
+  base: prime(2, 7)
+  power: k * base
+  rhs: base^k
+  equation_form: base^(x^2 - power*x + power^2 - k^2) = rhs
+  a: 1
+  b: -power
+  c: power^2 - k^2
+  discriminant: b^2 - 4*a*c
+  x1: (power + k)/2
+  x2: (power - k)/2
+  answer: solve(x^2 - power*x + power^2 - k^2 = k, x)
+constraints:
+  - mod(power + k, 2) = 0
+  - mod(power - k, 2) = 0
+question: "Solve for all real x: {equation(equation_form, rhs)}"
+answer: answer
+answer_type: set
+solution:
+  - "We have {equation(equation_form, rhs)}"
+  - "Since {rhs} = {base}^{k}, we need {base}^(x^2 - {power}x + {c}) = {base}^{k}"
+  - "Since bases are equal, exponents must be equal: x^2 - {power}x + {c} = {k}"
+  - "Rearranging: x^2 - {power}x + {c} - {k} = 0"
+  - "This gives x^2 - {power}x + {evaluate(c - k, k, k)} = 0"
+  - "Using the quadratic formula with a = {a}, b = {b}, c = {evaluate(c - k, k, k)}"
+  - "Discriminant = {b}^2 - 4({a})({evaluate(c - k, k, k)}) = {discriminant}"
+  - "Since discriminant = {evaluate(discriminant, k, k)} = {evaluate(4*k^2, k, k)}, we have sqrt({discriminant}) = {evaluate(2*k, k, k)}"
+  - "x = ({power} ± {evaluate(2*k, k, k)})/2"
+  - "x = {x1} or x = {x2}"
+  - "Therefore x ∈ {{x1}, {x2}}"

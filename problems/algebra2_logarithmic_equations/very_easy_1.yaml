@@ -1,0 +1,17 @@
+topic: algebra2/logarithmic_equations
+difficulty: very_easy
+calculator: none
+variables:
+  b: choice(2, 3, 5, 10)
+  k: integer(1, 4)
+  answer: b^k
+  equation_form: log(answer, b)
+constraints:
+  - answer <= 100
+question: "Solve for x: {equation(equation_form, k)}"
+answer: answer
+solution:
+  - "We have {equation(equation_form, k)}"
+  - "By definition of logarithm: {equation(b^k, answer)}"
+  - "Calculate: {b}^{k} = {answer}"
+  - "Therefore, x = {answer}"

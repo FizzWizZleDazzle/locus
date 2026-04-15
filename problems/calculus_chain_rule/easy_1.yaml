@@ -1,0 +1,20 @@
+topic: calculus/chain_rule
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: integer(-8, 8)
+  n: integer(2, 4)
+  inner: a * x + b
+  f: inner^n
+  answer: derivative(f, x)
+constraints:
+  - a != 1
+  - a != -1
+question: "Find the derivative of {f} where the inner function is {inner}."
+answer: answer
+solution:
+  - "Let u = {inner}, so f(x) = u^{n}"
+  - "By the chain rule: f'(x) = {n} * u^{n-1} * u'"
+  - "Since u' = {a}, we have f'(x) = {n} * ({inner})^{n-1} * {a}"
+  - "Therefore, {derivative_of(f, x)} = {answer}"

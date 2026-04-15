@@ -1,0 +1,34 @@
+topic: calculus/curve_sketching
+difficulty: hard
+calculator: graphing
+variables:
+  a: nonzero(-3, 3)
+  b: integer(-4, 4)
+  c: integer(-6, 6)
+  f: a * x^3 + b * x^2 + c * x
+  f_prime: derivative(f, x)
+  f_double_prime: derivative(f_prime, x)
+  critical_points: solve(f_prime, x)
+  inflection_x: solve(f_double_prime, x)
+  inflection_y: evaluate(f, x, inflection_x)
+  y_intercept: evaluate(f, x, 0)
+  factored: a * x * (x^2 + (b/a) * x + (c/a))
+constraints:
+  - b^2 - 3*a*c > 0
+  - mod(b, a) == 0
+  - a != b
+question: "Analyze the function {equation(f(x), f)}. Find all critical points, inflection points, and sketch the curve. Identify intervals of increase/decrease and concavity."
+answer: critical_points
+solution:
+  - "Given: {equation(f(x), f)}"
+  - "Factor: {equation(f(x), factored)}"
+  - "Find critical points by solving {equation(f_prime(x), 0)}:"
+  - "{equation(f_prime(x), f_prime)}"
+  - "Critical points: x = {critical_points}"
+  - "Find inflection point by solving {equation(f_double_prime(x), 0)}:"
+  - "{equation(f_double_prime(x), f_double_prime)}"
+  - "Inflection point at ({inflection_x}, {inflection_y})"
+  - "The y-intercept is (0, {y_intercept})"
+  - "Test intervals around critical points to determine increase/decrease"
+  - "Test concavity: f''(x) > 0 when x > {inflection_x} (concave up)"
+  - "f''(x) < 0 when x < {inflection_x} (concave down)"

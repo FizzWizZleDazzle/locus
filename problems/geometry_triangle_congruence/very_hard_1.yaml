@@ -1,0 +1,47 @@
+topic: geometry/triangle_congruence
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design triangles with integer sides that satisfy triangle inequality
+  # First triangle: use Pythagorean triple for two sides
+  a1: choice(3, 5, 8, 7, 9, 12)
+  b1: choice(4, 12, 15, 24, 12, 16)
+  c1: choice(5, 13, 17, 25, 15, 20)
+  
+  # Second triangle: permute the sides to create congruent triangle
+  perm: choice(1, 2, 3, 4, 5, 6)
+  a2: choice(a1, a1, b1, b1, c1, c1)
+  b2: choice(b1, c1, a1, c1, a1, b1)
+  c2: choice(c1, b1, c1, a1, b1, a1)
+  
+  # Third triangle: scale first triangle by rational factor
+  scale: choice(2, 3, 4)
+  a3: scale * a1
+  b3: scale * b1
+  c3: scale * c1
+  
+  # Fourth triangle: modify one side to break congruence
+  offset: choice(1, 2, 3)
+  a4: a1 + offset
+  b4: b1
+  c4: c1
+  
+  # Angles for SSS verification (using law of cosines)
+  angle_A1: acos((b1^2 + c1^2 - a1^2) / (2 * b1 * c1))
+  angle_A2: acos((b2^2 + c2^2 - a2^2) / (2 * b2 * c2))
+  
+  answer: 1
+constraints:
+  - a1 < b1 + c1  # Triangle inequality (guaranteed by Pythagorean triples)
+  - a4 < b4 + c4  # Modified triangle still valid
+  - perm <= 6     # Valid permutation index
+question: "Four triangles have the following side lengths: Triangle 1: ({a1}, {b1}, {c1}), Triangle 2: ({a2}, {b2}, {c2}), Triangle 3: ({a3}, {b3}, {c3}), Triangle 4: ({a4}, {b4}, {c4}). How many triangles are congruent to Triangle 1?"
+answer: answer
+solution:
+  - "Two triangles are congruent if they have the same three side lengths (SSS criterion)"
+  - "Triangle 1 has sides {a1}, {b1}, {c1}"
+  - "Triangle 2 has sides {a2}, {b2}, {c2} - these are the same three lengths as Triangle 1, just in different order"
+  - "Triangle 3 has sides {a3}, {b3}, {c3} - these are all scaled by factor {scale}, so not congruent"
+  - "Triangle 4 has sides {a4}, {b4}, {c4} - one side differs by {offset}, so not congruent"
+  - "Only Triangle 2 is congruent to Triangle 1"
+  - "Answer: {answer}"

@@ -1,0 +1,32 @@
+topic: calculus/implicit_differentiation
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  curve: x^a + y^b - c*x*y
+  x0: integer(1, 3)
+  y0: integer(1, 3)
+  lhs_val: x0^a + y0^b
+  rhs_val: c * x0 * y0
+  dx_term: a * x0^(a-1)
+  dy_term: b * y0^(b-1)
+  c_term: c
+  numerator: c * y0 - dx_term
+  denominator: dy_term - c * x0
+  answer: numerator / denominator
+constraints:
+  - lhs_val == rhs_val
+  - denominator != 0
+  - abs(answer) <= 10
+question: "Find dy/dx at the point ({x0}, {y0}) on the curve {equation(curve, 0)}."
+answer: answer
+solution:
+  - "Given curve: {equation(curve, 0)}"
+  - "Differentiate implicitly with respect to x:"
+  - "{a}x^{a-1} + {b}y^{b-1} · dy/dx - {c}y - {c}x · dy/dx = 0"
+  - "At point ({x0}, {y0}):"
+  - "{dx_term} + {dy_term} · dy/dx - {c_term} · {y0} - {c_term} · {x0} · dy/dx = 0"
+  - "Collect dy/dx terms: ({dy_term} - {c_term} · {x0}) · dy/dx = {c_term} · {y0} - {dx_term}"
+  - "Therefore: dy/dx = {answer}"

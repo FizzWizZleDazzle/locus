@@ -1,0 +1,25 @@
+topic: geometry/surface_area
+difficulty: hard
+calculator: scientific
+variables:
+  # Design backwards: start with clean dimensions that give integer surface area
+  # Use a composite shape: cylinder with hemispherical caps (capsule)
+  r: integer(2, 5)
+  h: integer(3, 12)
+  # Surface area = 2πr² (hemispheres) + 2πrh (cylinder side)
+  hemisphere_area: 2 * pi * r^2
+  cylinder_area: 2 * pi * r * h
+  total_area: hemisphere_area + cylinder_area
+  # Factor out 2πr for cleaner expression
+  factored: 2 * pi * r * (r + h)
+  answer: factored
+constraints:
+  - h > r  # Ensure capsule is elongated, not sphere-like
+question: "A capsule-shaped storage tank consists of a cylinder of radius {r} meters and height {h} meters, with hemispheres attached to both ends. Find the total surface area of the tank. Express your answer in terms of π."
+answer: answer
+solution:
+  - "The capsule has three parts: two hemispheres and a cylinder"
+  - "Surface area of two hemispheres = surface area of one sphere = 4πr² = 4π({r})² = {hemisphere_area}"
+  - "Lateral surface area of cylinder = 2πrh = 2π({r})({h}) = {cylinder_area}"
+  - "Total surface area = {hemisphere_area} + {cylinder_area}"
+  - "Factor out 2πr: Total surface area = 2π({r})({r} + {h}) = {answer}"

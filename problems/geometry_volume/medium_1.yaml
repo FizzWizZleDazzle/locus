@@ -1,0 +1,28 @@
+topic: geometry/volume
+difficulty: medium
+calculator: scientific
+variables:
+  shape: choice(1, 2, 3)
+  # Shape 1: Rectangular prism with integer dimensions
+  length: integer(3, 12)
+  width: integer(2, 10)
+  height: integer(2, 8)
+  rect_volume: length * width * height
+  # Shape 2: Cylinder with radius that gives clean volume
+  radius: integer(2, 6)
+  cyl_height: integer(3, 10)
+  cyl_volume: 3.14159 * radius^2 * cyl_height
+  cyl_volume_rounded: round(cyl_volume, 2)
+  # Shape 3: Sphere with radius that gives clean volume
+  sphere_r: integer(3, 9)
+  sphere_volume: (4/3) * 3.14159 * sphere_r^3
+  sphere_volume_rounded: round(sphere_volume, 2)
+constraints:
+  - shape == 1 or shape == 2 or shape == 3
+question: |
+  "A rectangular prism has dimensions {length} cm × {width} cm × {height} cm. Find its volume in cubic centimeters."
+answer: rect_volume
+solution:
+  - "Volume of a rectangular prism = length × width × height"
+  - "V = {length} × {width} × {height}"
+  - "V = {rect_volume} cm³"

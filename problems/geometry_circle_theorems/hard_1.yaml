@@ -1,0 +1,31 @@
+topic: geometry/circle_theorems
+difficulty: hard
+calculator: none
+variables:
+  # Use Pythagorean triple for clean numbers
+  a: choice(3, 5, 8, 7, 9, 12)
+  b: choice(4, 12, 15, 24, 12, 16)
+  c: choice(5, 13, 17, 25, 15, 20)
+  # Chord endpoints on circle with radius c centered at origin
+  x1: a
+  y1: b
+  x2: -b
+  y2: a
+  # Perpendicular bisector passes through center (0,0)
+  chord_length_squared: (x2 - x1)^2 + (y2 - y1)^2
+  chord_length: sqrt(chord_length_squared)
+  # Distance from center to chord
+  midpoint_x: (x1 + x2)/2
+  midpoint_y: (y1 + y2)/2
+  distance_squared: midpoint_x^2 + midpoint_y^2
+  distance: sqrt(distance_squared)
+  answer: distance
+constraints:
+  - a^2 + b^2 == c^2
+question: "A circle has radius {c} and center at the origin. A chord has endpoints at ({x1}, {y1}) and ({x2}, {y2}). Find the distance from the center to the chord."
+answer: answer
+solution:
+  - "The perpendicular from the center to a chord bisects the chord"
+  - "Midpoint of chord: ({midpoint_x}, {midpoint_y})"
+  - "Distance from center (0, 0) to midpoint: {answer}"
+  - "Note: Both endpoints are on the circle since {x1}^2 + {y1}^2 = {c}^2 and {x2}^2 + {y2}^2 = {c}^2"

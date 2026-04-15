@@ -1,0 +1,17 @@
+topic: algebra2/logarithm_properties
+difficulty: easy
+calculator: scientific
+variables:
+  base: choice(2, 3, 5, 10)
+  power: integer(2, 5)
+  value: base^power
+  answer: power
+constraints:
+  - value <= 1000
+question: "Simplify {equation(log(value, base), '?')}"
+answer: answer
+solution:
+  - "We need to find the value of {log(value, base)}"
+  - "This means finding the power to which {base} must be raised to get {value}"
+  - "Since {equation(base^power, value)}, we have {equation(log(value, base), power)}"
+  - "Therefore, {equation(log(value, base), answer)}"

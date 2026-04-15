@@ -1,0 +1,28 @@
+topic: calculus/continuity
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(-4, 4)
+  c: integer(-3, 3)
+  x0: integer(-2, 2)
+  left_value: a * x0 + b
+  right_base: a * x0^2 + c
+  k: left_value - right_base
+  f_left: a * x + b
+  f_right: a * x^2 + c + k
+  lim_left: evaluate(f_left, x, x0)
+  lim_right: evaluate(f_right, x, x0)
+  answer: k
+constraints:
+  - a != 0
+  - x0 != 0
+question: "Let f(x) = {f_left} for x < {x0} and f(x) = {f_right} for x ≥ {x0}. Find the value of k that makes f continuous at x = {x0}."
+answer: answer
+solution:
+  - "For continuity at x = {x0}, we need {limit_of(f, x, x0^-)} = {limit_of(f, x, x0^+)} = f({x0})"
+  - "Left-hand limit: {limit_of(f, x, x0^-)} = {lim_left}"
+  - "Right-hand limit: {limit_of(f, x, x0^+)} = {lim_right}"
+  - "Since f({x0}) uses the right piece: f({x0}) = {lim_right}"
+  - "For continuity: {lim_left} = {lim_right}"
+  - "Therefore k = {answer}"

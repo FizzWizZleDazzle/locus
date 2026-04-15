@@ -1,0 +1,29 @@
+topic: algebra2/geometric_sequences
+difficulty: competition
+calculator: none
+variables:
+  first_term: integer(2, 12)
+  ratio: choice(2, 3, 4, 1/2, 1/3, 1/4)
+  n: integer(4, 6)
+  a_n: first_term * ratio^(n-1)
+  sum_n: first_term * (ratio^n - 1) / (ratio - 1)
+  k: integer(2, 4)
+  a_k: first_term * ratio^(k-1)
+  a_2k: first_term * ratio^(2*k-1)
+  product: a_k * a_2k
+  answer: simplify(product / first_term^2)
+constraints:
+  - ratio != 1
+  - first_term * ratio^(n-1) <= 1000
+question: "In a geometric sequence with first term {first_term} and {n}th term {a_n}, find the value of {equation(product, first_term^2 * answer)} where product is the product of the {k}th and {2*k}th terms."
+answer: answer
+solution:
+  - "Given: first term a₁ = {first_term}, a_{n} = {a_n}"
+  - "Find common ratio: {a_n} = {first_term} · r^{n-1}"
+  - "So r^{n-1} = {a_n}/{first_term} = {simplify(a_n/first_term)}"
+  - "Therefore r = {ratio}"
+  - "The {k}th term: a_{k} = {first_term} · {ratio}^{k-1} = {a_k}"
+  - "The {2*k}th term: a_{2*k} = {first_term} · {ratio}^{2*k-1} = {a_2k}"
+  - "Product = {a_k} · {a_2k} = {product}"
+  - "So {product} = {first_term}² · {answer}"
+  - "Therefore the answer is {answer}"

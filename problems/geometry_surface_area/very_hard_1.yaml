@@ -1,0 +1,35 @@
+topic: geometry/surface_area
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design a composite solid with clean measurements
+  r_base: integer(2, 5)
+  h_cyl: integer(3, 8)
+  h_cone: integer(4, 10)
+  # Ensure cone height creates integer slant height with base radius
+  # Using Pythagorean triples: (3,4,5), (5,12,13), (8,15,17)
+  triple_choice: choice(1, 2, 3)
+  r_actual: choice(3, 5, 4)
+  h_actual: choice(4, 12, 3)
+  slant: choice(5, 13, 5)
+  # Build the composite solid
+  cyl_lateral: 2 * 3.14159 * r_actual * h_cyl
+  cyl_base: 3.14159 * r_actual^2
+  cone_lateral: 3.14159 * r_actual * slant
+  hemisphere_surface: 2 * 3.14159 * r_actual^2
+  # Total surface area (cylinder with one base + cone + hemisphere on top)
+  total_exact: cyl_lateral + cyl_base + cone_lateral + hemisphere_surface
+  answer: round(total_exact, 2)
+constraints:
+  - r_actual <= h_cyl
+  - h_actual <= h_cone
+question: "A composite solid consists of a cylinder (radius {r_actual} cm, height {h_cyl} cm) with a cone (height {h_actual} cm) attached to its bottom base and a hemisphere attached to its top base. Find the total surface area of the solid. Round to 2 decimal places."
+answer: answer
+solution:
+  - "The solid has: cylinder lateral surface, one cylinder base (bottom is covered by cone), cone lateral surface, and hemisphere surface"
+  - "Cylinder lateral area = 2πrh = 2π({r_actual})({h_cyl}) = {round(cyl_lateral, 2)} cm²"
+  - "Cylinder base area = πr² = π({r_actual})² = {round(cyl_base, 2)} cm²"
+  - "Cone slant height = √(r² + h²) = √({r_actual}² + {h_actual}²) = {slant} cm"
+  - "Cone lateral area = πrl = π({r_actual})({slant}) = {round(cone_lateral, 2)} cm²"
+  - "Hemisphere surface area = 2πr² = 2π({r_actual})² = {round(hemisphere_surface, 2)} cm²"
+  - "Total surface area = {round(cyl_lateral, 2)} + {round(cyl_base, 2)} + {round(cone_lateral, 2)} + {round(hemisphere_surface, 2)} = {answer} cm²"

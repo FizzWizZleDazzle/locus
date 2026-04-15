@@ -1,0 +1,32 @@
+topic: linear_algebra/linear_independence
+difficulty: hard
+calculator: none
+variables:
+  # Design 3 vectors where v3 = av1 + bv2 for specific a,b
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  # Base vectors with small components
+  v1_1: integer(-4, 4)
+  v1_2: integer(-4, 4)
+  v1_3: integer(-4, 4)
+  v2_1: integer(-4, 4)
+  v2_2: integer(-4, 4)
+  v2_3: integer(-4, 4)
+  # Construct v3 as linear combination
+  v3_1: a * v1_1 + b * v2_1
+  v3_2: a * v1_2 + b * v2_2
+  v3_3: a * v1_3 + b * v2_3
+  # Matrix with vectors as columns
+  M: matrix(3, 3, -10, 10)
+  det: determinant(M)
+  answer: "linearly dependent"
+constraints:
+  - v1_1^2 + v1_2^2 + v1_3^2 > 0
+  - v2_1^2 + v2_2^2 + v2_3^2 > 0
+question: "Determine whether the vectors {vec([v1_1, v1_2, v1_3])}, {vec([v2_1, v2_2, v2_3])}, and {vec([v3_1, v3_2, v3_3])} are linearly independent or linearly dependent."
+answer: answer
+solution:
+  - "Form matrix A with vectors as columns: {matrix_of(M)}"
+  - "Calculate determinant: {det_of(M)} = {det}"
+  - "Since v3 = {a}v1 + {b}v2, the determinant is 0"
+  - "The vectors are linearly dependent"

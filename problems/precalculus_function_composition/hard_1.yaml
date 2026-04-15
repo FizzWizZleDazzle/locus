@@ -1,0 +1,29 @@
+topic: precalculus/function_composition
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: integer(-8, 8)
+  c: nonzero(-5, 5)
+  d: integer(-8, 8)
+  k: integer(-4, 4)
+  f: a*x + b
+  g: c*x^2 + d
+  h: x - k
+  fog: simplify(evaluate(f, x, g))
+  goh: simplify(evaluate(g, x, h))
+  answer: simplify(evaluate(fog, x, h))
+constraints:
+  - a*c != 0
+  - abs(a*c) <= 10
+  - abs(answer) <= 100
+question: "Let f(x) = {f}, g(x) = {g}, and h(x) = {h}. Find (f ∘ g ∘ h)(x)."
+answer: answer
+solution:
+  - "First find (g ∘ h)(x) = g(h(x))"
+  - "g(h(x)) = g({h}) = c({h})^2 + d"
+  - "= c(x - {k})^2 + d"
+  - "= {goh}"
+  - "Now find (f ∘ g ∘ h)(x) = f((g ∘ h)(x))"
+  - "f({goh}) = a({goh}) + b"
+  - "= {answer}"

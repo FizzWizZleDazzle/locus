@@ -1,0 +1,29 @@
+topic: calculus/u_substitution
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-3, 3)
+  c: integer(2, 5)
+  inner: a*x + b
+  f: (inner)^c
+  g: x * f
+  u: inner
+  du_dx: a
+  integrand_in_u: (u - b)/a * u^c
+  expanded: (u^(c+1) - b*u^c)/a
+  antideriv_u: (u^(c+2)/(c+2) - b*u^(c+1)/(c+1))/a
+  answer: simplify((inner^(c+2)/(c+2) - b*inner^(c+1)/(c+1))/a)
+constraints:
+  - a != b
+  - abs(a) != abs(b)
+question: "Find {integral_of(g, x)} where {equation(g, x * f)}"
+answer: answer
+solution:
+  - "Let {equation(u, inner)}, so {equation(du/dx, du_dx)} and {equation(dx, du/a)}"
+  - "Also, {equation(x, (u - b)/a)}"
+  - "Substituting: {integral_of(g, x)} = {integral_of(integrand_in_u, u)}"
+  - "= {integral_of(expanded, u)}"
+  - "= {antideriv_u} + C"
+  - "Substituting back {equation(u, inner)}:"
+  - "= {answer} + C"

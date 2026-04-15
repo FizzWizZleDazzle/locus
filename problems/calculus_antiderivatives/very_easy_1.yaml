@@ -1,0 +1,14 @@
+topic: calculus/antiderivatives
+difficulty: very_easy
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  n: integer(2, 5)
+  f: a * x^n
+  answer: integral(f, x)
+question: "Find {integral_of(f, x)}"
+answer: answer
+solution:
+  - "Apply the power rule for integration to {f}"
+  - "Increase the exponent by 1 and divide by the new exponent"
+  - "{integral_of(f, x)} = {answer} + C"

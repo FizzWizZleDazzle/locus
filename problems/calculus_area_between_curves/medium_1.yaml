@@ -1,0 +1,32 @@
+topic: calculus/area_between_curves
+difficulty: medium
+calculator: scientific
+variables:
+  a: integer(-3, 3)
+  b: integer(1, 4)
+  c: integer(-4, 4)
+  f: a * x^2 + b
+  g: c * x + b
+  intersections: solve(f - g, x)
+  x1: min(intersections[0], intersections[1])
+  x2: max(intersections[0], intersections[1])
+  area_expr: integral(g - f, x)
+  answer: evaluate(area_expr, x, x2) - evaluate(area_expr, x, x1)
+constraints:
+  - a < 0
+  - c > a * x1 + a * x2
+question: "Find the area between the curves {equation(y, f)} and {equation(y, g)}."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g)}"
+  - "This gives {equation(a * x^2 + b, c * x + b)}"
+  - "Simplifying: {equation(a * x^2 - c * x, 0)}"
+  - "Factor: {equation(x * (a * x - c), 0)}"
+  - "So x = 0 or x = {c}/{-a} = {x2}"
+  - "The curves intersect at x = {x1} and x = {x2}"
+  - "Since {a} < 0, the parabola opens downward"
+  - "The line {equation(y, g)} is above the parabola {equation(y, f)} between the intersections"
+  - "Area = {definite_integral_of(g - f, x, x1, x2)}"
+  - "= {definite_integral_of(c * x + b - a * x^2 - b, x, x1, x2)}"
+  - "= {definite_integral_of(c * x - a * x^2, x, x1, x2)}"
+  - "= {answer}"

@@ -1,0 +1,27 @@
+topic: algebra1/quadratic_formula
+difficulty: medium
+calculator: none
+variables:
+  r1: integer(-6, 6)
+  r2: integer(-6, 6)
+  a: choice(1, 2, 3)
+  f: a * (x - r1) * (x - r2)
+  expanded: expand(f)
+  b_coeff: -a * (r1 + r2)
+  c_coeff: a * r1 * r2
+  discriminant: b_coeff^2 - 4*a*c_coeff
+  answer: solve(expanded, x)
+constraints:
+  - r1 != r2
+  - discriminant > 0
+question: "Use the quadratic formula to solve {equation(expanded, 0)}"
+answer: answer
+answer_type: set
+solution:
+  - "The equation {equation(expanded, 0)} is in the form {equation(a*x^2 + b*x + c, 0)}"
+  - "Here a = {a}, b = {b_coeff}, c = {c_coeff}"
+  - "The quadratic formula is x = (-b ± √(b² - 4ac)) / (2a)"
+  - "Calculate the discriminant: b² - 4ac = ({b_coeff})² - 4({a})({c_coeff}) = {discriminant}"
+  - "Since the discriminant is positive, we have two real solutions"
+  - "x = (-({b_coeff}) ± √{discriminant}) / (2·{a})"
+  - "x = {r1} or x = {r2}"

@@ -1,0 +1,36 @@
+topic: precalculus/graphing_trig
+difficulty: hard
+calculator: graphing
+variables:
+  a: choice(2, 3, 4)
+  b: choice(1, 2, 3, 4)
+  c: choice(-3, -2, -1, 1, 2, 3)
+  d: choice(-2, -1, 0, 1, 2)
+  f: a * sin(b * x + c) + d
+  period: 2 * pi / b
+  phase_shift: -c / b
+  amplitude: abs(a)
+  vertical_shift: d
+  max_value: a + d
+  min_value: -a + d
+  first_max_x: (pi/2 - c) / b
+  first_zero_x: -c / b
+constraints:
+  - a != b
+  - abs(c) <= b * pi
+  - abs(d) < a
+question: "Consider the function {equation(f(x), f)}. Find the amplitude, period, phase shift, vertical shift, and range of this function. Then determine the x-coordinate of the first maximum to the right of x = 0."
+answer: first_max_x
+answer_type: expression
+solution:
+  - "Given {equation(f(x), f)}, identify the parameters:"
+  - "Amplitude = |{a}| = {amplitude}"
+  - "Period = 2π/{b} = {period}"
+  - "Phase shift = -{c}/{b} = {phase_shift} (shift left if positive, right if negative)"
+  - "Vertical shift = {d}"
+  - "Range: The function oscillates between {min_value} and {max_value}"
+  - "So the range is [{min_value}, {max_value}]"
+  - "For the first maximum after x = 0:"
+  - "sin(u) reaches its maximum when u = π/2"
+  - "So {b}x + {c} = π/2"
+  - "Solving: x = (π/2 - {c})/{b} = {first_max_x}"

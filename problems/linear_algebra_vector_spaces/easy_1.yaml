@@ -1,0 +1,22 @@
+topic: linear_algebra/vector_spaces
+difficulty: easy
+calculator: none
+variables:
+  a: integer(-5, 5)
+  b: integer(-5, 5)
+  c: integer(-5, 5)
+  d: integer(-5, 5)
+  k: integer(2, 4)
+  ka: k * a
+  kb: k * b
+  result_x: k * a + c
+  result_y: k * b + d
+constraints:
+  - a * d - b * c != 0
+question: "Let {vec([a, b])} and {vec([c, d])} be vectors in R². Find {k}{vec([a, b])} + {vec([c, d])}."
+answer: "[result_x, result_y]"
+answer_type: vector
+solution:
+  - "Multiply {vec([a, b])} by scalar {k}: {k}{vec([a, b])} = {vec([ka, kb])}"
+  - "Add the vectors: {vec([ka, kb])} + {vec([c, d])}"
+  - "= {vec([result_x, result_y])}"

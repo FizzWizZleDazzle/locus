@@ -1,0 +1,32 @@
+topic: differential_equations/characteristic_equation
+difficulty: competition
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  a: nonzero(-4, 4)
+  char_poly: (r - r1)^2 * (r - r2)
+  expanded: expand(char_poly)
+  p: -evaluate(derivative(char_poly, r), r, 0)
+  q: evaluate(derivative(derivative(char_poly, r), r), r, 0) / 2
+  s: -evaluate(char_poly, r, 0)
+  general_solution: a * exp(r1 * x) + (a + 1) * x * exp(r1 * x) + exp(r2 * x)
+  y0: evaluate(general_solution, x, 0)
+  y1: evaluate(derivative(general_solution, x), x, 0)
+  y2: evaluate(derivative(derivative(general_solution, x), x), x, 0)
+constraints:
+  - r1 != r2
+  - r1 != 0
+  - r2 != 0
+question: "Consider the third-order linear differential equation y''' + {p}y'' + {q}y' + {s}y = 0. Given that the characteristic equation has a repeated root of multiplicity 2, and the general solution satisfies y(0) = {y0}, y'(0) = {y1}, and y''(0) = {y2}, find the characteristic polynomial."
+answer: expanded
+solution:
+  - "The characteristic equation for y''' + {p}y'' + {q}y' + {s}y = 0 is r³ + {p}r² + {q}r + {s} = 0"
+  - "Since there's a repeated root of multiplicity 2, the characteristic polynomial has form (r - r₁)²(r - r₂)"
+  - "The general solution is y = c₁e^(r₁x) + c₂xe^(r₁x) + c₃e^(r₂x)"
+  - "Using initial conditions: y(0) = c₁ + c₃ = {y0}"
+  - "y'(0) = r₁c₁ + c₂ + r₂c₃ = {y1}"
+  - "y''(0) = r₁²c₁ + 2r₁c₂ + r₂²c₃ = {y2}"
+  - "From our construction: c₁ = {a}, c₂ = {a} + 1, c₃ = 1"
+  - "This gives r₁ = {r1} (double root) and r₂ = {r2}"
+  - "Therefore the characteristic polynomial is {expanded}"

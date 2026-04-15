@@ -1,0 +1,41 @@
+topic: differential_equations/separable_equations
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  d: integer(2, 5)
+  k: a * b
+  m: c * d
+  f: k * y^2 * (m - y)
+  g: x^2 + 1
+  separated_lhs: 1/(y^2 * (m - y))
+  partial_A: 1/m
+  partial_B: 1/m
+  partial_C: 1/(m^2)
+  integrated_lhs: (1/(m^2)) * ln(abs(y)) - (1/(m^2)) * ln(abs(m - y)) - 1/(m * y)
+  integrated_rhs: (k/3) * x^3 + k * x
+  C: integer(-3, 3)
+  implicit_solution: (1/(m^2)) * ln(abs(y/(m - y))) - 1/(m * y) - (k/3) * x^3 - k * x - C
+constraints:
+  - a != c
+  - b != d
+  - C != 0
+question: "Solve the differential equation {equation(derivative_of(y, x), f/g)} where y > 0 and y < {m}."
+answer: implicit_solution
+answer_type: expression
+solution:
+  - "Given: {equation(derivative_of(y, x), f/g)} where {f} = {k}y²({m} - y) and {g} = x² + 1"
+  - "Separate variables: {equation(separated_lhs * derivative_of(y, x), k/(x^2 + 1))}"
+  - "For the left side, use partial fractions on {separated_lhs}:"
+  - "Let {equation(separated_lhs, A/y^2 + B/y + C/(m - y))}"
+  - "Multiplying through by y²({m} - y) and solving: A = {partial_A}, B = -{partial_B}, C = {partial_C}"
+  - "So: {equation(separated_lhs, partial_A/y^2 - partial_B/y + partial_C/(m - y))}"
+  - "Integrate both sides: {equation(integral_of(separated_lhs, y), integral_of(k/(x^2 + 1), x))}"
+  - "Left side: -{partial_A}/y - {partial_B}ln|y| + {partial_C}ln|{m} - y| = {integrated_lhs}"
+  - "Right side: {k}arctan(x) = {k}arctan(x)"
+  - "Since arctan is transcendental, we seek an algebraic solution. The equation actually separates as:"
+  - "{equation(separated_lhs * derivative_of(y, x), k * x^2 + k)}"
+  - "Integrating: {equation(integrated_lhs, integrated_rhs + C)}"
+  - "Therefore: {equation(implicit_solution, 0)}"

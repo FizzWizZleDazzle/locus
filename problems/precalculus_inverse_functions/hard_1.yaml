@@ -1,0 +1,33 @@
+topic: precalculus/inverse_functions
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-8, 8)
+  c: nonzero(-8, 8)
+  f: (a*x + b) / (x + c)
+  y_var: (a*x + b) / (x + c)
+  cross_mult: y_var * (x + c) - (a*x + b)
+  expanded: expand(cross_mult)
+  x_coeff: y_var - a
+  const_term: c*y_var - b
+  x_solved: -const_term / x_coeff
+  x_expr: simplify(x_solved)
+  inverse: (b - c*x) / (x - a)
+  answer: simplify(inverse)
+constraints:
+  - a != c
+  - abs(a - c) > 1
+  - gcd(abs(b), abs(c)) == 1
+question: "Find the inverse function of {equation(f(x), f)}. Express your answer as f^(-1)(x)."
+answer: answer
+solution:
+  - "Let {equation(y, f)}"
+  - "To find the inverse, solve for x in terms of y"
+  - "Cross multiply: {equation(y(x + c), a*x + b)}"
+  - "Expand: {equation(expanded, 0)}"
+  - "Collect x terms: {equation(x(y_var - a), b - c*y_var)}"
+  - "Since {a} ≠ {c}, we have y - {a} ≠ 0 for y ≠ {a}"
+  - "Solve for x: {equation(x, x_expr)}"
+  - "Replace y with x to get the inverse: {equation(f^(-1)(x), answer)}"
+  - "Domain of f^(-1): all real x except x = {a}"

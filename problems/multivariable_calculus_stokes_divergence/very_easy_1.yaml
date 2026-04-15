@@ -1,0 +1,24 @@
+topic: multivariable_calculus/stokes_divergence
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(1, 4)
+  F_x: a * x
+  F_y: b * y
+  F_z: c * z
+  div_F: a + b + c
+  answer: div_F
+constraints:
+  - a != b
+  - b != c
+question: "Find the divergence of the vector field {vec(F)} = ({F_x}, {F_y}, {F_z})."
+answer: answer
+solution:
+  - "The divergence of a vector field F = (F_x, F_y, F_z) is div F = ∂F_x/∂x + ∂F_y/∂y + ∂F_z/∂z"
+  - "For {vec(F)} = ({F_x}, {F_y}, {F_z}):"
+  - "∂F_x/∂x = ∂({F_x})/∂x = {a}"
+  - "∂F_y/∂y = ∂({F_y})/∂y = {b}"
+  - "∂F_z/∂z = ∂({F_z})/∂z = {c}"
+  - "Therefore, div {vec(F)} = {a} + {b} + {c} = {answer}"

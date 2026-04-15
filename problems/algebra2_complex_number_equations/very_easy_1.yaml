@@ -1,0 +1,19 @@
+topic: algebra2/complex_number_equations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(2, 8)
+  real_part: c - a
+  imag_part: -b
+  answer: real_part + imag_part * i
+constraints:
+  - c > a
+question: "Solve for z: {equation(z + a + b*i, c)}"
+answer: answer
+solution:
+  - "Start with {equation(z + a + b*i, c)}"
+  - "Subtract {a} from both sides: {equation(z + b*i, c - a)}"
+  - "Subtract {b}i from both sides: {equation(z, (c - a) - b*i)}"
+  - "Therefore z = {real_part} - {imag_part}i"

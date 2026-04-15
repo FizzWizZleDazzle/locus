@@ -1,0 +1,35 @@
+topic: algebra1/polynomial_operations
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  e: nonzero(-4, 4)
+  f: nonzero(-4, 4)
+  p: a*x^3 + b*x^2 + c*x + d
+  q: e*x^2 + f*x - d
+  product: expand(p * q)
+  answer: simplify(product)
+constraints:
+  - abs(a*e) <= 12
+  - abs(d) <= 3
+question: "Find the product of {equation(p, 0)} and {equation(q, 0)}. Express your answer as a polynomial in standard form."
+answer: answer
+solution:
+  - "Multiply {p} by {q}"
+  - "Distribute each term of {p} to each term of {q}:"
+  - "{a}x^3 · {e}x^2 = {a*e}x^5"
+  - "{a}x^3 · {f}x = {a*f}x^4"
+  - "{a}x^3 · ({-d}) = {-a*d}x^3"
+  - "{b}x^2 · {e}x^2 = {b*e}x^4"
+  - "{b}x^2 · {f}x = {b*f}x^3"
+  - "{b}x^2 · ({-d}) = {-b*d}x^2"
+  - "{c}x · {e}x^2 = {c*e}x^3"
+  - "{c}x · {f}x = {c*f}x^2"
+  - "{c}x · ({-d}) = {-c*d}x"
+  - "{d} · {e}x^2 = {d*e}x^2"
+  - "{d} · {f}x = {d*f}x"
+  - "{d} · ({-d}) = {-d*d}"
+  - "Combine like terms to get {answer}"

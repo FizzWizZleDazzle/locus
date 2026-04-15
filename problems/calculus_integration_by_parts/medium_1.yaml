@@ -1,0 +1,26 @@
+topic: calculus/integration_by_parts
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(2, 5)
+  u: x
+  dv: a * e^(b*x)
+  du: derivative(u, x)
+  v: integral(dv, x)
+  integrand: u * dv
+  uv: u * v
+  vdu: v * du
+  integral_vdu: integral(vdu, x)
+  answer: uv - integral_vdu
+constraints:
+  - b != 0
+question: "Find {integral_of(integrand, x)} using integration by parts"
+answer: answer
+solution:
+  - "Let u = {u} and dv = {dv} dx"
+  - "Then du = {du} dx and v = {v}"
+  - "By integration by parts: {integral_of(integrand, x)} = uv - {integral_of(vdu, x)}"
+  - "= {uv} - {integral_of(vdu, x)}"
+  - "= {uv} - {integral_vdu}"
+  - "= {answer}"

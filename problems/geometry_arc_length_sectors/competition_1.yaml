@@ -1,0 +1,31 @@
+topic: geometry/arc_length_sectors
+difficulty: competition
+calculator: scientific
+variables:
+  # Design backward: want arc length to be a clean multiple of π
+  # Arc length = r * θ, so pick r and arc_length first
+  r: choice(6, 8, 9, 12, 15, 18)
+  arc_multiple: choice(2, 3, 4, 5, 6, 8)
+  arc_length: arc_multiple * pi
+  # Work backward to find θ
+  theta: arc_length / r
+  # Convert to degrees for the problem
+  theta_deg: theta * 180 / pi
+  # Sector area = (1/2) * r^2 * θ
+  sector_area: (r^2 * theta) / 2
+  # Also compute chord length for competition difficulty
+  chord: 2 * r * sin(theta/2)
+  # Round chord for display
+  chord_rounded: round(chord, 2)
+  answer: arc_multiple
+constraints:
+  - theta <= pi  # Ensure angle is at most 180 degrees
+question: "A circular sector has radius {r} cm and central angle {theta_deg}°. The arc length of this sector can be expressed as kπ cm for some integer k. Find k."
+answer: answer
+solution:
+  - "Convert angle to radians: {theta_deg}° = {theta_deg} × π/180 = {theta} radians"
+  - "Arc length formula: s = rθ"
+  - "s = {r} × {theta} = {r} × {arc_length}/{r} = {arc_length} cm"
+  - "Since {arc_length} = {arc_multiple}π, we have k = {answer}"
+  - "Verification: The sector area is {sector_area} cm²"
+  - "The chord length is approximately {chord_rounded} cm"

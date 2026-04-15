@@ -1,0 +1,22 @@
+topic: precalculus/polar_coordinates
+difficulty: easy
+calculator: scientific
+variables:
+  angle_deg: choice(0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330)
+  r: integer(2, 8)
+  theta: angle_deg * pi / 180
+  x: evaluate(r * cos(theta), theta, theta)
+  y: evaluate(r * sin(theta), theta, theta)
+  x_rounded: round(x, 3)
+  y_rounded: round(y, 3)
+  answer: (x_rounded, y_rounded)
+question: "Convert the polar coordinates ({r}, {angle_deg}°) to rectangular coordinates (x, y)."
+answer: answer
+answer_type: tuple
+solution:
+  - "Given polar coordinates: r = {r}, θ = {angle_deg}°"
+  - "Convert angle to radians: θ = {angle_deg}° × π/180"
+  - "Use conversion formulas: x = r cos(θ), y = r sin(θ)"
+  - "x = {r} × cos({angle_deg}°) = {x_rounded}"
+  - "y = {r} × sin({angle_deg}°) = {y_rounded}"
+  - "Rectangular coordinates: ({x_rounded}, {y_rounded})"

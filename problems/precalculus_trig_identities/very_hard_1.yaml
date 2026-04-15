@@ -1,0 +1,25 @@
+topic: precalculus/trig_identities
+difficulty: very_hard
+calculator: scientific
+variables:
+  k: choice(2, 3, 4, 6)
+  sign: choice(1, -1)
+  base_angle: pi/k
+  angle: sign * base_angle
+  lhs: (1 - cos(2*angle)) / sin(2*angle)
+  num_simplified: simplify(1 - cos(2*angle))
+  den_simplified: simplify(sin(2*angle))
+  rhs: simplify(lhs)
+  answer: tan(angle)
+constraints:
+  - k != 0
+question: "Prove that {equation(lhs, rhs)} and find the value of {equation(rhs, tan(angle))} when θ = {angle}."
+answer: answer
+solution:
+  - "Start with the left side: {lhs}"
+  - "Use the double angle formulas: cos(2θ) = 1 - 2sin²(θ) and sin(2θ) = 2sin(θ)cos(θ)"
+  - "So 1 - cos(2θ) = 1 - (1 - 2sin²(θ)) = 2sin²(θ)"
+  - "Therefore: {equation(lhs, '2sin²(θ) / (2sin(θ)cos(θ))')}"
+  - "Simplify: {equation('2sin²(θ) / (2sin(θ)cos(θ))', 'sin(θ) / cos(θ)')}"
+  - "This equals tan(θ), so {equation(lhs, 'tan(θ)')}"
+  - "When θ = {angle}, we have tan({angle}) = {answer}"

@@ -1,0 +1,31 @@
+topic: multivariable_calculus/double_integrals
+difficulty: hard
+calculator: none
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(2, 4)
+  region_type: choice(1, 2)
+  f: choice(a*x + b*y, a*x*y, b*x + c*y)
+  x_lower: 0
+  x_upper: choice(2, 3)
+  y_lower: 0
+  y_upper: x
+  inner_integral: integral(f, y)
+  inner_evaluated: evaluate(inner_integral, y, y_upper) - evaluate(inner_integral, y, y_lower)
+  inner_simplified: simplify(inner_evaluated)
+  outer_integral: integral(inner_simplified, x)
+  answer: evaluate(outer_integral, x, x_upper) - evaluate(outer_integral, x, x_lower)
+constraints:
+  - a != b
+  - c > max(a, b)
+question: "Evaluate the double integral {integral_of(integral_of(f, y), x)} over the region R bounded by y = 0, y = x, x = 0, and x = {x_upper}."
+answer: answer
+solution:
+  - "Set up the iterated integral with bounds: 0 ≤ x ≤ {x_upper}, 0 ≤ y ≤ x"
+  - "Inner integral: {integral_of(f, y)} from 0 to x"
+  - "Evaluating inner integral: {inner_integral} evaluated from 0 to x"
+  - "This gives: {inner_simplified}"
+  - "Outer integral: {integral_of(inner_simplified, x)} from 0 to {x_upper}"
+  - "Evaluating: {outer_integral} from 0 to {x_upper}"
+  - "Final answer: {answer}"

@@ -1,0 +1,32 @@
+topic: differential_equations/exact_equations
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  M: a*x^2 + b*x*y + c*y^2
+  N: b*x*y + c*y^2 + a*x^2
+  dM_dy: derivative(M, y)
+  dN_dx: derivative(N, x)
+  F: integral(M, x)
+  g_prime: N - derivative(F, y)
+  g: integral(g_prime, y)
+  solution_implicit: F + g
+  answer: simplify(solution_implicit)
+constraints:
+  - a != b
+  - a != c
+  - b != c
+question: "Verify that {equation(M*dx + N*dy, 0)} is exact and find its general solution F(x,y) = C."
+answer: answer
+solution:
+  - "Check exactness: {derivative_of(M, y)} = {dM_dy} and {derivative_of(N, x)} = {dN_dx}"
+  - "Since {dM_dy} = {dN_dx}, the equation is exact"
+  - "Find F by integrating M with respect to x: F = {integral_of(M, x)} = {F} + g(y)"
+  - "Take {derivative_of(F, y)} = {derivative(F, y)} + g'(y)"
+  - "Set equal to N: {derivative(F, y)} + g'(y) = {N}"
+  - "So g'(y) = {g_prime}"
+  - "Integrate: g(y) = {integral_of(g_prime, y)} = {g}"
+  - "Therefore F(x,y) = {F} + {g} = {answer}"
+  - "General solution: {equation(answer, C)}"

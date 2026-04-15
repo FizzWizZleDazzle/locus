@@ -1,0 +1,35 @@
+topic: calculus/antiderivatives
+difficulty: competition
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-6, 6)
+  c: nonzero(-6, 6)
+  n: integer(3, 5)
+  m: integer(2, 4)
+  f: a * x^n + b * x^m + c * sqrt(x)
+  expanded_f: expand(f)
+  antiderivative: integral(expanded_f, x)
+  x0: integer(1, 4)
+  y0: integer(-10, 10)
+  C: y0 - evaluate(antiderivative, x, x0)
+  F: antiderivative + C
+  x1: integer(5, 9)
+  answer: evaluate(F, x, x1)
+constraints:
+  - n != m
+  - x1 > x0
+  - mod(a, n+1) == 0
+question: "Find F({x1}) where F is the antiderivative of {expanded_f} that passes through the point ({x0}, {y0})."
+answer: answer
+solution:
+  - "First find the general antiderivative of {expanded_f}"
+  - "For the term {a}x^{n}: {integral_of(a * x^n, x)} = {evaluate(integral(a * x^n, x), x, x)}"
+  - "For the term {b}x^{m}: {integral_of(b * x^m, x)} = {evaluate(integral(b * x^m, x), x, x)}"
+  - "For the term {c}√x = {c}x^(1/2): {integral_of(c * sqrt(x), x)} = {evaluate(integral(c * sqrt(x), x), x, x)}"
+  - "General antiderivative: F(x) = {antiderivative} + C"
+  - "Use the initial condition F({x0}) = {y0} to find C"
+  - "F({x0}) = {evaluate(antiderivative, x, x0)} + C = {y0}"
+  - "Therefore C = {C}"
+  - "The specific antiderivative is F(x) = {F}"
+  - "Finally, F({x1}) = {answer}"

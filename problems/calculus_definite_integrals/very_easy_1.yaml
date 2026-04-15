@@ -1,0 +1,20 @@
+topic: calculus/definite_integrals
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(5, 8)
+  c: integer(2, 6)
+  f: c * x
+  F: evaluate(integral(f, x), x, b) - evaluate(integral(f, x), x, a)
+  answer: F
+constraints:
+  - b > a
+question: "Evaluate {definite_integral_of(f, x, a, b)}"
+answer: answer
+solution:
+  - "Find the antiderivative of {f}: F(x) = {integral_of(f, x)} = {c}x^2/2"
+  - "Apply the fundamental theorem: F({b}) - F({a})"
+  - "F({b}) = {c}({b})^2/2 = {evaluate(c*b^2/2, x, 0)}"
+  - "F({a}) = {c}({a})^2/2 = {evaluate(c*a^2/2, x, 0)}"
+  - "Therefore: {answer}"

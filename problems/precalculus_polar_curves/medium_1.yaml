@@ -1,0 +1,25 @@
+topic: precalculus/polar_curves
+difficulty: medium
+calculator: graphing
+variables:
+  a: integer(2, 8)
+  n: choice(3, 4, 5, 6)
+  curve: a * sin(n * theta)
+  max_r: a
+  num_petals: n
+  petal_angle: 2 * pi / n
+  first_petal_end: pi / n
+  area_one_petal: integral(0.5 * curve^2, theta, 0, first_petal_end)
+  total_area: simplify(n * area_one_petal)
+constraints:
+  - a > 3
+  - n != 4
+question: "Consider the polar curve r = {curve}. Find the total area enclosed by all petals of this rose curve."
+answer: total_area
+solution:
+  - "The curve r = {curve} is a rose with {num_petals} petals"
+  - "Each petal spans an angle of {petal_angle} radians"
+  - "The first petal goes from θ = 0 to θ = {first_petal_end}"
+  - "Area of one petal: {integral_of(0.5 * curve^2, theta)} from 0 to {first_petal_end}"
+  - "Area of one petal = {area_one_petal}"
+  - "Total area = {num_petals} × {area_one_petal} = {total_area}"

@@ -1,0 +1,19 @@
+topic: precalculus/trig_identities
+difficulty: very_easy
+calculator: none
+variables:
+  angle: choice(0, 30, 45, 60, 90, 120, 135, 150, 180)
+  angle_rad: angle * pi / 180
+  sin_val: sin(angle_rad)
+  cos_val: cos(angle_rad)
+  sin_squared: sin_val^2
+  cos_squared: cos_val^2
+  answer: sin_squared + cos_squared
+question: "Given that the angle is {angle}°, verify the Pythagorean identity by computing {equation(sin^2(angle°) + cos^2(angle°), ?)}"
+answer: answer
+solution:
+  - "For {angle}°, we have sin({angle}°) = {sin_val} and cos({angle}°) = {cos_val}"
+  - "sin²({angle}°) = ({sin_val})² = {sin_squared}"
+  - "cos²({angle}°) = ({cos_val})² = {cos_squared}"
+  - "sin²({angle}°) + cos²({angle}°) = {sin_squared} + {cos_squared} = {answer}"
+  - "This confirms the Pythagorean identity: sin²θ + cos²θ = 1"

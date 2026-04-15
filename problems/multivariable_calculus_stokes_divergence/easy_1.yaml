@@ -1,0 +1,24 @@
+topic: multivariable_calculus/stokes_divergence
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(1, 4)
+  F_x: a * y
+  F_y: b * x
+  F_z: c
+  curl_z: b - a
+  R: integer(1, 3)
+  area: 3.14159 * R * R
+  answer: curl_z * area
+constraints:
+  - b != a
+question: "Let {vec(F)} = ({F_x}, {F_y}, {F_z}). Use Stokes' theorem to evaluate the line integral of {vec(F)} around the circle x^2 + y^2 = {R}^2 in the xy-plane, oriented counterclockwise."
+answer: answer
+solution:
+  - "By Stokes' theorem, the line integral equals the surface integral of curl({vec(F)}) over the disk"
+  - "curl({vec(F)}) = (0, 0, {curl_z})"
+  - "The surface integral is {curl_z} times the area of the disk"
+  - "Area = π({R})^2 = {area}"
+  - "Answer: {answer}"

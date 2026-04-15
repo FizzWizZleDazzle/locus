@@ -1,0 +1,20 @@
+topic: algebra2/complex_number_operations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(-5, 5)
+  b: integer(-5, 5)
+  c: integer(-5, 5)
+  d: integer(-5, 5)
+  z1: a + b*i
+  z2: c + d*i
+  sum: (a + c) + (b + d)*i
+constraints:
+  - a != 0 or b != 0
+  - c != 0 or d != 0
+question: "Find the sum of {z1} and {z2}."
+answer: sum
+solution:
+  - "Add the real parts: {a} + {c} = {a + c}"
+  - "Add the imaginary parts: {b} + {d} = {b + d}"
+  - "Therefore, {z1} + {z2} = {sum}"

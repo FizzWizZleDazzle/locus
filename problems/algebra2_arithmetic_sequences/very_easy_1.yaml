@@ -1,0 +1,19 @@
+topic: algebra2/arithmetic_sequences
+difficulty: very_easy
+calculator: none
+variables:
+  a1: integer(1, 20)
+  d: integer(2, 8)
+  n: integer(4, 8)
+  a2: a1 + d
+  a3: a1 + 2*d
+  answer: a1 + (n-1)*d
+question: "Find the {n}th term of the arithmetic sequence: {a1}, {a2}, {a3}, ..."
+answer: answer
+solution:
+  - "First term: a₁ = {a1}"
+  - "Common difference: d = {a2} - {a1} = {d}"
+  - "Formula for nth term: aₙ = a₁ + (n-1)d"
+  - "a_{n} = {a1} + ({n}-1)×{d}"
+  - "a_{n} = {a1} + {evaluate((n-1)*d, n, n)}"
+  - "a_{n} = {answer}"

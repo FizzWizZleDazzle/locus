@@ -1,0 +1,35 @@
+topic: geometry/triangle_congruence
+difficulty: medium
+calculator: none
+variables:
+  # Design backwards: create two congruent triangles with clean measurements
+  # First triangle sides
+  a: integer(3, 8)
+  b: integer(4, 9)
+  c: integer(5, 10)
+  # Second triangle has same sides in different order (congruent by SSS)
+  p: b
+  q: c
+  r: a
+  # Angles for first triangle (in degrees)
+  angle_A: integer(30, 80)
+  angle_B: integer(40, 70)
+  angle_C: 180 - angle_A - angle_B
+  # Corresponding angles for second triangle
+  angle_P: angle_B
+  angle_Q: angle_C
+  angle_R: angle_A
+constraints:
+  - a < b + c  # Triangle inequality
+  - b < a + c
+  - c < a + b
+question: "Triangle ABC has sides AB = {c}, BC = {a}, CA = {b} and angles ∠A = {angle_A}°, ∠B = {angle_B}°, ∠C = {angle_C}°. Triangle PQR has sides PQ = {r}, QR = {p}, RP = {q} and angles ∠P = {angle_P}°, ∠Q = {angle_Q}°, ∠R = {angle_R}°. Are these triangles congruent? If yes, state the congruence criterion."
+answer: answer
+solution:
+  - "Compare the sides of both triangles:"
+  - "Triangle ABC: AB = {c}, BC = {a}, CA = {b}"
+  - "Triangle PQR: PQ = {r}, QR = {p}, RP = {q}"
+  - "Notice that PQ = {r} = {a} = BC, QR = {p} = {b} = CA, RP = {q} = {c} = AB"
+  - "All three pairs of corresponding sides are equal"
+  - "Therefore, triangles ABC and PQR are congruent by SSS (Side-Side-Side)"
+  - "The correspondence is: A ↔ R, B ↔ P, C ↔ Q"

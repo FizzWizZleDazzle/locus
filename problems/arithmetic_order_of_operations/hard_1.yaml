@@ -1,0 +1,30 @@
+topic: arithmetic/order_of_operations
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(3, 7)
+  c: integer(2, 4)
+  d: integer(2, 5)
+  e: integer(1, 3)
+  f: integer(4, 8)
+  term1: a * b^2
+  term2: c * d
+  term3: e * f
+  numerator: term1 - term2
+  answer: numerator / term3
+constraints:
+  - mod(numerator, term3) == 0
+  - b != c
+  - d != e
+question: "Evaluate: {a} × {b}² - {c} × {d} ÷ ({e} × {f})"
+answer: answer
+solution:
+  - "Follow order of operations: exponents, then multiplication/division from left to right"
+  - "First, calculate {b}² = {b^2}"
+  - "Then {a} × {b^2} = {term1}"
+  - "Next, {c} × {d} = {term2}"
+  - "And {e} × {f} = {term3}"
+  - "Now we have: {term1} - {term2} ÷ {term3}"
+  - "Division before subtraction: {term2} ÷ {term3} = {term2/term3}"
+  - "Finally: {term1} - {term2/term3} = {answer}"

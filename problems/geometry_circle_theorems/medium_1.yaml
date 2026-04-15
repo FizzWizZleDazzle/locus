@@ -1,0 +1,18 @@
+topic: geometry/circle_theorems
+difficulty: medium
+calculator: none
+variables:
+  r: integer(3, 8)
+  angle_deg: choice(30, 45, 60, 90, 120, 135, 150)
+  central_angle: 2 * angle_deg
+  inscribed_angle: angle_deg
+  chord_length_squared: 2 * r^2 * (1 - cos(angle_deg * pi / 180))
+  chord_length: simplify(sqrt(chord_length_squared))
+constraints:
+  - angle_deg <= 90
+question: "A circle has radius {r}. An inscribed angle of {inscribed_angle}° intercepts an arc. What is the measure of the central angle that intercepts the same arc?"
+answer: central_angle
+solution:
+  - "The inscribed angle theorem states that a central angle is twice the inscribed angle intercepting the same arc"
+  - "Inscribed angle = {inscribed_angle}°"
+  - "Central angle = 2 × {inscribed_angle}° = {central_angle}°"

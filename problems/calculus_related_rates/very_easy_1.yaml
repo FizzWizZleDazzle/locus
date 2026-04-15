@@ -1,0 +1,19 @@
+topic: calculus/related_rates
+difficulty: very_easy
+calculator: none
+variables:
+  rate: integer(2, 8)
+  radius: integer(3, 12)
+  area_rate: 2 * 3.14159 * radius * rate
+  answer: area_rate
+constraints:
+  - radius % 2 == 0 or radius % 3 == 0
+question: "A circular oil spill is expanding. When the radius is {radius} meters, it is increasing at {rate} m/s. Find the rate at which the area is increasing at this instant. Use π ≈ 3.14159."
+answer: answer
+solution:
+  - "Let r be the radius and A be the area of the circle"
+  - "We know A = πr²"
+  - "Differentiating both sides with respect to time: dA/dt = 2πr(dr/dt)"
+  - "Given: r = {radius} m and dr/dt = {rate} m/s"
+  - "Substituting: dA/dt = 2π({radius})({rate})"
+  - "dA/dt = {answer} m²/s"

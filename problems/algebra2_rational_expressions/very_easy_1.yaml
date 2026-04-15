@@ -1,0 +1,20 @@
+topic: algebra2/rational_expressions
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(2, 8)
+  c: integer(2, 8)
+  numerator: a * x
+  denominator: b * x
+  simplified: a / b
+constraints:
+  - a != b
+  - gcd(a, b) == 1
+question: "Simplify the rational expression {equation(numerator, denominator)}"
+answer: simplified
+solution:
+  - "Start with {equation(numerator, denominator)}"
+  - "Factor out x from numerator and denominator: {equation(a * x, b * x)}"
+  - "Cancel the common factor x: {equation(a, b)}"
+  - "Since gcd({a}, {b}) = 1, the fraction is already in simplest form: {simplified}"

@@ -1,0 +1,23 @@
+topic: multivariable_calculus/directional_derivatives
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  f: a*x + b*y
+  x0: integer(-3, 3)
+  y0: integer(-3, 3)
+  u1: choice(1, 0, -1)
+  u2: choice(0, 1, -1)
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  answer: u1*fx + u2*fy
+constraints:
+  - abs(u1) + abs(u2) == 1
+question: "Find the directional derivative of f(x,y) = {f} at the point ({x0}, {y0}) in the direction of the unit vector {vec([u1, u2])}."
+answer: answer
+solution:
+  - "The directional derivative is given by: D_u f = ∇f · u"
+  - "First find the gradient: ∇f = ({fx}, {fy})"
+  - "The unit vector is u = {vec([u1, u2])}"
+  - "D_u f = ({fx})({u1}) + ({fy})({u2}) = {answer}"

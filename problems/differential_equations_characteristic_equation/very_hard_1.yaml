@@ -1,0 +1,33 @@
+topic: differential_equations/characteristic_equation
+difficulty: very_hard
+calculator: scientific
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  r3: integer(-5, 5)
+  char_poly: (r - r1) * (r - r2) * (r - r3)
+  expanded: expand(char_poly)
+  a: -evaluate(derivative(expanded, r), r, 0)
+  b: evaluate(derivative(derivative(expanded, r), r), r, 0) / 2
+  c: -evaluate(derivative(derivative(derivative(expanded, r), r), r), r, 0) / 6
+  diff_eq: y''' + a * y'' + b * y' + c * y
+  roots: solve(expanded, r)
+  y1: e^(r1 * x)
+  y2: e^(r2 * x)
+  y3: e^(r3 * x)
+  general_sol: C1 * y1 + C2 * y2 + C3 * y3
+constraints:
+  - r1 != r2
+  - r2 != r3
+  - r1 != r3
+question: "Find the general solution to the differential equation {equation(diff_eq, 0)}."
+answer: general_sol
+answer_type: expression
+solution:
+  - "Write the characteristic equation by replacing y''' with r³, y'' with r², y' with r, and y with 1"
+  - "Characteristic equation: {equation(expanded, 0)}"
+  - "Factor: {equation(char_poly, 0)}"
+  - "The roots are r = {r1}, r = {r2}, r = {r3}"
+  - "Since all roots are distinct, the general solution is:"
+  - "y = {general_sol}"
+  - "where C₁, C₂, C₃ are arbitrary constants"

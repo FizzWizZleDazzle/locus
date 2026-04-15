@@ -1,0 +1,29 @@
+topic: algebra1/polynomial_operations
+difficulty: medium
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  b1: nonzero(-4, 4)
+  c1: integer(-6, 6)
+  a2: integer(-5, 5)
+  b2: nonzero(-4, 4)
+  c2: integer(-6, 6)
+  p: a1*x^2 + b1*x + c1
+  q: a2*x^2 + b2*x + c2
+  sum: p + q
+  sum_a: a1 + a2
+  sum_b: b1 + b2
+  sum_c: c1 + c2
+  answer: simplify(sum)
+constraints:
+  - sum_a != 0
+  - sum_b != 0
+question: "Find the sum of {p} and {q}."
+answer: answer
+solution:
+  - "Add the polynomials {p} and {q}"
+  - "Combine like terms:"
+  - "x² terms: {a1} + {a2} = {sum_a}"
+  - "x terms: {b1} + {b2} = {sum_b}"
+  - "Constant terms: {c1} + {c2} = {sum_c}"
+  - "Therefore, the sum is {answer}"

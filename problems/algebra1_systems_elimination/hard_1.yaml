@@ -1,0 +1,34 @@
+topic: algebra1/systems_elimination
+difficulty: hard
+calculator: none
+variables:
+  x_val: integer(-5, 5)
+  y_val: integer(-5, 5)
+  a1: nonzero(-4, 4)
+  b1: nonzero(-4, 4)
+  c1: a1 * x_val + b1 * y_val
+  a2: nonzero(-4, 4)
+  b2: nonzero(-4, 4)
+  c2: a2 * x_val + b2 * y_val
+  eq1: a1 * x + b1 * y
+  eq2: a2 * x + b2 * y
+  det: a1 * b2 - a2 * b1
+constraints:
+  - det != 0
+  - abs(a1) + abs(b1) >= 3
+  - abs(a2) + abs(b2) >= 3
+question: "Solve the system using elimination: {system(equation(eq1, c1), equation(eq2, c2))}"
+answer: x_val
+answer_type: coordinate_pair
+solution:
+  - "Given system: {equation(eq1, c1)} and {equation(eq2, c2)}"
+  - "To eliminate y, multiply first equation by {b2} and second by {b1}:"
+  - "First equation × {b2}: {equation(a1 * b2 * x + b1 * b2 * y, c1 * b2)}"
+  - "Second equation × {b1}: {equation(a2 * b1 * x + b2 * b1 * y, c2 * b1)}"
+  - "Subtract second from first: {equation((a1 * b2 - a2 * b1) * x, c1 * b2 - c2 * b1)}"
+  - "Simplify: {equation(det * x, c1 * b2 - c2 * b1)}"
+  - "Solve for x: x = {x_val}"
+  - "Substitute x = {x_val} into first equation: {equation(a1 * x_val + b1 * y, c1)}"
+  - "Simplify: {equation(b1 * y, c1 - a1 * x_val)}"
+  - "Solve for y: y = {y_val}"
+  - "Solution: ({x_val}, {y_val})"

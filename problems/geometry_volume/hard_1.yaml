@@ -1,0 +1,31 @@
+topic: geometry/volume
+difficulty: hard
+calculator: scientific
+variables:
+  # Design backwards: want volume to be a clean integer
+  # Use dimensions that create nice factorizations
+  r: integer(2, 8)
+  h: integer(3, 12)
+  # Cylinder volume: πr²h
+  cylinder_vol: 3.14159 * r^2 * h
+  # Cone is 1/3 of cylinder with same base and height
+  cone_vol: cylinder_vol / 3
+  # Sphere radius chosen to make volume relationship clean
+  s: integer(2, 6)
+  sphere_vol: (4/3) * 3.14159 * s^3
+  # Combined volume
+  total: cylinder_vol + cone_vol + sphere_vol
+  # For display
+  total_rounded: round(total, 2)
+constraints:
+  - r != s  # Different radii for variety
+  - h > r   # Tall shapes are more interesting
+  - s < r   # Sphere smaller than cylinder base
+question: "A composite solid consists of three parts: a cylinder with radius {r} and height {h}, a cone with the same base radius {r} and height {h} sitting on top of the cylinder, and a sphere with radius {s} attached to the side. Find the total volume of the composite solid. Use π ≈ 3.14159 and round to 2 decimal places."
+answer: total_rounded
+solution:
+  - "Volume of cylinder: V₁ = πr²h = π({r})²({h}) = {round(cylinder_vol, 2)}"
+  - "Volume of cone: V₂ = (1/3)πr²h = (1/3)π({r})²({h}) = {round(cone_vol, 2)}"
+  - "Volume of sphere: V₃ = (4/3)πr³ = (4/3)π({s})³ = {round(sphere_vol, 2)}"
+  - "Total volume = V₁ + V₂ + V₃ = {round(cylinder_vol, 2)} + {round(cone_vol, 2)} + {round(sphere_vol, 2)}"
+  - "Total volume = {total_rounded}"

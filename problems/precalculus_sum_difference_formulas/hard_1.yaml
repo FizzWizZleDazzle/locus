@@ -1,0 +1,28 @@
+topic: precalculus/sum_difference_formulas
+difficulty: hard
+calculator: none
+variables:
+  # Pick angles that give exact trig values
+  angle1: choice(30, 45, 60)
+  angle2: choice(30, 45, 60)
+  # Convert to radians for display
+  rad1: angle1 * pi / 180
+  rad2: angle2 * pi / 180
+  # Sum and difference angles
+  sum_angle: angle1 + angle2
+  diff_angle: abs(angle1 - angle2)
+  # Compute the answer using sum formula
+  sin_sum: sin(rad1) * cos(rad2) + cos(rad1) * sin(rad2)
+  answer: simplify(sin_sum)
+constraints:
+  - angle1 != angle2
+  - sum_angle <= 90
+question: "Without using a calculator, find the exact value of sin({angle1}° + {angle2}°)."
+answer: answer
+solution:
+  - "Use the sine addition formula: sin(A + B) = sin(A)cos(B) + cos(A)sin(B)"
+  - "Here A = {angle1}° and B = {angle2}°"
+  - "sin({angle1}°) = {sin(rad1)}, cos({angle1}°) = {cos(rad1)}"
+  - "sin({angle2}°) = {sin(rad2)}, cos({angle2}°) = {cos(rad2)}"
+  - "sin({angle1}° + {angle2}°) = {sin(rad1)} · {cos(rad2)} + {cos(rad1)} · {sin(rad2)}"
+  - "= {answer}"

@@ -1,0 +1,18 @@
+topic: geometry/circle_theorems
+difficulty: easy
+calculator: none
+variables:
+  r: integer(3, 8)
+  angle: choice(30, 45, 60, 90, 120)
+  arc_length: 2 * 3.14159 * r * angle / 360
+  arc_length_simplified: simplify(2 * r * angle / 360)
+  answer: arc_length_simplified
+constraints:
+  - angle <= 180
+question: "A circle has radius {r}. Find the arc length of a sector with central angle {angle}°. Express your answer in terms of π."
+answer: answer
+solution:
+  - "Arc length formula: s = (θ/360°) × 2πr"
+  - "Given: radius = {r}, central angle = {angle}°"
+  - "s = ({angle}/360) × 2π × {r}"
+  - "s = {answer}π"

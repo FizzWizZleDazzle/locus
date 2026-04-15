@@ -1,0 +1,22 @@
+topic: linear_algebra/subspaces
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  c: nonzero(-3, 3)
+  span_dim: 3 if c != 0 else 2
+  answer: span_dim
+constraints:
+  - a != b
+  - abs(a + b + c) <= 5
+question: "Let W be the subspace of R³ spanned by vectors {vec([1, 0, a])}, {vec([0, 1, b])}, and {vec([1, 1, a + b + c])}. Find the dimension of W."
+answer: answer
+solution:
+  - "To find dim(W), we need to determine if the three vectors are linearly independent."
+  - "Form the matrix with these vectors as columns: A = [{vec([1, 0, a])} | {vec([0, 1, b])} | {vec([1, 1, a + b + c])}]"
+  - "Row reduce to find the rank:"
+  - "Row 3 of the reduced form: [0, 0, {c}]"
+  - "If {c} ≠ 0, all three vectors are linearly independent, so dim(W) = 3"
+  - "If {c} = 0, {vec([1, 1, a + b + c])} = {vec([1, 0, a])} + {vec([0, 1, b])}, so only two vectors are independent"
+  - "Since c = {c}, we have dim(W) = {answer}"

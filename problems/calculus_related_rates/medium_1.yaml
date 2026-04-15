@@ -1,0 +1,20 @@
+topic: calculus/related_rates
+difficulty: medium
+calculator: scientific
+variables:
+  r_rate: choice(2, 3, 4, 5)
+  r_at: choice(6, 8, 10, 12)
+  h: 2 * r_at
+  V_rate: 4 * 3.14159 * r_at * r_rate
+  answer: V_rate
+constraints:
+  - h == 2 * r_at
+question: "A spherical balloon is being inflated. When the radius is {r_at} cm, the radius is increasing at {r_rate} cm/s. How fast is the volume increasing at this instant? Use π ≈ 3.14159 and round to the nearest whole number."
+answer: answer
+solution:
+  - "Volume of sphere: V = (4/3)πr³"
+  - "Differentiate with respect to time: dV/dt = 4πr² · dr/dt"
+  - "Given: r = {r_at} cm, dr/dt = {r_rate} cm/s"
+  - "Substitute: dV/dt = 4π({r_at})²({r_rate})"
+  - "dV/dt = 4π · {evaluate(r_at^2, r_at, r_at)} · {r_rate}"
+  - "dV/dt ≈ {answer} cm³/s"

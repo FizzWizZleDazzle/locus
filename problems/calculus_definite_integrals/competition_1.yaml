@@ -1,0 +1,28 @@
+topic: calculus/definite_integrals
+difficulty: competition
+calculator: none
+variables:
+  k: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(3, 6)
+  a: integer(1, 3)
+  b: integer(4, 6)
+  f: k * x^n / (x^2 + m)
+  g: derivative(f, x)
+  h: x * g + f
+  integrand: simplify(h / (x^2 + m))
+  antiderivative: k * x^n / n
+  answer: evaluate(antiderivative, x, b) - evaluate(antiderivative, x, a)
+constraints:
+  - n > 2
+  - b > a
+  - k * m == n
+question: "Evaluate {definite_integral_of(integrand, x, a, b)}"
+answer: answer
+solution:
+  - "Let u = {f}. Then u' = {g}"
+  - "Notice that {integrand} = {equation(h / (x^2 + m), (x * g + f) / (x^2 + m))}"
+  - "Since xu' + u = d/dx(xu), we have {integrand} = d/dx({f})"
+  - "By the fundamental theorem: {definite_integral_of(integrand, x, a, b)} = [{antiderivative}] from {a} to {b}"
+  - "= {evaluate(antiderivative, x, b)} - {evaluate(antiderivative, x, a)}"
+  - "= {answer}"

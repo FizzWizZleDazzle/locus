@@ -1,0 +1,21 @@
+topic: precalculus/dot_cross_product
+difficulty: easy
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  a3: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  b3: integer(-5, 5)
+  dot_product: a1*b1 + a2*b2 + a3*b3
+constraints:
+  - abs(dot_product) <= 30
+  - (a1 != 0) or (a2 != 0) or (a3 != 0)
+  - (b1 != 0) or (b2 != 0) or (b3 != 0)
+question: "Find the dot product of vectors u = ({a1}, {a2}, {a3}) and v = ({b1}, {b2}, {b3})."
+answer: dot_product
+solution:
+  - "The dot product of two vectors is the sum of products of corresponding components"
+  - "u · v = ({a1})({b1}) + ({a2})({b2}) + ({a3})({b3})"
+  - "= {dot_product}"

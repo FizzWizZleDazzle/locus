@@ -1,0 +1,23 @@
+topic: arithmetic/addition
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(987, 999)
+  b: integer(987, 999)
+  c: integer(987, 999)
+  d: integer(987, 999)
+  e: integer(987, 999)
+  sum_ab: a + b
+  sum_cd: c + d
+  sum_all: sum_ab + sum_cd + e
+  answer: sum_all
+constraints:
+  - a != b
+  - c != d
+  - sum_all < 5000
+question: "Calculate: {a} + {b} + {c} + {d} + {e}"
+answer: answer
+solution:
+  - "Group the first two numbers: {a} + {b} = {sum_ab}"
+  - "Group the next two numbers: {c} + {d} = {sum_cd}"
+  - "Add the subtotals and the last number: {sum_ab} + {sum_cd} + {e} = {answer}"

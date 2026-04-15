@@ -1,0 +1,61 @@
+topic: linear_algebra/vector_spaces
+difficulty: competition
+calculator: none
+variables:
+  # Design basis vectors to guarantee clean orthogonal complement
+  v1_1: 1
+  v1_2: 2
+  v1_3: -1
+  v1_4: 0
+  v2_1: 0
+  v2_2: 1
+  v2_3: 2
+  v2_4: -1
+  # Construct vectors guaranteed to be orthogonal to v1 and v2
+  w1_1: 2
+  w1_2: -1
+  w1_3: 0
+  w1_4: 1
+  w2_1: 1
+  w2_2: 0
+  w2_3: 1
+  w2_4: 2
+  # Test vector with known decomposition
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(-3, 3)
+  d: integer(-3, 3)
+  u_1: a + 2*c
+  u_2: 2*a + b - c
+  u_3: -a + 2*b + d
+  u_4: -b + c + 2*d
+  # Projection onto span(v1, v2)
+  dot_u_v1: u_1*v1_1 + u_2*v1_2 + u_3*v1_3 + u_4*v1_4
+  dot_u_v2: u_1*v2_1 + u_2*v2_2 + u_3*v2_3 + u_4*v2_4
+  dot_v1_v1: v1_1*v1_1 + v1_2*v1_2 + v1_3*v1_3 + v1_4*v1_4
+  dot_v2_v2: v2_1*v2_1 + v2_2*v2_2 + v2_3*v2_3 + v2_4*v2_4
+  dot_v1_v2: v1_1*v2_1 + v1_2*v2_2 + v1_3*v2_3 + v1_4*v2_4
+  # Gram-Schmidt coefficients
+  alpha: (dot_u_v1*dot_v2_v2 - dot_u_v2*dot_v1_v2) / (dot_v1_v1*dot_v2_v2 - dot_v1_v2*dot_v1_v2)
+  beta: (dot_u_v2*dot_v1_v1 - dot_u_v1*dot_v1_v2) / (dot_v1_v1*dot_v2_v2 - dot_v1_v2*dot_v1_v2)
+  # Projection components
+  proj_1: alpha*v1_1 + beta*v2_1
+  proj_2: alpha*v1_2 + beta*v2_2
+  proj_3: alpha*v1_3 + beta*v2_3
+  proj_4: alpha*v1_4 + beta*v2_4
+  # Component in orthogonal complement
+  answer_1: u_1 - proj_1
+  answer_2: u_2 - proj_2
+  answer_3: u_3 - proj_3
+  answer_4: u_4 - proj_4
+constraints:
+  - abs(c) + abs(d) > 0
+question: "Let V = span({vec([v1_1, v1_2, v1_3, v1_4])}, {vec([v2_1, v2_2, v2_3, v2_4])}) be a subspace of R^4. Find the component of {vec([u_1, u_2, u_3, u_4])} that lies in the orthogonal complement of V."
+answer: answer_1
+answer_type: vector
+solution:
+  - "First verify that {vec([v1_1, v1_2, v1_3, v1_4])} and {vec([v2_1, v2_2, v2_3, v2_4])} are linearly independent and span a 2-dimensional subspace."
+  - "To find the orthogonal complement component, we need u - proj_V(u)."
+  - "The projection onto V is proj_V(u) = {vec([proj_1, proj_2, proj_3, proj_4])}."
+  - "Therefore, the component in V^⊥ is {vec([u_1, u_2, u_3, u_4])} - {vec([proj_1, proj_2, proj_3, proj_4])} = {vec([answer_1, answer_2, answer_3, answer_4])}."
+  - "We can verify: {vec([answer_1, answer_2, answer_3, answer_4])} · {vec([v1_1, v1_2, v1_3, v1_4])} = 0 and {vec([answer_1, answer_2, answer_3, answer_4])} · {vec([v2_1, v2_2, v2_3, v2_4])} = 0."

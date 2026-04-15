@@ -1,0 +1,23 @@
+topic: calculus/definite_integrals
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(2, 5)
+  c: integer(-5, 5)
+  lower: integer(0, 2)
+  upper: integer(3, 5)
+  f: a * x^b + c
+  antiderivative: integral(f, x)
+  answer: evaluate(antiderivative, x, upper) - evaluate(antiderivative, x, lower)
+constraints:
+  - upper > lower
+question: "Evaluate {definite_integral_of(f, x, lower, upper)}"
+answer: answer
+solution:
+  - "Find the antiderivative of {f}"
+  - "The antiderivative is {antiderivative}"
+  - "Apply the fundamental theorem of calculus:"
+  - "Evaluate at x = {upper}: {evaluate(antiderivative, x, upper)}"
+  - "Evaluate at x = {lower}: {evaluate(antiderivative, x, lower)}"
+  - "Subtract: {evaluate(antiderivative, x, upper)} - {evaluate(antiderivative, x, lower)} = {answer}"

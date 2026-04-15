@@ -1,0 +1,25 @@
+topic: calculus/curve_sketching
+difficulty: medium
+calculator: graphing
+variables:
+  a: nonzero(-3, 3)
+  b: integer(-4, 4)
+  c: integer(-5, 5)
+  f: a * x^3 + b * x^2 + c * x
+  f_prime: derivative(f, x)
+  f_double_prime: derivative(f_prime, x)
+  critical_points: solve(f_prime, x)
+  inflection_x: solve(f_double_prime, x)
+  inflection_y: evaluate(f, x, inflection_x)
+  answer: inflection_x
+constraints:
+  - b != 0
+question: "Consider the function {equation(f(x), f)}. Find the x-coordinate of the inflection point."
+answer: answer
+solution:
+  - "To find inflection points, we need where the second derivative equals zero"
+  - "First derivative: {equation(f'(x), f_prime)}"
+  - "Second derivative: {equation(f''(x), f_double_prime)}"
+  - "Set {equation(f''(x), 0)} and solve for x"
+  - "The inflection point occurs at x = {answer}"
+  - "We can verify this is an inflection point by checking that f''(x) changes sign at x = {answer}"

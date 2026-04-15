@@ -1,0 +1,19 @@
+topic: algebra2/radical_equations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 8)
+  perfect_square: a^2
+  equation_rhs: a + b
+  answer: perfect_square + b
+constraints:
+  - a + b <= 10
+question: "Solve for x: {equation(sqrt(x - b), equation_rhs)}"
+answer: answer
+solution:
+  - "Start with {equation(sqrt(x - b), equation_rhs)}"
+  - "Square both sides: {equation(x - b, equation_rhs^2)}"
+  - "Since {equation_rhs} = {a} + {b}, we have {equation(x - b, perfect_square)}"
+  - "Add {b} to both sides: {equation(x, perfect_square + b)}"
+  - "Therefore x = {answer}"

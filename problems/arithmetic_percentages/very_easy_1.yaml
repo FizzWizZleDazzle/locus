@@ -1,0 +1,14 @@
+topic: arithmetic/percentages
+difficulty: very_easy
+calculator: none
+variables:
+  original: choice(20, 25, 40, 50, 80, 100)
+  percent: choice(10, 20, 25, 50)
+  increase: original * percent / 100
+  answer: original + increase
+question: "A shirt costs ${original}. The price increases by {percent}%. What is the new price?"
+answer: answer
+solution:
+  - "Calculate the increase: {percent}% of ${original}"
+  - "Increase = {original} × {percent}/100 = ${increase}"
+  - "New price = ${original} + ${increase} = ${answer}"

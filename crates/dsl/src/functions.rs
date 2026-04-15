@@ -5,7 +5,7 @@ use locus_common::symengine::Expr;
 use crate::error::DslError;
 use crate::resolver::VarMap;
 
-const BUILTIN_FUNCTIONS: &[&str] = &[
+pub const BUILTIN_FUNCTIONS: &[&str] = &[
     "derivative",
     "integral",
     "definite_integral",

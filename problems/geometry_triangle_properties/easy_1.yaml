@@ -1,0 +1,19 @@
+topic: geometry/triangle_properties
+difficulty: easy
+calculator: none
+variables:
+  a: integer(3, 8)
+  b: integer(4, 9)
+  c: integer(5, 10)
+  perimeter: a + b + c
+  semi: perimeter / 2
+constraints:
+  - a + b > c
+  - a + c > b
+  - b + c > a
+question: "A triangle has sides of length {a}, {b}, and {c}. Find the perimeter of the triangle."
+answer: perimeter
+solution:
+  - "The perimeter of a triangle is the sum of all three sides"
+  - "Perimeter = {a} + {b} + {c}"
+  - "Perimeter = {perimeter}"

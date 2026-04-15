@@ -1,0 +1,28 @@
+topic: algebra2/logarithm_properties
+difficulty: competition
+calculator: none
+variables:
+  base: choice(2, 3, 5)
+  k: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(3, 6)
+  power1: base^k
+  power2: base^m
+  power3: base^n
+  expr: log(power1 * power2^2 / power3, base)
+  answer: k + 2*m - n
+constraints:
+  - k + 2*m > n
+  - abs(answer) <= 10
+question: "Simplify {equation(expr, log(power1 * power2^2 / power3, base))} to a single integer."
+answer: answer
+solution:
+  - "Start with {equation(expr, log(power1 * power2^2 / power3, base))}"
+  - "Substitute the powers: log({base}^{k} * ({base}^{m})^2 / {base}^{n}, {base})"
+  - "Simplify exponents: log({base}^{k} * {base}^{2*m} / {base}^{n}, {base})"
+  - "Apply product rule: log({base}^{k}, {base}) + log({base}^{2*m}, {base}) - log({base}^{n}, {base})"
+  - "Use log_b(b^x) = x: {k} + {2*m} - {n}"
+  - "Calculate: {k} + {eval_2m} - {n} = {answer}"
+  - "Therefore, the expression equals {answer}"
+variables_continued:
+  eval_2m: 2*m

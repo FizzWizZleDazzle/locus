@@ -1,0 +1,15 @@
+topic: geometry/area_of_polygons
+difficulty: very_easy
+calculator: none
+variables:
+  length: integer(3, 12)
+  width: integer(2, 10)
+  area: length * width
+constraints:
+  - length > width
+question: "A rectangle has length {length} units and width {width} units. What is its area?"
+answer: area
+solution:
+  - "The area of a rectangle is length × width"
+  - "Area = {length} × {width}"
+  - "Area = {area} square units"

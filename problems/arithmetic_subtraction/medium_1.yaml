@@ -1,0 +1,20 @@
+topic: arithmetic/subtraction
+difficulty: medium
+calculator: none
+variables:
+  a: integer(100, 999)
+  b: integer(100, 999)
+  tens_a: 10 * floor(a/10)
+  tens_b: 10 * floor(b/10)
+  answer: a - b
+constraints:
+  - a > b
+  - tens_a > tens_b
+  - mod(a, 10) < mod(b, 10)
+question: "Calculate: {a} - {b}"
+answer: answer
+solution:
+  - "Since {a} > {b}, the answer will be positive"
+  - "This requires borrowing since the ones digit of {a} is less than the ones digit of {b}"
+  - "Perform the subtraction with borrowing"
+  - "{a} - {b} = {answer}"

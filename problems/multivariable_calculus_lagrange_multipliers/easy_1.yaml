@@ -1,0 +1,26 @@
+topic: multivariable_calculus/lagrange_multipliers
+difficulty: easy
+calculator: none
+variables:
+  k: integer(2, 5)
+  c: integer(10, 20)
+  f: x^2 + y^2
+  g: x + y
+  lambda: k
+  x_opt: evaluate(c/(2*k), k, k)
+  y_opt: evaluate(c/(2*k), k, k)
+  answer: evaluate(2*c^2/(k^2), k, k)
+constraints:
+  - mod(c, k) == 0
+question: "Use Lagrange multipliers to minimize {f} subject to the constraint {equation(g, c)}."
+answer: answer
+solution:
+  - "Set up the Lagrangian: L = {f} - λ({g} - {c})"
+  - "Find critical points by setting partial derivatives to zero:"
+  - "∂L/∂x = 2x - λ = 0, so x = λ/2"
+  - "∂L/∂y = 2y - λ = 0, so y = λ/2"
+  - "∂L/∂λ = -({g} - {c}) = 0, so x + y = {c}"
+  - "Substituting x = y = λ/2 into the constraint:"
+  - "λ/2 + λ/2 = {c}, so λ = {c}"
+  - "Therefore x = y = {c}/2 = {x_opt}"
+  - "The minimum value is f({x_opt}, {y_opt}) = {x_opt}^2 + {y_opt}^2 = {answer}"

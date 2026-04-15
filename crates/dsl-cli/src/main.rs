@@ -250,22 +250,37 @@ fn cmd_ai(
     let topics: Vec<&str> = topics_str.split(',').map(|s| s.trim()).collect();
     let difficulties: Vec<&str> = difficulty.split(',').map(|s| s.trim()).collect();
 
-    // Build cross-product: topic × difficulty × count
+    // Build cross-product: topic × difficulty × count, skip existing files
     let mut all_tasks: Vec<(String, String, usize)> = Vec::new();
+    let mut skipped = 0;
     for topic in &topics {
         for diff in &difficulties {
             for i in 0..count {
+                // Check if output file already exists
+                if let Some(dir) = output {
+                    let topic_dir = dir.join(topic.replace('/', "_"));
+                    let filename = format!("{}_{}.yaml", diff, i + 1);
+                    if topic_dir.join(&filename).exists() {
+                        skipped += 1;
+                        continue;
+                    }
+                }
                 all_tasks.push((topic.to_string(), diff.to_string(), i));
             }
         }
     }
 
     let total = all_tasks.len();
+    if skipped > 0 {
+        eprintln!("Skipped {skipped} existing files");
+    }
     eprintln!(
-        "{} topic(s) x {} difficulty(s) x {count} = {total} total, concurrency {concurrency}",
-        topics.len(),
-        difficulties.len()
+        "{total} to generate, concurrency {concurrency}",
     );
+    if total == 0 {
+        eprintln!("Nothing to generate — all files exist");
+        return;
+    }
 
     let rt = tokio::runtime::Runtime::new().unwrap();
 

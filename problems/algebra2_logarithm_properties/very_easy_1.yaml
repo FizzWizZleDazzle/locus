@@ -1,0 +1,16 @@
+topic: algebra2/logarithm_properties
+difficulty: very_easy
+calculator: none
+variables:
+  base: choice(2, 3, 5, 10)
+  power: integer(1, 4)
+  value: base^power
+  answer: power
+constraints:
+  - base != 10 or power <= 3
+question: "Evaluate {equation(log(value, base), x)}"
+answer: answer
+solution:
+  - "We need to find x such that {equation(base^x, value)}"
+  - "Since {value} = {base}^{power}, we have x = {power}"
+  - "Therefore, {equation(log(value, base), power)}"

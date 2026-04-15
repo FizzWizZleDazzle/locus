@@ -1,0 +1,33 @@
+topic: algebra1/quadratic_formula
+difficulty: hard
+calculator: none
+variables:
+  p: prime(2, 7)
+  q: prime(2, 7)
+  k: nonzero(-3, 3)
+  a: k * p * q
+  b_factor: integer(-5, 5)
+  b: b_factor * k * (p + q)
+  c: k * p * q * b_factor^2
+  f: a * x^2 + b * x + c
+  discriminant: b^2 - 4 * a * c
+  sqrt_disc: sqrt(discriminant)
+  x1: (-b + sqrt_disc) / (2 * a)
+  x2: (-b - sqrt_disc) / (2 * a)
+  answer: solve(f, x)
+constraints:
+  - p != q
+  - b_factor != 0
+  - b_factor != 1
+question: "Solve {equation(f, 0)} using the quadratic formula."
+answer: answer
+answer_type: set
+solution:
+  - "Given {equation(f, 0)} where a = {a}, b = {b}, c = {c}"
+  - "Apply the quadratic formula: x = (-b ± √(b² - 4ac)) / (2a)"
+  - "Calculate discriminant: b² - 4ac = {b}² - 4({a})({c}) = {discriminant}"
+  - "Since {discriminant} = {b_factor}²({k}²)({p} - {q})², we have √{discriminant} = {sqrt_disc}"
+  - "x = ({-b} ± {sqrt_disc}) / {2 * a}"
+  - "x₁ = ({-b} + {sqrt_disc}) / {2 * a} = {x1}"
+  - "x₂ = ({-b} - {sqrt_disc}) / {2 * a} = {x2}"
+  - "Therefore x = {x1} or x = {x2}"

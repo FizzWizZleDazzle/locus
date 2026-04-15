@@ -1,0 +1,17 @@
+topic: arithmetic/long_division
+difficulty: very_easy
+calculator: none
+variables:
+  divisor: integer(2, 9)
+  quotient: integer(10, 50)
+  dividend: divisor * quotient
+  answer: quotient
+constraints:
+  - divisor != 5
+question: "Divide {dividend} by {divisor}"
+answer: answer
+solution:
+  - "Set up long division: {dividend} ÷ {divisor}"
+  - "How many times does {divisor} go into {dividend}?"
+  - "{divisor} × {quotient} = {dividend}"
+  - "Therefore, {dividend} ÷ {divisor} = {answer}"

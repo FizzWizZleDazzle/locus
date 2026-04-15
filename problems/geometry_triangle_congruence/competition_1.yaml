@@ -1,0 +1,64 @@
+topic: geometry/triangle_congruence
+difficulty: competition
+calculator: scientific
+variables:
+  # Design backward: start with a specific triangle that will have clean angle relationships
+  # Use 30-60-90 triangle scaled up for competition complexity
+  scale: integer(2, 5)
+  base_short: scale * 3
+  base_long: scale * 6
+  base_hyp: scale * 3 * sqrt(3)
+  
+  # First triangle ABC with known sides
+  AB: base_short
+  BC: base_long
+  AC: base_hyp
+  
+  # Angle at B is 90 degrees, angle at A is 60 degrees, angle at C is 30 degrees
+  angle_A: 60
+  angle_B: 90
+  angle_C: 30
+  
+  # Second triangle DEF constructed to be congruent via SAS
+  # We'll give DE = AB, angle D = angle A, and ask for EF
+  DE: AB
+  angle_D: angle_A
+  
+  # By SAS congruence, triangle DEF ≅ triangle ABC
+  # Therefore DF = AC and EF = BC
+  DF: AC
+  EF: BC
+  
+  # Third triangle PQR for additional complexity
+  # Give two sides and included angle matching triangle ABC
+  PQ: BC
+  angle_Q: angle_B
+  QR: AB
+  
+  # By SAS, triangle PQR ≅ triangle CBA (note the order)
+  # Therefore PR = CA = AC
+  PR: AC
+  
+  # The answer: sum of the two unknown sides
+  answer: EF + PR
+constraints:
+  - scale >= 2
+  - scale <= 5
+question: "Triangle ABC has AB = {AB}, BC = {BC}, and angle B = {angle_B}°. Triangle DEF has DE = {DE}, angle D = {angle_D}°, and the two triangles are congruent with vertices corresponding in alphabetical order. Triangle PQR has PQ = {PQ}, QR = {QR}, and angle Q = {angle_Q}°. If triangle PQR is congruent to triangle CBA (with vertices corresponding in that order), find EF + PR."
+answer: answer
+solution:
+  - "First, analyze triangle ABC with AB = {AB}, BC = {BC}, and angle B = {angle_B}°"
+  - "Since angle B = 90°, we can find AC using the Pythagorean theorem"
+  - "AC² = AB² + BC² = {AB}² + {BC}² = {evaluate(AB^2, AB, AB)} + {evaluate(BC^2, BC, BC)}"
+  - "AC = {AC}"
+  - "For triangle DEF to be congruent to ABC with corresponding vertices:"
+  - "DE = AB = {AB}, angle D = angle A, DF = AC = {AC}, EF = BC = {BC}"
+  - "Since DE = {DE} and angle D = {angle_D}°, we have angle D = angle A"
+  - "By SAS congruence, triangle DEF ≅ triangle ABC"
+  - "Therefore EF = BC = {BC}"
+  - "For triangle PQR congruent to triangle CBA:"
+  - "PQ corresponds to CB, QR corresponds to BA, PR corresponds to CA"
+  - "We have PQ = {PQ} = BC and QR = {QR} = AB"
+  - "With angle Q = {angle_Q}° = angle B, by SAS congruence"
+  - "Therefore PR = CA = AC = {PR}"
+  - "The sum EF + PR = {EF} + {PR} = {answer}"

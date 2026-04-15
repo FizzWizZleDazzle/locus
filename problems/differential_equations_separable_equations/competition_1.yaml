@@ -1,0 +1,37 @@
+topic: differential_equations/separable_equations
+difficulty: competition
+calculator: none
+variables:
+  k: integer(2, 5)
+  c: integer(1, 4)
+  n: integer(2, 4)
+  m: integer(2, 4)
+  a: k * n
+  b: k * m
+  initial_y: c * m
+  initial_x: 0
+  f: a * y^(1/n)
+  g: b * x^(1/m)
+  lhs: a * y^(1/n) * dy
+  rhs: b * x^(1/m) * dx
+  integrated_lhs: (a * n * y^((n+1)/n)) / (n + 1)
+  integrated_rhs: (b * m * x^((m+1)/m)) / (m + 1)
+  const_expr: (a * n * initial_y^((n+1)/n)) / (n + 1)
+  simplified_const: k * c^((n+1)/n)
+  implicit_solution: (n * y^((n+1)/n)) / (n + 1) - (m * x^((m+1)/m)) / (m + 1) - c^((n+1)/n)
+  answer: implicit_solution
+constraints:
+  - n != m
+  - gcd(n + 1, n) == 1
+  - gcd(m + 1, m) == 1
+question: "Solve the differential equation {equation(lhs, rhs)} with initial condition y({initial_x}) = {initial_y}. Express your answer as an implicit equation in x and y."
+answer: answer
+solution:
+  - "Given: {equation(lhs, rhs)} with y({initial_x}) = {initial_y}"
+  - "Separate variables: {equation(a * y^(1/n) * dy, b * x^(1/m) * dx)}"
+  - "Integrate both sides: {equation(integral_of(a * y^(1/n), y), integral_of(b * x^(1/m), x) + C)}"
+  - "This gives: {equation(integrated_lhs, integrated_rhs + C)}"
+  - "Apply initial condition y({initial_x}) = {initial_y}:"
+  - "Substituting: {equation(const_expr, 0 + C)}"
+  - "So C = {simplified_const}"
+  - "Divide through by {k} to get: {equation(implicit_solution, 0)}"

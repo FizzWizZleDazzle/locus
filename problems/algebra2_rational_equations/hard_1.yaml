@@ -1,0 +1,38 @@
+topic: algebra2/rational_equations
+difficulty: hard
+calculator: none
+variables:
+  # Design backward: want x = 3 as solution
+  x_val: 3
+  # Build rational equation that has x = 3 as solution
+  a: nonzero(-5, 5)
+  b: nonzero(-8, 8)
+  c: nonzero(-6, 6)
+  # Ensure denominators are non-zero at x = 3
+  d1: x - a
+  d2: x + b
+  # Build equation: (c*x + k1)/(x - a) = (c*x + k2)/(x + b)
+  # When x = 3, need: (3c + k1)/(3 - a) = (3c + k2)/(3 + b)
+  # Cross multiply: (3c + k1)(3 + b) = (3c + k2)(3 - a)
+  # Choose k1, k2 to make this true
+  k1: 2 * (3 - a)
+  k2: 2 * (3 + b)
+  left: (c * x + k1) / d1
+  right: (c * x + k2) / d2
+  # Verify solution
+  answer: x_val
+constraints:
+  - a != 3  # Ensure denominator non-zero at solution
+  - b != -3  # Ensure denominator non-zero at solution
+  - a != -b  # Ensure distinct denominators
+question: "Solve the equation {equation(left, right)} for x."
+answer: answer
+solution:
+  - "Start with {equation(left, right)}"
+  - "Cross multiply: {equation((c * x + k1) * d2, (c * x + k2) * d1)}"
+  - "Expand left side: (c * x + {k1})(x + {b}) = c * x^2 + {b} * c * x + {k1} * x + {k1 * b}"
+  - "Expand right side: (c * x + {k2})(x - {a}) = c * x^2 - {a} * c * x + {k2} * x - {k2 * a}"
+  - "Set equal and simplify: {b} * c * x + {k1} * x + {k1 * b} = -{a} * c * x + {k2} * x - {k2 * a}"
+  - "Collect x terms: ({b * c} + {k1} + {a * c} - {k2}) * x = -{k2 * a} - {k1 * b}"
+  - "Since k1 = {k1} and k2 = {k2}, we get: x = {answer}"
+  - "Check: x ≠ {a} and x ≠ {-b}, so solution is valid"

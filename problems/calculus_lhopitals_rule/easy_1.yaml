@@ -1,0 +1,28 @@
+topic: calculus/lhopitals_rule
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(2, 8)
+  c: integer(-5, 5)
+  f: (x - a) * (x + b)
+  g: (x - a) * (x + c)
+  f_expanded: expand(f)
+  g_expanded: expand(g)
+  f_prime: derivative(f_expanded, x)
+  g_prime: derivative(g_expanded, x)
+  f_at_a: evaluate(f_prime, x, a)
+  g_at_a: evaluate(g_prime, x, a)
+  answer: simplify(f_at_a / g_at_a)
+constraints:
+  - b != c
+  - c != -a
+question: "Find {limit_of(f_expanded / g_expanded, x, a)}"
+answer: answer
+solution:
+  - "Since both numerator and denominator equal 0 when x = {a}, we have the indeterminate form 0/0"
+  - "Apply L'Hôpital's Rule: differentiate numerator and denominator"
+  - "Numerator: {derivative_of(f_expanded, x)} = {f_prime}"
+  - "Denominator: {derivative_of(g_expanded, x)} = {g_prime}"
+  - "Evaluate at x = {a}: numerator = {f_at_a}, denominator = {g_at_a}"
+  - "Therefore, the limit is {answer}"

@@ -1,0 +1,27 @@
+topic: algebra1/polynomial_operations
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  p: a*x^3 + b*x^2 + c*x + d
+  q: (x - 2)*(x + 1)*(x - 3)
+  q_expanded: expand(q)
+  product: expand(p * q)
+  leading_coeff: a
+  constant_term: evaluate(product, x, 0)
+  answer: leading_coeff + constant_term
+constraints:
+  - abs(a) != abs(b)
+  - abs(c) != abs(d)
+  - gcd(abs(a), abs(b), abs(c), abs(d)) == 1
+question: "Let p(x) = {p} and q(x) = {q_expanded}. Find the sum of the leading coefficient and the constant term of p(x) · q(x)."
+answer: answer
+solution:
+  - "First, identify that q(x) = {q_expanded} = (x - 2)(x + 1)(x - 3)"
+  - "The leading coefficient of p(x) · q(x) comes from {a}x^3 · x^3 = {a}x^6"
+  - "So the leading coefficient is {a}"
+  - "The constant term comes from {d} · (-2) · 1 · (-3) = {d} · 6 = {constant_term}"
+  - "Therefore, the sum is {leading_coeff} + {constant_term} = {answer}"

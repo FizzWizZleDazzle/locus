@@ -1,0 +1,23 @@
+topic: arithmetic/percentages
+difficulty: hard
+calculator: none
+variables:
+  original: choice(40, 50, 80, 100, 125, 200, 250)
+  first_percent: choice(20, 25, 40, 50)
+  second_percent: choice(10, 20, 25, 40)
+  after_first: original * (100 + first_percent) / 100
+  final: after_first * (100 - second_percent) / 100
+  net_change: final - original
+  net_percent: (final - original) * 100 / original
+  answer: net_percent
+constraints:
+  - first_percent != second_percent
+  - abs(net_percent) <= 50
+question: "A store increases the price of an item by {first_percent}%, then offers a discount of {second_percent}% on the new price. If the original price was ${original}, what is the net percentage change from the original price?"
+answer: answer
+solution:
+  - "Original price: ${original}"
+  - "After {first_percent}% increase: ${original} × {100 + first_percent}/100 = ${after_first}"
+  - "After {second_percent}% discount: ${after_first} × {100 - second_percent}/100 = ${final}"
+  - "Net change: ${final} - ${original} = ${net_change}"
+  - "Net percentage change: {net_change}/{original} × 100% = {answer}%"

@@ -1,0 +1,14 @@
+topic: algebra2/radical_expressions
+difficulty: easy
+calculator: none
+variables:
+  perfect_square: choice(4, 9, 16, 25, 36, 49, 64, 81, 100)
+  coefficient: integer(2, 6)
+  expr: coefficient * sqrt(perfect_square)
+  answer: evaluate(expr, x, 1)
+question: "Simplify {expr}."
+answer: answer
+solution:
+  - "We have {expr}"
+  - "Since {sqrt(perfect_square)} = {evaluate(sqrt(perfect_square), x, 1)}"
+  - "Therefore {expr} = {coefficient} × {evaluate(sqrt(perfect_square), x, 1)} = {answer}"

@@ -1,0 +1,16 @@
+topic: arithmetic/decimals
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 9)
+  b: integer(1, 9)
+  decimal_a: a / 10
+  decimal_b: b / 10
+  answer: decimal_a + decimal_b
+constraints:
+  - a + b <= 10
+question: "Add: {decimal_a} + {decimal_b}"
+answer: answer
+solution:
+  - "Line up the decimal points"
+  - "{decimal_a} + {decimal_b} = {answer}"

@@ -1,0 +1,21 @@
+topic: geometry/similar_triangles
+difficulty: easy
+calculator: none
+variables:
+  scale: integer(2, 4)
+  a1: integer(3, 8)
+  b1: integer(4, 10)
+  c1: integer(5, 12)
+  a2: scale * a1
+  b2: scale * b1
+  c2: scale * c1
+  answer: c2
+constraints:
+  - a1 < b1
+  - b1 < c1
+question: "Two triangles are similar. The first triangle has sides {a1}, {b1}, and {c1}. The second triangle has sides {a2}, {b2}, and a third side. Find the length of the third side."
+answer: answer
+solution:
+  - "Since the triangles are similar, corresponding sides are proportional"
+  - "The ratio of corresponding sides is {a2}/{a1} = {scale}"
+  - "Therefore, the third side = {c1} × {scale} = {answer}"

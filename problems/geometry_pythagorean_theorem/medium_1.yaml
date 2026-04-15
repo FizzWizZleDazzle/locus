@@ -1,0 +1,26 @@
+topic: geometry/pythagorean_theorem
+difficulty: medium
+calculator: none
+variables:
+  k: integer(2, 5)
+  base_a: choice(3, 5, 7, 8, 9, 12)
+  base_b: choice(4, 12, 24, 15, 40, 35)
+  base_c: choice(5, 13, 25, 17, 41, 37)
+  a: k * base_a
+  b: k * base_b
+  c: k * base_c
+  given_leg: a
+  unknown_leg: b
+  hypotenuse: c
+  answer: unknown_leg
+constraints:
+  - base_a < base_b
+question: "A right triangle has one leg of length {given_leg} and hypotenuse of length {hypotenuse}. Find the length of the other leg."
+answer: answer
+solution:
+  - "Using the Pythagorean theorem: a² + b² = c²"
+  - "We have {given_leg}² + b² = {hypotenuse}²"
+  - "So b² = {hypotenuse}² - {given_leg}²"
+  - "b² = {evaluate(hypotenuse^2, hypotenuse, hypotenuse)} - {evaluate(given_leg^2, given_leg, given_leg)}"
+  - "b² = {evaluate(hypotenuse^2 - given_leg^2, hypotenuse, hypotenuse)}"
+  - "Therefore b = {answer}"

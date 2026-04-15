@@ -1,0 +1,35 @@
+topic: linear_algebra/matrix_inverses
+difficulty: hard
+calculator: none
+variables:
+  # Design 2x2 matrix with determinant 1 for clean inverse
+  a: integer(-3, 3)
+  d: integer(-3, 3)
+  b: integer(-4, 4)
+  c: integer(-4, 4)
+  det: a*d - b*c
+  A: matrix(2, 2, -3, 3)
+  # Inverse formula for 2x2: (1/det) * [[d, -b], [-c, a]]
+  A_inv_11: d/det
+  A_inv_12: -b/det
+  A_inv_21: -c/det
+  A_inv_22: a/det
+  # Create a system that uses the inverse
+  x1: integer(-5, 5)
+  x2: integer(-5, 5)
+  # Calculate b_vec = A * v
+  b1: a*x1 + b*x2
+  b2: c*x1 + d*x2
+constraints:
+  - det == 1 or det == -1
+  - abs(a) + abs(b) + abs(c) + abs(d) > 4
+question: "Find the inverse of matrix A = {matrix_of(A)}. Then use it to solve {matrix_of(A)}{vec(x)} = {vec([b1, b2])} for {vec(x)}."
+answer: A_inv_11
+answer_type: matrix
+solution:
+  - "For a 2×2 matrix {matrix_of([[a, b], [c, d]])}, the inverse is (1/det) × {matrix_of([[d, -b], [-c, a]])}"
+  - "Calculate det(A) = {a}·{d} - {b}·{c} = {det}"
+  - "Since det(A) = {det}, we have A⁻¹ = {matrix_of([[A_inv_11, A_inv_12], [A_inv_21, A_inv_22]])}"
+  - "To solve A{vec(x)} = {vec([b1, b2])}, multiply both sides by A⁻¹"
+  - "{vec(x)} = A⁻¹{vec([b1, b2])} = {matrix_of([[A_inv_11, A_inv_12], [A_inv_21, A_inv_22]])}{vec([b1, b2])} = {vec([x1, x2])}"
+  - "Therefore x₁ = {x1} and x₂ = {x2}"

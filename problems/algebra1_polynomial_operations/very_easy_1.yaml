@@ -1,0 +1,19 @@
+topic: algebra1/polynomial_operations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(1, 5)
+  d: integer(1, 5)
+  p: a*x + b
+  q: c*x + d
+  sum: p + q
+  answer: simplify(sum)
+question: "Find the sum of {p} and {q}."
+answer: answer
+solution:
+  - "Add the polynomials: ({p}) + ({q})"
+  - "Group like terms: {a}x + {c}x + {b} + {d}"
+  - "Combine like terms: ({a} + {c})x + ({b} + {d})"
+  - "Result: {answer}"

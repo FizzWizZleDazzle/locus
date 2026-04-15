@@ -1,0 +1,26 @@
+topic: algebra2/radical_equations
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(1, 3)
+  perfect_square: a^2
+  inner: b*x + c
+  equation_lhs: sqrt(inner) + a
+  equation_rhs: 2*a
+  squared_inner: perfect_square
+  solution_x: (squared_inner - c) / b
+constraints:
+  - mod(squared_inner - c, b) == 0
+  - solution_x > 0
+  - b != c
+question: "Solve the equation {equation(equation_lhs, equation_rhs)} for x."
+answer: solution_x
+solution:
+  - "Start with {equation(equation_lhs, equation_rhs)}"
+  - "Isolate the radical: {equation(sqrt(inner), a)}"
+  - "Square both sides: {equation(inner, squared_inner)}"
+  - "Solve for x: {equation(b*x, squared_inner - c)}"
+  - "Therefore x = {solution_x}"
+  - "Check: {sqrt(b*solution_x + c)} + {a} = {sqrt(squared_inner)} + {a} = {a} + {a} = {equation_rhs} ✓"

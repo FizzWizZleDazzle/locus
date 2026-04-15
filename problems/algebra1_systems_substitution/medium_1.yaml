@@ -1,0 +1,35 @@
+topic: algebra1/systems_substitution
+difficulty: medium
+calculator: none
+variables:
+  x_val: integer(1, 8)
+  y_val: integer(-6, 6)
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: a * x_val + b * y_val
+  d: nonzero(-4, 4)
+  e: nonzero(-4, 4)
+  f: d * x_val + e * y_val
+  eq1: a * x + b * y
+  eq2: d * x + e * y
+  x_answer: x_val
+  y_answer: y_val
+constraints:
+  - a * e - b * d != 0
+  - abs(c) <= 20
+  - abs(f) <= 20
+question: "Solve the system using substitution: {system(equation(eq1, c), equation(eq2, f))}"
+answer: x_answer
+answer_type: coordinate
+solution:
+  - "From the first equation: {equation(eq1, c)}"
+  - "Solve for y: {equation(b * y, c - a * x)}"
+  - "So y = {equation(y, (c - a * x) / b)}"
+  - "Substitute into the second equation: {equation(eq2, f)}"
+  - "Replace y: {equation(d * x + e * ((c - a * x) / b), f)}"
+  - "Multiply through by {b}: {equation(b * d * x + e * (c - a * x), b * f)}"
+  - "Expand: {equation(b * d * x + e * c - a * e * x, b * f)}"
+  - "Collect x terms: {equation((b * d - a * e) * x, b * f - e * c)}"
+  - "Solve for x: x = {x_answer}"
+  - "Substitute back: y = {equation((c - a * x_answer) / b, y_answer)}"
+  - "Solution: ({x_answer}, {y_answer})"

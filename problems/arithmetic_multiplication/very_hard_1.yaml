@@ -1,0 +1,20 @@
+topic: arithmetic/multiplication
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(87, 99)
+  b: integer(87, 99)
+  answer: a * b
+constraints:
+  - a != b
+  - mod(a, 10) != mod(b, 10)
+question: "Calculate: {a} × {b}"
+answer: answer
+solution:
+  - "Break down {a} × {b} using (90 + x)(90 + y) pattern"
+  - "Let x = {a} - 90 = {evaluate(a - 90, a, a)}"
+  - "Let y = {b} - 90 = {evaluate(b - 90, b, b)}"
+  - "Apply: (90 + x)(90 + y) = 8100 + 90x + 90y + xy"
+  - "= 8100 + 90({evaluate(a - 90, a, a)}) + 90({evaluate(b - 90, b, b)}) + ({evaluate(a - 90, a, a)})({evaluate(b - 90, b, b)})"
+  - "= 8100 + {evaluate(90 * (a - 90), a, a)} + {evaluate(90 * (b - 90), b, b)} + {evaluate((a - 90) * (b - 90), a, a, b, b)}"
+  - "= {answer}"

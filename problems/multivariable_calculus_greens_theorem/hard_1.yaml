@@ -1,0 +1,35 @@
+topic: multivariable_calculus/greens_theorem
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  P: a * x * y
+  Q: b * x^2
+  dQ_dx: derivative(Q, x)
+  dP_dy: derivative(P, y)
+  integrand: dQ_dx - dP_dy
+  integrand_simplified: simplify(integrand)
+  x_lower: 0
+  x_upper: 2
+  y_lower: 0
+  y_upper: 3
+  inner_integral: integral(integrand_simplified, y)
+  inner_evaluated: evaluate(inner_integral, y, y_upper) - evaluate(inner_integral, y, y_lower)
+  inner_simplified: simplify(inner_evaluated)
+  outer_integral: integral(inner_simplified, x)
+  outer_evaluated: evaluate(outer_integral, x, x_upper) - evaluate(outer_integral, x, x_lower)
+  answer: simplify(outer_evaluated)
+constraints:
+  - a != b
+question: "Use Green's theorem to evaluate the line integral of F = ({P}, {Q}) around the rectangle with vertices at (0,0), (2,0), (2,3), and (0,3), traversed counterclockwise."
+answer: answer
+solution:
+  - "Green's theorem: Line integral = {integral_of(integral_of(dQ_dx - dP_dy, y), x)} over the region"
+  - "Calculate partial derivatives: {derivative_of(Q, x)} = {dQ_dx} and {derivative_of(P, y)} = {dP_dy}"
+  - "The integrand is {dQ_dx} - {dP_dy} = {integrand_simplified}"
+  - "Set up the double integral: {integral_of(integral_of(integrand_simplified, y), x)} with x from {x_lower} to {x_upper} and y from {y_lower} to {y_upper}"
+  - "Inner integral: {integral_of(integrand_simplified, y)} = {inner_integral}"
+  - "Evaluate from {y_lower} to {y_upper}: {inner_simplified}"
+  - "Outer integral: {integral_of(inner_simplified, x)} = {outer_integral}"
+  - "Evaluate from {x_lower} to {x_upper}: {answer}"

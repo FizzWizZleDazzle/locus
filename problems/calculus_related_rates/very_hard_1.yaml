@@ -1,0 +1,37 @@
+topic: calculus/related_rates
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Pick clean rates that yield integer answer
+  rate_choice: choice(1, 2, 3)
+  dx_dt: choice(3, 4, 6)
+  dy_dt: choice(4, 3, 8)
+  # Time when we evaluate
+  t: choice(2, 3, 4)
+  # Build functions that give clean values at time t
+  x: 2*t + 1
+  y: t^2 + 1
+  # The constraint equation relating x and y
+  # Chosen so derivative relationship works out cleanly
+  constraint: x^2 + y^2
+  # Differentiate constraint implicitly
+  d_constraint: derivative(constraint, t)
+  # At time t, we have specific values
+  x_val: evaluate(x, t, t)
+  y_val: evaluate(y, t, t)
+  # The answer: rate of change of constraint
+  answer: 2*x_val*dx_dt + 2*y_val*dy_dt
+constraints:
+  - x_val > 0
+  - y_val > 0
+question: "A particle moves in the xy-plane such that {equation(constraint, 100)}. At time t = {t}, the particle is at position ({x_val}, {y_val}). If {derivative_of(x, t)} = {dx_dt} and {derivative_of(y, t)} = {dy_dt} at this instant, find the rate of change of {constraint} with respect to time."
+answer: answer
+solution:
+  - "Given constraint: {equation(constraint, 100)}"
+  - "Differentiate both sides with respect to t:"
+  - "{equation(d_constraint, 0)}"
+  - "This gives us: 2x{derivative_of(x, t)} + 2y{derivative_of(y, t)} = 0"
+  - "At t = {t}: x = {x_val}, y = {y_val}"
+  - "Substituting the given rates: {derivative_of(x, t)} = {dx_dt}, {derivative_of(y, t)} = {dy_dt}"
+  - "Rate of change = 2({x_val})({dx_dt}) + 2({y_val})({dy_dt})"
+  - "Rate of change = {answer}"

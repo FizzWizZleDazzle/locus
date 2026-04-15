@@ -1,0 +1,30 @@
+topic: arithmetic/fractions
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(2, 8)
+  c: integer(1, 4)
+  d: integer(2, 8)
+  gcd_ab: gcd(a, b)
+  gcd_cd: gcd(c, d)
+  num1: a / gcd_ab
+  den1: b / gcd_ab
+  num2: c / gcd_cd
+  den2: d / gcd_cd
+  product_num: num1 * num2
+  product_den: den1 * den2
+  final_gcd: gcd(product_num, product_den)
+  answer_num: product_num / final_gcd
+  answer_den: product_den / final_gcd
+  answer: answer_num / answer_den
+constraints:
+  - den1 != 1
+  - den2 != 1
+  - answer_den <= 12
+question: "Multiply: {num1}/{den1} × {num2}/{den2}"
+answer: answer
+solution:
+  - "Multiply numerators: {num1} × {num2} = {product_num}"
+  - "Multiply denominators: {den1} × {den2} = {product_den}"
+  - "Simplify {product_num}/{product_den} = {answer_num}/{answer_den}"

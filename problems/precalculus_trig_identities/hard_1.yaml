@@ -1,0 +1,27 @@
+topic: precalculus/trig_identities
+difficulty: hard
+calculator: scientific
+variables:
+  k: choice(2, 3, 4, 6)
+  angle_num: integer(1, 11)
+  angle: angle_num * pi / k
+  sin_val: sin(angle)
+  cos_val: cos(angle)
+  tan_val: tan(angle)
+  lhs: sin_val^4 + cos_val^4
+  rhs_coeff: 2 * sin_val^2 * cos_val^2
+  rhs: 1 - rhs_coeff
+  answer: simplify(lhs)
+constraints:
+  - angle_num < k
+  - mod(angle_num, k) != 0
+question: "Given that θ = {angle}, verify the identity sin⁴θ + cos⁴θ = 1 - 2sin²θcos²θ by computing both sides."
+answer: answer
+solution:
+  - "First, calculate sin({angle}) = {sin_val} and cos({angle}) = {cos_val}"
+  - "Left side: sin⁴θ + cos⁴θ = ({sin_val})⁴ + ({cos_val})⁴"
+  - "= {sin_val^4} + {cos_val^4} = {lhs}"
+  - "Right side: 1 - 2sin²θcos²θ = 1 - 2({sin_val})²({cos_val})²"
+  - "= 1 - 2({sin_val^2})({cos_val^2}) = 1 - {rhs_coeff}"
+  - "= {rhs}"
+  - "Both sides equal {answer}, verifying the identity."

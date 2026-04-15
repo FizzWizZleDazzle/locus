@@ -1,0 +1,32 @@
+topic: precalculus/vector_operations
+difficulty: competition
+calculator: none
+variables:
+  # Design for clean answer: pick vectors that give integer projection
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  # Make b perpendicular to (1,1) plus a scalar multiple of a
+  k: nonzero(-3, 3)
+  b1: a1 + a2 - k
+  b2: a2 - a1 + k
+  # Key insight: a·c = a1+a2, b·c = 2k, c·c = 2
+  proj_a: (a1 + a2) / 2
+  proj_b: k
+  answer_comp: proj_a - k
+  answer: 2 * (proj_a - k)^2
+constraints:
+  - a1 != a2
+  - abs(a1 + a2) <= 6
+  - mod(a1 + a2, 2) == 0
+question: "Let {vec(a)} = {vec([a1, a2])}, {vec(b)} = {vec([b1, b2])}, and {vec(c)} = {vec([1, 1])}. Find {norm(proj_c(a) - proj_c(b))}^2 where proj_c denotes projection onto {vec(c)}."
+answer: answer
+solution:
+  - "The projection of {vec(u)} onto {vec(c)} is given by proj_c({vec(u)}) = ({vec(u)} · {vec(c)}) / ({vec(c)} · {vec(c)}) × {vec(c)}"
+  - "First compute {vec(c)} · {vec(c)} = 1² + 1² = 2"
+  - "For {vec(a)}: {vec(a)} · {vec(c)} = {a1} × 1 + {a2} × 1 = {a1} + {a2}"
+  - "So proj_c({vec(a)}) = ({a1} + {a2}) / 2 × {vec([1, 1])} = {vec([proj_a, proj_a])}"
+  - "For {vec(b)}: {vec(b)} · {vec(c)} = {b1} × 1 + {b2} × 1 = {b1} + {b2}"
+  - "Note that {b1} + {b2} = ({a1} + {a2} - {k}) + ({a2} - {a1} + {k}) = 2{k}"
+  - "So proj_c({vec(b)}) = 2{k} / 2 × {vec([1, 1])} = {vec([k, k])}"
+  - "The difference vector is proj_c({vec(a)}) - proj_c({vec(b)}) = {vec([proj_a, proj_a])} - {vec([k, k])} = {vec([answer_comp, answer_comp])}"
+  - "The squared norm is {answer_comp}² + {answer_comp}² = 2 × {answer_comp}² = {answer}"

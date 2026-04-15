@@ -1,0 +1,29 @@
+topic: calculus/u_substitution
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-3, 3)
+  c: integer(2, 5)
+  d: nonzero(-2, 2)
+  inner: a*x^c + b
+  outer_base: u^d
+  f: (a*x^c + b)^d
+  u_sub: a*x^c + b
+  du_dx: c*a*x^(c-1)
+  outer_integral: u^(d+1)/(d+1)
+  back_sub: (a*x^c + b)^(d+1)/(d+1)
+  answer: back_sub / (c*a)
+constraints:
+  - d != -1
+  - gcd(abs(d+1), abs(c*a)) == 1
+question: "Evaluate {integral_of(f, x)} using u-substitution."
+answer: answer
+solution:
+  - "Let u = {u_sub}"
+  - "Then du = {du_dx} dx"
+  - "So dx = du / ({du_dx})"
+  - "Substituting: {integral_of(f, x)} = {integral_of(outer_base, u)} · (1/{du_dx})"
+  - "= (1/{c*a}) {integral_of(outer_base, u)}"
+  - "= (1/{c*a}) · {outer_integral} + C"
+  - "Substituting back: = {answer} + C"

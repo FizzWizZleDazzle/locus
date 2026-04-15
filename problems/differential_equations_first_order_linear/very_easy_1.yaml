@@ -1,0 +1,25 @@
+topic: differential_equations/first_order_linear
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(-5, 5)
+  equation: y' + a*y = b
+  homogeneous: y' + a*y = 0
+  integrating_factor: exp(a*x)
+  general_solution: (b/a) + c*exp(-a*x)
+  particular: b/a
+  answer: general_solution
+constraints:
+  - a != b
+question: "Solve the differential equation {equation(equation, 0)}"
+answer: answer
+solution:
+  - "This is a first-order linear ODE: {equation(equation, 0)}"
+  - "First find the integrating factor: μ(x) = {integrating_factor}"
+  - "Multiply both sides by μ(x): {equation(integrating_factor * equation, 0)}"
+  - "The left side is the derivative of y·μ(x)"
+  - "Integrate both sides: y·{integrating_factor} = {b*integrating_factor/a} + C"
+  - "Divide by {integrating_factor}: y = {particular} + C·{exp(-a*x)}"
+  - "General solution: y = {answer}"

@@ -1,0 +1,24 @@
+topic: algebra1/slope_and_intercept
+difficulty: easy
+calculator: none
+variables:
+  m: integer(-5, 5)
+  b: integer(-8, 8)
+  f: m * x + b
+  x1: integer(-3, 3)
+  x2: integer(-3, 3)
+  y1: evaluate(f, x, x1)
+  y2: evaluate(f, x, x2)
+constraints:
+  - m != 0
+  - x1 != x2
+question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). Find the slope and y-intercept of this line."
+answer: f
+answer_type: expression
+solution:
+  - "Calculate the slope using the two points:"
+  - "m = ({y2} - {y1}) / ({x2} - {x1}) = {m}"
+  - "Use point-slope form with point ({x1}, {y1}):"
+  - "y - {y1} = {m}(x - {x1})"
+  - "Expand: y = {m}x + {b}"
+  - "The slope is {m} and the y-intercept is {b}"

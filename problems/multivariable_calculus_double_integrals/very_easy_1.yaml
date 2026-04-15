@@ -1,0 +1,24 @@
+topic: multivariable_calculus/double_integrals
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(0, 3)
+  d: integer(0, 3)
+  k: integer(1, 5)
+  f: k
+  inner: k * (b - a)
+  answer: k * (b - a) * (d - c)
+constraints:
+  - b > a
+  - d > c
+question: "Evaluate the double integral {definite_integral_of(definite_integral_of(f, x, a, b), y, c, d)} where f(x,y) = {k}"
+answer: answer
+solution:
+  - "Since f(x,y) = {k} is constant, we can evaluate the inner integral first"
+  - "{definite_integral_of(k, x, a, b)} = {k}x evaluated from {a} to {b}"
+  - "= {k}({b}) - {k}({a}) = {inner}"
+  - "Now integrate with respect to y: {definite_integral_of(inner, y, c, d)}"
+  - "= {inner}y evaluated from {c} to {d}"
+  - "= {inner}({d}) - {inner}({c}) = {answer}"

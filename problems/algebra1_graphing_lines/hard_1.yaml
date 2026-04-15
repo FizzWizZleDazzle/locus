@@ -1,0 +1,31 @@
+topic: algebra1/graphing_lines
+difficulty: hard
+calculator: none
+variables:
+  m1: nonzero(-5, 5)
+  m2: nonzero(-5, 5)
+  b: integer(-8, 8)
+  x_int: integer(-6, 6)
+  y_int: m1 * x_int + b
+  line1: m1 * x + b
+  line2: m2 * x + y_int
+  intersection_x: solve(line1 - line2, x)
+  intersection_y: evaluate(line1, x, intersection_x)
+constraints:
+  - m1 != m2
+  - abs(m1 - m2) >= 2
+  - mod(y_int - b, m1 - m2) == 0
+question: "Two lines intersect at a point. The first line has equation y = {line1}. The second line passes through ({x_int}, {y_int}) and has slope {m2}. Find the coordinates of their intersection point."
+answer: intersection_x
+answer_type: coordinate
+solution:
+  - "First line: y = {line1}"
+  - "Second line passes through ({x_int}, {y_int}) with slope {m2}"
+  - "Using point-slope form: y - {y_int} = {m2}(x - {x_int})"
+  - "Simplify: y = {line2}"
+  - "Set equal: {equation(line1, line2)}"
+  - "Solve for x: {m1}x + {b} = {m2}x + {y_int}"
+  - "Rearrange: ({m1} - {m2})x = {y_int} - {b}"
+  - "x = {intersection_x}"
+  - "Substitute back: y = {intersection_y}"
+  - "Intersection point: ({intersection_x}, {intersection_y})"

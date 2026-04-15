@@ -1,0 +1,30 @@
+topic: calculus/optimization
+difficulty: very_hard
+calculator: graphing
+variables:
+  k: choice(2, 3, 4, 6)
+  m: choice(1, 2, 3, 4)
+  n: k * m
+  a: choice(1, 2, 3)
+  h: a * k
+  V: n * x * (h - 2*x)^2
+  V_expanded: expand(V)
+  dV: derivative(V_expanded, x)
+  critical_points: solve(dV, x)
+  x_opt: a
+  y_opt: h - 2*x_opt
+  V_max: evaluate(V, x, x_opt)
+  answer: V_max
+constraints:
+  - h > 4
+  - gcd(n, h) == gcd(n, a)
+question: "A rectangular sheet of metal measuring {h} by {n} inches has squares of side length x cut from each corner. The sides are then folded up to form an open box. Find the maximum volume of the box."
+answer: answer
+solution:
+  - "Let x = side length of cut squares"
+  - "Box dimensions: length = {n}, width = {h} - 2x, height = x"
+  - "Volume: V(x) = x({n})({h} - 2x) = {V_expanded}"
+  - "To maximize, find {derivative_of(V, x)} = {dV}"
+  - "Set {dV} = 0 and solve: critical points at x = {critical_points}"
+  - "Valid critical point (0 < x < {h}/2): x = {x_opt}"
+  - "Maximum volume: V({x_opt}) = {answer} cubic inches"

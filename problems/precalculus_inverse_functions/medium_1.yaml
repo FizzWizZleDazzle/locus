@@ -1,0 +1,21 @@
+topic: precalculus/inverse_functions
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: integer(-8, 8)
+  f: a * x + b
+  y_val: integer(-10, 10)
+  x_val: (y_val - b) / a
+  answer: x_val
+constraints:
+  - abs(a) > 1
+  - (y_val - b) % a == 0
+question: "If f(x) = {f}, find the value of x such that f(x) = {y_val}."
+answer: answer
+solution:
+  - "We need to solve f(x) = {y_val}"
+  - "Substitute: {equation(f, y_val)}"
+  - "Subtract {b} from both sides: {a}x = {y_val} - {b}"
+  - "Simplify: {a}x = {evaluate(y_val - b, x, 0)}"
+  - "Divide by {a}: x = {answer}"

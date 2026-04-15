@@ -1,0 +1,30 @@
+topic: geometry/surface_area
+difficulty: easy
+calculator: none
+variables:
+  shape: choice(1, 2, 3)
+  # Rectangular prism
+  length: choice(2, 3, 4, 5, 6)
+  width: choice(2, 3, 4, 5, 6)
+  height: choice(2, 3, 4, 5, 6)
+  rect_area: 2 * (length * width + length * height + width * height)
+  # Cube
+  side: choice(2, 3, 4, 5)
+  cube_area: 6 * side^2
+  # Cylinder
+  radius: choice(2, 3, 4)
+  cyl_height: choice(3, 4, 5, 6)
+  cyl_area: 2 * 3.14 * radius * (radius + cyl_height)
+  answer: choice(rect_area, cube_area, cyl_area)
+constraints:
+  - shape == 1 implies answer == rect_area
+  - shape == 2 implies answer == cube_area
+  - shape == 3 implies answer == cyl_area
+question: "Find the surface area of a {choice('rectangular prism with length ' + str(length) + ', width ' + str(width) + ', and height ' + str(height), 'cube with side length ' + str(side), 'cylinder with radius ' + str(radius) + ' and height ' + str(cyl_height) + ' (use 3.14 for π)')}."
+answer: answer
+solution:
+  - "For a {choice('rectangular prism', 'cube', 'cylinder')}, use the surface area formula:"
+  - "{choice('SA = 2(lw + lh + wh)', 'SA = 6s²', 'SA = 2πr(r + h)')}"
+  - "{choice('SA = 2(' + str(length) + '×' + str(width) + ' + ' + str(length) + '×' + str(height) + ' + ' + str(width) + '×' + str(height) + ')', 'SA = 6×' + str(side) + '²', 'SA = 2×3.14×' + str(radius) + '×(' + str(radius) + ' + ' + str(cyl_height) + ')')}"
+  - "{choice('SA = 2(' + str(length*width) + ' + ' + str(length*height) + ' + ' + str(width*height) + ')', 'SA = 6×' + str(side*side), 'SA = 2×3.14×' + str(radius) + '×' + str(radius + cyl_height))}"
+  - "SA = {answer} square units"

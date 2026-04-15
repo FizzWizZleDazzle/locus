@@ -1,0 +1,16 @@
+topic: algebra1/factoring_trinomials
+difficulty: easy
+calculator: none
+variables:
+  p: integer(1, 5)
+  q: integer(1, 5)
+  expanded: x^2 + (p + q)*x + p*q
+  factored: (x + p)*(x + q)
+constraints:
+  - p != q
+question: "Factor the trinomial {expanded}"
+answer: factored
+solution:
+  - "We need to find two numbers that multiply to {p*q} and add to {evaluate(p + q, x, 0)}"
+  - "The numbers {p} and {q} work: {p} × {q} = {evaluate(p*q, x, 0)} and {p} + {q} = {evaluate(p + q, x, 0)}"
+  - "So {expanded} = {factored}"

@@ -1,0 +1,25 @@
+topic: geometry/pythagorean_theorem
+difficulty: hard
+calculator: scientific
+variables:
+  k: integer(2, 5)
+  m: integer(3, 8)
+  n: integer(1, 5)
+  a: k * (m^2 - n^2)
+  b: k * (2 * m * n)
+  c: k * (m^2 + n^2)
+  p: a + b + c
+  area: (a * b) / 2
+  answer: area
+constraints:
+  - m > n
+  - gcd(m, n) == 1
+  - mod(m + n, 2) == 1
+question: "A right triangle has sides of length {a}, {b}, and {c}. Find the area of this triangle."
+answer: answer
+solution:
+  - "First verify this is a right triangle using the Pythagorean theorem"
+  - "Check: {a}^2 + {b}^2 = {c}^2"
+  - "The legs are {a} and {b} (the two shorter sides)"
+  - "Area = (1/2) × base × height = (1/2) × {a} × {b}"
+  - "Area = {answer}"

@@ -1,0 +1,33 @@
+topic: linear_algebra/matrix_inverses
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(1, 5)
+  A: matrix(2, 2, -5, 5)
+  det: a*d - b*c
+  d_over_det: d/det
+  neg_b_over_det: -b/det
+  neg_c_over_det: -c/det
+  a_over_det: a/det
+  A_inv: matrix(2, 2, -5, 5)
+constraints:
+  - det != 0
+  - abs(det) <= 3
+  - A[0,0] == a
+  - A[0,1] == b
+  - A[1,0] == c
+  - A[1,1] == d
+  - A_inv[0,0] == d_over_det
+  - A_inv[0,1] == neg_b_over_det
+  - A_inv[1,0] == neg_c_over_det
+  - A_inv[1,1] == a_over_det
+question: "Find the inverse of the matrix {matrix_of(A)}."
+answer: A_inv
+answer_type: matrix
+solution:
+  - "For a 2×2 matrix {matrix_of(A)}, calculate the determinant: det = ({a})({d}) - ({b})({c}) = {det}"
+  - "Since det = {det} ≠ 0, the matrix is invertible"
+  - "The inverse formula gives: {matrix_of(A_inv)}"

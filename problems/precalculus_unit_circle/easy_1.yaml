@@ -1,0 +1,16 @@
+topic: precalculus/unit_circle
+difficulty: easy
+calculator: none
+variables:
+  angle_deg: choice(0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330)
+  angle_rad: angle_deg * pi / 180
+  cos_val: cos(angle_rad)
+  sin_val: sin(angle_rad)
+  answer: sin_val
+question: "Find the exact value of sin({angle_deg}°)."
+answer: answer
+solution:
+  - "The angle {angle_deg}° is a standard angle on the unit circle"
+  - "Converting to radians: {angle_deg}° = {angle_rad} radians"
+  - "On the unit circle, the y-coordinate gives the sine value"
+  - "Therefore, sin({angle_deg}°) = {answer}"

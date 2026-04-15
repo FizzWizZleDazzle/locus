@@ -1,0 +1,22 @@
+topic: arithmetic/decimals
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 9)
+  b: integer(2, 9)
+  c: integer(1, 9)
+  d: choice(10, 100, 1000)
+  decimal1: a + c/d
+  product: a * b * d + b * c
+  answer: product/d
+constraints:
+  - d != 10 or c != 5
+  - mod(product, 10) != 0 or d != 100
+question: "Calculate: {decimal1} × {b}"
+answer: answer
+solution:
+  - "Rewrite {decimal1} as a fraction: {a} + {c}/{d}"
+  - "Multiply: ({a} + {c}/{d}) × {b}"
+  - "= {a} × {b} + {c}/{d} × {b}"
+  - "= {a * b} + {b * c}/{d}"
+  - "= {a * b} + {b * c}/{d} = {answer}"

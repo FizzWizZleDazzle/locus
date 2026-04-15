@@ -1,0 +1,30 @@
+topic: calculus/u_substitution
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(2, 5)
+  c: integer(1, 3)
+  inner: a*x + b
+  power: c - 1
+  integrand: x * (inner)^power
+  u: inner
+  du_dx: a
+  x_term: (u - b)/a
+  simplified: (u^c)/c - (b*u^power)/power
+  answer: simplify((inner^c)/(a*c) - (b*inner^power)/(a*power))
+constraints:
+  - a != 1
+  - a != -1
+question: "Evaluate {integral_of(integrand, x)} using u-substitution."
+answer: answer
+solution:
+  - "Let u = {u}, then du = {du_dx} dx"
+  - "So dx = du/{du_dx}"
+  - "Also, x = {x_term}"
+  - "Substituting: {integral_of(integrand, x)} = {integral_of((u - b)/a * u^power * (1/a), u)}"
+  - "= (1/{a}^2) {integral_of((u - b) * u^power, u)}"
+  - "= (1/{a}^2) {integral_of(u^c - b*u^power, u)}"
+  - "= (1/{a}^2) [{simplified}] + C"
+  - "Substituting back u = {inner}:"
+  - "= {answer} + C"

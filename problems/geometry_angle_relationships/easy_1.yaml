@@ -1,0 +1,17 @@
+topic: geometry/angle_relationships
+difficulty: easy
+calculator: none
+variables:
+  angle1: integer(20, 70)
+  angle2: 180 - angle1
+  answer: angle2
+constraints:
+  - angle1 % 5 == 0
+question: "Two angles form a linear pair. If one angle measures {angle1}°, what is the measure of the other angle?"
+answer: answer
+solution:
+  - "Linear pairs are supplementary (sum to 180°)"
+  - "Let the other angle = x"
+  - "{angle1}° + x = 180°"
+  - "x = 180° - {angle1}°"
+  - "x = {answer}°"

@@ -1,0 +1,22 @@
+topic: linear_algebra/eigenvalues
+difficulty: very_easy
+calculator: none
+variables:
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  a: lambda1 + lambda2
+  d: lambda1 * lambda2
+  A: matrix(2, 2, -5, 5)
+  char_poly: expand((lambda - lambda1) * (lambda - lambda2))
+  answer: solve(char_poly, lambda)
+constraints:
+  - lambda1 != lambda2
+  - a != 0
+question: "Find the eigenvalues of the matrix {matrix_of(A)}"
+answer: answer
+answer_type: set
+solution:
+  - "For a 2×2 matrix, eigenvalues satisfy det(A - λI) = 0"
+  - "The characteristic polynomial is {equation(char_poly, 0)}"
+  - "Factoring: {equation((lambda - lambda1) * (lambda - lambda2), 0)}"
+  - "The eigenvalues are λ = {lambda1} and λ = {lambda2}"

@@ -1,0 +1,37 @@
+topic: multivariable_calculus/directional_derivatives
+difficulty: hard
+calculator: scientific
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(-4, 4)
+  d: integer(-4, 4)
+  f: a*x^2 + b*y^2 + c*x*y + d
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  p: integer(-2, 2)
+  q: integer(-2, 2)
+  fx_at_p: evaluate(fx, x, p)
+  fy_at_p: evaluate(fy, y, q)
+  grad_x: evaluate(fx_at_p, y, q)
+  grad_y: evaluate(fy_at_p, x, p)
+  u1: choice(-3, -1, 1, 3)
+  u2: choice(-4, -1, 1, 4)
+  norm_sq: u1^2 + u2^2
+  norm_val: sqrt(norm_sq)
+  unit_x: u1/norm_val
+  unit_y: u2/norm_val
+  answer: simplify(grad_x * unit_x + grad_y * unit_y)
+constraints:
+  - norm_sq == 5 or norm_sq == 10 or norm_sq == 25
+  - p != 0 or q != 0
+  - abs(grad_x) + abs(grad_y) > 0
+question: "Let f(x,y) = {f}. Find the directional derivative of f at the point ({p}, {q}) in the direction of the vector {vec([u1, u2])}."
+answer: answer
+solution:
+  - "First, find the gradient of f: ∇f = ({fx}, {fy})"
+  - "Evaluate the gradient at ({p}, {q}): ∇f({p}, {q}) = ({grad_x}, {grad_y})"
+  - "Normalize the direction vector {vec([u1, u2])}: ||v|| = {norm_val}"
+  - "Unit vector: u = ({unit_x}, {unit_y})"
+  - "Directional derivative: D_u f = ∇f · u = ({grad_x})({unit_x}) + ({grad_y})({unit_y})"
+  - "D_u f = {answer}"

@@ -1,0 +1,33 @@
+topic: algebra2/radical_expressions
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  d: integer(2, 5)
+  perfect_square: a^2 * b^2 * c^2
+  radicand: perfect_square * d
+  expr1: sqrt(radicand * x^4) + sqrt(perfect_square * x^2 * d^3)
+  expr2: sqrt(radicand * x^6) - sqrt(perfect_square * x^4 * d)
+  numerator: simplify(expr1)
+  denominator: simplify(expr2)
+  fraction: numerator / denominator
+  answer: simplify(fraction)
+constraints:
+  - a != b
+  - b != c
+  - d != a * b * c
+question: "Simplify the expression {equation(fraction, '?')} for x > 0."
+answer: answer
+solution:
+  - "First simplify the numerator: {equation(expr1, '?')}"
+  - "Factor out perfect squares: {equation(sqrt(a^2 * b^2 * c^2 * d * x^4) + sqrt(a^2 * b^2 * c^2 * d^3 * x^2), '?')}"
+  - "This gives us: {equation(a * b * c * x^2 * sqrt(d) + a * b * c * x * d * sqrt(d), '?')}"
+  - "Factor: {equation(a * b * c * x * sqrt(d) * (x + d), numerator)}"
+  - "Now simplify the denominator: {equation(expr2, '?')}"
+  - "Factor out perfect squares: {equation(sqrt(a^2 * b^2 * c^2 * d * x^6) - sqrt(a^2 * b^2 * c^2 * d * x^4), '?')}"
+  - "This gives us: {equation(a * b * c * x^3 * sqrt(d) - a * b * c * x^2 * sqrt(d), '?')}"
+  - "Factor: {equation(a * b * c * x^2 * sqrt(d) * (x - 1), denominator)}"
+  - "Now divide: {equation(fraction, (a * b * c * x * sqrt(d) * (x + d)) / (a * b * c * x^2 * sqrt(d) * (x - 1)))}"
+  - "Cancel common factors: {equation((x + d) / (x * (x - 1)), answer)}"

@@ -1,0 +1,44 @@
+topic: linear_algebra/vector_spaces
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design a non-trivial subspace by working backwards
+  # Pick two linearly independent vectors that span a 2D subspace in R^4
+  a1: integer(-3, 3)
+  a2: integer(-3, 3)
+  a3: integer(-3, 3)
+  a4: integer(-3, 3)
+  b1: integer(-3, 3)
+  b2: integer(-3, 3)
+  b3: integer(-3, 3)
+  b4: integer(-3, 3)
+  # Create a third vector in the span
+  c1: integer(-2, 2)
+  c2: integer(-2, 2)
+  # Calculate v3 components
+  v3_1: a1 * c1 + b1 * c2
+  v3_2: a2 * c1 + b2 * c2
+  v3_3: a3 * c1 + b3 * c2
+  v3_4: a4 * c1 + b4 * c2
+  # Determinant for checking linear independence
+  det_check: a1 * b2 - a2 * b1
+  answer: 2
+constraints:
+  - abs(det_check) > 1  # v1, v2 linearly independent
+  - c1 != 0 or c2 != 0  # v3 is non-zero
+question: "Let W be the subspace of R^4 spanned by S = {{vec([a1, a2, a3, a4])}, {vec([b1, b2, b3, b4])}, {vec([v3_1, v3_2, v3_3, v3_4])}}. Determine dim(W)."
+answer: answer
+answer_type: integer
+solution:
+  - "To find dim(W), we need to find the number of linearly independent vectors in S."
+  - "Let v1 = {vec([a1, a2, a3, a4])}, v2 = {vec([b1, b2, b3, b4])}, v3 = {vec([v3_1, v3_2, v3_3, v3_4])}"
+  - "Check if v3 is in span{{v1, v2}}."
+  - "Set up: v3 = c1·v1 + c2·v2"
+  - "Comparing first component: {v3_1} = {a1}·c1 + {b1}·c2"
+  - "Comparing second component: {v3_2} = {a2}·c1 + {b2}·c2"
+  - "By construction, c1 = {c1} and c2 = {c2} satisfy all equations."
+  - "Since v3 = {c1}·v1 + {c2}·v2, it is in span{{v1, v2}}."
+  - "Now check if v1 and v2 are linearly independent."
+  - "They are linearly independent if their first 2×2 submatrix has non-zero determinant."
+  - "The determinant is {a1}·{b2} - {a2}·{b1} = {det_check} ≠ 0."
+  - "Therefore, dim(W) = 2."

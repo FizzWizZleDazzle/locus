@@ -1,0 +1,24 @@
+topic: differential_equations/homogeneous_equations
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: a * b
+  r1: -a
+  r2: -b
+  char_eq: r^2 + (a + b)*r + c
+  y: C1 * e^(r1 * x) + C2 * e^(r2 * x)
+  y_prime: derivative(y, x)
+  y_double_prime: derivative(y_prime, x)
+  lhs: simplify(y_double_prime + (a + b)*y_prime + c*y)
+constraints:
+  - a != b
+question: "Solve the homogeneous differential equation {equation(y'' + (a + b)*y' + c*y, 0)}"
+answer: y
+solution:
+  - "Write the characteristic equation: {equation(char_eq, 0)}"
+  - "Factor: {equation((r + a)*(r + b), 0)}"
+  - "The roots are r = {r1} and r = {r2}"
+  - "Since we have two distinct real roots, the general solution is:"
+  - "y = {y}"

@@ -1,0 +1,26 @@
+topic: multivariable_calculus/triple_integrals
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  integrand: a * x + b * y + c * z
+  x_lower: 0
+  x_upper: 1
+  y_lower: 0
+  y_upper: 1
+  z_lower: 0
+  z_upper: 1
+  inner: integral(integrand, z)
+  inner_eval: evaluate(inner, z, z_upper) - evaluate(inner, z, z_lower)
+  middle: integral(inner_eval, y)
+  middle_eval: evaluate(middle, y, y_upper) - evaluate(middle, y, y_lower)
+  outer: integral(middle_eval, x)
+  answer: evaluate(outer, x, x_upper) - evaluate(outer, x, x_lower)
+question: "Evaluate the triple integral {definite_integral_of(definite_integral_of(definite_integral_of(integrand, z, z_lower, z_upper), y, y_lower, y_upper), x, x_lower, x_upper)}"
+answer: answer
+solution:
+  - "Integrate with respect to z first: {definite_integral_of(integrand, z, z_lower, z_upper)} = {inner_eval}"
+  - "Then integrate with respect to y: {definite_integral_of(inner_eval, y, y_lower, y_upper)} = {middle_eval}"
+  - "Finally integrate with respect to x: {definite_integral_of(middle_eval, x, x_lower, x_upper)} = {answer}"

@@ -1,0 +1,36 @@
+topic: multivariable_calculus/partial_derivatives
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  f: a*x^3*y^2 + b*x^2*y^3 + c*x*y
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  fxx: derivative(fx, x)
+  fyy: derivative(fy, y)
+  fxy: derivative(fx, y)
+  x0: integer(-2, 2)
+  y0: integer(-2, 2)
+  D_val: evaluate(evaluate(fxx * fyy - fxy^2, x, x0), y, y0)
+  fxx_val: evaluate(evaluate(fxx, x, x0), y, y0)
+  answer: D_val
+constraints:
+  - x0 != 0
+  - y0 != 0
+  - a != b
+question: "Let {equation(f(x,y), f)}. Compute the discriminant D = {equation(D, fxx*fyy - fxy^2)} at the critical point ({x0}, {y0})."
+answer: answer
+solution:
+  - "First find the second partial derivatives:"
+  - "{equation(fx, fx)}"
+  - "{equation(fy, fy)}"
+  - "{equation(fxx, fxx)}"
+  - "{equation(fyy, fyy)}"
+  - "{equation(fxy, fxy)}"
+  - "At the point ({x0}, {y0}):"
+  - "{equation(fxx(x0,y0), fxx_val)}"
+  - "{equation(fyy(x0,y0), evaluate(evaluate(fyy, x, x0), y, y0))}"
+  - "{equation(fxy(x0,y0), evaluate(evaluate(fxy, x, x0), y, y0))}"
+  - "Therefore D = {fxx_val} · {evaluate(evaluate(fyy, x, x0), y, y0)} - ({evaluate(evaluate(fxy, x, x0), y, y0)})^2 = {answer}"

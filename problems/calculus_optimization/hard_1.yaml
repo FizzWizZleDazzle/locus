@@ -1,0 +1,29 @@
+topic: calculus/optimization
+difficulty: hard
+calculator: scientific
+variables:
+  a: integer(2, 5)
+  b: integer(3, 8)
+  c: integer(10, 30)
+  f: a * x^3 - b * x^2 + c
+  f_prime: derivative(f, x)
+  critical_x: b / (3 * a)
+  f_double_prime: derivative(f_prime, x)
+  second_deriv_at_crit: evaluate(f_double_prime, x, critical_x)
+  y_value: evaluate(f, x, critical_x)
+  answer: critical_x
+constraints:
+  - b % 3 == 0
+  - second_deriv_at_crit > 0
+question: "A particle's height is given by {equation(h(t), f)} where t is time in seconds and h is in meters. Find the time when the particle reaches its minimum height."
+answer: answer
+solution:
+  - "To find the minimum, take the derivative: {derivative_of(f, x)} = {f_prime}"
+  - "Set the derivative equal to zero: {equation(f_prime, 0)}"
+  - "Solve for x: {equation(3 * a * x^2 - 2 * b * x, 0)}"
+  - "Factor: {equation(x * (3 * a * x - 2 * b), 0)}"
+  - "So x = 0 or x = {answer}"
+  - "Check second derivative: {derivative_of(f_prime, x)} = {f_double_prime}"
+  - "At x = 0: f''(0) = {evaluate(f_double_prime, x, 0)} < 0, so x = 0 is a maximum"
+  - "At x = {answer}: f''({answer}) = {second_deriv_at_crit} > 0, so x = {answer} is a minimum"
+  - "The particle reaches minimum height at t = {answer} seconds"

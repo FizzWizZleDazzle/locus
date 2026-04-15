@@ -1,0 +1,19 @@
+topic: multivariable_calculus/greens_theorem
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  P: a * y
+  Q: b * x
+  curl: b - a
+  answer: curl
+constraints:
+  - a != b
+question: "Use Green's theorem to evaluate the line integral of F = {vec((P, Q))} around the unit circle C oriented counterclockwise."
+answer: answer
+solution:
+  - "Green's theorem: Line integral = {integral_of(integral_of(curl, x), y)} over the region"
+  - "Compute curl F = {derivative_of(Q, x)} - {derivative_of(P, y)} = {b} - {a} = {curl}"
+  - "For the unit circle, the area integral becomes {curl} times the area π"
+  - "Therefore, the line integral equals {answer}π"

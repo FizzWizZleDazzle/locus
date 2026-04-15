@@ -1,0 +1,32 @@
+topic: precalculus/unit_circle
+difficulty: very_hard
+calculator: scientific
+variables:
+  k: integer(1, 4)
+  m: choice(3, 4, 6)
+  angle_num: k * 360
+  angle_denom: m
+  angle_deg: angle_num / angle_denom
+  angle_rad: angle_deg * pi / 180
+  cos_val: cos(angle_rad)
+  sin_val: sin(angle_rad)
+  tan_val: tan(angle_rad)
+  sec_val: 1 / cos_val
+  csc_val: 1 / sin_val
+  expression: sec_val^2 - tan_val^2
+  answer: simplify(expression)
+constraints:
+  - mod(angle_num, angle_denom) == 0
+  - cos_val != 0
+question: "Verify the identity sec²θ - tan²θ = 1 when θ = {angle_deg}°. Calculate {equation(expression, ?)} where θ = {angle_deg}°."
+answer: answer
+solution:
+  - "Convert θ = {angle_deg}° to radians: θ = {angle_rad}"
+  - "From the unit circle: cos({angle_deg}°) = {cos_val}"
+  - "And sin({angle_deg}°) = {sin_val}"
+  - "Calculate sec({angle_deg}°) = 1/cos({angle_deg}°) = {sec_val}"
+  - "Calculate tan({angle_deg}°) = sin({angle_deg}°)/cos({angle_deg}°) = {tan_val}"
+  - "Compute sec²({angle_deg}°) = ({sec_val})² = {simplify(sec_val^2)}"
+  - "Compute tan²({angle_deg}°) = ({tan_val})² = {simplify(tan_val^2)}"
+  - "Therefore sec²({angle_deg}°) - tan²({angle_deg}°) = {simplify(sec_val^2)} - {simplify(tan_val^2)} = {answer}"
+  - "This confirms the Pythagorean identity sec²θ - tan²θ = 1"

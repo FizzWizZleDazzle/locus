@@ -1,0 +1,21 @@
+topic: algebra1/two_step_equations
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-12, 12)
+  b: nonzero(-20, 20)
+  c: integer(-30, 30)
+  x_val: integer(-10, 10)
+  rhs: a * x_val + b
+  answer: x_val
+constraints:
+  - abs(a) > 1
+  - abs(rhs) <= 50
+  - mod(rhs - b, a) == 0
+question: "Solve for x: {equation(a * x + b, rhs)}"
+answer: answer
+solution:
+  - "Start with {equation(a * x + b, rhs)}"
+  - "Subtract {b} from both sides: {equation(a * x, rhs - b)}"
+  - "Divide both sides by {a}: {equation(x, (rhs - b) / a)}"
+  - "Therefore, x = {answer}"

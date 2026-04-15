@@ -1,0 +1,18 @@
+topic: algebra1/graphing_lines
+difficulty: easy
+calculator: none
+variables:
+  m: choice(-3, -2, -1, 1, 2, 3)
+  b: integer(-5, 5)
+  f: m * x + b
+  x_val: choice(0, 1, 2, 3)
+  y_val: evaluate(f, x, x_val)
+constraints:
+  - b != 0
+question: "Find the y-coordinate when x = {x_val} for the line {equation(y, f)}."
+answer: y_val
+solution:
+  - "We have the line {equation(y, f)}"
+  - "Substitute x = {x_val}:"
+  - "y = {m} × {x_val} + {b}"
+  - "y = {y_val}"

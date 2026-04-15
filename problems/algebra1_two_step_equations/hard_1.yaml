@@ -1,0 +1,21 @@
+topic: algebra1/two_step_equations
+difficulty: hard
+calculator: none
+variables:
+  answer: integer(-12, 12)
+  a: nonzero(-9, 9)
+  b: nonzero(-15, 15)
+  c: a * answer + b
+  equation: a * x + b
+constraints:
+  - abs(c) <= 50
+  - gcd(abs(a), abs(b)) == 1
+  - answer != 0
+question: "Solve for x: {equation(equation, c)}"
+answer: answer
+solution:
+  - "Start with {equation(equation, c)}"
+  - "Subtract {b} from both sides: {equation(a * x, c - b)}"
+  - "Simplify: {equation(a * x, c - b)}"
+  - "Divide both sides by {a}: {equation(x, (c - b) / a)}"
+  - "Therefore x = {answer}"

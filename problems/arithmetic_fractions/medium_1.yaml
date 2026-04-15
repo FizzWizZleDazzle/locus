@@ -1,0 +1,34 @@
+topic: arithmetic/fractions
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 9)
+  b: integer(2, 9)
+  c: integer(2, 9)
+  d: integer(2, 9)
+  e: integer(2, 9)
+  f: integer(2, 9)
+  sum_num: a*d + b*c
+  sum_den: b*d
+  diff_num: sum_num*f - e*sum_den
+  diff_den: sum_den*f
+  g: gcd(diff_num, diff_den)
+  final_num: diff_num/g
+  final_den: diff_den/g
+  answer: final_num/final_den
+constraints:
+  - gcd(a, b) == 1
+  - gcd(c, d) == 1
+  - gcd(e, f) == 1
+question: "Calculate: ({a}/{b} + {c}/{d}) - {e}/{f}"
+answer: answer
+solution:
+  - "First, add {a}/{b} + {c}/{d}"
+  - "Common denominator: {b} × {d} = {sum_den}"
+  - "{a}/{b} = {a*d}/{sum_den} and {c}/{d} = {b*c}/{sum_den}"
+  - "Sum: {sum_num}/{sum_den}"
+  - "Now subtract {e}/{f} from {sum_num}/{sum_den}"
+  - "Common denominator: {sum_den} × {f} = {diff_den}"
+  - "{sum_num}/{sum_den} = {diff_num}/{diff_den} and {e}/{f} = {e*sum_den}/{diff_den}"
+  - "Difference: {diff_num}/{diff_den}"
+  - "Simplify by dividing by {g}: {answer}"

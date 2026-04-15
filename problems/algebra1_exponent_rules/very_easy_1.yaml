@@ -1,0 +1,15 @@
+topic: algebra1/exponent_rules
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(2, 4)
+  base: x^m * x^n
+  answer: x^(m + n)
+question: "Simplify {base}"
+answer: answer
+solution:
+  - "When multiplying powers with the same base, add the exponents"
+  - "{base} = x^({m} + {n})"
+  - "= {answer}"

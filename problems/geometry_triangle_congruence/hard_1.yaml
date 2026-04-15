@@ -1,0 +1,37 @@
+topic: geometry/triangle_congruence
+difficulty: hard
+calculator: scientific
+variables:
+  # Design backward: start with congruent triangles using SSS
+  # Pick a base triangle with integer sides that satisfy triangle inequality
+  a: integer(5, 12)
+  b: integer(7, 15)
+  c: integer(8, 18)
+  # Second triangle has same sides but in different order (congruent by SSS)
+  d: b
+  e: c
+  f: a
+  # Add a third triangle that's NOT congruent
+  g: a + 1
+  h: b
+  i: c + 1
+  # Angles for first triangle (using law of cosines)
+  cos_A: (b^2 + c^2 - a^2) / (2*b*c)
+  angle_A: round(acos(cos_A) * 180 / 3.14159, 1)
+  cos_B: (a^2 + c^2 - b^2) / (2*a*c)
+  angle_B: round(acos(cos_B) * 180 / 3.14159, 1)
+  angle_C: round(180 - angle_A - angle_B, 1)
+constraints:
+  - a + b > c
+  - a + c > b
+  - b + c > a
+question: "Triangle ABC has sides AB = {c}, BC = {a}, and CA = {b}. Triangle DEF has sides DE = {e}, EF = {d}, and FD = {f}. Triangle GHI has sides GH = {i}, HI = {g}, and GI = {h}. Which triangles are congruent? Justify using a congruence theorem."
+answer: d
+solution:
+  - "Check Triangle ABC: sides {a}, {b}, {c}"
+  - "Check Triangle DEF: sides {d}, {e}, {f} = {b}, {c}, {a}"
+  - "Check Triangle GHI: sides {g}, {h}, {i} = {a + 1}, {b}, {c + 1}"
+  - "Triangle ABC and DEF have the same three side lengths (in different order)"
+  - "By SSS (Side-Side-Side) congruence theorem, Triangle ABC ≅ Triangle DEF"
+  - "Triangle GHI has different side lengths, so it's not congruent to the others"
+  - "Answer: Triangles ABC and DEF are congruent"

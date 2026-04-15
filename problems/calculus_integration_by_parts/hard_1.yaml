@@ -1,0 +1,28 @@
+topic: calculus/integration_by_parts
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-3, 3)
+  n: integer(2, 4)
+  u: x^n
+  dv: a * e^(b*x)
+  du: derivative(u, x)
+  v: integral(dv, x)
+  uv: u * v
+  integrand: u * dv
+  vdu: v * du
+  integral_vdu: integral(vdu, x)
+  answer: uv - integral_vdu
+constraints:
+  - a != b
+  - abs(a) != abs(b)
+question: "Find {integral_of(integrand, x)} using integration by parts."
+answer: answer
+solution:
+  - "Use integration by parts: ∫u dv = uv - ∫v du"
+  - "Let u = {u}, so du = {du} dx"
+  - "Let dv = {dv} dx, so v = {v}"
+  - "Apply the formula: {integral_of(integrand, x)} = {uv} - {integral_of(vdu, x)}"
+  - "The integral {integral_of(vdu, x)} requires integration by parts again"
+  - "Continuing this process {n} times gives: {answer} + C"

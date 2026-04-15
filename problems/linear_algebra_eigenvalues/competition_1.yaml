@@ -1,0 +1,41 @@
+topic: linear_algebra/eigenvalues
+difficulty: competition
+calculator: none
+variables:
+  # Design 3x3 matrix with known eigenvalues
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  lambda3: integer(-5, 5)
+  # Create diagonal matrix directly
+  d11: lambda1
+  d22: lambda2
+  d33: lambda3
+  # Create simple similarity transform
+  a: nonzero(-2, 2)
+  b: integer(-2, 2)
+  c: integer(-2, 2)
+  # Upper triangular matrix with eigenvalues on diagonal
+  A11: d11
+  A12: a
+  A13: b
+  A22: d22
+  A23: c
+  A33: d33
+  # Trace and determinant are invariant under similarity
+  trace_A: lambda1 + lambda2 + lambda3
+  det_A: lambda1 * lambda2 * lambda3
+  sum_of_squares: lambda1^2 + lambda2^2 + lambda3^2
+  # For solution work
+  sum_squared: trace_A^2
+  sum_of_products: (trace_A^2 - sum_of_squares) / 2
+constraints:
+  - lambda1 <= lambda2
+  - lambda2 <= lambda3
+question: "Let A be the 3×3 upper triangular matrix with diagonal entries {A11}, {A22}, {A33} and upper entries {A12}, {A13}, {A23}. Find the sum of the squares of all eigenvalues of A."
+answer: sum_of_squares
+solution:
+  - "For an upper triangular matrix, the eigenvalues are the diagonal entries"
+  - "So the eigenvalues are λ₁ = {lambda1}, λ₂ = {lambda2}, λ₃ = {lambda3}"
+  - "The sum of squares is:"
+  - "λ₁² + λ₂² + λ₃² = {lambda1}² + {lambda2}² + {lambda3}²"
+  - "= {sum_of_squares}"

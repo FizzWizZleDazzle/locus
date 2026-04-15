@@ -1,0 +1,20 @@
+topic: calculus/optimization
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(2, 8)
+  f: a * x^2 - b * x
+  f_prime: derivative(f, x)
+  critical_x: solve(f_prime, x)
+  answer: evaluate(f, x, critical_x)
+constraints:
+  - mod(b, 2*a) == 0
+question: "Find the minimum value of {f}"
+answer: answer
+solution:
+  - "To find the minimum, take the derivative: {derivative_of(f, x)} = {f_prime}"
+  - "Set the derivative equal to zero: {equation(f_prime, 0)}"
+  - "Solve for x: x = {critical_x}"
+  - "Since the coefficient of x^2 is positive, this is a minimum"
+  - "Substitute back into f: f({critical_x}) = {answer}"

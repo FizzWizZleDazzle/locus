@@ -1,0 +1,22 @@
+topic: geometry/similar_triangles
+difficulty: medium
+calculator: none
+variables:
+  k: integer(2, 5)
+  a1: integer(3, 8)
+  b1: integer(4, 10)
+  c1: integer(5, 12)
+  a2: k * a1
+  b2: k * b1
+  c2: k * c1
+  answer: c2
+constraints:
+  - a1 < b1
+  - b1 < c1
+  - a1 + b1 > c1
+question: "Two triangles are similar. The first triangle has sides {a1}, {b1}, and {c1}. The second triangle has sides {a2}, {b2}, and an unknown side. Find the length of the unknown side."
+answer: answer
+solution:
+  - "Since the triangles are similar, corresponding sides are proportional"
+  - "The ratio of corresponding sides is {a2}/{a1} = {k}"
+  - "Therefore, the unknown side = {c1} × {k} = {answer}"

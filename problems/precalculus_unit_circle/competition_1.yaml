@@ -1,0 +1,24 @@
+topic: precalculus/unit_circle
+difficulty: competition
+calculator: none
+variables:
+  k: integer(1, 4)
+  angle_num: choice(1, 2, 3, 5, 7, 11)
+  angle: angle_num * pi / 12
+  doubled: 2 * angle
+  cos_double: simplify(cos(doubled))
+  sin_double: simplify(sin(doubled))
+  expression: k * cos_double + sin_double
+  target: k * cos(angle)^2 - k * sin(angle)^2 + 2 * sin(angle) * cos(angle)
+  answer: simplify(target)
+constraints:
+  - angle_num != 6
+question: "If {equation(expression, target)}, find the value of k."
+answer: k
+solution:
+  - "We have {equation(expression, target)}"
+  - "Using double angle formulas: {equation(cos_double, cos(2 * angle))}, {equation(sin_double, sin(2 * angle))}"
+  - "So {equation(expression, k * cos(2 * angle) + sin(2 * angle))}"
+  - "Also, {equation(cos(2 * angle), cos(angle)^2 - sin(angle)^2)} and {equation(sin(2 * angle), 2 * sin(angle) * cos(angle))}"
+  - "Therefore {equation(k * cos(2 * angle) + sin(2 * angle), k * (cos(angle)^2 - sin(angle)^2) + 2 * sin(angle) * cos(angle))}"
+  - "This equals {target}, so k = {k}"

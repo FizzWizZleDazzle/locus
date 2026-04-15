@@ -1,0 +1,34 @@
+topic: multivariable_calculus/change_of_variables
+difficulty: competition
+calculator: none
+variables:
+  # Design backward: pick a clean Jacobian determinant first
+  det_value: choice(2, 3, 4, 6)
+  # Build transformation that gives this determinant
+  a: choice(1, 2, 3)
+  d: integer(1, 4)
+  b: 0
+  c: evaluate(det_value/a, d, d)
+  # Original integral bounds
+  u_min: 0
+  u_max: choice(1, 2)
+  v_min: 0
+  v_max: choice(1, 2, 3)
+  # Integrand that becomes simple after transformation
+  k: integer(1, 4)
+  # The answer is designed to be clean
+  answer: evaluate(k * det_value * u_max * v_max, k, k)
+constraints:
+  - a * d == det_value
+question: "Evaluate the double integral of {k}xy over the region R bounded by x = 0, x = {evaluate(a*u_max, u_max, u_max)}, y = 0, and y = {evaluate(c*v_max, v_max, v_max)}, using the change of variables x = {a}u and y = {c}v."
+answer: answer
+solution:
+  - "Given transformation: x = {a}u, y = {c}v"
+  - "Compute the Jacobian matrix J = [{a}, {b}; {c}, {d}]"
+  - "The Jacobian determinant is |J| = {a}·{d} - {b}·{c} = {det_value}"
+  - "Transform the region: 0 ≤ u ≤ {u_max}, 0 ≤ v ≤ {v_max}"
+  - "Transform the integrand: {k}xy = {k}·{a}u·{c}v = {evaluate(k*a*c, a, a)}uv"
+  - "The integral becomes: ∫∫ {evaluate(k*a*c, a, a)}uv |J| du dv"
+  - "= {evaluate(k*a*c, a, a)}·{det_value} ∫₀^{u_max} u du ∫₀^{v_max} v dv"
+  - "= {evaluate(k*a*c, a, a)}·{det_value}·{evaluate(u_max^2/2, u_max, u_max)}·{evaluate(v_max^2/2, v_max, v_max)}"
+  - "= {answer}"

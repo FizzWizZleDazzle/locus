@@ -1,0 +1,31 @@
+topic: algebra2/geometric_sequences
+difficulty: very_hard
+calculator: scientific
+variables:
+  r: choice(2, 3, 4, 5)
+  k: integer(2, 4)
+  n: integer(8, 12)
+  first_term: r^k
+  last_term: r^n
+  num_terms: n - k + 1
+  sum_formula: first_term * (r^num_terms - 1) / (r - 1)
+  sum: simplify(sum_formula)
+  middle_index: k + floor(num_terms/2)
+  middle_term: r^middle_index
+  product_of_extremes: first_term * last_term
+  answer: middle_term
+constraints:
+  - n >= k + 4
+  - mod(num_terms, 2) == 1
+question: "A geometric sequence has first term {first_term} and last term {last_term}. The sum of all terms is {sum}. Find the middle term of this sequence."
+answer: answer
+solution:
+  - "Let the first term be a = {first_term} and common ratio be r"
+  - "The last term is ar^(n-1) = {last_term}, where n is the number of terms"
+  - "Since a = {first_term}, we have {first_term} · r^(n-1) = {last_term}"
+  - "This gives r^(n-1) = {last_term}/{first_term} = {simplify(last_term/first_term)}"
+  - "Since {last_term} = {r}^{n} and {first_term} = {r}^{k}, we have r^(n-1) = {r}^{n-k}"
+  - "Therefore n-1 = {n-k}, so n = {num_terms}"
+  - "We can verify: the sum S = a(r^n - 1)/(r-1) = {first_term}({r}^{num_terms} - 1)/({r}-1) = {sum}"
+  - "Since there are {num_terms} terms (odd), the middle term is the {simplify((num_terms+1)/2)}th term"
+  - "The middle term is ar^({simplify((num_terms-1)/2)}) = {first_term} · {r}^{simplify((num_terms-1)/2)} = {r}^{k} · {r}^{simplify((num_terms-1)/2)} = {r}^{middle_index} = {answer}"

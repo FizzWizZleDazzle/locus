@@ -1,0 +1,36 @@
+topic: geometry/perimeter
+difficulty: hard
+calculator: none
+variables:
+  # Design a complex polygon by combining shapes with known integer dimensions
+  # Start with a rectangle, remove a triangle, add a semicircle
+  rect_width: integer(8, 12)
+  rect_height: integer(5, 8)
+  # Triangle cut from corner - use 3-4-5 scaled triple for integer sides
+  scale: integer(1, 2)
+  tri_base: 3 * scale
+  tri_height: 4 * scale
+  tri_hyp: 5 * scale
+  # Semicircle radius chosen to make perimeter calculation interesting
+  semi_radius: integer(2, 4)
+  # Calculate perimeter: rectangle sides minus cut triangle plus semicircle
+  # Rectangle contributes: 2 widths + 2 heights - base - height + hypotenuse
+  rect_contribution: 2*rect_width + 2*rect_height - tri_base - tri_height + tri_hyp
+  # Semicircle contributes: π*r + 2*r (half circumference plus diameter)
+  # For clean answer, we'll ask for perimeter in terms of π
+  semi_arc: semi_radius
+  semi_diameter: 2 * semi_radius
+  answer: rect_contribution + semi_diameter + semi_arc
+constraints:
+  - rect_width > tri_base
+  - rect_height > tri_height
+question: "A rectangle with width {rect_width} and height {rect_height} has a right triangle cut from one corner. The triangle has legs of length {tri_base} and {tri_height}. A semicircle with radius {semi_radius} is attached to one side. Find the perimeter of the resulting shape in the form a + bπ, where a and b are integers. What is the value of a + b?"
+answer: answer
+solution:
+  - "Original rectangle has perimeter 2({rect_width}) + 2({rect_height}) = {2*rect_width + 2*rect_height}"
+  - "Triangle removed has legs {tri_base} and {tri_height}, hypotenuse = {tri_hyp} (by Pythagorean theorem)"
+  - "Removing triangle: lose sides {tri_base} and {tri_height}, gain hypotenuse {tri_hyp}"
+  - "Rectangle contribution: {2*rect_width + 2*rect_height} - {tri_base} - {tri_height} + {tri_hyp} = {rect_contribution}"
+  - "Semicircle adds: arc length π({semi_radius}) = {semi_arc}π and diameter 2({semi_radius}) = {semi_diameter}"
+  - "Total perimeter: {rect_contribution} + {semi_diameter} + {semi_arc}π = {rect_contribution + semi_diameter} + {semi_arc}π"
+  - "Therefore a = {rect_contribution + semi_diameter} and b = {semi_arc}, so a + b = {answer}"

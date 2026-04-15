@@ -1,0 +1,25 @@
+topic: linear_algebra/linear_transformations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(-3, 3)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(-3, 3)
+  T: matrix(2, 2, -3, 3)
+  v_1: 2
+  v_2: 1
+  result_1: a * v_1 + b * v_2
+  result_2: c * v_1 + d * v_2
+constraints:
+  - abs(a) + abs(b) <= 4
+  - abs(c) + abs(d) <= 4
+question: "Let T be the linear transformation with matrix {matrix_of(T)}. Find T({vec([v_1, v_2])})."
+answer: result_1
+answer_type: vector
+solution:
+  - "To find T({vec([v_1, v_2])}), multiply the transformation matrix by the vector:"
+  - "{matrix_of(T)} {vec([v_1, v_2])} = {vec([result_1, result_2])}"
+  - "First row: ({a})({v_1}) + ({b})({v_2}) = {result_1}"
+  - "Second row: ({c})({v_1}) + ({d})({v_2}) = {result_2}"
+  - "Therefore T({vec([v_1, v_2])}) = {vec([result_1, result_2])}"

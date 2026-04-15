@@ -1,0 +1,13 @@
+topic: linear_algebra/row_reduction
+difficulty: very_easy
+calculator: none
+variables:
+  M: matrix(2, 3, 1, 9)
+  rref_M: rref(M)
+question: "Find the reduced row echelon form of {matrix_of(M)}"
+answer: rref_M
+answer_type: matrix
+solution:
+  - "Start with {matrix_of(M)}"
+  - "Apply row reduction operations to get to reduced row echelon form"
+  - "Result: {matrix_of(rref_M)}"

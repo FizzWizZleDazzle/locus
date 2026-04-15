@@ -1,0 +1,18 @@
+topic: geometry/right_triangle_trig
+difficulty: very_easy
+calculator: none
+variables:
+  angle: choice(30, 45, 60)
+  hyp: choice(2, 4, 6, 8, 10)
+  opp: evaluate(hyp * sin(angle * pi / 180), hyp, hyp)
+  adj: evaluate(hyp * cos(angle * pi / 180), hyp, hyp)
+  answer: simplify(opp)
+constraints:
+  - angle == 30 or angle == 45 or angle == 60
+question: "In a right triangle with a {angle}° angle and hypotenuse {hyp}, find the length of the opposite side."
+answer: answer
+solution:
+  - "Use sine ratio: sin({angle}°) = opposite / hypotenuse"
+  - "opposite = {hyp} × sin({angle}°)"
+  - "For {angle}°, we use the special angle value"
+  - "opposite = {answer}"

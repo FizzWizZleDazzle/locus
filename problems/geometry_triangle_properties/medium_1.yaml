@@ -1,0 +1,31 @@
+topic: geometry/triangle_properties
+difficulty: medium
+calculator: scientific
+variables:
+  # Use Pythagorean triple to ensure integer side lengths
+  k: integer(1, 3)
+  base_a: 3
+  base_b: 4
+  base_c: 5
+  # Scale the triple
+  a: k * base_a
+  b: k * base_b
+  c: k * base_c
+  # Semi-perimeter
+  s: (a + b + c) / 2
+  # Area using Heron's formula - guaranteed integer by Pythagorean triple
+  area: sqrt(s * (s - a) * (s - b) * (s - c))
+  # Inradius - guaranteed clean by construction
+  inradius: area / s
+constraints:
+  - k > 0
+question: "A triangle has sides of length {a}, {b}, and {c}. Find the radius of the inscribed circle (inradius)."
+answer: inradius
+solution:
+  - "First, find the semi-perimeter: s = (a + b + c)/2"
+  - "s = ({a} + {b} + {c})/2 = {s}"
+  - "Use Heron's formula to find the area: A = √[s(s-a)(s-b)(s-c)]"
+  - "A = √[{s} × ({s} - {a}) × ({s} - {b}) × ({s} - {c})]"
+  - "A = {area}"
+  - "The inradius formula is r = A/s"
+  - "r = {area}/{s} = {inradius}"

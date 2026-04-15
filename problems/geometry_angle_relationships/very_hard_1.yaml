@@ -1,0 +1,29 @@
+topic: geometry/angle_relationships
+difficulty: very_hard
+calculator: none
+variables:
+  k: integer(2, 5)
+  m: integer(3, 8)
+  base_angle: integer(10, 30)
+  angle1: k * base_angle
+  angle2: m * base_angle
+  angle3: 180 - angle1 - angle2
+  n: integer(2, 4)
+  angle4: n * angle3
+  angle5: 360 - angle1 - angle4
+  answer: angle5
+constraints:
+  - angle1 + angle2 < 180
+  - angle3 > 0
+  - angle1 + angle4 < 360
+question: "In a figure, three angles form a straight line with measures {angle1}°, {angle2}°, and a third angle. A fourth angle is {n} times the third angle. If the first and fourth angles are two angles of a quadrilateral, and the sum of all four angles in the quadrilateral is 360°, find the measure of the largest angle in the quadrilateral."
+answer: answer
+solution:
+  - "Three angles on a straight line sum to 180°"
+  - "Third angle = 180° - {angle1}° - {angle2}° = {angle3}°"
+  - "Fourth angle = {n} × {angle3}° = {angle4}°"
+  - "In a quadrilateral, all angles sum to 360°"
+  - "We have two angles: {angle1}° and {angle4}°"
+  - "Sum of remaining two angles = 360° - {angle1}° - {angle4}° = {angle5}°"
+  - "Since we need the largest angle in the quadrilateral, and {angle5}° represents the sum of two angles, at least one must be ≥ {angle5}/2°"
+  - "The largest angle in the quadrilateral is {answer}°"

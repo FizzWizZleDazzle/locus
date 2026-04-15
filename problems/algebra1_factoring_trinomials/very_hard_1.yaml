@@ -1,0 +1,32 @@
+topic: algebra1/factoring_trinomials
+difficulty: very_hard
+calculator: none
+variables:
+  p1: prime(2, 7)
+  p2: prime(2, 7)
+  q1: prime(2, 7)
+  q2: prime(2, 7)
+  a: p1 * p2
+  b: nonzero(-9, 9)
+  c: q1 * q2
+  r1_num: -b + sqrt(b^2 - 4*a*c)
+  r1_den: 2*a
+  r2_num: -b - sqrt(b^2 - 4*a*c)
+  r2_den: 2*a
+  discriminant: b^2 - 4*a*c
+  f: a*x^2 + b*x + c
+  factored_form: a*(x - r1_num/r1_den)*(x - r2_num/r2_den)
+  answer: simplify(factored_form)
+constraints:
+  - discriminant > 0
+  - mod(discriminant, 4) == 0 or mod(discriminant, 9) == 0 or mod(discriminant, 25) == 0
+  - p1 != p2 or q1 != q2
+question: "Factor completely: {f}"
+answer: answer
+solution:
+  - "We need to factor {f} where a = {a}, b = {b}, c = {c}"
+  - "Since a = {a} = {p1} × {p2}, we look for factors of ac = {a} × {c} = {evaluate(a*c, x, 0)}"
+  - "The discriminant is {discriminant}, which equals {evaluate(discriminant, x, 0)}"
+  - "Since the discriminant is a perfect square, this factors nicely"
+  - "Using the quadratic formula or factoring by grouping, we get:"
+  - "{f} = {answer}"

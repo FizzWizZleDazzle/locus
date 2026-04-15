@@ -1,0 +1,28 @@
+topic: differential_equations/second_order_constant
+difficulty: medium
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  a: -(r1 + r2)
+  b: r1 * r2
+  c1: nonzero(-4, 4)
+  c2: nonzero(-4, 4)
+  general_solution: c1 * e^(r1 * x) + c2 * e^(r2 * x)
+constraints:
+  - r1 != r2
+  - r1 != 0
+  - r2 != 0
+question: "Solve the differential equation y'' + {a}y' + {b}y = 0 with initial conditions y(0) = {c1 + c2} and y'(0) = {c1 * r1 + c2 * r2}."
+answer: general_solution
+solution:
+  - "The characteristic equation is r² + {a}r + {b} = 0"
+  - "This factors as {char_poly} = 0"
+  - "So the roots are r = {r1} and r = {r2}"
+  - "General solution: y = C₁e^({r1}x) + C₂e^({r2}x)"
+  - "Apply y(0) = {c1 + c2}: C₁ + C₂ = {c1 + c2}"
+  - "Apply y'(0) = {c1 * r1 + c2 * r2}: {r1}C₁ + {r2}C₂ = {c1 * r1 + c2 * r2}"
+  - "Solving this system gives C₁ = {c1} and C₂ = {c2}"
+  - "Therefore y = {general_solution}"

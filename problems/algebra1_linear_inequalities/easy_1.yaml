@@ -1,0 +1,19 @@
+topic: algebra1/linear_inequalities
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(-20, 20)
+  c: integer(-20, 20)
+  inequality: a * x + b < c
+  rhs: c - b
+  answer: x < rhs / a
+constraints:
+  - mod(c - b, a) == 0
+  - c != b
+question: "Solve the inequality {inequality} for x."
+answer: answer
+solution:
+  - "Start with {inequality}"
+  - "Subtract {b} from both sides: {equation(a * x, rhs)}"
+  - "Divide both sides by {a}: {answer}"

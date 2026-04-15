@@ -1,0 +1,41 @@
+topic: linear_algebra/subspaces
+difficulty: competition
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  k: nonzero(-3, 3)
+  v1_1: a
+  v1_2: b
+  v1_3: 0
+  v2_1: c
+  v2_2: 0
+  v2_3: d
+  v3_1: k*a
+  v3_2: k*b
+  v3_3: 0
+  zero_vec_1: 0
+  zero_vec_2: 0
+  zero_vec_3: 0
+  dim: 2
+constraints:
+  - a*d != 0
+  - gcd(a, b) == 1
+  - gcd(c, d) == 1
+question: "Let W be the subspace of R³ spanned by {vec([v1_1, v1_2, v1_3])}, {vec([v2_1, v2_2, v2_3])}, and {vec([v3_1, v3_2, v3_3])}. Find the dimension of W."
+answer: dim
+solution:
+  - "Check if the vectors are linearly independent."
+  - "Notice that {vec([v3_1, v3_2, v3_3])} = {k} · {vec([v1_1, v1_2, v1_3])}, so v3 is a scalar multiple of v1."
+  - "Thus v3 is in the span of v1, contributing no new dimension."
+  - "Check if v1 and v2 are linearly independent:"
+  - "If c₁{vec([v1_1, v1_2, v1_3])} + c₂{vec([v2_1, v2_2, v2_3])} = {vec([zero_vec_1, zero_vec_2, zero_vec_3])}, then:"
+  - "c₁·{a} + c₂·{c} = 0"
+  - "c₁·{b} + c₂·0 = 0"
+  - "c₁·0 + c₂·{d} = 0"
+  - "From the second equation: c₁ = 0 (since {b} ≠ 0)"
+  - "From the third equation: c₂ = 0 (since {d} ≠ 0)"
+  - "Therefore v1 and v2 are linearly independent."
+  - "The dimension of W is 2."

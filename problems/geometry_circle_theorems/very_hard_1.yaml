@@ -1,0 +1,43 @@
+topic: geometry/circle_theorems
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Use Pythagorean triple to ensure integer chord length
+  a: choice(3, 5, 8, 7, 9, 12)
+  b: choice(4, 12, 15, 24, 12, 16)
+  c: choice(5, 13, 17, 25, 15, 20)
+  # Radius is the hypotenuse
+  r: c
+  # Power of external point
+  d: integer(2, 5)
+  external_distance: r + d
+  # Tangent length from external point (always integer by construction)
+  tangent_length: sqrt(d * (2 * r + d))
+  # Secant segments
+  near_segment: d
+  far_segment: 2 * r
+  total_secant: near_segment + far_segment
+  # Chord perpendicular distance from center
+  chord_distance: a
+  # Half chord length
+  half_chord: b
+  # Full chord length
+  chord_length: 2 * b
+  # Inscribed angle
+  central_angle: 2 * asin(half_chord / r)
+  inscribed_angle: central_angle / 2
+  # Convert to degrees
+  central_deg: round(180 * central_angle / 3.14159, 1)
+  inscribed_deg: round(180 * inscribed_angle / 3.14159, 1)
+  answer: tangent_length
+constraints:
+  - a^2 + b^2 == c^2
+question: "A circle has radius {r}. From an external point P at distance {external_distance} from the center, a tangent and a secant are drawn. The secant passes through the center, with the near intersection at distance {near_segment} from P. Find the length of the tangent from P to the circle."
+answer: answer
+solution:
+  - "By the power of a point theorem: (tangent length)² = (near segment) × (far segment)"
+  - "The far segment length is {near_segment} + {far_segment} - {near_segment} = {far_segment}"
+  - "So (tangent length)² = {near_segment} × {far_segment} = {d} × {2 * r}"
+  - "This gives us (tangent length)² = {d * 2 * r}"
+  - "Therefore, tangent length = {answer}"
+  - "We can verify: from center O to point P is {external_distance}, and OP² - r² = {external_distance}² - {r}² = {d * (2 * r + d)}"

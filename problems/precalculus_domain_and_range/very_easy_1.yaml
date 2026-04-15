@@ -1,0 +1,18 @@
+topic: precalculus/domain_and_range
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(-5, 5)
+  f: sqrt(x - b)
+  domain_start: b
+  answer: "[{domain_start}, ∞)"
+constraints:
+  - b != 0
+question: "Find the domain of f(x) = {f}"
+answer: answer
+answer_type: interval
+solution:
+  - "For {f} to be defined, we need x - {b} ≥ 0"
+  - "Solving: x ≥ {b}"
+  - "Domain: {answer}"

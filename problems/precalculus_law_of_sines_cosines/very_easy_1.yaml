@@ -1,0 +1,30 @@
+topic: precalculus/law_of_sines_cosines
+difficulty: very_easy
+calculator: scientific
+variables:
+  # Start with a 3-4-5 right triangle scaled by k
+  k: integer(1, 4)
+  a: 3 * k
+  b: 4 * k
+  c: 5 * k
+  # For a right triangle with sides 3k, 4k, 5k:
+  # sin(A) = a/c = 3/5, cos(A) = b/c = 4/5
+  # sin(B) = b/c = 4/5, cos(B) = a/c = 3/5
+  # sin(C) = 1 (90 degrees), cos(C) = 0
+  sinA: 3/5
+  sinB: 4/5
+  answer: a
+constraints:
+  - k > 0
+question: "In triangle ABC, side b = {b}, side c = {c}, and sin(A) = {sinA}. Find the length of side a using the Law of Sines."
+answer: answer
+solution:
+  - "Use the Law of Sines: {equation('a/sin(A)', 'b/sin(B)')}"
+  - "We need to find sin(B) first using: {equation('b/sin(B)', 'c/sin(C)')}"
+  - "Since this is a right triangle with c as the hypotenuse, sin(C) = 1"
+  - "So: {equation('b/sin(B)', c)}, which gives sin(B) = {sinB}"
+  - "Now apply the Law of Sines: {equation('a/sin(A)', 'b/sin(B)')}"
+  - "Substitute: {equation('a/(3/5)', 'b/(4/5)')}"
+  - "Cross multiply: a × (4/5) = {b} × (3/5)"
+  - "Simplify: 4a = 3 × {b} = {answer}"
+  - "Therefore: a = {answer}"

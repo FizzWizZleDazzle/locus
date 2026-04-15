@@ -1,0 +1,19 @@
+topic: multivariable_calculus/partial_derivatives
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(2, 8)
+  c: integer(-5, 5)
+  f: a * x^2 + b * y^2 + c * x * y
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+constraints:
+  - a != b
+question: "Find the partial derivatives of f(x,y) = {f}. What is {derivative_of(f, x)}?"
+answer: fx
+solution:
+  - "To find {derivative_of(f, x)}, treat y as a constant"
+  - "Differentiate {f} with respect to x"
+  - "{derivative_of(f, x)} = {fx}"
+  - "Similarly, {derivative_of(f, y)} = {fy}"

@@ -1,0 +1,33 @@
+topic: algebra1/quadratic_formula
+difficulty: very_hard
+calculator: none
+variables:
+  p: prime(11, 29)
+  q: prime(11, 29)
+  k: nonzero(-3, 3)
+  r1: k * sqrt(p)
+  r2: -k * sqrt(p)
+  sum: r1 + r2
+  product: r1 * r2
+  a: q
+  b: -q * sum
+  c: q * product
+  expanded: a * x^2 + b * x + c
+  discriminant: b^2 - 4*a*c
+  sqrt_disc: sqrt(discriminant)
+  answer: solve(expanded, x)
+constraints:
+  - p != q
+  - mod(p, 4) == 1
+  - mod(q, 4) == 3
+question: "Solve {equation(expanded, 0)} for x. Express your answer in simplest radical form."
+answer: answer
+answer_type: set
+solution:
+  - "Given equation: {equation(expanded, 0)}"
+  - "Using the quadratic formula with a = {a}, b = {b}, c = {c}"
+  - "Calculate discriminant: {b}² - 4({a})({c}) = {discriminant}"
+  - "Since {discriminant} = {q}²({k}²)(4{p}), we have {sqrt_of(discriminant)} = {sqrt_disc}"
+  - "x = (-({b}) ± {sqrt_disc}) / (2({a}))"
+  - "x = ({-b} ± {sqrt_disc}) / {2*a}"
+  - "x = {r1} or x = {r2}"

@@ -1,0 +1,27 @@
+topic: precalculus/dot_cross_product
+difficulty: medium
+calculator: scientific
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  a3: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  b3: integer(-5, 5)
+  cross_i: a2*b3 - a3*b2
+  cross_j: a3*b1 - a1*b3
+  cross_k: a1*b2 - a2*b1
+  magnitude_cross: sqrt(cross_i^2 + cross_j^2 + cross_k^2)
+constraints:
+  - abs(a1) + abs(a2) + abs(a3) > 0
+  - abs(b1) + abs(b2) + abs(b3) > 0
+  - cross_i^2 + cross_j^2 + cross_k^2 > 0
+question: "Given vectors {vec(u)} = {vec([a1, a2, a3])} and {vec(v)} = {vec([b1, b2, b3])}, find the magnitude of their cross product {vec(u)} × {vec(v)}."
+answer: magnitude_cross
+solution:
+  - "Calculate the cross product {vec(u)} × {vec(v)} using the determinant formula"
+  - "i-component: ({a2})({b3}) - ({a3})({b2}) = {cross_i}"
+  - "j-component: ({a3})({b1}) - ({a1})({b3}) = {cross_j}"
+  - "k-component: ({a1})({b2}) - ({a2})({b1}) = {cross_k}"
+  - "So {vec(u)} × {vec(v)} = {vec([cross_i, cross_j, cross_k])}"
+  - "The magnitude is {norm([cross_i, cross_j, cross_k])} = {magnitude_cross}"

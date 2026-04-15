@@ -1,0 +1,38 @@
+topic: differential_equations/undetermined_coefficients
+difficulty: competition
+calculator: none
+variables:
+  r1: integer(-4, -1)
+  r2: integer(1, 4)
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  p: -r1 - r2
+  q: r1 * r2
+  diff_eq: y'' + p * y' + q * y
+  forcing: a * e^(2*x) + b * x
+  A: a / (4 + 2*p + q)
+  B: -b * p / q^2
+  C: b / q
+  particular: A * e^(2*x) + B * x + C
+  answer: simplify(particular)
+constraints:
+  - r1 != r2
+  - 4 + 2*p + q != 0
+  - q != 0
+question: "Find a particular solution to {equation(diff_eq, forcing)} using the method of undetermined coefficients."
+answer: answer
+solution:
+  - "The characteristic equation is {equation(expanded_char, 0)}"
+  - "Roots are r = {r1} and r = {r2}"
+  - "For the forcing term {forcing}, we try y_p = A e^(2x) + Bx + C"
+  - "Computing derivatives: y_p' = 2A e^(2x) + B"
+  - "y_p'' = 4A e^(2x)"
+  - "Substituting into the differential equation:"
+  - "(4A e^(2x)) + {p}(2A e^(2x) + B) + {q}(A e^(2x) + Bx + C) = {forcing}"
+  - "Collecting e^(2x) terms: (4 + 2({p}) + {q})A = {a}"
+  - "So A = {A}"
+  - "Collecting x terms: {q}B = {b}, so B = {B}"
+  - "Collecting constant terms: {p}B + {q}C = 0, so C = {C}"
+  - "Therefore y_p = {answer}"

@@ -1,0 +1,28 @@
+topic: calculus/derivative_rules
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: integer(2, 5)
+  d: nonzero(-4, 4)
+  n: integer(3, 6)
+  m: integer(2, 4)
+  f: a * x^n + b * sqrt(x)
+  g: c * x^m + d
+  h: f * g
+  h_expanded: expand(h)
+  answer: derivative(h_expanded, x)
+constraints:
+  - a != -b
+  - c != -d
+  - n != m
+question: "Find {derivative_of(h_expanded, x)} where h(x) = ({f})({g})"
+answer: answer
+solution:
+  - "Let f(x) = {f} and g(x) = {g}"
+  - "Using the product rule: (fg)' = f'g + fg'"
+  - "First find f'(x) = {derivative_of(f, x)}"
+  - "Then find g'(x) = {derivative_of(g, x)}"
+  - "Apply product rule: h'(x) = ({derivative_of(f, x)})({g}) + ({f})({derivative_of(g, x)})"
+  - "Expanding and simplifying: {derivative_of(h_expanded, x)} = {answer}"

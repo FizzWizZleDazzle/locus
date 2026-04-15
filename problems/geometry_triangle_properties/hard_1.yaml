@@ -1,0 +1,34 @@
+topic: geometry/triangle_properties
+difficulty: hard
+calculator: scientific
+variables:
+  # Use a 3-4-5 triangle scaled by factor k for clean calculations
+  k: integer(2, 5)
+  a: 3 * k
+  b: 4 * k
+  c: 5 * k
+  # Semi-perimeter
+  s: (a + b + c) / 2
+  # Area using Heron's formula - guaranteed to be 6k^2
+  area: sqrt(s * (s - a) * (s - b) * (s - c))
+  # Inradius = area/s = 6k^2 / 6k = k
+  inradius: area / s
+  # Circumradius = abc/(4*area) = 60k^3 / (24k^2) = 5k/2
+  circumradius: (a * b * c) / (4 * area)
+  # Ratio is always 5/2 regardless of k
+  ratio_num: 5
+  ratio_den: 2
+  answer: ratio_num
+constraints:
+  - a < b
+  - b < c
+question: "A triangle has sides of length {a}, {b}, and {c}. Find the ratio of its circumradius to its inradius. Express your answer as a fraction in the form p/q, where p and q are coprime positive integers. What is the value of p?"
+answer: answer
+solution:
+  - "First, verify this is a valid triangle: {a} + {b} = {evaluate(a + b, k, k)} > {c} ✓"
+  - "Calculate the semi-perimeter: s = ({a} + {b} + {c})/2 = {s}"
+  - "Using Heron's formula: Area = {sqrt(s * (s - a) * (s - b) * (s - c))} = {area}"
+  - "The inradius r = Area/s = {area}/{s} = {inradius}"
+  - "The circumradius R = abc/(4·Area) = ({a} × {b} × {c})/(4 × {area}) = {circumradius}"
+  - "The ratio R/r = {circumradius}/{inradius} = {ratio_num}/{ratio_den}"
+  - "Since gcd({ratio_num}, {ratio_den}) = 1, we have p = {answer}"

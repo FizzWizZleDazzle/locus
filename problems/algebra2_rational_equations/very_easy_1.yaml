@@ -1,0 +1,23 @@
+topic: algebra2/rational_equations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 8)
+  b: integer(1, 5)
+  c: integer(1, 5)
+  numerator: a * x + b
+  equation: numerator / x = c
+  answer: b / (c - a)
+constraints:
+  - c != a
+  - mod(b, c - a) == 0
+question: "Solve {equation(numerator / x, c)} for x."
+answer: answer
+solution:
+  - "Start with {equation(numerator / x, c)}"
+  - "Multiply both sides by x: {equation(numerator, c * x)}"
+  - "Expand: {equation(a * x + b, c * x)}"
+  - "Subtract {a}x from both sides: {equation(b, c * x - a * x)}"
+  - "Factor: {equation(b, (c - a) * x)}"
+  - "Divide by ({c} - {a}): {equation(x, b / (c - a))}"
+  - "Therefore x = {answer}"

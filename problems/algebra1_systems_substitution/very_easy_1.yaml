@@ -1,0 +1,26 @@
+topic: algebra1/systems_substitution
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(2, 8)
+  d: integer(2, 8)
+  x_val: integer(1, 4)
+  y_val: a * x_val + b
+  rhs2: c * x_val + d * y_val
+constraints:
+  - c != d
+  - a != c
+question: "Solve the system using substitution: {system(equation(y, a*x + b), equation(c*x + d*y, rhs2))}"
+answer: x_val
+answer_type: coordinate
+solution:
+  - "From the first equation: y = {a}x + {b}"
+  - "Substitute into the second equation: {c}x + {d}({a}x + {b}) = {rhs2}"
+  - "Expand: {c}x + {d*a}x + {d*b} = {rhs2}"
+  - "Combine like terms: {c + d*a}x + {d*b} = {rhs2}"
+  - "Subtract {d*b}: {c + d*a}x = {rhs2 - d*b}"
+  - "Divide by {c + d*a}: x = {x_val}"
+  - "Substitute back: y = {a}({x_val}) + {b} = {y_val}"
+  - "Solution: ({x_val}, {y_val})"

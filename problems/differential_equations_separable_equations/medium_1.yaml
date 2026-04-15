@@ -1,0 +1,27 @@
+topic: differential_equations/separable_equations
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  k: nonzero(-4, 4)
+  c_val: integer(-3, 3)
+  f: a * y
+  g: b * x
+  general_sol: (a/b) * x^2 / 2 + C
+  particular_sol: (a/b) * x^2 / 2 + c_val
+  y0: evaluate(particular_sol, x, 0)
+  answer: particular_sol
+constraints:
+  - mod(a, b) == 0
+  - abs(a) <= abs(b)
+question: "Solve the differential equation {equation(dy/dx, f/g)} with initial condition y(0) = {y0}"
+answer: answer
+solution:
+  - "Separate variables: {equation(dy/y, (a/b)*x*dx)}"
+  - "Integrate both sides: {equation(ln|y|, (a/b)*x^2/2 + C)}"
+  - "Solve for y: {equation(y, e^((a/b)*x^2/2 + C))}"
+  - "Rewrite as {equation(y, A*e^((a/b)*x^2/2))} where A = e^C"
+  - "Apply initial condition: {y0} = A*e^0 = A"
+  - "So A = {y0} = e^{c_val}"
+  - "Therefore {equation(y, answer)}"

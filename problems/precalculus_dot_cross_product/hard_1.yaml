@@ -1,0 +1,32 @@
+topic: precalculus/dot_cross_product
+difficulty: hard
+calculator: scientific
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  a3: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  b3: integer(-5, 5)
+  c1: integer(-5, 5)
+  c2: integer(-5, 5)
+  c3: integer(-5, 5)
+  cross_bc_1: b2*c3 - b3*c2
+  cross_bc_2: b3*c1 - b1*c3
+  cross_bc_3: b1*c2 - b2*c1
+  dot_product: a1*cross_bc_1 + a2*cross_bc_2 + a3*cross_bc_3
+  answer: abs(dot_product)
+constraints:
+  - a1^2 + a2^2 + a3^2 > 0
+  - b1^2 + b2^2 + b3^2 > 0
+  - c1^2 + c2^2 + c3^2 > 0
+question: "Find the volume of the parallelepiped formed by vectors {vec([a1, a2, a3])}, {vec([b1, b2, b3])}, and {vec([c1, c2, c3])}."
+answer: answer
+solution:
+  - "The volume of a parallelepiped is |a · (b × c)|"
+  - "First compute b × c:"
+  - "b × c = ({cross_bc_1}, {cross_bc_2}, {cross_bc_3})"
+  - "Now compute a · (b × c):"
+  - "a · (b × c) = {a1}({cross_bc_1}) + {a2}({cross_bc_2}) + {a3}({cross_bc_3})"
+  - "= {dot_product}"
+  - "Volume = |{dot_product}| = {answer}"

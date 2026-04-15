@@ -1,0 +1,24 @@
+topic: calculus/chain_rule
+difficulty: competition
+calculator: none
+variables:
+  a: choice(2, 3, 4)
+  b: nonzero(-4, 4)
+  c: choice(2, 3)
+  inner: a*x + b
+  outer_base: u^c
+  f: evaluate(outer_base, u, inner)
+  df_du: derivative(outer_base, u)
+  du_dx: derivative(inner, x)
+  answer: simplify(evaluate(df_du, u, inner) * du_dx)
+constraints:
+  - mod(b, a) == 0
+question: "Let f(x) = {f}. Find {derivative_of(f, x)} using the chain rule."
+answer: answer
+solution:
+  - "Let u = {inner}, so f(x) = {outer_base}"
+  - "By the chain rule: {derivative_of(f, x)} = {derivative_of(outer_base, u)} · {derivative_of(inner, x)}"
+  - "{derivative_of(outer_base, u)} = {df_du}"
+  - "{derivative_of(inner, x)} = {du_dx}"
+  - "Substituting u = {inner}: {derivative_of(f, x)} = {evaluate(df_du, u, inner)} · {du_dx}"
+  - "Therefore: {derivative_of(f, x)} = {answer}"

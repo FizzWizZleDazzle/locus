@@ -1,0 +1,22 @@
+topic: linear_algebra/eigenvalues
+difficulty: easy
+calculator: scientific
+variables:
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  a: lambda1 + lambda2
+  d: lambda1 * lambda2
+  A: matrix(2, 2, -5, 5)
+  char_poly: expand((lambda - lambda1) * (lambda - lambda2))
+  answer: solve(char_poly, lambda)
+constraints:
+  - lambda1 != lambda2
+  - a != 0
+question: "Find the eigenvalues of the matrix {matrix_of(A)}."
+answer: answer
+answer_type: set
+solution:
+  - "For a 2×2 matrix, eigenvalues satisfy the characteristic equation"
+  - "The characteristic polynomial is {equation(char_poly, 0)}"
+  - "This factors as {equation((lambda - lambda1) * (lambda - lambda2), 0)}"
+  - "Therefore the eigenvalues are {set_of(answer)}"

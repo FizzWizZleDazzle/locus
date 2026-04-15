@@ -1,0 +1,26 @@
+topic: differential_equations/undetermined_coefficients
+difficulty: very_easy
+calculator: none
+variables:
+  r: integer(2, 5)
+  a: integer(2, 4)
+  y_h: "C_1 * e^(r*x) + C_2 * e^(-r*x)"
+  y_p: a * x
+  y_p_prime: derivative(y_p, x)
+  y_p_double_prime: derivative(y_p_prime, x)
+  lhs: y_p_double_prime - r^2 * y_p
+  rhs: -r^2 * a * x
+  answer: y_h + y_p
+question: "Find the general solution to {equation('y'' - ' + str(r^2) + 'y', str(rhs))} using the method of undetermined coefficients."
+answer: answer
+answer_type: expression
+solution:
+  - "First solve the homogeneous equation: {equation('y'' - ' + str(r^2) + 'y', 0)}"
+  - "Characteristic equation: {equation('r^2 - ' + str(r^2), 0)}"
+  - "Roots: r = {r} and r = -{r}"
+  - "Homogeneous solution: {y_h}"
+  - "For the particular solution, try {equation('y_p', 'ax')}"
+  - "Then {equation('y_p'', str(a))} and {equation('y_p''', 0)}"
+  - "Substituting: {equation(0 - r^2 + ' * ax', str(rhs))}"
+  - "This gives a = {a}, so {equation('y_p', str(y_p))}"
+  - "General solution: {equation('y', str(answer))}"

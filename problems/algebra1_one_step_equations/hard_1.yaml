@@ -1,0 +1,25 @@
+topic: algebra1/one_step_equations
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-15, 15)
+  b: nonzero(-20, 20)
+  c: integer(2, 12)
+  product: a * c
+  equation_form: choice(1, 2, 3, 4)
+  lhs: choice(a * x + b, b + a * x, a * x - b, b - a * x)
+  rhs: product
+  x_value: (product - b) / a
+  answer: simplify(x_value)
+constraints:
+  - mod(product - b, a) == 0
+  - abs(answer) <= 20
+  - answer != 0
+question: "Solve for x: {equation(lhs, rhs)}"
+answer: answer
+solution:
+  - "Start with {equation(lhs, rhs)}"
+  - "Isolate the term with x by subtracting {b} from both sides"
+  - "This gives {equation(a * x, product - b)}"
+  - "Divide both sides by {a}"
+  - "x = {answer}"

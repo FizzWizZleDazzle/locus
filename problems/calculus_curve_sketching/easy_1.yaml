@@ -1,0 +1,23 @@
+topic: calculus/curve_sketching
+difficulty: easy
+calculator: graphing
+variables:
+  a: choice(-3, -2, -1, 1, 2, 3)
+  b: choice(-4, -2, 0, 2, 4)
+  f: a * x^2 + b
+  f_prime: derivative(f, x)
+  critical_x: -b/(2*a)
+  critical_y: evaluate(f, x, critical_x)
+  vertex_type: choice("minimum", "maximum")
+constraints:
+  - a > 0 implies vertex_type == "minimum"
+  - a < 0 implies vertex_type == "maximum"
+question: "Consider the function {equation(f(x), f)}. Find the critical point and determine if it's a maximum or minimum."
+answer: vertex_type
+solution:
+  - "To find critical points, set {derivative_of(f, x)} = 0"
+  - "We have {equation(f'(x), f_prime)}"
+  - "Setting {f_prime} = 0 gives x = {critical_x}"
+  - "The critical point is ({critical_x}, {critical_y})"
+  - "Since the coefficient of x^2 is {a}, the parabola opens {'upward' if a > 0 else 'downward'}"
+  - "Therefore, the critical point is a {vertex_type}"

@@ -1,0 +1,34 @@
+topic: algebra2/exponential_growth_decay
+difficulty: competition
+calculator: scientific
+variables:
+  initial: choice(1000, 2000, 4000, 5000, 8000)
+  final: choice(125, 250, 500)
+  ratio: final / initial
+  k: integer(2, 5)
+  base: ratio^(1/k)
+  t1: integer(1, 3)
+  t2: integer(2, 4)
+  value1: initial * base^t1
+  value2: initial * base^t2
+  rounded1: round(value1, 0)
+  rounded2: round(value2, 0)
+  answer: k
+constraints:
+  - ratio < 0.5
+  - t2 > t1
+  - t2 <= k
+question: "A radioactive substance decays exponentially. Initially there are {initial} grams. After {t1} hours, there are {rounded1} grams remaining. After {t2} hours, there are {rounded2} grams remaining. In how many hours from the start will exactly {final} grams remain?"
+answer: answer
+solution:
+  - "Let A(t) = {initial} · b^t where b is the decay factor per hour"
+  - "From the first measurement: {rounded1} = {initial} · b^{t1}"
+  - "So b^{t1} = {rounded1}/{initial} = {evaluate(rounded1/initial, t1, t1)}"
+  - "From the second measurement: {rounded2} = {initial} · b^{t2}"
+  - "So b^{t2} = {rounded2}/{initial} = {evaluate(rounded2/initial, t2, t2)}"
+  - "Dividing: b^{t2}/b^{t1} = b^{evaluate(t2-t1, t1, t1)} = {evaluate(rounded2/rounded1, t1, t1)}"
+  - "Therefore b = {base}"
+  - "To find when {final} grams remain: {final} = {initial} · b^t"
+  - "b^t = {final}/{initial} = {ratio}"
+  - "Since b = {base}, we need ({base})^t = {ratio}"
+  - "By inspection or logarithms: t = {k}"

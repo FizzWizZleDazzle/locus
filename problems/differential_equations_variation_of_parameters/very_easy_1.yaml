@@ -1,0 +1,28 @@
+topic: differential_equations/variation_of_parameters
+difficulty: very_easy
+calculator: none
+variables:
+  r1: integer(-3, -1)
+  r2: integer(1, 3)
+  y_h: c1 * e^(r1*x) + c2 * e^(r2*x)
+  a: integer(2, 4)
+  g: a * e^(r1*x)
+  y1: e^(r1*x)
+  y2: e^(r2*x)
+  W: simplify(y1 * derivative(y2, x) - y2 * derivative(y1, x))
+  u1_prime: simplify(-y2 * g / W)
+  u2_prime: simplify(y1 * g / W)
+  u1: integral(u1_prime, x)
+  u2: integral(u2_prime, x)
+  y_p: simplify(u1 * y1 + u2 * y2)
+  answer: simplify(y_p)
+constraints:
+  - r1 != r2
+question: "Find a particular solution to y'' - {r1 + r2}y' + {r1*r2}y = {g} using variation of parameters. The homogeneous solution is {y_h}."
+answer: answer
+solution:
+  - "The fundamental solutions are {y1} and {y2}"
+  - "The Wronskian is W = {W}"
+  - "For variation of parameters: u₁' = {u1_prime}, u₂' = {u2_prime}"
+  - "Integrating: u₁ = {u1}, u₂ = {u2}"
+  - "The particular solution is yₚ = {answer}"

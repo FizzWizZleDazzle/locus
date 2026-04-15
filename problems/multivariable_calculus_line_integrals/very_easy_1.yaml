@@ -1,0 +1,25 @@
+topic: multivariable_calculus/line_integrals
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  t_start: 0
+  t_end: 1
+  path_x: a * t
+  path_y: b * t
+  f: x + y
+  f_on_path: a * t + b * t
+  simplified: (a + b) * t
+  integrand: simplified
+  answer: (a + b) / 2
+constraints:
+  - a != b
+question: "Evaluate the line integral of {f} along the path from (0, 0) to ({a}, {b}) parameterized by x = {path_x}, y = {path_y} for t in [0, 1]."
+answer: answer
+solution:
+  - "Substitute the parameterization into f(x, y) = {f}"
+  - "f({path_x}, {path_y}) = {f_on_path} = {integrand}"
+  - "The line integral is {integral_of(integrand, t)} from 0 to 1"
+  - "Evaluating: [{integrand}^2 / 2] from 0 to 1"
+  - "= {answer} - 0 = {answer}"

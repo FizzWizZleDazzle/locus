@@ -1,0 +1,23 @@
+topic: differential_equations/characteristic_equation
+difficulty: easy
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_poly: (r - r1) * (r - r2)
+  expanded: expand(char_poly)
+  a: -r1 - r2
+  b: r1 * r2
+  diff_eq: y'' + a * y' + b * y
+constraints:
+  - r1 != r2
+  - r1 < r2
+question: "Find the general solution to the differential equation {equation(diff_eq, 0)}."
+answer: r1
+answer_type: expression
+solution:
+  - "Write the characteristic equation: {equation(expanded, 0)}"
+  - "Factor: {equation(char_poly, 0)}"
+  - "The roots are r = {r1} and r = {r2}"
+  - "Since we have two distinct real roots, the general solution is:"
+  - "y = C₁e^({r1}x) + C₂e^({r2}x)"

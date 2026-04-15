@@ -1,0 +1,38 @@
+topic: precalculus/law_of_sines_cosines
+difficulty: competition
+calculator: scientific
+variables:
+  # Design backward: pick angles that give clean sine/cosine values
+  A: choice(30, 45, 60, 120, 135, 150)
+  B: choice(30, 45, 60, 120, 135, 150)
+  C: 180 - A - B
+  # Pick a clean side length
+  a: integer(5, 12)
+  # Use law of sines to find b, guaranteed to be clean by angle choices
+  b: a * sin(B * pi / 180) / sin(A * pi / 180)
+  # Use law of sines to find c
+  c: a * sin(C * pi / 180) / sin(A * pi / 180)
+  # Now create the competition problem: given two sides and included angle, find third side
+  # Use law of cosines: c² = a² + b² - 2ab*cos(C)
+  c_squared: a^2 + b^2 - 2*a*b*cos(C * pi / 180)
+  c_from_cosines: sqrt(c_squared)
+  # Area using two methods for verification
+  area_sine: 0.5 * a * b * sin(C * pi / 180)
+  area_heron_s: (a + b + c) / 2
+  area_heron: sqrt(area_heron_s * (area_heron_s - a) * (area_heron_s - b) * (area_heron_s - c))
+  # The answer they need to find
+  answer: c
+constraints:
+  - A + B < 180
+  - A != B
+  - C > 0
+question: "In triangle ABC, side a = {a}, side b = {b}, and angle C = {C}°. Find the exact length of side c."
+answer: answer
+solution:
+  - "Given: a = {a}, b = {b}, C = {C}°"
+  - "Apply the Law of Cosines: c² = a² + b² - 2ab cos(C)"
+  - "c² = {a}² + {b}² - 2({a})({b})cos({C}°)"
+  - "c² = {c_squared}"
+  - "c = {c}"
+  - "Verify using Law of Sines: {a}/sin({A}°) = {b}/sin({B}°) = {c}/sin({C}°)"
+  - "The area of the triangle is {area_sine}"

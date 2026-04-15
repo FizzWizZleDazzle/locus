@@ -1,0 +1,25 @@
+topic: precalculus/sum_difference_formulas
+difficulty: medium
+calculator: scientific
+variables:
+  angle1: choice(30, 45, 60)
+  angle2: choice(30, 45, 60)
+  sum_angle: angle1 + angle2
+  expr: sin(angle1 + angle2)
+  expanded: sin(angle1)*cos(angle2) + cos(angle1)*sin(angle2)
+  sin1: evaluate(sin(x), x, angle1*pi/180)
+  cos1: evaluate(cos(x), x, angle1*pi/180)
+  sin2: evaluate(sin(x), x, angle2*pi/180)
+  cos2: evaluate(cos(x), x, angle2*pi/180)
+  answer: simplify(sin1*cos2 + cos1*sin2)
+constraints:
+  - angle1 != angle2
+question: "Use the sum formula to find the exact value of sin({angle1}° + {angle2}°)."
+answer: answer
+solution:
+  - "Apply the sine sum formula: sin(A + B) = sin(A)cos(B) + cos(A)sin(B)"
+  - "Here A = {angle1}° and B = {angle2}°"
+  - "sin({angle1}°) = {sin1}, cos({angle1}°) = {cos1}"
+  - "sin({angle2}°) = {sin2}, cos({angle2}°) = {cos2}"
+  - "sin({angle1}° + {angle2}°) = {sin1} × {cos2} + {cos1} × {sin2}"
+  - "sin({sum_angle}°) = {answer}"

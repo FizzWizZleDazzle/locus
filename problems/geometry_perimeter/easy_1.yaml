@@ -1,0 +1,16 @@
+topic: geometry/perimeter
+difficulty: easy
+calculator: none
+variables:
+  length: integer(3, 12)
+  width: integer(2, 10)
+  perimeter: 2 * (length + width)
+constraints:
+  - length > width
+question: "A rectangle has length {length} units and width {width} units. What is its perimeter?"
+answer: perimeter
+solution:
+  - "The perimeter of a rectangle is P = 2(length + width)"
+  - "P = 2({length} + {width})"
+  - "P = 2 × {equation(length + width, length + width)}"
+  - "P = {perimeter} units"

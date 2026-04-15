@@ -1,0 +1,27 @@
+topic: differential_equations/systems_of_odes
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(-3, 3)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(-3, 3)
+  A: matrix(2, 2, -3, 3)
+  det: a*d - b*c
+  trace: a + d
+  discriminant: trace^2 - 4*det
+  sqrt_disc: sqrt(discriminant)
+  lambda1: (trace + sqrt_disc)/2
+  lambda2: (trace - sqrt_disc)/2
+constraints:
+  - det > 0
+  - discriminant > 0
+  - trace < 0
+question: "Find the eigenvalues of the system {system(dx/dt = a*x + b*y, dy/dt = c*x + d*y)}"
+answer: lambda1
+solution:
+  - "The coefficient matrix is {matrix_of(A)}"
+  - "Find eigenvalues by solving {equation(det(A - λI), 0)}"
+  - "This gives {equation((a-λ)(d-λ) - bc, 0)}"
+  - "Expanding: {equation(λ^2 - (a+d)λ + (ad-bc), 0)}"
+  - "Using the quadratic formula: λ = {lambda1} and λ = {lambda2}"

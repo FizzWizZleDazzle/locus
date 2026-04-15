@@ -1,0 +1,22 @@
+topic: arithmetic/long_division
+difficulty: very_hard
+calculator: none
+variables:
+  d: prime(11, 29)
+  q: integer(23, 97)
+  r: integer(1, 10)
+  dividend: d * q + r
+  quotient: q
+  remainder: r
+constraints:
+  - r < d
+  - q > 20
+question: "Divide {dividend} by {d}. Find the quotient and remainder."
+answer: quotient
+solution:
+  - "Perform long division of {dividend} ÷ {d}"
+  - "{d} goes into {dividend} exactly {quotient} times"
+  - "{quotient} × {d} = {d * q}"
+  - "Remainder: {dividend} - {d * q} = {remainder}"
+  - "So {dividend} = {d} × {quotient} + {remainder}"
+  - "The quotient is {quotient}"

@@ -1,0 +1,30 @@
+topic: geometry/circle_theorems
+difficulty: competition
+calculator: none
+variables:
+  r: integer(3, 8)
+  chord_factor: choice(3, 4, 5, 6, 8)
+  chord_length: 2 * sqrt(r^2 - (r^2 / chord_factor))
+  d: r / sqrt(chord_factor)
+  perpendicular_dist: d
+  segment_height: r - d
+  area_sector: (2 * acos(d / r) * r^2) / 2
+  area_triangle: d * sqrt(r^2 - d^2)
+  area_segment: area_sector - area_triangle
+  answer: simplify(area_segment)
+constraints:
+  - chord_factor <= r
+  - r % 2 == 0
+question: "A circle has radius {r}. A chord divides the circle such that the perpendicular distance from the center to the chord is {perpendicular_dist}. Find the area of the smaller circular segment (between the chord and the arc)."
+answer: answer
+solution:
+  - "Let O be the center. The perpendicular from O to the chord bisects it at point M."
+  - "Distance OM = {perpendicular_dist}"
+  - "Using Pythagorean theorem in triangle OMA (where A is an endpoint of the chord):"
+  - "AM^2 = OA^2 - OM^2 = {r}^2 - {perpendicular_dist}^2"
+  - "So the half-chord length AM = {sqrt(r^2 - d^2)}"
+  - "The central angle θ subtended by the chord satisfies cos(θ/2) = OM/OA = {d}/{r}"
+  - "Therefore θ = 2 * arccos({d}/{r})"
+  - "Area of sector = (θ/2π) * πr^2 = θr^2/2 = {area_sector}"
+  - "Area of triangle OAB = base * height / 2 = chord * OM / 2 = {area_triangle}"
+  - "Area of segment = Area of sector - Area of triangle = {answer}"

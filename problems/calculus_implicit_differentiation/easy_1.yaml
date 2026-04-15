@@ -1,0 +1,19 @@
+topic: calculus/implicit_differentiation
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  equation: a*x^2 + b*y^2 - c^2
+  dy_dx: -a*x / (b*y)
+constraints:
+  - a != b
+question: "Find dy/dx for the equation {equation(equation, 0)}"
+answer: dy_dx
+solution:
+  - "Differentiate both sides with respect to x"
+  - "d/dx[{a}x^2 + {b}y^2] = d/dx[{c}^2]"
+  - "2·{a}x + 2·{b}y·dy/dx = 0"
+  - "2·{b}y·dy/dx = -2·{a}x"
+  - "dy/dx = {dy_dx}"

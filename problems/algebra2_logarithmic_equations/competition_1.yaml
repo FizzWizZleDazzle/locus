@@ -1,0 +1,30 @@
+topic: algebra2/logarithmic_equations
+difficulty: competition
+calculator: none
+variables:
+  p: prime(2, 7)
+  k: integer(2, 5)
+  n: integer(1, 4)
+  base: p^k
+  m: integer(2, 6)
+  a: base^n
+  b: base^m
+  c: base^(n+m)
+  answer: n + m
+constraints:
+  - p != 2 or k != 2
+  - n != m
+  - n + m <= 8
+question: "Solve for x: {equation(log(a, base) + log(b, base), log(c, base) - x)}"
+answer: answer
+solution:
+  - "Given: {equation(log(a, base) + log(b, base), log(c, base) - x)}"
+  - "Since {a} = {base}^{n} and {b} = {base}^{m}, we have {log(a, base)} = {n} and {log(b, base)} = {m}"
+  - "Also, {c} = {base}^{answer}, so {log(c, base)} = {answer}"
+  - "Substituting: {equation(n + m, answer - x)}"
+  - "Therefore: {equation(answer, answer - x)}"
+  - "Solving for x: {equation(x, 0)}"
+  - "Wait, let's recalculate. We have {equation(n + m, log(c, base) - x)}"
+  - "Since {log(c, base)} = {answer} = {n} + {m}, we get:"
+  - "{equation(n + m, n + m - x)}"
+  - "Therefore x = 0"

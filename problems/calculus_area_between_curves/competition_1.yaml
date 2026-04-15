@@ -1,0 +1,26 @@
+topic: calculus/area_between_curves
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  k: integer(2, 6)
+  f: a * x^2
+  g: k * a * x
+  intersection: k
+  area_integral: integral(g - f, x)
+  area_value: evaluate(area_integral, x, k) - evaluate(area_integral, x, 0)
+  answer: simplify(area_value)
+constraints:
+  - k > b
+  - a * k < 20
+question: "Find the area of the region bounded by the parabola {equation(y, f)} and the line {equation(y, g)} in the first quadrant."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g)}"
+  - "Factor: {equation(a * x^2, k * a * x)} gives {equation(x * (x - k), 0)}"
+  - "Intersections at x = 0 and x = {intersection}"
+  - "Since {g} > {f} on (0, {intersection}), area = {definite_integral_of(g - f, x, 0, intersection)}"
+  - "Integrand: {g} - {f} = {simplify(g - f)}"
+  - "Antiderivative: {area_integral}"
+  - "Evaluate: {answer}"

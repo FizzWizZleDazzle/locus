@@ -1,0 +1,29 @@
+topic: algebra2/exponential_equations
+difficulty: hard
+calculator: scientific
+variables:
+  k: integer(2, 5)
+  base: prime(2, 7)
+  a: integer(2, 4)
+  b: integer(1, 3)
+  c: integer(1, 4)
+  power1: a * k + b
+  power2: c * k
+  lhs: base^power1
+  rhs: base^power2
+  answer: solve(lhs = rhs, k)
+constraints:
+  - a > c
+  - gcd(b, a - c) = 1
+question: "Solve for k: {equation(lhs, rhs)}"
+answer: answer
+solution:
+  - "We have {equation(lhs, rhs)}"
+  - "Since the bases are equal, we can equate the exponents:"
+  - "{equation(power1, power2)}"
+  - "Substitute the expressions: {equation(a * k + b, c * k)}"
+  - "Rearrange: {a}k + {b} = {c}k"
+  - "Collect k terms: {a}k - {c}k = -{b}"
+  - "Factor: ({a} - {c})k = -{b}"
+  - "Since {a} - {c} = {evaluate(a - c)}, we get:"
+  - "k = {answer}"

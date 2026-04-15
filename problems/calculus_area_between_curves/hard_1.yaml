@@ -1,0 +1,33 @@
+topic: calculus/area_between_curves
+difficulty: hard
+calculator: graphing
+variables:
+  a: integer(-3, 3)
+  b: integer(-3, 3)
+  c: integer(-4, 4)
+  k: integer(2, 4)
+  f: a * x^2 + b * x + c
+  g: k * x + c
+  intersections: solve(f - g, x)
+  x1: min(intersections[0], intersections[1])
+  x2: max(intersections[0], intersections[1])
+  integrand: g - f
+  antiderivative: integral(integrand, x)
+  area_exact: evaluate(antiderivative, x, x2) - evaluate(antiderivative, x, x1)
+  answer: simplify(area_exact)
+constraints:
+  - a != 0
+  - length(intersections) == 2
+  - abs(x2 - x1) >= 2
+question: "Find the area between the curves {equation(y, f)} and {equation(y, g)}."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g)}"
+  - "This gives {equation(f - g, 0)}, so {equation(integrand, 0)}"
+  - "Solving: x = {x1} and x = {x2}"
+  - "Since {g} is linear and {f} is a parabola opening upward (a > 0) or downward (a < 0), determine which function is on top"
+  - "Between x = {x1} and x = {x2}, the line {equation(y, g)} is above the parabola {equation(y, f)}"
+  - "Area = {definite_integral_of(integrand, x, x1, x2)}"
+  - "= {definite_integral_of(integrand, x, x1, x2)}"
+  - "= [{antiderivative}] from {x1} to {x2}"
+  - "= {answer}"

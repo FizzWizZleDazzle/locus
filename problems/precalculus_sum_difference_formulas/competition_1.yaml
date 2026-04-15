@@ -1,0 +1,33 @@
+topic: precalculus/sum_difference_formulas
+difficulty: competition
+calculator: none
+variables:
+  # Pick angles that give exact trig values
+  angle1: choice(30, 45, 60)
+  angle2: choice(30, 45, 60)
+  # Convert to radians for internal calculations
+  a: angle1 * pi / 180
+  b: angle2 * pi / 180
+  # Calculate individual trig values
+  sin_a: sin(a)
+  cos_a: cos(a)
+  sin_b: sin(b)
+  cos_b: cos(b)
+  # Apply sum formula: sin(a+b) = sin(a)cos(b) + cos(a)sin(b)
+  answer: simplify(sin_a * cos_b + cos_a * sin_b)
+  # For verification in solution
+  sum_angle: angle1 + angle2
+  direct: sin((angle1 + angle2) * pi / 180)
+constraints:
+  - angle1 != angle2
+  - angle1 + angle2 != 90
+question: "Without using a calculator, find the exact value of sin({angle1}° + {angle2}°) using the sum formula."
+answer: answer
+solution:
+  - "Use the formula: sin(α + β) = sin(α)cos(β) + cos(α)sin(β)"
+  - "Here α = {angle1}° and β = {angle2}°"
+  - "sin({angle1}°) = {sin_a} and cos({angle1}°) = {cos_a}"
+  - "sin({angle2}°) = {sin_b} and cos({angle2}°) = {cos_b}"
+  - "sin({angle1}° + {angle2}°) = {sin_a} · {cos_b} + {cos_a} · {sin_b}"
+  - "= {answer}"
+  - "This equals sin({sum_angle}°) = {direct} ✓"

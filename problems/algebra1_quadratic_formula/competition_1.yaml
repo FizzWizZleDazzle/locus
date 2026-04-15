@@ -1,0 +1,32 @@
+topic: algebra1/quadratic_formula
+difficulty: competition
+calculator: none
+variables:
+  p: prime(11, 29)
+  q: prime(11, 29)
+  k: integer(2, 5)
+  r1: k
+  r2: -k * p / q
+  a: q
+  b: k * (p - q)
+  c: -k * p
+  f: a * x^2 + b * x + c
+  discriminant: b^2 - 4 * a * c
+  sqrt_disc: sqrt(discriminant)
+  x1: (-b + sqrt_disc) / (2 * a)
+  x2: (-b - sqrt_disc) / (2 * a)
+  answer: solve(f, x)
+constraints:
+  - p != q
+  - mod(p - q, k) == 0
+question: "Find all values of x such that {equation(f, 0)}, where the solutions form a pair of rational numbers whose product equals {equation(-p/q, 0)}."
+answer: answer
+answer_type: set
+solution:
+  - "We have the quadratic equation {equation(f, 0)} where a = {a}, b = {b}, c = {c}"
+  - "Using the quadratic formula: x = {equation((-b ± sqrt(b^2 - 4ac))/(2a), 0)}"
+  - "Calculate the discriminant: {b}² - 4({a})({c}) = {discriminant}"
+  - "Since {discriminant} = {k}²({p} - {q})² = {k}²·{evaluate((p-q)^2, p-q, p-q)}², we have {sqrt_of(discriminant)} = {sqrt_disc}"
+  - "Therefore: x = {equation((-b ± sqrt_disc)/(2a), 0)} = {equation((-(k*(p-q)) ± k*(p-q))/(2q), 0)}"
+  - "This gives us x = {x1} or x = {x2}"
+  - "Verify: {x1} · {x2} = {evaluate(x1 * x2, x1, x1)} = {-p/q} ✓"

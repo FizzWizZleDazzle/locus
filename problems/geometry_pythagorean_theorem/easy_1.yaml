@@ -1,0 +1,18 @@
+topic: geometry/pythagorean_theorem
+difficulty: easy
+calculator: none
+variables:
+  a: integer(3, 12)
+  b: integer(4, 12)
+  c_squared: a^2 + b^2
+  c: sqrt(c_squared)
+constraints:
+  - is_integer(c)
+  - a < b
+question: "A right triangle has legs of length {a} and {b}. Find the length of the hypotenuse."
+answer: c
+solution:
+  - "Use the Pythagorean theorem: a² + b² = c²"
+  - "Substitute the given values: {a}² + {b}² = c²"
+  - "Calculate: {c_squared} = c²"
+  - "Take the square root: c = {c}"

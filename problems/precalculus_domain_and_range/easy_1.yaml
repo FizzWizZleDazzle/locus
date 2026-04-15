@@ -1,0 +1,22 @@
+topic: precalculus/domain_and_range
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  h: integer(-4, 4)
+  k: integer(-3, 3)
+  f: a * sqrt(x - h) + k
+  domain_start: h
+  range_start: k
+constraints:
+  - a > 0
+question: "Find the domain and range of {equation(f(x), f)}."
+answer: domain_start
+answer_type: domain_range
+solution:
+  - "For {equation(f(x), f)} to be defined, we need {x - h} ≥ 0"
+  - "This gives x ≥ {h}"
+  - "Domain: [{h}, ∞)"
+  - "Since {a} > 0 and sqrt(x - {h}) ≥ 0, the function has minimum value {k} when x = {h}"
+  - "As x → ∞, f(x) → ∞"
+  - "Range: [{k}, ∞)"

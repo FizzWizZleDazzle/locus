@@ -1,0 +1,39 @@
+topic: precalculus/law_of_sines_cosines
+difficulty: hard
+calculator: scientific
+variables:
+  # Design backward: pick angles that give clean sin/cos values
+  A: choice(30, 45, 60, 120, 135)
+  B: choice(30, 45, 60)
+  C: 180 - A - B
+  # Pick a clean side length
+  a: integer(5, 12)
+  # Use law of sines to compute b, ensuring it's clean
+  sin_A: sin(A * pi / 180)
+  sin_B: sin(B * pi / 180)
+  sin_C: sin(C * pi / 180)
+  b_exact: a * sin_B / sin_A
+  b: round(b_exact, 0)
+  # Use law of cosines to find c
+  cos_C: cos(C * pi / 180)
+  c_squared: a^2 + b^2 - 2*a*b*cos_C
+  c: sqrt(c_squared)
+  # Area using two sides and included angle
+  area_exact: 0.5 * a * b * sin_C
+  area: round(area_exact, 1)
+constraints:
+  - C > 0
+  - abs(b - b_exact) < 0.1
+  - abs(c - round(c, 0)) < 0.1
+question: "In triangle ABC, angle A = {A}°, angle B = {B}°, and side a = {a}. Find the area of the triangle."
+answer: area
+solution:
+  - "First find angle C: C = 180° - {A}° - {B}° = {C}°"
+  - "Use the Law of Sines to find side b:"
+  - "{equation('a/sin(A)', 'b/sin(B)')}"
+  - "{equation(a + '/sin(' + A + '°)', 'b/sin(' + B + '°)')}"
+  - "b = {a} × sin({B}°) / sin({A}°) = {b}"
+  - "Now find the area using the formula:"
+  - "Area = (1/2) × a × b × sin(C)"
+  - "Area = (1/2) × {a} × {b} × sin({C}°)"
+  - "Area = {area}"

@@ -1,0 +1,31 @@
+topic: differential_equations/systems_of_odes
+difficulty: medium
+calculator: scientific
+variables:
+  a: integer(-4, 4)
+  b: integer(-4, 4)
+  c: integer(-4, 4)
+  d: integer(-4, 4)
+  A: matrix(2, 2, -4, 4)
+  det: a*d - b*c
+  trace: a + d
+  discriminant: trace^2 - 4*det
+  lambda1: (trace + sqrt(discriminant))/2
+  lambda2: (trace - sqrt(discriminant))/2
+  system_eq1: "x' = ax + by"
+  system_eq2: "y' = cx + dy"
+constraints:
+  - det != 0
+  - discriminant > 0
+  - discriminant == floor(sqrt(discriminant))^2
+question: "Find the eigenvalues of the system {system(system_eq1, system_eq2)}"
+answer: lambda1
+answer_type: set
+solution:
+  - "The coefficient matrix is A = {matrix_of(A)}"
+  - "The characteristic equation is {equation(det_of(A - lambda*I), 0)}"
+  - "This gives {equation((lambda - a)*(lambda - d) - b*c, 0)}"
+  - "Expanding: {equation(lambda^2 - trace*lambda + det, 0)}"
+  - "Using the quadratic formula: lambda = {equation((trace +/- sqrt(discriminant))/2, '')}"
+  - "Since discriminant = {discriminant} = {sqrt(discriminant)}^2"
+  - "The eigenvalues are lambda = {lambda1} and lambda = {lambda2}"

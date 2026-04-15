@@ -1,0 +1,21 @@
+topic: arithmetic/multiplication
+difficulty: hard
+calculator: none
+variables:
+  a: integer(13, 29)
+  b: integer(11, 19)
+  c: integer(2, 9)
+  d: choice(10, 20, 30, 40, 50, 60, 70, 80, 90)
+  first_product: a * b
+  second_product: c * d
+  answer: first_product + second_product
+constraints:
+  - mod(a, 5) != 0
+  - mod(b, 5) != 0
+  - first_product < 500
+question: "Calculate: {a} × {b} + {c} × {d}"
+answer: answer
+solution:
+  - "First, calculate {a} × {b} = {first_product}"
+  - "Then, calculate {c} × {d} = {second_product}"
+  - "Finally, add: {first_product} + {second_product} = {answer}"

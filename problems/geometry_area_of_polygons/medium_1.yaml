@@ -1,0 +1,25 @@
+topic: geometry/area_of_polygons
+difficulty: medium
+calculator: none
+variables:
+  base: integer(4, 12)
+  height: integer(3, 10)
+  side: integer(5, 15)
+  trap_base1: integer(6, 10)
+  trap_base2: integer(12, 18)
+  trap_height: integer(4, 8)
+  triangle_area: (base * height) / 2
+  square_area: side * side
+  trapezoid_area: ((trap_base1 + trap_base2) * trap_height) / 2
+  total_area: triangle_area + square_area + trapezoid_area
+constraints:
+  - trap_base2 > trap_base1
+  - base != height
+question: "A composite figure consists of three parts: a triangle with base {base} cm and height {height} cm, a square with side length {side} cm, and a trapezoid with parallel sides {trap_base1} cm and {trap_base2} cm and height {trap_height} cm. Find the total area of the composite figure."
+answer: total_area
+solution:
+  - "Calculate the area of each polygon separately:"
+  - "Triangle area = (1/2) × base × height = (1/2) × {base} × {height} = {triangle_area} cm²"
+  - "Square area = side² = {side}² = {square_area} cm²"
+  - "Trapezoid area = (1/2) × (base₁ + base₂) × height = (1/2) × ({trap_base1} + {trap_base2}) × {trap_height} = {trapezoid_area} cm²"
+  - "Total area = {triangle_area} + {square_area} + {trapezoid_area} = {total_area} cm²"

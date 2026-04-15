@@ -1,0 +1,38 @@
+topic: arithmetic/mixed_numbers
+difficulty: competition
+calculator: none
+variables:
+  # Design backward: pick denominators that create interesting LCM
+  d1: choice(6, 8, 9, 12)
+  d2: choice(6, 8, 9, 12)
+  d3: choice(6, 8, 9, 12)
+  # Whole parts chosen to make regrouping necessary
+  w1: integer(3, 7)
+  w2: integer(4, 8)
+  w3: integer(2, 5)
+  # Numerators must be less than denominators
+  n1: integer(4, 11)
+  n2: integer(3, 11)
+  n3: integer(2, 11)
+  # Perform the subtraction
+  val1: w1 + n1/d1
+  val2: w2 + n2/d2
+  val3: w3 + n3/d3
+  result: val1 - val2 + val3
+  # Extract mixed number parts
+  whole: floor(result)
+  frac_part: result - whole
+  final_num: frac_part * 36
+  final_den: 36
+  answer: simplify(whole + final_num/final_den)
+constraints:
+  - d1 != d2
+  - d2 != d3
+  - val1 > val2
+question: "Calculate: {w1} {n1}/{d1} - {w2} {n2}/{d2} + {w3} {n3}/{d3}"
+answer: answer
+solution:
+  - "Convert to improper fractions: {val1}, {val2}, {val3}"
+  - "Find common denominator for {d1}, {d2}, {d3}"
+  - "Perform operations: {val1} - {val2} + {val3} = {result}"
+  - "Convert to mixed number: {answer}"

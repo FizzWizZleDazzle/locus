@@ -1,0 +1,21 @@
+topic: precalculus/vector_operations
+difficulty: very_easy
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  sum1: a1 + b1
+  sum2: a2 + b2
+constraints:
+  - abs(sum1) <= 8
+  - abs(sum2) <= 8
+question: "Find {vec([a1, a2])} + {vec([b1, b2])}"
+answer: sum1, sum2
+answer_type: vector
+solution:
+  - "Add the corresponding components:"
+  - "{vec([a1, a2])} + {vec([b1, b2])} = [{a1}, {a2}] + [{b1}, {b2}]"
+  - "= [{a1} + {b1}, {a2} + {b2}]"
+  - "= [{sum1}, {sum2}]"

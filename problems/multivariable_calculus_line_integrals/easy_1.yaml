@@ -1,0 +1,25 @@
+topic: multivariable_calculus/line_integrals
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  t_start: 0
+  t_end: 1
+  path_x: a * t
+  path_y: b * t
+  f: x + y
+  f_on_path: a * t + b * t
+  f_simplified: (a + b) * t
+  integrand: f_simplified
+  answer: (a + b) / 2
+constraints:
+  - a != b
+question: "Evaluate the line integral {integral_of(f, C)} where f(x,y) = {f} and C is the line segment from (0,0) to ({a},{b})."
+answer: answer
+solution:
+  - "Parameterize the line segment: x = {path_x}, y = {path_y} for t in [0,1]"
+  - "Substitute into f: f(x(t),y(t)) = {f_simplified}"
+  - "The line integral becomes {integral_of(integrand, t)} from 0 to 1"
+  - "Integrate: [{integrand}*t] evaluated from 0 to 1"
+  - "Result: {answer}"

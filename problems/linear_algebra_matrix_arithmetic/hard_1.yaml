@@ -1,0 +1,26 @@
+topic: linear_algebra/matrix_arithmetic
+difficulty: hard
+calculator: none
+variables:
+  A: matrix(3, 3, -4, 4)
+  B: matrix(3, 3, -4, 4)
+  C: matrix(3, 3, -4, 4)
+  AB: A * B
+  BC: B * C
+  ABC_left: AB * C
+  ABC_right: A * BC
+  answer: ABC_left - ABC_right
+constraints:
+  - det(A) != 0
+  - det(B) != 0
+  - det(C) != 0
+question: "Given matrices A = {matrix_of(A)}, B = {matrix_of(B)}, and C = {matrix_of(C)}, compute (AB)C - A(BC)."
+answer: answer
+answer_type: matrix
+solution:
+  - "First compute AB = {matrix_of(AB)}"
+  - "Then compute (AB)C = {matrix_of(ABC_left)}"
+  - "Next compute BC = {matrix_of(BC)}"
+  - "Then compute A(BC) = {matrix_of(ABC_right)}"
+  - "Finally, (AB)C - A(BC) = {matrix_of(ABC_left)} - {matrix_of(ABC_right)} = {matrix_of(answer)}"
+  - "Note: Matrix multiplication is associative, so (AB)C = A(BC). The answer is the zero matrix."

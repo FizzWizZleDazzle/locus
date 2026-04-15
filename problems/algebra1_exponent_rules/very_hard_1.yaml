@@ -1,0 +1,29 @@
+topic: algebra1/exponent_rules
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  m: integer(2, 4)
+  n: integer(2, 4)
+  p: integer(2, 4)
+  base_expr: (a^m * b^n)^p / (a^(2*p) * b^(p-1))
+  simplified: a^(m*p - 2*p) * b^(n*p - p + 1)
+  m_exp: m*p - 2*p
+  n_exp: n*p - p + 1
+  answer: simplified
+constraints:
+  - a != b
+  - p >= 2
+  - m != 2
+question: "Simplify the expression {equation(base_expr, '?')} and write your answer in the form a^r * b^s where r and s are integers."
+answer: answer
+solution:
+  - "Start with {base_expr}"
+  - "Apply the power of a product rule to the numerator: (a^m * b^n)^p = a^(m*p) * b^(n*p)"
+  - "This gives us: a^({m}*{p}) * b^({n}*{p}) / (a^({2*p}) * b^({p-1}))"
+  - "Simplify the exponents: a^{m*p} * b^{n*p} / (a^{2*p} * b^{p-1})"
+  - "Apply the quotient rule: a^({m*p} - {2*p}) * b^({n*p} - ({p-1}))"
+  - "Simplify the exponents: a^{m_exp} * b^{n_exp}"
+  - "Final answer: {answer}"

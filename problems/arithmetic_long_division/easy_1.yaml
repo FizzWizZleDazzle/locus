@@ -1,0 +1,18 @@
+topic: arithmetic/long_division
+difficulty: easy
+calculator: none
+variables:
+  divisor: integer(2, 9)
+  quotient: integer(10, 50)
+  remainder: integer(0, 8)
+  dividend: divisor * quotient + remainder
+  answer: quotient
+constraints:
+  - remainder < divisor
+question: "Divide {dividend} by {divisor}. What is the quotient?"
+answer: answer
+solution:
+  - "Set up long division: {dividend} ÷ {divisor}"
+  - "{divisor} goes into {dividend} exactly {quotient} times"
+  - "{divisor} × {quotient} = {dividend}"
+  - "Therefore, the quotient is {answer}"

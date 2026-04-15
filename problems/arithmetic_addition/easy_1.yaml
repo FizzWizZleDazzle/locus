@@ -1,0 +1,14 @@
+topic: arithmetic/addition
+difficulty: easy
+calculator: none
+variables:
+  a: integer(10, 50)
+  b: integer(10, 50)
+  answer: a + b
+constraints:
+  - a % 10 == 0
+  - b % 10 == 0
+question: "Calculate: {a} + {b}"
+answer: answer
+solution:
+  - "Add the tens: {a} + {b} = {answer}"

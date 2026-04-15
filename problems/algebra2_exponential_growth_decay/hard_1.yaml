@@ -1,0 +1,27 @@
+topic: algebra2/exponential_growth_decay
+difficulty: hard
+calculator: scientific
+variables:
+  initial: choice(1000, 2000, 4000, 5000, 8000, 10000)
+  half_life: choice(5, 10, 20, 25, 40, 50)
+  time_multiple: integer(2, 4)
+  time: time_multiple * half_life
+  k: ln(2) / half_life
+  decay_function: initial * exp(-k * t)
+  amount_at_t1: evaluate(decay_function, t, half_life)
+  amount_at_time: evaluate(decay_function, t, time)
+  answer: round(amount_at_time, 0)
+constraints:
+  - time <= 200
+question: "A radioactive substance has an initial mass of {initial} grams and a half-life of {half_life} years. Find the amount remaining after {time} years. Round to the nearest gram."
+answer: answer
+solution:
+  - "The exponential decay formula is A(t) = A₀e^(-kt)"
+  - "Where k = ln(2) / half-life = ln(2) / {half_life}"
+  - "So A(t) = {initial} × e^(-ln(2)t/{half_life})"
+  - "After {time} years: A({time}) = {initial} × e^(-ln(2)×{time}/{half_life})"
+  - "Since {time} = {time_multiple} × {half_life}, we have:"
+  - "A({time}) = {initial} × e^(-ln(2)×{time_multiple})"
+  - "= {initial} × (1/2)^{time_multiple}"
+  - "= {initial} / {evaluate(2^time_multiple, t, 0)}"
+  - "= {answer} grams"

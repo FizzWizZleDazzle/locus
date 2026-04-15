@@ -1,0 +1,31 @@
+topic: differential_equations/second_order_constant
+difficulty: competition
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  a: -(r1 + r2)
+  b: r1 * r2
+  y0: integer(-3, 3)
+  y_prime0: integer(-3, 3)
+  c1: (y_prime0 - r2 * y0) / (r1 - r2)
+  c2: (r1 * y0 - y_prime0) / (r1 - r2)
+  general_sol: c1 * e^(r1 * x) + c2 * e^(r2 * x)
+  answer: simplify(general_sol)
+constraints:
+  - r1 != r2
+  - abs(r1 - r2) >= 2
+  - (y_prime0 - r2 * y0) % (r1 - r2) == 0
+question: "Solve the initial value problem: y'' + {a}y' + {b}y = 0 with y(0) = {y0} and y'(0) = {y_prime0}"
+answer: answer
+solution:
+  - "The characteristic equation is r² + {a}r + {b} = 0"
+  - "This factors as {equation(char_poly, 0)}"
+  - "So r = {r1} or r = {r2}"
+  - "General solution: y = c₁e^({r1}x) + c₂e^({r2}x)"
+  - "Apply y(0) = {y0}: c₁ + c₂ = {y0}"
+  - "Apply y'(0) = {y_prime0}: {r1}c₁ + {r2}c₂ = {y_prime0}"
+  - "Solving: c₁ = {c1}, c₂ = {c2}"
+  - "Therefore: y = {answer}"

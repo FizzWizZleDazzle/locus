@@ -1,0 +1,34 @@
+topic: linear_algebra/determinants
+difficulty: competition
+calculator: none
+variables:
+  a: integer(-3, 3)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(-3, 3)
+  k: integer(2, 4)
+  M: matrix(2, 2, -3, 3)
+  det_M: a*d - b*c
+  N_11: k*a
+  N_12: k*b
+  N_21: k*c
+  N_22: k*d
+  det_N: k^2 * det_M
+  P_11: a+c
+  P_12: b+d
+  P_21: c
+  P_22: d
+  det_P: det_M
+  answer: det_M * det_N * det_P
+constraints:
+  - det_M != 0
+  - abs(det_M) <= 10
+  - abs(answer) <= 1000
+question: "Let M = {matrix_of(M)}, N = {matrix_of([[N_11, N_12], [N_21, N_22]])}, and P = {matrix_of([[P_11, P_12], [P_21, P_22]])}. Find {det_of(M)} · {det_of(N)} · {det_of(P)}."
+answer: answer
+solution:
+  - "First compute {det_of(M)} = {a}·{d} - {b}·{c} = {det_M}"
+  - "Notice that N = {k}M, so {det_of(N)} = {k}² · {det_of(M)} = {k}² · {det_M} = {det_N}"
+  - "For P, the first row is the sum of the rows of M"
+  - "By the multilinearity property: {det_of(P)} = {det_of(M)} = {det_M}"
+  - "Therefore {det_of(M)} · {det_of(N)} · {det_of(P)} = {det_M} · {det_N} · {det_M} = {answer}"

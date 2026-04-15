@@ -1,0 +1,38 @@
+topic: algebra2/radical_equations
+difficulty: very_hard
+calculator: scientific
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(2, 6)
+  d: integer(1, 3)
+  k: integer(2, 8)
+  inner1: a*x + b
+  inner2: c*x + d
+  lhs: sqrt(inner1) + sqrt(inner2)
+  rhs: k
+  equation_squared: expand((sqrt(inner1) + sqrt(inner2))^2)
+  cross_term: 2*sqrt(inner1*inner2)
+  isolated_radical: k^2 - inner1 - inner2
+  final_equation: expand((isolated_radical)^2 - 4*inner1*inner2)
+  solutions: solve(final_equation, x)
+  x_vals: solve(final_equation, x)
+  check1: evaluate(lhs - rhs, x, x_vals[0])
+  check2: evaluate(lhs - rhs, x, x_vals[1])
+constraints:
+  - a*c != 0
+  - gcd(a, c) == 1
+  - k^2 > 2*(b + d)
+question: "Solve the equation {equation(lhs, rhs)}"
+answer: x_vals
+answer_type: set
+solution:
+  - "Start with {equation(lhs, rhs)}"
+  - "Square both sides: {equation(equation_squared, k^2)}"
+  - "This gives: {inner1} + {inner2} + {cross_term} = {k^2}"
+  - "Isolate the radical term: {equation(cross_term, isolated_radical)}"
+  - "Square again to eliminate the remaining radical"
+  - "Expand and simplify to get: {equation(final_equation, 0)}"
+  - "Solve the resulting equation for x: {x_vals}"
+  - "Check each solution in the original equation to eliminate extraneous solutions"
+  - "Valid solutions: {x_vals}"

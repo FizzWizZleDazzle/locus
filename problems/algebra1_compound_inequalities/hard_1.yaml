@@ -1,0 +1,27 @@
+topic: algebra1/compound_inequalities
+difficulty: hard
+calculator: none
+variables:
+  a: integer(-8, -2)
+  b: integer(3, 8)
+  c: integer(-5, 5)
+  left_bound: a - c
+  right_bound: b - c
+  expr: 2*x + c
+  left_ineq: 3*a
+  right_ineq: 3*b
+  answer_left: (left_ineq - c) / 2
+  answer_right: (right_ineq - c) / 2
+constraints:
+  - mod(left_ineq - c, 2) == 0
+  - mod(right_ineq - c, 2) == 0
+  - left_bound < right_bound
+question: "Solve the compound inequality {equation(left_ineq + ' < ' + expr + ' < ' + right_ineq, '')}"
+answer: answer_left
+answer_type: interval
+solution:
+  - "Start with {left_ineq} < {expr} < {right_ineq}"
+  - "Subtract {c} from all parts: {left_ineq} - {c} < 2x < {right_ineq} - {c}"
+  - "Simplify: {left_ineq - c} < 2x < {right_ineq - c}"
+  - "Divide all parts by 2: {answer_left} < x < {answer_right}"
+  - "Solution: ({answer_left}, {answer_right})"

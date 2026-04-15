@@ -1,0 +1,28 @@
+topic: algebra1/exponent_rules
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  m: integer(3, 7)
+  n: integer(2, 6)
+  p: integer(2, 5)
+  base: a^m * b^n
+  exponent: p
+  expanded: (a^m * b^n)^p
+  simplified: a^(m*p) * b^(n*p)
+  mp: m * p
+  np: n * p
+constraints:
+  - a != b
+  - m != n
+question: "Simplify {equation(expanded, simplified)} and express your answer in the form a^r * b^s where r and s are positive integers."
+answer: simplified
+solution:
+  - "Start with {expanded}"
+  - "Apply the power of a product rule: (xy)^p = x^p * y^p"
+  - "This gives us (a^{m})^{p} * (b^{n})^{p}"
+  - "Apply the power of a power rule: (x^m)^p = x^(mp)"
+  - "(a^{m})^{p} = a^({m} * {p}) = a^{mp}"
+  - "(b^{n})^{p} = b^({n} * {p}) = b^{np}"
+  - "Therefore, {expanded} = {simplified}"

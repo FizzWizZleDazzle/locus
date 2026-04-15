@@ -1,0 +1,29 @@
+topic: differential_equations/homogeneous_equations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: a + b
+  y: a*x + b*y
+  dx: b*x - a*y
+  answer: ln(abs(x^2 + y^2))/2 + C
+constraints:
+  - a != b
+question: "Solve the homogeneous differential equation {equation(y, dx)} {derivative_of(y, x)} = {equation(b*x - a*y, 0)}"
+answer: answer
+answer_type: expression
+solution:
+  - "This is homogeneous since both terms have degree 1"
+  - "Substitute y = vx, so dy/dx = v + x(dv/dx)"
+  - "({a}x + {b}vx)(v + x(dv/dx)) = {b}x - {a}vx"
+  - "Simplifying: x({a} + {b}v)(v + x(dv/dx)) = x({b} - {a}v)"
+  - "Divide by x: ({a} + {b}v)(v + x(dv/dx)) = {b} - {a}v"
+  - "Expand: {a}v + {b}v² + x({a} + {b}v)(dv/dx) = {b} - {a}v"
+  - "Rearrange: x({a} + {b}v)(dv/dx) = {b} - {a}v - {a}v - {b}v²"
+  - "x({a} + {b}v)(dv/dx) = {b} - {c}v - {b}v²"
+  - "x(dv/dx) = ({b} - {c}v - {b}v²)/({a} + {b}v)"
+  - "Separate variables: ({a} + {b}v)dv/({b} - {c}v - {b}v²) = dx/x"
+  - "Factor denominator: {b}(1 - v)² = {b} - {c}v - {b}v²"
+  - "Integrate both sides to get ln|x² + y²| = 2C"
+  - "Solution: {answer}"

@@ -1,0 +1,25 @@
+topic: multivariable_calculus/double_integrals
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 4)
+  b: integer(1, 3)
+  c: integer(2, 5)
+  d: integer(1, 4)
+  f: a * x * y^2 + b * x^2 * y
+  inner_result: integral(f, y)
+  inner_evaluated: evaluate(inner_result, y, d) - evaluate(inner_result, y, 0)
+  answer: integral(inner_evaluated, x)
+  final_answer: evaluate(answer, x, c) - evaluate(answer, x, 0)
+constraints:
+  - a != b
+  - c > d
+question: "Evaluate the double integral {definite_integral_of(definite_integral_of(f, y, 0, d), x, 0, c)}"
+answer: final_answer
+solution:
+  - "First integrate with respect to y: {definite_integral_of(f, y, 0, d)}"
+  - "The antiderivative is {inner_result}"
+  - "Evaluating from 0 to {d}: {inner_evaluated}"
+  - "Now integrate with respect to x: {definite_integral_of(inner_evaluated, x, 0, c)}"
+  - "The antiderivative is {answer}"
+  - "Evaluating from 0 to {c}: {final_answer}"

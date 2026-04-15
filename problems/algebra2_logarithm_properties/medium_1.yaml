@@ -1,0 +1,23 @@
+topic: algebra2/logarithm_properties
+difficulty: medium
+calculator: scientific
+variables:
+  base: choice(2, 3, 5)
+  p: integer(1, 4)
+  q: integer(1, 4)
+  a: base^p
+  b: base^q
+  product: a * b
+  sum: p + q
+  answer: sum
+constraints:
+  - p + q <= 6
+question: "Simplify {equation(log(product, base), log(a, base) + log(b, base))} and find the value of {log(product, base)}."
+answer: answer
+solution:
+  - "We have {equation(log(product, base), log(a, base) + log(b, base))}"
+  - "Since {a} = {base}^{p} and {b} = {base}^{q}, we get:"
+  - "{log(a, base)} = {p} and {log(b, base)} = {q}"
+  - "So {log(a, base) + log(b, base)} = {p} + {q} = {sum}"
+  - "Therefore {log(product, base)} = {sum}"
+  - "We can verify: {product} = {a} × {b} = {base}^{p} × {base}^{q} = {base}^{sum}"

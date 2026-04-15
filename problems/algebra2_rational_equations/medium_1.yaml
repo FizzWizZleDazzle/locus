@@ -1,0 +1,28 @@
+topic: algebra2/rational_equations
+difficulty: medium
+calculator: none
+variables:
+  x_val: integer(2, 8)
+  k: integer(1, 5)
+  numerator: k * (x - x_val)
+  denominator: x - x_val
+  left_side: numerator / denominator
+  a: integer(2, 6)
+  b: nonzero(-8, 8)
+  right_side: a * x + b
+  equation_to_solve: left_side - right_side
+  answer: solve(equation_to_solve, x)
+constraints:
+  - a != k
+  - b != -k * x_val
+question: "Solve the equation {equation(left_side, right_side)} for x."
+answer: answer
+solution:
+  - "Start with {equation(left_side, right_side)}"
+  - "Notice that {numerator} = {k}({denominator})"
+  - "So {left_side} = {k} when x ≠ {x_val}"
+  - "This gives us {equation(k, right_side)}"
+  - "Solve: {equation(k, a * x + b)}"
+  - "Subtract {b}: {equation(k - b, a * x)}"
+  - "Divide by {a}: x = {answer}"
+  - "Check: x = {answer} ≠ {x_val}, so the solution is valid"

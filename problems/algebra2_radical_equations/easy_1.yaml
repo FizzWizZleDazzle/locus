@@ -1,0 +1,24 @@
+topic: algebra2/radical_equations
+difficulty: easy
+calculator: none
+variables:
+  x_val: integer(1, 8)
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: a * x_val + b
+  equation_lhs: sqrt(c - b)
+  equation_rhs: a
+  answer: x_val
+constraints:
+  - c > b
+question: "Solve for x: {equation(sqrt(c - b), a)}"
+answer: answer
+solution:
+  - "Start with {equation(sqrt(c - b), a)}"
+  - "Square both sides: {equation(c - b, a^2)}"
+  - "Since {a}² = {evaluate(a^2, a, a)}, we have {equation(c - b, evaluate(a^2, a, a))}"
+  - "Add {b} to both sides: {equation(c, evaluate(a^2 + b, a, a))}"
+  - "Substitute c = {a}x + {b}: {equation(evaluate(a*x + b, a, a), evaluate(a^2 + b, a, a))}"
+  - "Subtract {b}: {equation(evaluate(a*x, a, a), evaluate(a^2, a, a))}"
+  - "Divide by {a}: x = {answer}"
+  - "Check: {equation(sqrt(evaluate(c - b, x, answer)), a)} ✓"

@@ -1,0 +1,33 @@
+topic: algebra1/graphing_lines
+difficulty: very_hard
+calculator: graphing
+variables:
+  # Design perpendicular lines with integer slopes
+  m1: choice(-3, -2, -1, 1, 2, 3)
+  m2: -1/m1
+  # Pick integer y-intercepts
+  b1: integer(-8, 8)
+  b2: integer(-8, 8)
+  # Define the lines
+  line1: m1*x + b1
+  line2: m2*x + b2
+  # Find intersection point (guaranteed to exist since slopes differ)
+  x_int: solve(line1 - line2, x)
+  y_int: evaluate(line1, x, x_int)
+  # Distance from origin to intersection
+  dist_squared: x_int^2 + y_int^2
+  answer: sqrt(dist_squared)
+constraints:
+  - b1 != b2
+  - abs(b1 - b2) > 2
+  - is_integer(x_int)
+question: "Two perpendicular lines are given by {equation(y, line1)} and {equation(y, line2)}. Find the distance from the origin to their intersection point."
+answer: answer
+solution:
+  - "The lines {equation(y, line1)} and {equation(y, line2)} are perpendicular since {m1} × {m2} = -1"
+  - "To find intersection, set {line1} = {line2}"
+  - "Solving: {m1}x + {b1} = {m2}x + {b2}"
+  - "This gives x = {x_int}"
+  - "Substituting back: y = {y_int}"
+  - "The intersection point is ({x_int}, {y_int})"
+  - "Distance from origin = {sqrt(x_int^2 + y_int^2)} = {answer}"

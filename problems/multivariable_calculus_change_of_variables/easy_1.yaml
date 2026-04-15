@@ -1,0 +1,24 @@
+topic: multivariable_calculus/change_of_variables
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  u_expr: a * x + b * y
+  v_expr: x - y
+  det_J: abs(a + b)
+  region_area: integer(1, 4)
+  answer: det_J * region_area
+constraints:
+  - a != b
+question: "Consider the transformation u = {u_expr}, v = {v_expr}. If a region R in the xy-plane has area {region_area}, find the area of its image under this transformation."
+answer: answer
+solution:
+  - "For the transformation u = {u_expr}, v = {v_expr}"
+  - "The Jacobian matrix is J = [[∂u/∂x, ∂u/∂y], [∂v/∂x, ∂v/∂y]]"
+  - "∂u/∂x = {a}, ∂u/∂y = {b}, ∂v/∂x = 1, ∂v/∂y = -1"
+  - "J = [[{a}, {b}], [1, -1]]"
+  - "det(J) = ({a})(-1) - ({b})(1) = -{a} - {b} = -{det_J}"
+  - "|det(J)| = {det_J}"
+  - "Area of transformed region = |det(J)| × original area"
+  - "Area = {det_J} × {region_area} = {answer}"

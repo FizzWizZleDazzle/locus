@@ -1,0 +1,20 @@
+topic: algebra2/exponential_growth_decay
+difficulty: easy
+calculator: scientific
+variables:
+  initial: choice(100, 200, 500, 1000)
+  rate: choice(0.05, 0.1, 0.2, 0.25)
+  years: integer(2, 5)
+  growth_factor: 1 + rate
+  final: initial * growth_factor^years
+  final_rounded: round(final, 2)
+constraints:
+  - rate > 0
+question: "A population of {initial} bacteria grows at a rate of {rate} (as a decimal) per year. What will the population be after {years} years? Round to the nearest hundredth."
+answer: final_rounded
+solution:
+  - "Use the exponential growth formula: A = P(1 + r)^t"
+  - "P = {initial}, r = {rate}, t = {years}"
+  - "A = {initial}(1 + {rate})^{years}"
+  - "A = {initial}({growth_factor})^{years}"
+  - "A = {final_rounded}"

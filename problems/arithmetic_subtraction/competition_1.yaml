@@ -1,0 +1,33 @@
+topic: arithmetic/subtraction
+difficulty: competition
+calculator: none
+variables:
+  # Design for a clean 4-digit answer, work backwards
+  answer: integer(1000, 9999)
+  # Build minuend as answer + subtrahend for guaranteed clean result
+  b: integer(100, 999)
+  a: answer + b
+  # Extract digits for additional complexity
+  a_thousands: floor(a/1000)
+  a_hundreds: mod(floor(a/100), 10)
+  a_tens: mod(floor(a/10), 10)
+  a_ones: mod(a, 10)
+  b_hundreds: floor(b/100)
+  b_tens: mod(floor(b/10), 10)
+  b_ones: mod(b, 10)
+  # Create derived challenge: sum of digits
+  sum_a_digits: a_thousands + a_hundreds + a_tens + a_ones
+  sum_b_digits: b_hundreds + b_tens + b_ones
+  digit_difference: sum_a_digits - sum_b_digits
+constraints:
+  - a_thousands <= 9  # Ensure a stays 4-digit
+  - digit_difference > 0  # Ensure positive for the additional question
+question: "A 4-digit number has digit sum {sum_a_digits}. When a 3-digit number with digit sum {sum_b_digits} is subtracted from it, the result is {answer}. What is the difference between the digit sums?"
+answer: digit_difference
+solution:
+  - "Let the 4-digit number be {a} with digits {a_thousands}, {a_hundreds}, {a_tens}, {a_ones}"
+  - "Sum of digits: {a_thousands} + {a_hundreds} + {a_tens} + {a_ones} = {sum_a_digits}"
+  - "Let the 3-digit number be {b} with digits {b_hundreds}, {b_tens}, {b_ones}"
+  - "Sum of digits: {b_hundreds} + {b_tens} + {b_ones} = {sum_b_digits}"
+  - "We have: {a} - {b} = {answer}"
+  - "Difference between digit sums: {sum_a_digits} - {sum_b_digits} = {digit_difference}"

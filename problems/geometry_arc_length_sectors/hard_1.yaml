@@ -1,0 +1,29 @@
+topic: geometry/arc_length_sectors
+difficulty: hard
+calculator: scientific
+variables:
+  # Work backwards: want arc length to be a clean multiple of π
+  # Arc length = r * θ, so pick r and arc_length first
+  r: choice(6, 8, 9, 10, 12, 15)
+  arc_multiple: choice(2, 3, 4, 5, 6)
+  arc_length: arc_multiple * π
+  # Derive angle from arc length: θ = arc_length / r
+  theta: arc_length / r
+  # Convert to degrees for the question
+  theta_deg: theta * 180 / π
+  # Also calculate sector area for multi-step problem
+  sector_area: (1/2) * r^2 * theta
+  # Simplified forms for display
+  arc_simplified: simplify(arc_length)
+  area_simplified: simplify(sector_area)
+constraints:
+  - r > 5
+  - arc_multiple <= r
+question: "A circular sector has radius {r} cm and central angle {theta_deg}°. Find both the arc length and the area of the sector. Express your answers in terms of π."
+answer: area_simplified
+solution:
+  - "Convert angle to radians: {theta_deg}° = {theta_deg} × π/180 = {theta} radians"
+  - "Arc length formula: s = rθ"
+  - "Arc length = {r} × {theta} = {arc_simplified} cm"
+  - "Sector area formula: A = (1/2)r²θ"
+  - "Sector area = (1/2) × {r}² × {theta} = {area_simplified} cm²"

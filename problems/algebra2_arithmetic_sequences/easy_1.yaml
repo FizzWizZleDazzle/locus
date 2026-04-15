@@ -1,0 +1,18 @@
+topic: algebra2/arithmetic_sequences
+difficulty: easy
+calculator: none
+variables:
+  a1: integer(-10, 10)
+  d: nonzero(-5, 5)
+  n: integer(4, 8)
+  an: a1 + (n - 1) * d
+  sum_n: n * (a1 + an) / 2
+constraints:
+  - abs(an) <= 20
+question: "Find the sum of the first {n} terms of the arithmetic sequence with first term {a1} and common difference {d}."
+answer: sum_n
+solution:
+  - "In an arithmetic sequence, the nth term is given by: a_n = a_1 + (n-1)d"
+  - "Find the {n}th term: a_{n} = {a1} + ({n}-1)({d}) = {a1} + {evaluate((n-1)*d, n, n)} = {an}"
+  - "The sum of the first n terms is: S_n = n(a_1 + a_n)/2"
+  - "S_{n} = {n}({a1} + {an})/2 = {n}({evaluate(a1 + an, a1, a1)})/2 = {sum_n}"

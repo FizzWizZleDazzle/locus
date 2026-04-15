@@ -1,0 +1,39 @@
+topic: calculus/lhopitals_rule
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  d: integer(1, 4)
+  numerator: (x^a - c^a) * (x^b - d^b)
+  denominator: (x - c) * (x - d)
+  f: numerator / denominator
+  limit_point: c
+  num_at_limit: evaluate(numerator, x, limit_point)
+  den_at_limit: evaluate(denominator, x, limit_point)
+  num_derivative: derivative(numerator, x)
+  den_derivative: derivative(denominator, x)
+  num_der_at_limit: evaluate(num_derivative, x, limit_point)
+  den_der_at_limit: evaluate(den_derivative, x, limit_point)
+  num_second_der: derivative(num_derivative, x)
+  den_second_der: derivative(den_derivative, x)
+  num_second_at_limit: evaluate(num_second_der, x, limit_point)
+  den_second_at_limit: evaluate(den_second_der, x, limit_point)
+  answer: simplify(num_second_at_limit / den_second_at_limit)
+constraints:
+  - c != d
+  - a != b
+question: "Evaluate {limit_of(f, x, limit_point)} where {equation(f, numerator / denominator)}"
+answer: answer
+solution:
+  - "Check the form at x = {limit_point}:"
+  - "Numerator: {num_at_limit} = 0"
+  - "Denominator: {den_at_limit} = 0"
+  - "This is 0/0 form, apply L'Hôpital's rule"
+  - "First application: {limit_of(num_derivative / den_derivative, x, limit_point)}"
+  - "At x = {limit_point}: numerator' = {num_der_at_limit}, denominator' = {den_der_at_limit}"
+  - "Still 0/0 form, apply L'Hôpital's rule again"
+  - "Second application: {limit_of(num_second_der / den_second_der, x, limit_point)}"
+  - "At x = {limit_point}: numerator'' = {num_second_at_limit}, denominator'' = {den_second_at_limit}"
+  - "Therefore the limit equals {answer}"

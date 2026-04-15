@@ -1,0 +1,23 @@
+topic: precalculus/transformations
+difficulty: easy
+calculator: none
+variables:
+  h: integer(-5, 5)
+  k: integer(-5, 5)
+  f: x^2
+  g: (x - h)^2 + k
+  vertex_x: h
+  vertex_y: k
+constraints:
+  - h != 0
+  - k != 0
+question: "The function {equation(g, (x - h)^2 + k)} is a transformation of {equation(f, x^2)}. What is the vertex of the transformed function?"
+answer: vertex_x
+answer_type: coordinate_pair
+answer_part2: vertex_y
+solution:
+  - "The function {equation(f, x^2)} has vertex at (0, 0)"
+  - "The transformation {equation(g, (x - h)^2 + k)} shifts the graph:"
+  - "- Right by {h} units (since we have (x - {h}))"
+  - "- Up by {k} units (since we add {k})"
+  - "Therefore, the vertex is at ({h}, {k})"

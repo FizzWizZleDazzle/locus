@@ -1,0 +1,36 @@
+topic: multivariable_calculus/partial_derivatives
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(-3, 3)
+  d: nonzero(-4, 4)
+  f: a*x^3*y^2 + b*x^2*y^3 + c*x*y + d
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  fxx: derivative(fx, x)
+  fyy: derivative(fy, y)
+  fxy: derivative(fx, y)
+  x0: integer(-2, 2)
+  y0: integer(-2, 2)
+  D_val: evaluate(evaluate(fxx * fyy - fxy^2, x, x0), y, y0)
+  fxx_val: evaluate(evaluate(fxx, x, x0), y, y0)
+  answer: D_val
+constraints:
+  - a != b
+  - x0 != 0
+  - y0 != 0
+question: "Let f(x,y) = {f}. Compute the discriminant D = {det_of([[f_xx, f_xy], [f_xy, f_yy]])} at the point ({x0}, {y0})."
+answer: answer
+solution:
+  - "First find the first partial derivatives:"
+  - "{derivative_of(f, x)} = {fx}"
+  - "{derivative_of(f, y)} = {fy}"
+  - "Next find the second partial derivatives:"
+  - "{derivative_of(fx, x)} = {fxx}"
+  - "{derivative_of(fy, y)} = {fyy}"
+  - "{derivative_of(fx, y)} = {fxy}"
+  - "The discriminant is D = f_xx * f_yy - (f_xy)^2"
+  - "At ({x0}, {y0}): f_xx = {fxx_val}, f_yy = {evaluate(evaluate(fyy, x, x0), y, y0)}, f_xy = {evaluate(evaluate(fxy, x, x0), y, y0)}"
+  - "D = {answer}"

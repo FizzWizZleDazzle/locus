@@ -1,0 +1,32 @@
+topic: calculus/u_substitution
+difficulty: competition
+calculator: none
+variables:
+  k: choice(2, 3, 4, 6)
+  n: choice(1, 2, 3)
+  a: nonzero(-4, 4)
+  b: nonzero(-6, 6)
+  c: integer(1, 5)
+  inner: a*x + b
+  f: c * (inner)^n * cos(k*x)
+  u: sin(k*x)
+  du_dx: k * cos(k*x)
+  power: integer(1, 3)
+  g: u^power / k
+  antiderivative: simplify(g)
+  answer: evaluate(antiderivative, x, pi/(2*k)) - evaluate(antiderivative, x, 0)
+constraints:
+  - mod(n, 2) == 1
+  - gcd(abs(a), abs(b)) == 1
+  - power == (n + 1) / 2
+question: "Evaluate {definite_integral_of(f, x, 0, pi/(2*k))}"
+answer: answer
+solution:
+  - "Let {equation(u, sin(k*x))}, so {equation(du, k*cos(k*x)*dx)}"
+  - "Then {equation(cos(k*x)*dx, du/k)}"
+  - "When {equation(x, 0)}: {equation(u, 0)}"
+  - "When {equation(x, pi/(2*k))}: {equation(u, 1)}"
+  - "The integral becomes {definite_integral_of(c*(a*x + b)^n * (1/k), u, 0, 1)}"
+  - "Since {inner} varies from {b} to {evaluate(inner, x, pi/(2*k))}, and n is odd, we can use symmetry"
+  - "After substitution and simplification: {definite_integral_of(u^power / k, u, 0, 1)}"
+  - "= {answer}"

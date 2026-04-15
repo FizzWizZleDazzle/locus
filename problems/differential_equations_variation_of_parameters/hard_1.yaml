@@ -1,0 +1,37 @@
+topic: differential_equations/variation_of_parameters
+difficulty: hard
+calculator: none
+variables:
+  r1: integer(-4, -1)
+  r2: integer(1, 4)
+  k: integer(2, 5)
+  y_h: c1 * e^(r1*x) + c2 * e^(r2*x)
+  g: k * e^((r1+r2)*x)
+  W: (r2 - r1) * e^((r1+r2)*x)
+  u1_prime: -k
+  u2_prime: k
+  u1: -k * x
+  u2: k * x
+  y_p: u1 * e^(r1*x) + u2 * e^(r2*x)
+  y_p_expanded: k * x * (e^(r2*x) - e^(r1*x))
+  diff_eq: y'' - (r1+r2)*y' + r1*r2*y
+  answer: y_h + y_p_expanded
+constraints:
+  - r1 < 0
+  - r2 > 0
+  - abs(r1 - r2) >= 3
+question: "Solve {equation(diff_eq, g)} using variation of parameters."
+answer: answer
+solution:
+  - "First solve the homogeneous equation {equation(diff_eq, 0)}"
+  - "Characteristic equation: {equation(r^2 - (r1+r2)*r + r1*r2, 0)}"
+  - "Roots are r = {r1} and r = {r2}"
+  - "Homogeneous solution: {y_h}"
+  - "For variation of parameters, let {equation(y_p, u1(x) * e^(r1*x) + u2(x) * e^(r2*x))}"
+  - "The Wronskian is {equation(W, (r2 - r1) * e^((r1+r2)*x))}"
+  - "From the variation of parameters formulas:"
+  - "{equation(u1_prime, -g * e^(r2*x) / W)} = {u1_prime}"
+  - "{equation(u2_prime, g * e^(r1*x) / W)} = {u2_prime}"
+  - "Integrating: {equation(u1, -k * x)} and {equation(u2, k * x)}"
+  - "Particular solution: {equation(y_p, y_p_expanded)}"
+  - "General solution: {equation(y, answer)}"

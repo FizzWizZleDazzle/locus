@@ -1,0 +1,18 @@
+topic: differential_equations/laplace_transforms
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  f: a * e^(b * t)
+  answer: a / (s - b)
+constraints:
+  - a != b
+question: "Find the Laplace transform of {f}."
+answer: answer
+solution:
+  - "Recall that the Laplace transform of {equation(e^(c*t), '')} is {equation(1/(s-c), '')}"
+  - "For {f}, we have a constant multiple {a} and exponent coefficient {b}"
+  - "Using the linearity property: L[{f}] = {a} · L[{equation(e^(b*t), '')}]"
+  - "L[{f}] = {a} · {equation(1/(s-b), '')}"
+  - "Therefore, L[{f}] = {answer}"

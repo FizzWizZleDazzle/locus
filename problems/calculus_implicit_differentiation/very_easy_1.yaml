@@ -1,0 +1,20 @@
+topic: calculus/implicit_differentiation
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(10, 30)
+  equation: a*x^2 + b*y^2 - c
+  dx_coeff: 2*a
+  dy_coeff: 2*b
+  answer: simplify(-dx_coeff*x / dy_coeff*y)
+constraints:
+  - a != b
+question: "Find dy/dx for the equation {equation(equation, 0)}"
+answer: answer
+solution:
+  - "Differentiate both sides with respect to x"
+  - "d/dx[{a}x^2 + {b}y^2] = d/dx[{c}]"
+  - "{dx_coeff}x + {dy_coeff}y(dy/dx) = 0"
+  - "Solve for dy/dx: dy/dx = {answer}"

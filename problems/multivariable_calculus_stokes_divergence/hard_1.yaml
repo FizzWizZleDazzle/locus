@@ -1,0 +1,29 @@
+topic: multivariable_calculus/stokes_divergence
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  F_x: a * y
+  F_y: b * z
+  F_z: c * x
+  curl_x: -b
+  curl_y: -c
+  curl_z: -a
+  r: integer(2, 4)
+  flux: r * r * (-a - b - c)
+  answer: flux
+constraints:
+  - a != b
+  - b != c
+question: "Let {vec(F)} = {equation(F_x, F_y, F_z)}. Use Stokes' theorem to evaluate the circulation of {vec(F)} around the boundary of the hemisphere x^2 + y^2 + z^2 = {r}^2, z ≥ 0, oriented with upward normal."
+answer: answer
+solution:
+  - "By Stokes' theorem, circulation = {integral_of(curl F · n, S)}"
+  - "Calculate curl {vec(F)}: {vec(curl F)} = {equation(curl_x, curl_y, curl_z)}"
+  - "For hemisphere with upward normal, {vec(n)} = {equation(x/r, y/r, z/r)}"
+  - "On hemisphere surface: curl {vec(F)} · {vec(n)} = ({curl_x}x + {curl_y}y + {curl_z}z)/{r}"
+  - "Convert to spherical: x = {r}sinφcosθ, y = {r}sinφsinθ, z = {r}cosφ"
+  - "Integral becomes {r}({curl_x}sinφcosθ + {curl_y}sinφsinθ + {curl_z}cosφ)"
+  - "After integration over hemisphere: {answer}"

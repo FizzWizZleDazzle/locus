@@ -1,0 +1,27 @@
+topic: differential_equations/exact_equations
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 6)
+  b: integer(2, 6)
+  c: integer(1, 4)
+  M: a*x + b*y^2
+  N: a*y + 2*b*x*y
+  M_y: derivative(M, y)
+  N_x: derivative(N, x)
+  F: integral(M, x)
+  psi: F + c*y^2
+  answer: c
+constraints:
+  - a != b
+  - M_y == N_x
+question: "Given the exact differential equation {equation(M*dx + N*dy, 0)}, find the value of c such that ψ(x,y) = {integral_of(M, x)} + cy² is a solution."
+answer: answer
+solution:
+  - "For exactness, we need {derivative_of(M, y)} = {derivative_of(N, x)}"
+  - "Check: {derivative_of(M, y)} = {M_y} and {derivative_of(N, x)} = {N_x}"
+  - "Since {M_y} = {N_x}, the equation is exact"
+  - "Integrate M with respect to x: ψ = {F} + g(y)"
+  - "Take {derivative_of(psi, y)} and set equal to N: {derivative_of(F, y)} + g'(y) = {N}"
+  - "This gives g'(y) = {2*b*y}, so g(y) = {b}y²"
+  - "Therefore c = {c}"

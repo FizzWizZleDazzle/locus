@@ -1,0 +1,21 @@
+topic: geometry/angle_relationships
+difficulty: medium
+calculator: none
+variables:
+  base_angle: integer(10, 40)
+  multiplier: integer(2, 4)
+  angle1: base_angle
+  angle2: multiplier * base_angle
+  sum: angle1 + angle2
+  answer: angle2
+constraints:
+  - sum == 180
+question: "Two supplementary angles are in the ratio 1:{multiplier}. Find the measure of the larger angle in degrees."
+answer: answer
+solution:
+  - "Let the smaller angle be x degrees"
+  - "Then the larger angle is {multiplier}x degrees"
+  - "Since they are supplementary: x + {multiplier}x = 180°"
+  - "Combining terms: {multiplier + 1}x = 180°"
+  - "Solving for x: x = {angle1}°"
+  - "The larger angle is {multiplier} × {angle1}° = {answer}°"

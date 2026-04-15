@@ -1,0 +1,25 @@
+topic: algebra1/two_step_equations
+difficulty: very_hard
+calculator: none
+variables:
+  answer: integer(-20, 20)
+  a: nonzero(-12, 12)
+  b: nonzero(-50, 50)
+  c: nonzero(-8, 8)
+  d: nonzero(-40, 40)
+  lhs: a * x + b
+  rhs: c * x + d
+  left_side: evaluate(lhs, x, answer)
+  right_side: evaluate(rhs, x, answer)
+constraints:
+  - a != c
+  - abs(answer * (a - c)) <= 100
+  - left_side == right_side
+question: "Solve for x: {equation(lhs, rhs)}"
+answer: answer
+solution:
+  - "Start with {equation(lhs, rhs)}"
+  - "Subtract {c}x from both sides: {equation(a * x - c * x + b, d)}"
+  - "Simplify: {equation((a - c) * x + b, d)}"
+  - "Subtract {b} from both sides: {equation((a - c) * x, d - b)}"
+  - "Divide both sides by {a - c}: x = {answer}"

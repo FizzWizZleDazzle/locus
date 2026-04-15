@@ -1,0 +1,28 @@
+topic: arithmetic/decimals
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 9)
+  b: integer(2, 9)
+  c: integer(1, 9)
+  d: integer(1, 9)
+  e: integer(1, 9)
+  f: integer(2, 8)
+  base: 0.001 * a * b * c
+  factor: 10^f
+  product: base * factor
+  sum_digits: a + b + c
+  digit_product: a * b * c
+  final_answer: product + sum_digits + digit_product
+constraints:
+  - a != b
+  - b != c
+  - a != c
+question: "Let N = 0.{a}{b}{c}. Calculate N × 10^{f} + (sum of digits of N's decimal part) + (product of digits of N's decimal part)."
+answer: final_answer
+solution:
+  - "N = 0.{a}{b}{c} = {a}/1000 + {b}/10000 + {c}/100000"
+  - "N × 10^{f} = 0.{a}{b}{c} × {factor} = {product}"
+  - "Sum of decimal digits: {a} + {b} + {c} = {sum_digits}"
+  - "Product of decimal digits: {a} × {b} × {c} = {digit_product}"
+  - "Final answer: {product} + {sum_digits} + {digit_product} = {final_answer}"

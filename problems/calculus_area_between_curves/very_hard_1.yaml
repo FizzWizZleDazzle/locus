@@ -1,0 +1,35 @@
+topic: calculus/area_between_curves
+difficulty: very_hard
+calculator: graphing
+variables:
+  # Design for clean intersection points and area
+  a: integer(2, 5)
+  b: integer(1, 3)
+  # Ensure parabola opens down and line has positive slope
+  f: -a * x^2 + a * b^2 * x
+  g: a * b * x - a * b^2
+  # Intersection points by construction: x = 0 and x = b
+  x1: 0
+  x2: b
+  # Integrand for area calculation
+  diff: f - g
+  expanded_diff: expand(diff)
+  # Area computation
+  antideriv: integral(expanded_diff, x)
+  area_raw: evaluate(antideriv, x, x2) - evaluate(antideriv, x, x1)
+  answer: simplify(area_raw)
+constraints:
+  - a > b  # Ensures distinct behavior
+  - b > 0  # Ensures positive intersection
+question: "Find the area between the curves {equation(f, y)} and {equation(g, y)} from their leftmost to rightmost intersection points."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g)}"
+  - "Factor: {equation(-a * x^2 + a * b^2 * x - a * b * x + a * b^2, 0)}"
+  - "This gives {equation(-a * x * (x - b), 0)}, so x = {x1} and x = {x2}"
+  - "Determine which function is on top by testing x = 1"
+  - "Since the parabola opens downward and starts at origin, {f} > {g} on (0, {b})"
+  - "Area = {definite_integral_of(expanded_diff, x, x1, x2)}"
+  - "Antiderivative: {antideriv}"
+  - "Evaluate: [{antideriv}] from {x1} to {x2}"
+  - "Area = {answer}"

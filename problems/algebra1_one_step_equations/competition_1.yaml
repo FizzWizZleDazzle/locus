@@ -1,0 +1,28 @@
+topic: algebra1/one_step_equations
+difficulty: competition
+calculator: none
+variables:
+  p: prime(11, 97)
+  q: prime(11, 97)
+  k: integer(2, 9)
+  a: p * k
+  b: q * k
+  x: q
+  equation: a * x - b
+constraints:
+  - p != q
+  - gcd(p, q) == 1
+question: "If {equation(equation, 0)} and x is a positive integer, find the value of x."
+answer: x
+solution:
+  - "Start with {equation(equation, 0)}"
+  - "Add {b} to both sides: {equation(a * x, b)}"
+  - "So {a}x = {b}"
+  - "Divide both sides by {a}: x = {b}/{a}"
+  - "Since {b} = {q} × {k} and {a} = {p} × {k}, we have x = {q}/{p}"
+  - "Since {p} and {q} are coprime primes, x = {q}/{p} is in lowest terms"
+  - "For x to be a positive integer, {p} must divide {q}"
+  - "But {p} and {q} are distinct primes, so this only works if we made an error"
+  - "Let's reconsider: {a}x = {b} means x = {b}/{a} = {q}"
+  - "Check: {a} × {q} = {p} × {k} × {q} = {b} ✓"
+  - "Therefore x = {q}"

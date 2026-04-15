@@ -1,0 +1,21 @@
+topic: arithmetic/order_of_operations
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 9)
+  b: integer(2, 9)
+  c: integer(2, 9)
+  d: integer(2, 5)
+  product: b * c
+  sum: a + product
+  answer: sum / d
+constraints:
+  - mod(sum, d) == 0
+  - d != a
+question: "Evaluate: {a} + {b} × {c} ÷ {d}"
+answer: answer
+solution:
+  - "Following order of operations (PEMDAS/BODMAS)"
+  - "First multiply: {b} × {c} = {product}"
+  - "Then add: {a} + {product} = {sum}"
+  - "Finally divide: {sum} ÷ {d} = {answer}"

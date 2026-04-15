@@ -1,0 +1,33 @@
+topic: differential_equations/first_order_linear
+difficulty: hard
+calculator: scientific
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  p_x: a * x
+  q_x: b * x + c
+  integrating_factor: exp(integral(p_x, x))
+  IF_simplified: exp((a * x^2) / 2)
+  lhs: derivative(y, x) + p_x * y
+  general_solution: (integral(q_x * IF_simplified, x) + C) / IF_simplified
+  integral_result: integral((b * x + c) * IF_simplified, x)
+  y0: integer(-3, 3)
+  x0: 0
+  C_value: y0 * IF_simplified - evaluate(integral_result, x, x0)
+  particular_solution: (integral_result + C_value) / IF_simplified
+constraints:
+  - abs(a) != abs(b)
+  - a != b
+question: "Solve the initial value problem {equation(lhs, q_x)} with y({x0}) = {y0}"
+answer: particular_solution
+solution:
+  - "Rewrite in standard form: {equation(derivative(y, x) + p_x * y, q_x)}"
+  - "Identify P(x) = {p_x} and Q(x) = {q_x}"
+  - "Find integrating factor: μ(x) = {equation(exp(integral(p_x, x)), IF_simplified)}"
+  - "Multiply equation by μ(x): {equation(derivative(y, x) * IF_simplified + p_x * y * IF_simplified, q_x * IF_simplified)}"
+  - "Left side is {derivative_of(y * IF_simplified, x)}"
+  - "Integrate both sides: {equation(y * IF_simplified, integral(q_x * IF_simplified, x) + C)}"
+  - "General solution: y = {general_solution}"
+  - "Apply initial condition y({x0}) = {y0} to find C = {C_value}"
+  - "Particular solution: y = {particular_solution}"

@@ -1,0 +1,32 @@
+topic: multivariable_calculus/change_of_variables
+difficulty: very_hard
+calculator: none
+variables:
+  # Design backward: pick a clean Jacobian determinant first
+  det_value: choice(2, 3, 4, 6)
+  # Build transformation that gives this determinant
+  a: integer(1, 4)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  d: integer(2, 5)
+  # Ensure determinant matches our choice
+  u_expr: a*x + b*y
+  v_expr: c*x + d*y
+  jacobian_det: a*d - b*c
+  # Simple region bounds for clean answer
+  k: integer(2, 4)
+  area: k^2
+  answer: area * det_value
+constraints:
+  - jacobian_det == det_value
+  - a != b
+  - c != d
+question: "Consider the transformation u = {u_expr}, v = {v_expr}. Find the area of the image of the square R = [0, {k}] × [0, {k}] under this transformation."
+answer: answer
+solution:
+  - "For the transformation u = {u_expr}, v = {v_expr}, compute the Jacobian matrix"
+  - "J = [[{a}, {b}], [{c}, {d}]]"
+  - "The Jacobian determinant is |J| = {a}·{d} - {b}·{c} = {jacobian_det}"
+  - "The area of region R is {k} × {k} = {area}"
+  - "Under the transformation, the area scales by |J| = {jacobian_det}"
+  - "Image area = {area} × {jacobian_det} = {answer}"

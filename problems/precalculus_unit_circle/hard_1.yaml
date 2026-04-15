@@ -1,0 +1,27 @@
+topic: precalculus/unit_circle
+difficulty: hard
+calculator: none
+variables:
+  angle_num: choice(1, 2, 3, 4, 5, 7, 8, 10, 11)
+  angle: angle_num * pi / 6
+  cos_val: cos(angle)
+  sin_val: sin(angle)
+  tan_val: tan(angle)
+  sec_val: 1 / cos_val
+  csc_val: 1 / sin_val
+  expression: sec_val^2 - tan_val^2
+  answer: simplify(expression)
+constraints:
+  - angle_num != 3
+  - angle_num != 9
+question: "If θ = {angle}, evaluate {equation(sec(θ)^2 - tan(θ)^2, ?)}"
+answer: answer
+solution:
+  - "Given θ = {angle}"
+  - "Find cos(θ) = {cos_val} and sin(θ) = {sin_val}"
+  - "Calculate sec(θ) = 1/cos(θ) = {sec_val}"
+  - "Calculate tan(θ) = sin(θ)/cos(θ) = {tan_val}"
+  - "Compute sec²(θ) - tan²(θ) = ({sec_val})² - ({tan_val})²"
+  - "This equals {expression}"
+  - "By the Pythagorean identity: sec²(θ) - tan²(θ) = 1"
+  - "Therefore, the answer is {answer}"

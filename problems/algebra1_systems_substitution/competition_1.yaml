@@ -1,0 +1,38 @@
+topic: algebra1/systems_substitution
+difficulty: competition
+calculator: none
+variables:
+  # Design backwards: want x = 3, y = -2 as the solution
+  x_val: 3
+  y_val: -2
+  # Build first equation: ax + by = c where we know x=3, y=-2
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: a * x_val + b * y_val
+  # Build second equation: dx + ey = f  
+  d: nonzero(-5, 5)
+  e: nonzero(-5, 5)
+  f: d * x_val + e * y_val
+  # Create the actual equations
+  eq1: a * x + b * y
+  eq2: d * x + e * y
+  # Solve for verification
+  solution_set: solve([eq1 - c, eq2 - f], [x, y])
+constraints:
+  - a * e != b * d  # Non-parallel lines
+  - abs(a) + abs(b) >= 3  # Non-trivial first equation
+  - abs(d) + abs(e) >= 3  # Non-trivial second equation
+question: "Solve the system {system(equation(eq1, c), equation(eq2, f))} using substitution."
+answer: solution_set
+answer_type: ordered_pair
+solution:
+  - "From the first equation: {equation(eq1, c)}"
+  - "Solve for x: x = ({c} - {b}y) / {a}"
+  - "Substitute into the second equation: {equation(eq2, f)}"
+  - "Replace x: {d}(({c} - {b}y) / {a}) + {e}y = {f}"
+  - "Multiply through by {a}: {d}({c} - {b}y) + {a * e}y = {a * f}"
+  - "Expand: {d * c} - {d * b}y + {a * e}y = {a * f}"
+  - "Combine like terms: {d * c} + ({a * e - d * b})y = {a * f}"
+  - "Solve for y: y = ({a * f - d * c}) / ({a * e - d * b}) = {y_val}"
+  - "Substitute back: x = ({c} - {b}({y_val})) / {a} = {x_val}"
+  - "Solution: (x, y) = ({x_val}, {y_val})"

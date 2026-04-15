@@ -1,0 +1,15 @@
+topic: differential_equations/laplace_transforms
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  f: e^(a*t)
+  answer: 1/(s - a)
+constraints:
+  - a > 0
+question: "Find the Laplace transform of {f}."
+answer: answer
+solution:
+  - "Recall that the Laplace transform of {equation(e^(a*t), f(t))} is {equation(1/(s - a), F(s))}"
+  - "Here, a = {a}"
+  - "Therefore, L[{f}] = {answer}"

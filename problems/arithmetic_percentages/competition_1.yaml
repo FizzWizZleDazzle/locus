@@ -1,0 +1,22 @@
+topic: arithmetic/percentages
+difficulty: competition
+calculator: none
+variables:
+  original: choice(40, 50, 80, 100, 125, 200, 250)
+  first_percent: choice(20, 25, 40, 50)
+  second_percent: choice(10, 20, 25, 50)
+  after_first: original * (100 + first_percent) / 100
+  after_second: after_first * (100 - second_percent) / 100
+  net_change: after_second - original
+  net_percent: 100 * net_change / original
+  answer: simplify(net_percent)
+constraints:
+  - first_percent != second_percent
+question: "A stock price increases by {first_percent}%, then decreases by {second_percent}%. What is the net percentage change from the original price?"
+answer: answer
+solution:
+  - "Let the original price be {original}"
+  - "After {first_percent}% increase: {original} × {100 + first_percent}/100 = {after_first}"
+  - "After {second_percent}% decrease: {after_first} × {100 - second_percent}/100 = {after_second}"
+  - "Net change: {after_second} - {original} = {net_change}"
+  - "Net percentage: ({net_change}/{original}) × 100% = {answer}%"

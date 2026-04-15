@@ -1,0 +1,21 @@
+topic: calculus/derivative_rules
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: integer(-5, 5)
+  n: integer(2, 4)
+  f: a * x^n + b * x + c
+  answer: derivative(f, x)
+constraints:
+  - a != b
+question: "Find {derivative_of(f, x)}"
+answer: answer
+solution:
+  - "Given function: f(x) = {f}"
+  - "Apply the power rule to each term:"
+  - "The derivative of {a}x^{n} is {a} · {n}x^({n}-1)"
+  - "The derivative of {b}x is {b}"
+  - "The derivative of {c} is 0"
+  - "Therefore, {derivative_of(f, x)} = {answer}"

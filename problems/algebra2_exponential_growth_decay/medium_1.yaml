@@ -1,0 +1,22 @@
+topic: algebra2/exponential_growth_decay
+difficulty: medium
+calculator: scientific
+variables:
+  initial: choice(100, 200, 500, 1000, 2000, 5000)
+  rate_percent: choice(5, 10, 15, 20, 25, 30, 40, 50)
+  rate_decimal: rate_percent / 100
+  time: choice(2, 3, 4, 5, 6, 8, 10)
+  growth_factor: 1 + rate_decimal
+  final: initial * growth_factor^time
+  rounded_final: round(final, 0)
+constraints:
+  - rate_percent <= 30 or time <= 5
+question: "A bacteria culture starts with {initial} bacteria and grows at a rate of {rate_percent}% per hour. How many bacteria will there be after {time} hours? Round to the nearest whole number."
+answer: rounded_final
+solution:
+  - "Use the exponential growth formula: A = P(1 + r)^t"
+  - "P = {initial}, r = {rate_decimal}, t = {time}"
+  - "A = {initial}(1 + {rate_decimal})^{time}"
+  - "A = {initial}({growth_factor})^{time}"
+  - "A = {final}"
+  - "Rounded to nearest whole number: {rounded_final} bacteria"

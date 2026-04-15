@@ -1,0 +1,33 @@
+topic: geometry/area_of_polygons
+difficulty: hard
+calculator: scientific
+variables:
+  # Design a trapezoid with integer height and area
+  # Pick height first, then bases that give clean area
+  h: integer(5, 12)
+  # Pick b1, then b2 to ensure area = h * (b1 + b2) / 2 is integer
+  b1: integer(8, 20)
+  # Make b2 have same parity as b1 to ensure (b1 + b2) is even
+  b2_offset: integer(2, 10)
+  b2: b1 + 2 * b2_offset
+  # Now area is guaranteed integer: h * (even number) / 2
+  area: h * (b1 + b2) / 2
+  # Create a composite figure: trapezoid with triangular cutout
+  # Triangle dimensions chosen to give clean area
+  tri_base: integer(4, 8)
+  tri_height_factor: integer(2, 4)
+  tri_height: tri_base * tri_height_factor / 2
+  tri_area: tri_base * tri_height / 2
+  answer: area - tri_area
+constraints:
+  - b1 < b2
+  - tri_base < b1
+  - tri_area < area / 3
+question: "A trapezoid has parallel bases of length {b1} and {b2}, with height {h}. A triangular section with base {tri_base} and height {tri_height} is cut out from the trapezoid. Find the area of the remaining figure."
+answer: answer
+solution:
+  - "First find the area of the trapezoid using the formula A = h(b1 + b2)/2"
+  - "Area of trapezoid = {h} × ({b1} + {b2}) / 2 = {h} × {evaluate(b1 + b2, x, 0)} / 2 = {area}"
+  - "Next find the area of the triangular cutout"
+  - "Area of triangle = (1/2) × base × height = (1/2) × {tri_base} × {tri_height} = {tri_area}"
+  - "Area of remaining figure = {area} - {tri_area} = {answer}"

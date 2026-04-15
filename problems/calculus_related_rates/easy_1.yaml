@@ -1,0 +1,18 @@
+topic: calculus/related_rates
+difficulty: easy
+calculator: scientific
+variables:
+  rate: integer(2, 8)
+  time: integer(1, 5)
+  radius: rate * time
+  area_rate: 2 * 3.14159 * radius * rate
+  answer: round(area_rate, 1)
+question: "A circular oil spill is expanding with its radius increasing at {rate} meters per minute. Find the rate at which the area is increasing when the radius is {radius} meters."
+answer: answer
+solution:
+  - "Let r be the radius and A be the area of the circle"
+  - "We know A = πr² and dr/dt = {rate} m/min"
+  - "Differentiate both sides: dA/dt = 2πr(dr/dt)"
+  - "When r = {radius} meters:"
+  - "dA/dt = 2π({radius})({rate})"
+  - "dA/dt = {answer} square meters per minute"

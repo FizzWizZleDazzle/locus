@@ -1,0 +1,41 @@
+topic: multivariable_calculus/line_integrals
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  d: integer(1, 4)
+  F_x: a * x + b * y
+  F_y: c * x - d * y
+  t_start: 0
+  t_end: 1
+  x_t: 2 * t
+  y_t: 3 * t
+  dx_dt: derivative(x_t, t)
+  dy_dt: derivative(y_t, t)
+  F_x_param: evaluate(F_x, x, x_t)
+  F_y_param: evaluate(F_y, y, y_t)
+  F_x_param_eval: evaluate(F_x_param, y, y_t)
+  F_y_param_eval: evaluate(F_y_param, y, y_t)
+  integrand: F_x_param_eval * dx_dt + F_y_param_eval * dy_dt
+  integrand_expanded: expand(integrand)
+  integrand_simplified: simplify(integrand_expanded)
+  antiderivative: integral(integrand_simplified, t)
+  upper_bound: evaluate(antiderivative, t, t_end)
+  lower_bound: evaluate(antiderivative, t, t_start)
+  answer: upper_bound - lower_bound
+constraints:
+  - a != b
+  - c != d
+question: "Let F = {vec(F_x, F_y)} be a vector field. Compute the line integral of F along the curve C parameterized by r(t) = {vec(x_t, y_t)} for t from {t_start} to {t_end}."
+answer: answer
+solution:
+  - "The line integral is computed as the integral of F · dr along C"
+  - "First find the velocity vector: r'(t) = {vec(dx_dt, dy_dt)}"
+  - "Substitute the parameterization into F: F(r(t)) = {vec(F_x_param_eval, F_y_param_eval)}"
+  - "The integrand is F · r'(t) = {F_x_param_eval} · {dx_dt} + {F_y_param_eval} · {dy_dt}"
+  - "Expanding: F · r'(t) = {integrand_simplified}"
+  - "Integrate from {t_start} to {t_end}: {integral_of(integrand_simplified, t)} evaluated from {t_start} to {t_end}"
+  - "The antiderivative is {antiderivative}"
+  - "Evaluating at the bounds: {upper_bound} - {lower_bound} = {answer}"

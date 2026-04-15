@@ -1,0 +1,18 @@
+topic: arithmetic/ratios_proportions
+difficulty: easy
+calculator: none
+variables:
+  scale: integer(2, 5)
+  a: integer(2, 8)
+  b: a * scale
+  c: integer(3, 9)
+  answer: c * scale
+constraints:
+  - a != c
+question: "If {a} : {b} = {c} : x, find x."
+answer: answer
+solution:
+  - "Set up the proportion: {a}/{b} = {c}/x"
+  - "Cross multiply: {a} × x = {b} × {c}"
+  - "{a}x = {b} × {c} = {answer}"
+  - "Divide both sides by {a}: x = {answer}/{a} = {answer}"
