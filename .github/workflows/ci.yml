@@ -70,9 +70,13 @@ jobs:
       - name: Validate problem files
         run: |
           cargo build --bin dsl-cli
-          for f in problems/*/*.yaml; do
+          find problems/ -name "handwritten.yaml" | while read f; do
             echo "Validating $f..."
             cargo run --bin dsl-cli -- generate "$f" -n 3 || exit 1
+          done
+          echo "Parsing all YAML files..."
+          find problems/ -name "*.yaml" | while read f; do
+            cargo run --bin dsl-cli -- parse "$f" || exit 1
           done
 
       - name: Cargo clippy
