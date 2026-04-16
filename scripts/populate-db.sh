@@ -39,7 +39,7 @@ for i in "${!FILES[@]}"; do
 
     (
         start=$(date +%s)
-        "$BINARY" generate "$f" -n "$PER_FILE" 2>/dev/null | grep "^{" > "$outfile"
+        "$BINARY" generate "$f" --fast -n "$PER_FILE" 2>/dev/null | grep "^{" > "$outfile"
         count=$(wc -l < "$outfile")
         elapsed=$(( $(date +%s) - start ))
 

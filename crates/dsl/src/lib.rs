@@ -11,6 +11,7 @@ pub mod display;
 pub mod error;
 pub mod format;
 pub mod functions;
+pub mod gpu;
 pub mod latex;
 pub mod resolver;
 pub mod sampler;
@@ -28,10 +29,8 @@ pub fn parse(yaml: &str) -> Result<ProblemSpec, DslError> {
     spec::parse_yaml(yaml)
 }
 
-/// Generate a problem instance from a ProblemSpec.
-/// Samples random variables, evaluates expressions, checks constraints,
-/// renders LaTeX, validates answer, and returns a ready-to-insert Problem.
-pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
+/// Generate without validation. For batch generation of pre-validated YAMLs.
+pub fn generate_fast(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
     let vars = resolver::resolve(&spec.variables, &spec.constraints)?;
     let question_latex = template::render(&spec.question, &vars)?;
     let answer_key = answer::format(&vars, &spec.answer, spec.answer_type.as_deref())?;
@@ -43,7 +42,7 @@ pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
 
     let answer_type = answer::infer_type(&answer_key, spec.answer_type.as_deref());
 
-    let output = ProblemOutput {
+    Ok(ProblemOutput {
         question_latex,
         answer_key,
         solution_latex: solution_latex.unwrap_or_default(),
@@ -53,14 +52,17 @@ pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
         grading_mode: spec.mode.clone().unwrap_or_else(|| "equivalent".into()),
         answer_type,
         calculator_allowed: spec.calculator.clone().unwrap_or_else(|| "none".into()),
-        question_image: String::new(), // TODO: diagram rendering
+        question_image: String::new(),
         time_limit_seconds: spec.time,
-    };
+    })
+}
 
-    // Self-grade: answer_key must grade as Correct against itself
+/// Generate a problem with full validation (self-grade + KaTeX check).
+pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
+    let output = generate_fast(spec)?;
+
     validate::self_grade(&output)?;
 
-    // Format check: if spec has a format requirement, verify answer satisfies it
     if let Some(ref fmt) = spec.format {
         if !format::check_format(fmt, &output.answer_key)? {
             return Err(error::DslError::Evaluation(format!(
@@ -70,7 +72,6 @@ pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
         }
     }
 
-    // Validate LaTeX renders correctly
     validate::check_latex(&output.question_latex)?;
 
     Ok(output)
