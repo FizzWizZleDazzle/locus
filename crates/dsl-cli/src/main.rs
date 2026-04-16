@@ -126,14 +126,22 @@ fn cmd_generate(file: &PathBuf, count: usize) {
 
     let mut success = 0;
     let mut errors = 0;
+    let max_consecutive_errors = 5; // bail early if file is broken
+    let mut consecutive_errors = 0;
     for _ in 0..count {
         match locus_dsl::generate(&spec) {
             Ok(problem) => {
                 println!("{}", serde_json::to_string(&problem).unwrap());
                 success += 1;
+                consecutive_errors = 0;
             }
             Err(e) => {
-                eprintln!("Generation error: {e}");
+                eprintln!("Error: {e}");
+                consecutive_errors += 1;
+                if consecutive_errors >= max_consecutive_errors {
+                    eprintln!("Bailing after {max_consecutive_errors} consecutive errors");
+                    break;
+                }
                 errors += 1;
             }
         }

@@ -13,6 +13,9 @@ use crate::resolver::VarMap;
 /// - `{{var_name}}` → display mode (centered, `$$...$$`)
 /// - Plain text passes through unchanged
 pub fn render(template: &str, vars: &VarMap) -> Result<String, DslError> {
+    // Strip any $ or $$ delimiters from the template before processing refs.
+    // AI sometimes includes LaTeX delimiters despite being told not to.
+    let template = strip_dollar_signs(template);
     let mut result = String::with_capacity(template.len());
     // Work with byte offsets — safe as long as we check char boundaries
     let bytes = template.as_bytes();
@@ -95,6 +98,19 @@ fn render_ref(content: &str, vars: &VarMap) -> Result<String, DslError> {
         name: content.to_string(),
         field: "question/solution".to_string(),
     })
+}
+
+/// Strip `$` and `$$` delimiters from template text.
+/// AI sometimes wraps expressions in `$...$` or `$$...$$` despite being told not to.
+/// We only strip bare `$` signs that appear outside of `{...}` refs.
+fn strip_dollar_signs(s: &str) -> String {
+    // Replace $$ first, then $
+    let mut result = s.to_string();
+    // Remove standalone $$ that are not part of template refs
+    result = result.replace("$$", "");
+    // Remove standalone $ that are not part of template refs
+    result = result.replace('$', "");
+    result
 }
 
 /// Convert a SymEngine expression string to LaTeX

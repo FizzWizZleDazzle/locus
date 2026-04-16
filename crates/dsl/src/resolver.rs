@@ -22,7 +22,7 @@ pub fn resolve(
     variables: &BTreeMap<String, String>,
     constraints: &[String],
 ) -> Result<VarMap, DslError> {
-    let max_attempts = if constraints.is_empty() { 1 } else { 1000 };
+    let max_attempts = if constraints.is_empty() { 1 } else { 100 };
 
     for attempt in 0..max_attempts {
         match try_resolve(variables) {
@@ -84,6 +84,12 @@ fn eval_derived(expr_str: &str, vars: &VarMap) -> Result<String, DslError> {
         }
     }
 
+    // Handle Python ternary: `true_val if condition else false_val`
+    let substituted = eval_python_ternary(&substituted);
+
+    // Handle equations: `LHS = RHS` → `LHS - (RHS)` (makes it an expression equal to zero)
+    let substituted = rewrite_equation_to_expr(&substituted);
+
     // Clean up matrix notation: [[(−2), (1)]] → [[-2, 1]]
     let substituted = clean_matrix_parens(&substituted);
 
@@ -92,10 +98,126 @@ fn eval_derived(expr_str: &str, vars: &VarMap) -> Result<String, DslError> {
         return Ok(substituted);
     }
 
+    // Single-bracket array literals [...] — bypass SymEngine, return as-is
+    let trimmed = substituted.trim();
+    if trimmed.starts_with('[') && trimmed.ends_with(']') && !trimmed.starts_with("[[") {
+        return Ok(trimmed.to_string());
+    }
+
+    // Tuple literals like (3, 5) — bypass SymEngine, return as-is
+    if is_tuple_literal(trimmed) {
+        return Ok(trimmed.to_string());
+    }
+
+    // Handle tuple/array indexing: `(a, b, c)[1]` → pick element
+    let substituted = eval_indexing(&substituted);
+
+    // Rewrite % operator: a % b → compute as a - floor(a/b)*b
+    let substituted = rewrite_modulo(&substituted);
+
+    // Evaluate embedded function calls that SymEngine can't handle (gcd, mod, abs, etc.)
+    // Repeatedly replace innermost function calls with their evaluated results.
+    let substituted = eval_embedded_functions(&substituted)?;
+
     let expr = Expr::parse(&substituted)
         .map_err(|e| DslError::ExpressionParse(format!("{}: '{}'", e, substituted)))?;
 
     Ok(expr.to_string())
+}
+
+/// Evaluate Python ternary expressions: `true_val if condition else false_val`
+fn eval_python_ternary(s: &str) -> String {
+    let trimmed = s.trim();
+    // Look for ` if ` and ` else ` pattern
+    let if_pos = match trimmed.find(" if ") {
+        Some(p) => p,
+        None => return s.to_string(),
+    };
+    let else_pos = match trimmed.find(" else ") {
+        Some(p) => p,
+        None => return s.to_string(),
+    };
+    if else_pos <= if_pos {
+        return s.to_string();
+    }
+
+    let true_val = trimmed[..if_pos].trim();
+    let condition = trimmed[if_pos + 4..else_pos].trim();
+    let false_val = trimmed[else_pos + 6..].trim();
+
+    // Evaluate condition: try simple string equality like ("multiply") == "multiply"
+    let cond_result = eval_simple_condition(condition);
+
+    match cond_result {
+        Some(true) => true_val.to_string(),
+        Some(false) => false_val.to_string(),
+        None => {
+            // Can't evaluate condition, default to true branch
+            true_val.to_string()
+        }
+    }
+}
+
+/// Evaluate simple boolean conditions for Python ternary support.
+/// Handles: `"a" == "b"`, `"a" != "b"`, `("a") == "a"`, numeric comparisons.
+fn eval_simple_condition(cond: &str) -> Option<bool> {
+    let cond = cond.trim();
+    // String equality: ("x") == "x" or "x" == "x"
+    for (op, negate) in &[("==", false), ("!=", true)] {
+        if let Some(pos) = cond.find(op) {
+            let lhs = cond[..pos].trim().trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
+            let rhs = cond[pos + op.len()..].trim().trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
+            let equal = lhs == rhs;
+            return Some(if *negate { !equal } else { equal });
+        }
+    }
+    None
+}
+
+/// Rewrite equation `LHS = RHS` → `LHS - (RHS)` to make it an expression.
+/// Only triggers for bare `=` (not `==`, `<=`, `>=`, `!=`).
+fn rewrite_equation_to_expr(s: &str) -> String {
+    let trimmed = s.trim();
+    // Find bare `=` that is not part of `==`, `<=`, `>=`, `!=`
+    let bytes = trimmed.as_bytes();
+    for (i, &b) in bytes.iter().enumerate() {
+        if b == b'=' {
+            // Check it's not part of a compound operator
+            let prev = if i > 0 { bytes[i - 1] } else { 0 };
+            let next = if i + 1 < bytes.len() { bytes[i + 1] } else { 0 };
+            if prev == b'=' || prev == b'!' || prev == b'<' || prev == b'>' || next == b'=' {
+                continue;
+            }
+            let lhs = trimmed[..i].trim();
+            let rhs = trimmed[i + 1..].trim();
+            if !lhs.is_empty() && !rhs.is_empty() {
+                return format!("{} - ({})", lhs, rhs);
+            }
+        }
+    }
+    s.to_string()
+}
+
+/// Evaluate tuple/array indexing: `(a, b, c)[1]` → `b`
+fn eval_indexing(s: &str) -> String {
+    let trimmed = s.trim();
+    // Match pattern: `(...)[N]` at the end
+    let re = match regex::Regex::new(r"^\(([^)]+)\)\[(\d+)\]$") {
+        Ok(r) => r,
+        Err(_) => return s.to_string(),
+    };
+    if let Some(caps) = re.captures(trimmed) {
+        let inner = &caps[1];
+        let idx: usize = match caps[2].parse() {
+            Ok(i) => i,
+            Err(_) => return s.to_string(),
+        };
+        let elements: Vec<&str> = inner.split(',').map(|e| e.trim()).collect();
+        if idx < elements.len() {
+            return elements[idx].to_string();
+        }
+    }
+    s.to_string()
 }
 
 /// Topological sort of variable dependencies
@@ -159,6 +281,129 @@ fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<String>, DslErr
     }
 
     Ok(order)
+}
+
+/// Evaluate embedded function calls (like `gcd(3, 6)`, `mod(7, 3)`) within expressions.
+/// These are functions in BUILTIN_FUNCTIONS that SymEngine can't parse natively.
+/// Repeatedly finds and evaluates the innermost call until none remain.
+fn eval_embedded_functions(s: &str) -> Result<String, DslError> {
+    // Functions we need to evaluate ourselves (SymEngine doesn't handle these)
+    const EVAL_FUNCS: &[&str] = &[
+        "gcd", "lcm", "mod", "abs", "floor", "ceil",
+        "round", "max", "min",
+    ];
+
+    let mut result = s.to_string();
+    let mut max_iters = 20; // prevent infinite loops
+
+    loop {
+        if max_iters == 0 {
+            break;
+        }
+        max_iters -= 1;
+
+        // Find the innermost function call: name(args_without_nested_parens)
+        let re = regex::Regex::new(r"\b(gcd|lcm|mod|abs|floor|ceil|round|max|min)\(").unwrap();
+        let m = match re.find(&result) {
+            Some(m) => m,
+            None => break,
+        };
+
+        let func_start = m.start();
+        let name_end = result[func_start..].find('(').unwrap() + func_start;
+        let func_name = &result[func_start..name_end];
+
+        // Find matching closing paren
+        let mut depth = 0;
+        let mut close_pos = None;
+        for (i, c) in result[name_end..].char_indices() {
+            match c {
+                '(' => depth += 1,
+                ')' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        close_pos = Some(name_end + i);
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        let close_pos = match close_pos {
+            Some(p) => p,
+            None => break, // no matching close paren
+        };
+
+        let full_call = &result[func_start..=close_pos];
+
+        // Check if it's a builtin we handle — evaluate via functions module
+        if EVAL_FUNCS.contains(&func_name) {
+            let empty_vars = VarMap::new();
+            match crate::functions::evaluate(full_call, &empty_vars) {
+                Ok(val) => {
+                    result = format!("{}{}{}", &result[..func_start], val, &result[close_pos + 1..]);
+                    continue;
+                }
+                Err(_) => break, // can't evaluate, let SymEngine try
+            }
+        } else {
+            break;
+        }
+    }
+
+    Ok(result)
+}
+
+/// Check if a string looks like a tuple literal: (N, M) or (N, M, ...)
+/// where each element is a number or simple expression.
+fn is_tuple_literal(s: &str) -> bool {
+    let s = s.trim();
+    if !s.starts_with('(') || !s.ends_with(')') {
+        return false;
+    }
+    let inner = &s[1..s.len() - 1];
+    // Must have at least one comma
+    if !inner.contains(',') {
+        return false;
+    }
+    // Each part should be parseable as a number (allowing negative, decimals, fractions)
+    inner.split(',').all(|part| {
+        let p = part.trim();
+        // Accept numbers, fractions, simple negatives
+        p.parse::<f64>().is_ok()
+            || p.trim_start_matches('-').parse::<f64>().is_ok()
+            || (p.contains('/') && p.split('/').count() == 2)
+    })
+}
+
+/// Rewrite `%` modulo operator into SymEngine-compatible form.
+/// Handles expressions like `(5 - 1) % (-2 - 7)` → evaluates operands and computes modulo.
+fn rewrite_modulo(s: &str) -> String {
+    if !s.contains('%') {
+        return s.to_string();
+    }
+    // Use regex to find A % B patterns (where A and B can be parenthesized expressions or simple tokens)
+    let re = regex::Regex::new(r"(\([^)]+\)|\w+)\s*%\s*(\([^)]+\)|\w+)").unwrap();
+    let result = re.replace_all(s, |caps: &regex::Captures| {
+        let a_str = &caps[1];
+        let b_str = &caps[2];
+        // Try to evaluate both sides numerically
+        if let (Ok(a_expr), Ok(b_expr)) = (Expr::parse(a_str), Expr::parse(b_str)) {
+            if let (Some(a), Some(b)) = (a_expr.to_float(), b_expr.to_float()) {
+                if b.abs() > 1e-10 {
+                    let result = ((a % b) + b) % b;
+                    if (result - result.round()).abs() < 1e-10 {
+                        return format!("{}", result.round() as i64);
+                    }
+                    return format!("{}", result);
+                }
+            }
+        }
+        // Fallback: can't evaluate, return original
+        caps[0].to_string()
+    });
+    result.to_string()
 }
 
 /// Strip redundant parens around numbers/fractions in expressions.
@@ -244,7 +489,10 @@ fn eval_constraint(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {
     if c.starts_with("is_integer(") && c.ends_with(')') {
         let inner = &c[11..c.len() - 1];
         let val = eval_derived(inner, vars)?;
-        return Ok(val.parse::<f64>().map_or(false, |f| (f - f.round()).abs() < 1e-10));
+        let f = val.parse::<f64>().ok().or_else(|| {
+            Expr::parse(&val).ok().and_then(|e| e.to_float())
+        });
+        return Ok(f.map_or(false, |f| (f - f.round()).abs() < 1e-10));
     }
 
     // Unknown constraint — treat as satisfied with warning

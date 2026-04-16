@@ -37,7 +37,7 @@ pub fn render_display_func(
         .collect();
 
     match name {
-        "derivative_of" => df_derivative_of(&resolved),
+        "derivative_of" | "derivative" => df_derivative_of(&resolved),
         "nth_derivative_of" => df_nth_derivative_of(&resolved),
         "partial_of" => df_partial_of(&resolved),
         "integral_of" => df_integral_of(&resolved),
@@ -51,10 +51,30 @@ pub fn render_display_func(
         "det_of" => df_det_of(&resolved),
         "vec" => df_vec(&resolved),
         "norm" => df_norm(&resolved),
-        "abs_of" => df_abs_of(&resolved),
+        "abs_of" | "abs" => df_abs_of(&resolved),
         "set_of" => df_set_of(&resolved),
         "display" => df_display(&resolved),
         "binomial" => df_binomial(&resolved),
+        // Aliases for common AI-generated display function names
+        "evaluate" => df_evaluate(&resolved),
+        "sqrt" => df_func_notation(r"\sqrt", &resolved),
+        "simplify" => df_evaluate(&resolved),
+        "round" => df_evaluate(&resolved),
+        "log" => df_func_notation(r"\log", &resolved),
+        "ln" => df_func_notation(r"\ln", &resolved),
+        "sin" => df_func_notation(r"\sin", &resolved),
+        "cos" => df_func_notation(r"\cos", &resolved),
+        "tan" => df_func_notation(r"\tan", &resolved),
+        "asin" => df_func_notation(r"\arcsin", &resolved),
+        "acos" => df_func_notation(r"\arccos", &resolved),
+        "atan" => df_func_notation(r"\arctan", &resolved),
+        "floor" => df_floor_ceil(r"\lfloor", r"\rfloor", &resolved),
+        "ceil" => df_floor_ceil(r"\lceil", r"\rceil", &resolved),
+        "exp" => df_func_notation(r"\exp", &resolved),
+        "mod" => df_mod(&resolved),
+        "expand" => df_evaluate(&resolved),
+        "sqrt_of" => df_func_notation(r"\sqrt", &resolved),
+        "eval" => df_evaluate(&resolved),
         _ => Err(DslError::TemplateDisplayFn {
             name: name.to_string(),
             field: "question/solution".to_string(),
@@ -121,8 +141,15 @@ fn df_product_of(args: &[String]) -> Result<String, DslError> {
 }
 
 fn df_equation(args: &[String]) -> Result<String, DslError> {
-    check_arity("equation", args, 2)?;
-    Ok(format!("{} = {}", args[0], args[1]))
+    if args.len() < 2 {
+        return Err(DslError::FunctionArity {
+            name: "equation".into(),
+            expected: 2,
+            got: args.len(),
+        });
+    }
+    // Join all args with " = " for multi-part equations like equation(a, b, c)
+    Ok(args.join(" = "))
 }
 
 fn df_system(args: &[String]) -> Result<String, DslError> {
@@ -201,6 +228,60 @@ fn df_display(args: &[String]) -> Result<String, DslError> {
 fn df_binomial(args: &[String]) -> Result<String, DslError> {
     check_arity("binomial", args, 2)?;
     Ok(format!(r"\binom{{{}}}{{{}}}", args[0], args[1]))
+}
+
+/// Display evaluate: substitute and render the result.
+/// Accepts `evaluate(expr, var, val)` or `evaluate(expr, var1, val1, var2, val2, ...)`
+/// For display purposes, just render the first arg (the expression) as LaTeX.
+fn df_evaluate(args: &[String]) -> Result<String, DslError> {
+    if args.is_empty() {
+        return Err(DslError::TemplateDisplayFn {
+            name: "evaluate".into(),
+            field: "requires at least 1 arg".into(),
+        });
+    }
+    // Render the expression (first arg) as LaTeX
+    Ok(args[0].clone())
+}
+
+/// Display a math function in LaTeX notation: \func{arg} or \func(arg1, arg2)
+fn df_func_notation(latex_cmd: &str, args: &[String]) -> Result<String, DslError> {
+    if args.is_empty() {
+        return Err(DslError::TemplateDisplayFn {
+            name: latex_cmd.into(),
+            field: "requires at least 1 arg".into(),
+        });
+    }
+    if latex_cmd == r"\sqrt" {
+        // sqrt uses \sqrt{...} notation
+        Ok(format!(r"{}{{{}}}", latex_cmd, args[0]))
+    } else if args.len() == 1 {
+        Ok(format!(r"{}\left({}\right)", latex_cmd, args[0]))
+    } else {
+        // e.g. log(x, base) → \log_{base}(x)
+        if latex_cmd == r"\log" && args.len() == 2 {
+            Ok(format!(r"\log_{{{}}}\left({}\right)", args[1], args[0]))
+        } else {
+            let joined = args.join(", ");
+            Ok(format!(r"{}\left({}\right)", latex_cmd, joined))
+        }
+    }
+}
+
+/// Display floor/ceil with bracket notation: ⌊x⌋ or ⌈x⌉
+fn df_floor_ceil(open: &str, close: &str, args: &[String]) -> Result<String, DslError> {
+    if args.len() != 1 {
+        return Err(DslError::TemplateDisplayFn {
+            name: "floor/ceil".into(),
+            field: "requires 1 arg".into(),
+        });
+    }
+    Ok(format!("{} {} {}", open, args[0], close))
+}
+
+fn df_mod(args: &[String]) -> Result<String, DslError> {
+    check_arity("mod", args, 2)?;
+    Ok(format!(r"{} \bmod {}", args[0], args[1]))
 }
 
 fn check_arity(name: &str, args: &[String], expected: usize) -> Result<(), DslError> {
