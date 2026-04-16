@@ -2,43 +2,32 @@ topic: differential_equations/systems_of_odes
 difficulty: competition
 calculator: none
 variables:
-  a: integer(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: integer(-4, 4)
-  A: matrix(2, 2, -4, 4)
-  det: a*d - b*c
-  trace: a + d
-  discriminant: trace^2 - 4*det
-  sqrt_disc: sqrt(discriminant)
-  lambda1: (trace + sqrt_disc)/2
-  lambda2: (trace - sqrt_disc)/2
-  k1: integer(1, 3)
-  k2: integer(1, 3)
-  c1: k1
-  c2: k2
-  x_sol: c1 * exp(lambda1 * t) + c2 * exp(lambda2 * t)
-  y_expr: (lambda1 - a)/b
-  y_sol: c1 * y_expr * exp(lambda1 * t) + c2 * ((lambda2 - a)/b) * exp(lambda2 * t)
-  init_x: k1 + k2
-  init_y_coef1: y_expr
-  init_y_coef2: (lambda2 - a)/b
-  init_y: k1 * init_y_coef1 + k2 * init_y_coef2
+  lambda1: choice(-3, -2, -1, 1, 2, 3)
+  lambda2: choice(-3, -2, -1, 1, 2, 3)
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  c: a*lambda1 + b*lambda2
+  d: a*lambda1^2 + b*lambda2^2
+  char_poly: r^2 + c*r - d
+  eigenvalues: solve(char_poly, r)
+  x0: integer(1, 5)
+  y0: integer(1, 5)
+  A: (y0 - lambda2*x0)/(lambda1 - lambda2)
+  B: (lambda1*x0 - y0)/(lambda1 - lambda2)
+  answer: A, B
 constraints:
-  - det > 0
-  - discriminant == 9 or discriminant == 16 or discriminant == 25
-  - b != 0
-question: "Consider the system {system(derivative_of(x, t) = a*x + b*y, derivative_of(y, t) = c*x + d*y)}. Given initial conditions x(0) = {init_x} and y(0) = {init_y}, find the solution x(t)."
-answer: x_sol
+  - lambda1 != lambda2
+  - lambda1 < lambda2
+question: "Consider the system {system(derivative(x, t) = y, derivative(y, t) = d*x - c*y)}. Given initial conditions x(0) = {x0} and y(0) = {y0}, find the constants A and B in the general solution x(t) = A*e^({lambda1}*t) + B*e^({lambda2}*t)."
+answer: answer
+answer_type: tuple
 solution:
-  - "The system matrix is A = {matrix_of(A)}"
-  - "Find eigenvalues: {det_of(A - lambda*I)} = 0"
-  - "This gives λ² - {trace}λ + {det} = 0"
-  - "Using the quadratic formula: λ = {lambda1}, {lambda2}"
-  - "For λ₁ = {lambda1}, eigenvector v₁ has y/x = {y_expr}"
-  - "For λ₂ = {lambda2}, eigenvector v₂ has y/x = {init_y_coef2}"
-  - "General solution: x(t) = c₁e^({lambda1}t) + c₂e^({lambda2}t)"
-  - "From x(0) = {init_x}: c₁ + c₂ = {init_x}"
-  - "From y(0) = {init_y}: {y_expr}c₁ + {init_y_coef2}c₂ = {init_y}"
-  - "Solving: c₁ = {c1}, c₂ = {c2}"
-  - "Therefore x(t) = {x_sol}"
+  - "Convert to matrix form: X' = [[0, 1], [{d}, -{c}]] * X where X = [x, y]^T"
+  - "Find eigenvalues by solving det([[0, 1], [{d}, -{c}]] - rI) = 0"
+  - "This gives characteristic equation: {equation(char_poly, 0)}"
+  - "Eigenvalues are r = {lambda1} and r = {lambda2}"
+  - "General solution: x(t) = A*e^({lambda1}*t) + B*e^({lambda2}*t)"
+  - "Apply x(0) = {x0}: A + B = {x0}"
+  - "For y(t), we have y(t) = x'(t) = {lambda1}*A*e^({lambda1}*t) + {lambda2}*B*e^({lambda2}*t)"
+  - "Apply y(0) = {y0}: {lambda1}*A + {lambda2}*B = {y0}"
+  - "Solving the system: A = {A}, B = {B}"

@@ -4,29 +4,33 @@ calculator: none
 variables:
   a1: integer(-3, 3)
   a2: integer(-3, 3)
+  a3: integer(-3, 3)
   b1: integer(-3, 3)
   b2: integer(-3, 3)
+  b3: integer(-3, 3)
   c1: integer(-3, 3)
   c2: integer(-3, 3)
-  dot_ab: a1*b1 + a2*b2
-  dot_bc: b1*c1 + b2*c2
-  dot_ac: a1*c1 + a2*c2
-  mag_a_sq: a1^2 + a2^2
-  mag_b_sq: b1^2 + b2^2
-  mag_c_sq: c1^2 + c2^2
-  k: integer(2, 4)
-  proj_scalar: k*mag_b_sq
-  answer: proj_scalar
+  c3: integer(-3, 3)
+  dot_ab: a1*b1 + a2*b2 + a3*b3
+  dot_bc: b1*c1 + b2*c2 + b3*c3
+  dot_ac: a1*c1 + a2*c2 + a3*c3
+  cross_b1: a2*c3 - a3*c2
+  cross_b2: a3*c1 - a1*c3
+  cross_b3: a1*c2 - a2*c1
+  triple: b1*cross_b1 + b2*cross_b2 + b3*cross_b3
+  mag_cross_sq: cross_b1^2 + cross_b2^2 + cross_b3^2
+  mag_b_sq: b1^2 + b2^2 + b3^2
+  answer: triple^2 + mag_cross_sq * mag_b_sq
 constraints:
-  - mag_b_sq > 0
-  - dot_ab == k*mag_b_sq
-question: "Vectors a = ({a1}, {a2}), b = ({b1}, {b2}), and c = ({c1}, {c2}) form a triangle. If the projection of a onto b equals {k} times the length of b, find the value of {k} · |b|²."
+  - dot_ab == 0
+  - dot_bc == 0
+question: "Given three mutually orthogonal vectors a = ({a1}, {a2}, {a3}), b = ({b1}, {b2}, {b3}), and c = ({c1}, {c2}, {c3}), compute |a × c|² · |b|² + (b · (a × c))²"
 answer: answer
 answer_type: numeric
 solution:
-  - "The projection of a onto b is (a·b)/|b|"
-  - "Given: projection = {k}|b|, so (a·b)/|b| = {k}|b|"
-  - "Therefore a·b = {k}|b|²"
-  - "Calculate a·b = {a1}·{b1} + {a2}·{b2} = {dot_ab}"
-  - "Calculate |b|² = {b1}² + {b2}² = {mag_b_sq}"
-  - "So {k}|b|² = {k}·{mag_b_sq} = {answer}"
+  - "First verify orthogonality: a · b = {dot_ab}, b · c = {dot_bc}"
+  - "Calculate a × c = ({cross_b1}, {cross_b2}, {cross_b3})"
+  - "Find b · (a × c) = {triple} (scalar triple product)"
+  - "Calculate |a × c|² = {mag_cross_sq}"
+  - "Calculate |b|² = {mag_b_sq}"
+  - "By Lagrange's identity for orthogonal vectors: |a × c|² · |b|² + (b · (a × c))² = {answer}"

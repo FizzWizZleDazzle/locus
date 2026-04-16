@@ -2,23 +2,22 @@ topic: arithmetic/percentages
 difficulty: very_hard
 calculator: none
 variables:
-  original: integer(40, 80)
-  first_increase: integer(15, 35)
-  second_decrease: integer(10, 25)
-  after_first: original * (100 + first_increase) / 100
-  final: after_first * (100 - second_decrease) / 100
-  net_change: final - original
-  net_percent: 100 * net_change / original
-  answer: round(net_percent, 1)
+  final_price: choice(84, 108, 126, 144, 162, 189, 216)
+  discount1: choice(20, 25, 30, 40)
+  discount2: choice(10, 15, 20, 25)
+  after_first: final_price * 100 / (100 - discount2)
+  original: after_first * 100 / (100 - discount1)
+  total_discount: original - final_price
+  total_percent: round(total_discount * 100 / original, 1)
+  answer: original
 constraints:
-  - first_increase % 5 == 0
-  - second_decrease % 5 == 0
-  - original % 10 == 0
-question: "A store raises the price of an item by {first_increase}%, then later reduces the new price by {second_decrease}%. If the original price was ${original}, what is the net percentage change from the original price?"
+  - discount1 > discount2
+question: "A store applies two successive discounts to an item. After a {discount1}% discount followed by a {discount2}% discount, the final price is ${final_price}. What was the original price?"
 answer: answer
 solution:
-  - "Original price: ${original}"
-  - "After {first_increase}% increase: ${original} × {100 + first_increase}/100 = ${after_first}"
-  - "After {second_decrease}% decrease: ${after_first} × {100 - second_decrease}/100 = ${final}"
-  - "Net change: ${final} - ${original} = ${net_change}"
-  - "Net percentage change: {net_change}/{original} × 100% = {answer}%"
+  - "Let the original price be P"
+  - "After {discount1}% discount: P × (100 - {discount1})/100"
+  - "After {discount2}% discount on that: P × (100 - {discount1})/100 × (100 - {discount2})/100 = {final_price}"
+  - "P × ({100 - discount1} × {100 - discount2})/10000 = {final_price}"
+  - "P = {final_price} × 10000/({100 - discount1} × {100 - discount2})"
+  - "P = ${answer}"
