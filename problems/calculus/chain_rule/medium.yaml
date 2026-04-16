@@ -1,0 +1,23 @@
+topic: calculus/chain_rule
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(2, 5)
+  c: nonzero(-6, 6)
+  inner: a * x + b
+  outer_exp: integer(2, 4)
+  f: (inner)^outer_exp
+  f_expanded: expand(f)
+  answer: derivative(f, x)
+constraints:
+  - a != -1
+  - a != 1
+question: "Find {derivative_of(f_expanded, x)}"
+answer: answer
+solution:
+  - "Recognize that {f_expanded} = {equation(inner, u)}^{outer_exp} where u = {inner}"
+  - "Using the chain rule: {derivative_of(f, x)} = {outer_exp} * {equation(inner, u)}^{outer_exp - 1} * {derivative_of(inner, x)}"
+  - "The derivative of {inner} with respect to x is {a}"
+  - "Therefore: {derivative_of(f, x)} = {outer_exp} * {equation(inner, u)}^{outer_exp - 1} * {a}"
+  - "Simplifying: {derivative_of(f, x)} = {answer}"

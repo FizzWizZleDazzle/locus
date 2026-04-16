@@ -1,0 +1,23 @@
+topic: multivariable_calculus/gradient
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  c: integer(-3, 3)
+  f: a*x^2 + b*y^2 + c*x*y
+  df_dx: derivative(f, x)
+  df_dy: derivative(f, y)
+  x0: integer(-2, 2)
+  y0: integer(-2, 2)
+  grad_x: evaluate(df_dx, x, x0, y, y0)
+  grad_y: evaluate(df_dy, x, x0, y, y0)
+constraints:
+  - a != b
+question: "Find the gradient of f(x,y) = {f} at the point ({x0}, {y0})."
+answer: grad_x, grad_y
+solution:
+  - "The gradient is ∇f = ({derivative_of(f, x)}, {derivative_of(f, y)})"
+  - "First partial: {derivative_of(f, x)} = {df_dx}"
+  - "Second partial: {derivative_of(f, y)} = {df_dy}"
+  - "At ({x0}, {y0}): ∇f = ({grad_x}, {grad_y})"

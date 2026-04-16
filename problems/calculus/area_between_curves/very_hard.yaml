@@ -1,0 +1,36 @@
+topic: calculus/area_between_curves
+difficulty: very_hard
+calculator: graphing
+variables:
+  # Design curves that intersect at integer points
+  a: integer(2, 4)
+  b: integer(1, 3)
+  # First curve: parabola opening down from vertex
+  f: a * (4 - x^2)
+  # Second curve: cubic with known roots at -2, 0, 2
+  g: b * x * (x - 2) * (x + 2)
+  # Expand g for display
+  g_expanded: expand(g)
+  # Find intersection points
+  intersections: solve(f - g, x)
+  # The curves intersect at x = -2, 0, 2 by construction
+  x1: -2
+  x2: 0
+  x3: 2
+  # Split into two regions where f > g
+  area1: integral(f - g, x, x1, x2)
+  area2: integral(f - g, x, x2, x3)
+  # Total area between curves
+  answer: area1 + area2
+constraints:
+  - a > b  # Ensures f > g in the middle region
+question: "Find the total area between the curves {equation(f(x), f)} and {equation(g(x), g_expanded)} over the interval where they intersect."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g_expanded)}"
+  - "This gives x = -2, 0, 2"
+  - "Between x = -2 and x = 0, we have f(x) > g(x)"
+  - "Area 1 = {definite_integral_of(f - g, x, -2, 0)} = {area1}"
+  - "Between x = 0 and x = 2, we have f(x) > g(x)"
+  - "Area 2 = {definite_integral_of(f - g, x, 0, 2)} = {area2}"
+  - "Total area = {area1} + {area2} = {answer}"

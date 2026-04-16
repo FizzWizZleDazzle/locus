@@ -1,0 +1,38 @@
+topic: arithmetic/fractions
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 9)
+  b: integer(2, 9)
+  c: integer(2, 9)
+  d: integer(2, 9)
+  e: integer(2, 9)
+  f: integer(2, 9)
+  first_num: a*d - b*c
+  first_den: b*d
+  second_num: first_num*f
+  second_den: first_den*e
+  third_num: c*f
+  third_den: d*e
+  final_num: second_num + third_num
+  final_den: second_den
+  gcd_val: gcd(final_num, final_den)
+  answer_num: final_num/gcd_val
+  answer_den: final_den/gcd_val
+  answer: answer_num/answer_den
+constraints:
+  - gcd(a, b) == 1
+  - gcd(c, d) == 1
+  - gcd(e, f) == 1
+question: "Simplify: ({a}/{b} - {c}/{d}) × {e}/{f} + {c}/{d}"
+answer: answer
+solution:
+  - "First, compute {a}/{b} - {c}/{d}"
+  - "Common denominator: {b} × {d} = {first_den}"
+  - "{a}/{b} - {c}/{d} = ({a}×{d} - {b}×{c})/{first_den} = {first_num}/{first_den}"
+  - "Next, multiply by {e}/{f}: {first_num}/{first_den} × {e}/{f} = {second_num}/{second_den}"
+  - "Now add {c}/{d}. Common denominator: {second_den}"
+  - "{c}/{d} = {third_num}/{third_den}"
+  - "{second_num}/{second_den} + {third_num}/{second_den} = {final_num}/{second_den}"
+  - "Simplify by dividing by GCD({final_num}, {final_den}) = {gcd_val}"
+  - "Final answer: {answer}"

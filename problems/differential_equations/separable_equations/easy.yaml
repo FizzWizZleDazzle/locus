@@ -1,0 +1,25 @@
+topic: differential_equations/separable_equations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 4)
+  c: integer(1, 3)
+  initial_x: 0
+  initial_y: c
+  f: a * y
+  g: b
+  general: c * exp(a * x / b)
+  answer: general
+constraints:
+  - gcd(a, b) == 1
+question: "Solve the differential equation {equation(derivative_of(y, x), a * y / b)} with initial condition y(0) = {c}."
+answer: answer
+solution:
+  - "Separate variables: {equation(dy / y, a * dx / b)}"
+  - "Integrate both sides: {equation(integral_of(1/y, y), integral_of(a/b, x))}"
+  - "This gives: {equation(ln(abs(y)), a*x/b + C)}"
+  - "Exponentiate: {equation(y, K * exp(a*x/b))} where K = e^C"
+  - "Apply initial condition y(0) = {c}: {equation(c, K * exp(0))}"
+  - "So K = {c}"
+  - "Therefore: {equation(y, answer)}"

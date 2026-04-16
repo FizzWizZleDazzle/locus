@@ -1,0 +1,23 @@
+topic: algebra1/factoring_trinomials
+difficulty: medium
+calculator: none
+variables:
+  p: integer(-6, 6)
+  q: integer(-6, 6)
+  f: (x + p) * (x + q)
+  expanded: expand(f)
+  a: 1
+  b: p + q
+  c: p * q
+  answer: f
+constraints:
+  - p != q
+  - p != 0
+  - q != 0
+question: "Factor the trinomial {expanded} completely."
+answer: answer
+solution:
+  - "We need to factor {expanded} where a = {a}, b = {b}, c = {c}"
+  - "Find two numbers that multiply to {c} and add to {b}"
+  - "These numbers are {p} and {q} since {p} × {q} = {c} and {p} + {q} = {b}"
+  - "Therefore {expanded} = {answer}"

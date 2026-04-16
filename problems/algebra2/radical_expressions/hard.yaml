@@ -1,0 +1,29 @@
+topic: algebra2/radical_expressions
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  d: integer(2, 5)
+  perfect1: a^2
+  perfect2: b^2
+  perfect3: c^2
+  perfect4: d^2
+  expr1: sqrt(perfect1 * perfect3) + sqrt(perfect2 * perfect3) - sqrt(perfect1 * perfect4)
+  factor_out: sqrt(perfect3) * (a + b) - a * sqrt(perfect4)
+  simplified_inner: a + b
+  answer: sqrt(perfect3) * simplified_inner - a * sqrt(perfect4)
+constraints:
+  - a != b
+  - c != d
+  - perfect3 != perfect4
+question: "Simplify the expression {expr1}"
+answer: answer
+solution:
+  - "Start with {expr1}"
+  - "Recognize that {sqrt(perfect1 * perfect3)} = {sqrt(perfect1)} · {sqrt(perfect3)} = {a}{sqrt(perfect3)}"
+  - "Similarly, {sqrt(perfect2 * perfect3)} = {b}{sqrt(perfect3)} and {sqrt(perfect1 * perfect4)} = {a}{sqrt(perfect4)}"
+  - "So we have {a}{sqrt(perfect3)} + {b}{sqrt(perfect3)} - {a}{sqrt(perfect4)}"
+  - "Factor out {sqrt(perfect3)} from the first two terms: {sqrt(perfect3)}({a} + {b}) - {a}{sqrt(perfect4)}"
+  - "This gives us {answer}"

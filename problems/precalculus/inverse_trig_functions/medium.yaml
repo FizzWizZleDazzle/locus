@@ -1,0 +1,17 @@
+topic: precalculus/inverse_trig_functions
+difficulty: medium
+calculator: scientific
+variables:
+  angle_deg: choice(30, 45, 60, 120, 135, 150)
+  angle_rad: angle_deg * pi / 180
+  sine_val: sin(angle_rad)
+  simplified_sine: simplify(sine_val)
+  answer: angle_deg
+constraints:
+  - angle_deg <= 90 or angle_deg >= 90
+question: "Find the value of {equation(arcsin(simplified_sine), theta)} in degrees, where {equation(0, theta)} ≤ {equation(theta, 180)}."
+answer: answer
+solution:
+  - "We need to find {equation(theta, arcsin(simplified_sine))}"
+  - "Since {equation(sin(angle_deg), simplified_sine)}, and {angle_deg}° is in the range [0°, 180°]"
+  - "Therefore {equation(arcsin(simplified_sine), angle_deg)}°"

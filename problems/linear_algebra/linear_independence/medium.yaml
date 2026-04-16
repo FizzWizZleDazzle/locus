@@ -1,0 +1,33 @@
+topic: linear_algebra/linear_independence
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: nonzero(-5, 5)
+  v1_1: 1
+  v1_2: 0
+  v1_3: a
+  v2_1: 0
+  v2_2: 1
+  v2_3: b
+  v3_1: c
+  v3_2: c
+  v3_3: a*c + b*c
+  v1: "[v1_1, v1_2, v1_3]"
+  v2: "[v2_1, v2_2, v2_3]"
+  v3: "[v3_1, v3_2, v3_3]"
+  sum_v1_v2: "[1, 1, a + b]"
+  answer: c
+constraints:
+  - a != b
+question: "Consider the vectors {vec(v1)}, {vec(v2)}, and {vec(v3)}. These vectors are linearly dependent. Find the value of the scalar k such that {vec(v3)} = k({vec(v1)} + {vec(v2)})."
+answer: answer
+solution:
+  - "For linear dependence, we need {vec(v3)} = k{vec(v1)} + m{vec(v2)} for some scalars k, m."
+  - "Let's check if {vec(v3)} = k({vec(v1)} + {vec(v2)}) for some k."
+  - "{vec(v1)} + {vec(v2)} = {vec(v1)} + {vec(v2)} = {vec(sum_v1_v2)}"
+  - "We need {vec(v3)} = k{vec(sum_v1_v2)}"
+  - "From the first component: {v3_1} = k(1), so k = {c}"
+  - "Verify: k({vec(v1)} + {vec(v2)}) = {c}{vec(sum_v1_v2)} = {vec(v3)} ✓"
+  - "Therefore k = {answer}"

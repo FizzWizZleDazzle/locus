@@ -1,0 +1,48 @@
+topic: differential_equations/undetermined_coefficients
+difficulty: very_hard
+calculator: none
+variables:
+  # Design backward: pick roots of characteristic equation first
+  r1: integer(-3, -1)
+  r2: integer(1, 3)
+  # Build characteristic polynomial from roots
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  # Extract coefficients for the DE: y'' + py' + qy = 0
+  p: -(r1 + r2)
+  q: r1 * r2
+  # Design forcing term to create resonance (very hard aspect)
+  # Use exponential that matches one characteristic root
+  alpha: r1
+  beta: nonzero(-4, 4)
+  forcing: beta * exp(alpha * x)
+  # Particular solution for resonant case: y_p = Ax*e^(alpha*x)
+  A: beta / (alpha - r2)
+  y_p: A * x * exp(alpha * x)
+  # General solution
+  c1: integer(-3, 3)
+  c2: integer(-3, 3)
+  y_h: c1 * exp(r1 * x) + c2 * exp(r2 * x)
+  y_general: y_h + y_p
+  # Initial conditions that yield clean constants
+  y0: c1 + c2
+  yp0: c1 * r1 + c2 * r2 + A
+  answer: y_general
+constraints:
+  - r1 != r2
+  - c1 != 0
+  - c2 != 0
+question: "Solve the initial value problem: {equation('y'' + ' + str(p) + 'y' + ' + ' + str(q) + 'y', forcing)} with y(0) = {y0} and y'(0) = {yp0}"
+answer: answer
+solution:
+  - "First solve the characteristic equation: {equation(expanded_char, 0)}"
+  - "The roots are r = {r1} and r = {r2}"
+  - "So the homogeneous solution is {y_h}"
+  - "For the particular solution, since {forcing} contains {equation('e^' + str(alpha) + 'x', '')} which matches a characteristic root"
+  - "We must multiply our guess by x: y_p = Ax{equation('e^' + str(alpha) + 'x', '')}"
+  - "Substituting into the DE and solving gives A = {A}"
+  - "So y_p = {y_p}"
+  - "The general solution is y = {y_general}"
+  - "Using y(0) = {y0}: {c1} + {c2} = {y0} ✓"
+  - "Using y'(0) = {yp0}: {equation(str(c1) + '*' + str(r1) + ' + ' + str(c2) + '*' + str(r2) + ' + ' + str(A), yp0)} ✓"
+  - "Therefore y = {answer}"

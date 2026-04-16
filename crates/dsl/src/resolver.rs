@@ -104,9 +104,20 @@ fn eval_derived(expr_str: &str, vars: &VarMap) -> Result<String, DslError> {
         return Ok(trimmed.to_string());
     }
 
-    // Tuple literals like (3, 5) — bypass SymEngine, return as-is
+    // Tuple literals like (3, 5) or bare comma lists like 3, 5 — bypass SymEngine
     if is_tuple_literal(trimmed) {
         return Ok(trimmed.to_string());
+    }
+    // Bare comma-separated values (from solve() output): "3, 5" or "-5/4, 3/2"
+    if trimmed.contains(", ") && !trimmed.contains('(') && !trimmed.contains('[') {
+        let all_simple = trimmed.split(", ").all(|p| {
+            let p = p.trim();
+            p.parse::<f64>().is_ok() || p.contains('/')
+                || p.trim_start_matches('-').chars().all(|c| c.is_ascii_digit() || c == '/' || c == '.')
+        });
+        if all_simple {
+            return Ok(trimmed.to_string());
+        }
     }
 
     // Handle tuple/array indexing: `(a, b, c)[1]` → pick element

@@ -1,0 +1,27 @@
+topic: calculus/definite_integrals
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: integer(-6, 6)
+  k: integer(2, 4)
+  f: a*x^k + b*x + c
+  lower: integer(-3, -1)
+  upper: integer(1, 3)
+  antiderivative: integral(f, x)
+  upper_val: evaluate(antiderivative, x, upper)
+  lower_val: evaluate(antiderivative, x, lower)
+  answer: upper_val - lower_val
+constraints:
+  - a != b
+  - upper > lower + 1
+question: "Evaluate {definite_integral_of(f, x, lower, upper)}"
+answer: answer
+solution:
+  - "Find the antiderivative of {f}"
+  - "The antiderivative is {antiderivative}"
+  - "Apply the fundamental theorem of calculus:"
+  - "Evaluate at x = {upper}: {upper_val}"
+  - "Evaluate at x = {lower}: {lower_val}"
+  - "{definite_integral_of(f, x, lower, upper)} = {upper_val} - {lower_val} = {answer}"

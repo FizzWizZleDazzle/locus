@@ -1,0 +1,68 @@
+topic: linear_algebra/row_reduction
+difficulty: hard
+calculator: none
+variables:
+  # Design a 4x5 augmented matrix that row reduces to a system with 1 free variable
+  # Work backwards: start with RREF form, then apply row operations in reverse
+  
+  # RREF has pivot columns 1, 2, 4 and free variable in column 3
+  # Last row will be all zeros (rank 3 system)
+  t: integer(-3, 3)
+  
+  # Build RREF form directly
+  # Row 1: [1, 0, 2t, 0, 3]
+  # Row 2: [0, 1, t, 0, -1]  
+  # Row 3: [0, 0, 0, 1, 2]
+  # Row 4: [0, 0, 0, 0, 0]
+  
+  # Apply inverse row operations to create the original matrix
+  r: nonzero(-2, 2)
+  s: nonzero(-2, 2)
+  
+  # Original matrix construction (reverse row operations)
+  a11: r
+  a12: 2*r
+  a13: 2*r*t + 3*r
+  a14: r*s
+  a15: 3*r - 2*r*s
+  
+  a21: 0
+  a22: s
+  a23: s*t
+  a24: 0
+  a25: -s
+  
+  a31: r
+  a32: 2*r + s  
+  a33: 2*r*t + 3*r + s*t
+  a34: r*s + 1
+  a35: 3*r - 2*r*s - s + 2
+  
+  a41: 2*r
+  a42: 4*r + s
+  a43: 4*r*t + 6*r + s*t  
+  a44: 2*r*s + 1
+  a45: 6*r - 4*r*s - s + 2
+  
+  M: matrix(4, 5, -10, 10)
+  
+  # The answer is the value of x3 in terms of the free parameter
+  answer: 2*t
+  
+constraints:
+  - r != s
+  - t != 0
+
+question: "Row reduce the augmented matrix {matrix_of(M)} to reduced row echelon form. If the system has a free variable, express x₃ in terms of the free parameter t."
+
+answer: answer
+
+solution:
+  - "Start with the augmented matrix {matrix_of(M)}"
+  - "First, scale row 1 by 1/{a11} to get a leading 1"
+  - "Use row 1 to eliminate the first column entries in rows 3 and 4"
+  - "Scale row 2 by 1/{a22} to get a leading 1 in position (2,2)"
+  - "Use row 2 to eliminate column 2 entries below"
+  - "After further reduction, we find that column 3 has no pivot"
+  - "The RREF form shows x₃ is a free variable. Let x₃ = t"
+  - "From the RREF, we can read that x₃ = {answer} where t is any real number"

@@ -1,0 +1,35 @@
+topic: multivariable_calculus/line_integrals
+difficulty: hard
+calculator: none
+variables:
+  # Design backward from clean answer 24
+  # Use parametric line from (0,0) to (4,3) with t in [0,1]
+  # This gives path length 5 and clean integral
+  a: 4
+  b: 3
+  # Vector field F = <2y, 3x> chosen to make integral clean
+  c: 2
+  d: 3
+  # Parametric line: r(t) = <4t, 3t>
+  x_t: a * t
+  y_t: b * t
+  # dr/dt = <4, 3>
+  dx_dt: a
+  dy_dt: b
+  # F along curve: F(r(t)) = <6t, 12t>
+  F1: c * y_t
+  F2: d * x_t
+  # F · dr/dt = 24t + 36t = 60t
+  integrand: F1 * dx_dt + F2 * dy_dt
+  # Integral from 0 to 1 of 60t dt = 30
+  answer: 30
+question: "Evaluate the line integral {integral_of(F · dr, C)} where F = <{c}y, {d}x> and C is the line segment from (0, 0) to ({a}, {b})."
+answer: answer
+solution:
+  - "Parametrize C: r(t) = <{a}t, {b}t> for t ∈ [0, 1]"
+  - "Then x(t) = {a}t and y(t) = {b}t"
+  - "Compute dr/dt = <{dx_dt}, {dy_dt}>"
+  - "Along C: F(r(t)) = <{c}({b}t), {d}({a}t)> = <{evaluate(c*b, t, 1)}t, {evaluate(d*a, t, 1)}t>"
+  - "F · dr/dt = ({evaluate(c*b, t, 1)}t)({dx_dt}) + ({evaluate(d*a, t, 1)}t)({dy_dt})"
+  - "= {evaluate(c*b*a, t, 1)}t + {evaluate(d*a*b, t, 1)}t = {evaluate(c*b*a + d*a*b, t, 1)}t"
+  - "Line integral = {definite_integral_of(60t, t, 0, 1)} = {answer}"

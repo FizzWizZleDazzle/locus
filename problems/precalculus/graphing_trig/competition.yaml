@@ -1,0 +1,32 @@
+topic: precalculus/graphing_trig
+difficulty: competition
+calculator: graphing
+variables:
+  a: choice(2, 3, 4)
+  b: choice(1, 2, 3)
+  c: choice(1, 2, 3, 4)
+  d: integer(-3, 3)
+  k: integer(2, 5)
+  f: a * sin(b * x) + c * cos(k * x) + d
+  g: a * sin(b * x) - c * cos(k * x) + d
+  h: f * g
+  expanded: expand(h)
+  simplified: simplify(expanded)
+  period_1: 2 * pi / b
+  period_2: 2 * pi / k
+  lcm_periods: 2 * pi / gcd(b, k)
+  zeros_in_period: solve(simplified, x)
+  answer: lcm_periods
+constraints:
+  - b != k
+  - gcd(b, k) == 1
+  - a > c
+question: "Consider the function h(x) = ({f})({g}). Find the fundamental period of h(x)."
+answer: answer
+solution:
+  - "Expand h(x) = ({f})({g})"
+  - "h(x) = {expanded}"
+  - "Simplify using trig identities: h(x) = {simplified}"
+  - "The first component has period {period_1}"
+  - "The second component has period {period_2}"
+  - "Since gcd({b}, {k}) = 1, the fundamental period is lcm({period_1}, {period_2}) = {lcm_periods}"

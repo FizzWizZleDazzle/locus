@@ -1,0 +1,33 @@
+topic: differential_equations/variation_of_parameters
+difficulty: easy
+calculator: none
+variables:
+  r1: integer(-3, -1)
+  r2: integer(1, 3)
+  k: integer(2, 4)
+  y_h: c1*exp(r1*x) + c2*exp(r2*x)
+  g: k*exp(r1*x)
+  W: exp(r1*x)*r2*exp(r2*x) - exp(r2*x)*r1*exp(r1*x)
+  W_simplified: (r2 - r1)*exp((r1 + r2)*x)
+  u1_prime: -g*exp(r2*x)/W_simplified
+  u2_prime: g*exp(r1*x)/W_simplified
+  u1: integral(u1_prime, x)
+  u2: integral(u2_prime, x)
+  y_p: u1*exp(r1*x) + u2*exp(r2*x)
+  y_p_simplified: simplify(y_p)
+  answer: y_h + y_p_simplified
+constraints:
+  - r1 != r2
+question: "Solve y'' - {r1 + r2}y' + {r1*r2}y = {g} using variation of parameters."
+answer: answer
+solution:
+  - "First find the homogeneous solution for y'' - {r1 + r2}y' + {r1*r2}y = 0"
+  - "The characteristic equation is r² - {r1 + r2}r + {r1*r2} = 0"
+  - "This factors as (r - {r1})(r - {r2}) = 0, giving r = {r1}, {r2}"
+  - "So {equation('y_h', y_h)}"
+  - "For variation of parameters, let y_p = u₁(x)e^({r1}x) + u₂(x)e^({r2}x)"
+  - "The Wronskian is W = {W_simplified}"
+  - "Then u₁' = {u1_prime} and u₂' = {u2_prime}"
+  - "Integrating: u₁ = {u1} and u₂ = {u2}"
+  - "So y_p = {y_p_simplified}"
+  - "The general solution is y = {answer}"

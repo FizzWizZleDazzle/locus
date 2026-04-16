@@ -1,0 +1,39 @@
+topic: arithmetic/mixed_numbers
+difficulty: competition
+calculator: none
+variables:
+  # Design backwards: pick components that ensure clean final answer
+  # For competition level, use larger numbers and multi-step operations
+  a_whole: integer(3, 8)
+  a_num: integer(1, 11)
+  a_den: integer(12, 15)
+  b_whole: integer(2, 7)
+  b_num: integer(1, 11)
+  b_den: integer(12, 15)
+  c_whole: integer(1, 5)
+  c_num: integer(1, 7)
+  c_den: integer(8, 10)
+  # Convert to improper fractions for calculation
+  a_improper: a_whole * a_den + a_num
+  b_improper: b_whole * b_den + b_num
+  c_improper: c_whole * c_den + c_num
+  # First operation: multiplication
+  mult_num: a_improper * b_improper
+  mult_den: a_den * b_den
+  # Second operation: division by third mixed number
+  result_num: mult_num * c_den
+  result_den: mult_den * c_improper
+  # Simplify the result
+  answer: simplify(result_num / result_den)
+constraints:
+  - a_num < a_den
+  - b_num < b_den
+  - c_num < c_den
+question: "Calculate: ({a_whole} {a_num}/{a_den}) × ({b_whole} {b_num}/{b_den}) ÷ ({c_whole} {c_num}/{c_den})"
+answer: answer
+solution:
+  - "Convert to improper fractions: {a_whole} {a_num}/{a_den} = {a_improper}/{a_den}, {b_whole} {b_num}/{b_den} = {b_improper}/{b_den}, {c_whole} {c_num}/{c_den} = {c_improper}/{c_den}"
+  - "Multiply first two: ({a_improper}/{a_den}) × ({b_improper}/{b_den}) = {mult_num}/{mult_den}"
+  - "Divide by third: ({mult_num}/{mult_den}) ÷ ({c_improper}/{c_den}) = ({mult_num}/{mult_den}) × ({c_den}/{c_improper})"
+  - "= {result_num}/{result_den}"
+  - "Simplified: {answer}"

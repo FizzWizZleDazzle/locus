@@ -1,0 +1,26 @@
+topic: algebra1/compound_inequalities
+difficulty: very_hard
+calculator: none
+variables:
+  # Design backwards: pick clean boundary points first
+  left_bound: integer(-8, -2)
+  right_bound: integer(3, 8)
+  # Build a quadratic that crosses x-axis at these points
+  a: integer(1, 3)
+  f: a * (x - left_bound) * (x - right_bound)
+  expanded: expand(f)
+  # For compound inequality, we want the region between roots
+  answer_left: left_bound
+  answer_right: right_bound
+constraints:
+  - right_bound > left_bound + 4
+question: "Solve the compound inequality {equation(expanded, 0)} ≤ 0"
+answer: answer_left, answer_right
+answer_type: tuple
+solution:
+  - "We need to solve {equation(expanded, 0)} ≤ 0"
+  - "Factor the quadratic: {equation(f, 0)}"
+  - "The expression equals zero when x = {left_bound} or x = {right_bound}"
+  - "Since the coefficient of x² is positive ({a}), the parabola opens upward"
+  - "The quadratic is negative or zero between the roots"
+  - "Therefore, the solution is {left_bound} ≤ x ≤ {right_bound}"

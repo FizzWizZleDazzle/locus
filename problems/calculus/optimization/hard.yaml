@@ -1,0 +1,28 @@
+topic: calculus/optimization
+difficulty: hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(3, 8)
+  c: integer(10, 30)
+  f: a * x^3 - b * x^2 + c
+  f_prime: derivative(f, x)
+  critical_x: 2 * b / (3 * a)
+  f_second: derivative(f_prime, x)
+  f_second_at_crit: evaluate(f_second, x, critical_x)
+  max_value: evaluate(f, x, 0)
+  min_value: evaluate(f, x, critical_x)
+  answer: min_value
+constraints:
+  - b % 3 == 0
+  - a * 2 < b
+question: "A particle's height is given by {f} for x in [0, 4]. Find the minimum height."
+answer: answer
+solution:
+  - "To find extrema, we need critical points and boundary values"
+  - "Find critical points: {derivative_of(f, x)} = 0"
+  - "{f_prime} = 0 gives x = {critical_x}"
+  - "Check second derivative: {derivative_of(f_prime, x)} = {f_second}"
+  - "At x = {critical_x}: f''({critical_x}) = {f_second_at_crit} > 0, so local minimum"
+  - "Compare values: f(0) = {max_value}, f({critical_x}) = {min_value}, f(4) = {evaluate(f, x, 4)}"
+  - "The minimum height is {answer}"

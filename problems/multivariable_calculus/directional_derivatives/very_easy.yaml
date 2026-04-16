@@ -1,0 +1,28 @@
+topic: multivariable_calculus/directional_derivatives
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  f: a*x + b*y
+  x0: integer(0, 3)
+  y0: integer(0, 3)
+  u1: choice(1, 0, 1)
+  u2: choice(0, 1, 1)
+  norm: sqrt(u1^2 + u2^2)
+  v1: u1/norm
+  v2: u2/norm
+  fx: derivative(f, x)
+  fy: derivative(f, y)
+  answer: fx*v1 + fy*v2
+constraints:
+  - u1^2 + u2^2 > 0
+question: "Find the directional derivative of f(x,y) = {f} at the point ({x0}, {y0}) in the direction of the vector {vec([u1, u2])}."
+answer: answer
+solution:
+  - "First, find the gradient of f: ∇f = ({fx}, {fy})"
+  - "The gradient is constant everywhere since f is linear"
+  - "Normalize the direction vector: {vec([u1, u2])} has magnitude {norm}"
+  - "Unit vector: u = ({v1}, {v2})"
+  - "Directional derivative: ∇f · u = {fx} · {v1} + {fy} · {v2}"
+  - "= {answer}"

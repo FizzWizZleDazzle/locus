@@ -1,0 +1,22 @@
+topic: geometry/surface_area
+difficulty: easy
+calculator: none
+variables:
+  length: integer(2, 8)
+  width: integer(2, 8)
+  height: integer(2, 8)
+  face1: 2 * length * width
+  face2: 2 * length * height
+  face3: 2 * width * height
+  answer: face1 + face2 + face3
+constraints:
+  - length != width
+  - width != height
+question: "A rectangular prism has length {length} cm, width {width} cm, and height {height} cm. Find its total surface area."
+answer: answer
+solution:
+  - "A rectangular prism has 6 faces in 3 pairs of congruent rectangles"
+  - "Top and bottom faces: 2 × {length} × {width} = {face1} cm²"
+  - "Front and back faces: 2 × {length} × {height} = {face2} cm²"
+  - "Left and right faces: 2 × {width} × {height} = {face3} cm²"
+  - "Total surface area = {face1} + {face2} + {face3} = {answer} cm²"

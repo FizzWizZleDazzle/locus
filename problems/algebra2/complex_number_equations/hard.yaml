@@ -1,0 +1,36 @@
+topic: algebra2/complex_number_equations
+difficulty: hard
+calculator: none
+variables:
+  # Design backward: want z = a + bi where a, b are clean integers
+  a: integer(-5, 5)
+  b: nonzero(-5, 5)
+  # Build a quadratic with complex roots by choosing discriminant < 0
+  p: integer(2, 8)
+  q: integer(2, 8)
+  # Ensure discriminant is negative: 4p^2 - 4q^2 < 0, so p < q
+  disc: 4*p^2 - 4*q^2
+  # The quadratic (z - (a+bi))(z - (a-bi)) = z^2 - 2az + (a^2 + b^2)
+  sum_of_roots: 2*a
+  product_of_roots: a^2 + b^2
+  # But we'll use a different construction for variety
+  real_part: p
+  imag_squared: q^2 - p^2
+  equation_lhs: z^2 - 2*real_part*z + q^2
+  # The roots are p ± i*sqrt(q^2 - p^2)
+  imag_part: sqrt(imag_squared)
+  root1_str: "p + imag_part * i"
+  root2_str: "p - imag_part * i"
+constraints:
+  - p < q
+  - is_integer(imag_part)
+question: "Solve the equation {equation(equation_lhs, 0)} over the complex numbers."
+answer: root1_str
+answer_type: set
+solution:
+  - "We have {equation(equation_lhs, 0)}"
+  - "Using the quadratic formula: z = (2{real_part} ± sqrt(4{real_part}^2 - 4{q^2}))/2"
+  - "z = {real_part} ± sqrt({disc})/2"
+  - "Since {disc} < 0, we have sqrt({disc}) = {imag_part}i * 2"
+  - "Therefore z = {real_part} ± {imag_part}i"
+  - "The solutions are z = {real_part} + {imag_part}i and z = {real_part} - {imag_part}i"

@@ -1,0 +1,24 @@
+topic: multivariable_calculus/change_of_variables
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  d: integer(1, 4)
+  det: a * d - b * c
+  scale: integer(2, 4)
+  region_area: scale * scale
+  answer: region_area * det
+constraints:
+  - det > 0
+  - a != b
+  - c != d
+question: "Consider the transformation u = {a}x + {b}y, v = {c}x + {d}y. Find the area of the image of the square [0, {scale}] × [0, {scale}] under this transformation."
+answer: answer
+solution:
+  - "The Jacobian of the transformation is the determinant of the matrix with rows ({a}, {b}) and ({c}, {d})"
+  - "J = {a} · {d} - {b} · {c} = {det}"
+  - "The area of the original square is {scale} × {scale} = {region_area}"
+  - "Under the transformation, the area is scaled by |J| = |{det}| = {det}"
+  - "Therefore, the area of the image is {region_area} × {det} = {answer}"

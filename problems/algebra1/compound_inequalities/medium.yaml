@@ -1,0 +1,27 @@
+topic: algebra1/compound_inequalities
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-8, -2)
+  b: integer(3, 8)
+  c: integer(-5, 5)
+  left_bound: a + c
+  right_bound: b + c
+  expr: x - c
+  left_ineq: a < expr
+  right_ineq: expr < b
+  answer_left: left_bound
+  answer_right: right_bound
+constraints:
+  - a < 0
+  - b > 0
+  - left_bound < right_bound
+question: "Solve the compound inequality {equation(left_ineq, '')} and {equation(right_ineq, '')}."
+answer: answer_left, answer_right
+answer_type: tuple
+solution:
+  - "We have {equation(a < expr, '')} and {equation(expr < b, '')}"
+  - "This can be written as {a} < {expr} < {b}"
+  - "Add {c} to all parts: {a} + {c} < x < {b} + {c}"
+  - "Simplify: {left_bound} < x < {right_bound}"
+  - "The solution is the interval ({answer_left}, {answer_right})"

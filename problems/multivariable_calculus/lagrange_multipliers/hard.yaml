@@ -1,0 +1,30 @@
+topic: multivariable_calculus/lagrange_multipliers
+difficulty: hard
+calculator: scientific
+variables:
+  # Design backward: want critical point at (2, 3) with clean multiplier
+  # Constraint will be x + y = 5, so (2, 3) satisfies it
+  # Pick f(x,y) = x^2 + y^2 - ax - by to have gradient zero at (2, 3)
+  a: 4  # Makes ∂f/∂x = 2x - 4 = 0 at x = 2
+  b: 6  # Makes ∂f/∂y = 2y - 6 = 0 at y = 3
+  f: x^2 + y^2 - a*x - b*y
+  g: x + y - 5
+  # At (2, 3): f = 4 + 9 - 8 - 18 = -13
+  x_opt: 2
+  y_opt: 3
+  answer: -13
+constraints:
+  - a == 2 * x_opt  # Ensures clean critical point
+  - b == 2 * y_opt
+question: "Use Lagrange multipliers to find the minimum value of {f} subject to the constraint {equation(x + y, 5)}."
+answer: answer
+solution:
+  - "Set up the Lagrangian: L = {f} - λ({g})"
+  - "Take partial derivatives and set to zero:"
+  - "{equation(derivative_of(f, x), λ)} gives {equation(2*x - a, λ)}"
+  - "{equation(derivative_of(f, y), λ)} gives {equation(2*y - b, λ)}"
+  - "From these equations: 2x - {a} = 2y - {b}"
+  - "This gives 2x - 2y = {a} - {b} = -2, so x - y = -1"
+  - "Combined with constraint x + y = 5:"
+  - "Solving: x = {x_opt}, y = {y_opt}"
+  - "The minimum value is f({x_opt}, {y_opt}) = {answer}"

@@ -1,0 +1,28 @@
+topic: calculus/antiderivatives
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: nonzero(-5, 5)
+  n: integer(3, 5)
+  m: integer(2, 4)
+  f: a * x^n + b * x^m + c / x^2
+  antideriv_term1: a * x^(n+1) / (n+1)
+  antideriv_term2: b * x^(m+1) / (m+1)
+  antideriv_term3: -c / x
+  answer: simplify(antideriv_term1 + antideriv_term2 + antideriv_term3)
+constraints:
+  - n > m
+  - abs(a) != abs(b)
+question: "Find the most general antiderivative of {f}"
+answer: answer
+solution:
+  - "We need to find {integral_of(f, x)}"
+  - "Rewrite the function: {f} = {a}x^{n} + {b}x^{m} + {c}x^(-2)"
+  - "Apply the power rule to each term:"
+  - "For {a}x^{n}: antiderivative is {a}x^{n+1}/{n+1} = {antideriv_term1}"
+  - "For {b}x^{m}: antiderivative is {b}x^{m+1}/{m+1} = {antideriv_term2}"
+  - "For {c}x^(-2): antiderivative is {c}x^(-1)/(-1) = {antideriv_term3}"
+  - "Therefore, {integral_of(f, x)} = {answer} + C"
+  - "where C is an arbitrary constant"

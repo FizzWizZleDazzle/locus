@@ -1,0 +1,21 @@
+topic: arithmetic/subtraction
+difficulty: competition
+calculator: none
+variables:
+  # Design for a clean 4-digit answer, work backwards
+  answer: integer(1000, 9999)
+  # Build minuend as answer + subtrahend
+  b: integer(100, 999)
+  a: answer + b
+  # Verify the subtraction
+  check: a - b
+constraints:
+  - a < 10000  # Keep minuend 4-digit
+  - mod(answer, 10) != 0  # Avoid trivial trailing zeros
+question: "Calculate: {a} - {b}"
+answer: answer
+solution:
+  - "Align the numbers vertically and subtract digit by digit"
+  - "Starting from ones place: {mod(a, 10)} - {mod(b, 10)}"
+  - "Work through each place value with borrowing as needed"
+  - "{a} - {b} = {answer}"

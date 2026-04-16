@@ -1,0 +1,30 @@
+topic: algebra1/linear_inequalities
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-8, 8)
+  b: nonzero(-8, 8)
+  c: nonzero(-8, 8)
+  d: nonzero(-8, 8)
+  left: a * x + b
+  right: c * x + d
+  combined: (a - c) * x
+  rhs: d - b
+  x_val: (d - b) / (a - c)
+  x_num: d - b
+  x_den: a - c
+constraints:
+  - a != c
+  - mod(x_num, x_den) == 0
+  - x_den > 0
+question: "Solve the compound inequality: {equation(left, right)} AND x > {x_val}"
+answer: x_val
+answer_type: value
+solution:
+  - "First solve {equation(left, right)}"
+  - "Subtract {c}x from both sides: {equation(combined, rhs)}"
+  - "Divide by {x_den}: x ≤ {x_val}"
+  - "The compound inequality requires x ≤ {x_val} AND x > {x_val}"
+  - "These conditions cannot both be true"
+  - "Therefore, there is no solution"
+  - "The answer is that no x satisfies both inequalities"

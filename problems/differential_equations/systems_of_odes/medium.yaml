@@ -1,0 +1,27 @@
+topic: differential_equations/systems_of_odes
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-4, 4)
+  b: integer(-4, 4)
+  c: integer(-4, 4)
+  d: integer(-4, 4)
+  det: a*d - b*c
+  trace: a + d
+  discriminant: trace^2 - 4*det
+  lambda1: (trace + sqrt(discriminant))/2
+  lambda2: (trace - sqrt(discriminant))/2
+  system_matrix: matrix(2, 2, -4, 4)
+constraints:
+  - det != 0
+  - discriminant > 0
+  - discriminant == floor(sqrt(discriminant))^2
+question: "Find the eigenvalues of the system {system(derivative(x, t) = a*x + b*y, derivative(y, t) = c*x + d*y)}"
+answer: lambda1, lambda2
+answer_type: set
+solution:
+  - "The system matrix is A = {matrix_of(system_matrix)}"
+  - "Find eigenvalues by solving {equation(det_of(matrix([[a - lambda, b], [c, d - lambda]])), 0)}"
+  - "This gives the characteristic equation: {equation(lambda^2 - trace*lambda + det, 0)}"
+  - "Using the quadratic formula: lambda = {equation((trace +/- sqrt(discriminant))/2, '')}"
+  - "Therefore lambda1 = {lambda1} and lambda2 = {lambda2}"

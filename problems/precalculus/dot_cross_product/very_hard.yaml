@@ -1,0 +1,43 @@
+topic: precalculus/dot_cross_product
+difficulty: very_hard
+calculator: scientific
+variables:
+  a1: integer(-4, 4)
+  a2: integer(-4, 4)
+  a3: integer(-4, 4)
+  b1: integer(-4, 4)
+  b2: integer(-4, 4)
+  b3: integer(-4, 4)
+  c1: integer(-4, 4)
+  c2: integer(-4, 4)
+  c3: integer(-4, 4)
+  cross_ab_x: a2*b3 - a3*b2
+  cross_ab_y: a3*b1 - a1*b3
+  cross_ab_z: a1*b2 - a2*b1
+  cross_bc_x: b2*c3 - b3*c2
+  cross_bc_y: b3*c1 - b1*c3
+  cross_bc_z: b1*c2 - b2*c1
+  cross_ca_x: c2*a3 - c3*a2
+  cross_ca_y: c3*a1 - c1*a3
+  cross_ca_z: c1*a2 - c2*a1
+  sum_x: cross_ab_x + cross_bc_x + cross_ca_x
+  sum_y: cross_ab_y + cross_bc_y + cross_ca_y
+  sum_z: cross_ab_z + cross_bc_z + cross_ca_z
+constraints:
+  - a1^2 + a2^2 + a3^2 > 0
+  - b1^2 + b2^2 + b3^2 > 0
+  - c1^2 + c2^2 + c3^2 > 0
+question: "Given vectors a = ({a1}, {a2}, {a3}), b = ({b1}, {b2}, {b3}), and c = ({c1}, {c2}, {c3}), find a × b + b × c + c × a."
+answer: sum_x, sum_y, sum_z
+answer_type: tuple
+solution:
+  - "First compute a × b:"
+  - "a × b = ({cross_ab_x}, {cross_ab_y}, {cross_ab_z})"
+  - "Next compute b × c:"
+  - "b × c = ({cross_bc_x}, {cross_bc_y}, {cross_bc_z})"
+  - "Then compute c × a:"
+  - "c × a = ({cross_ca_x}, {cross_ca_y}, {cross_ca_z})"
+  - "Sum the three cross products:"
+  - "({cross_ab_x}, {cross_ab_y}, {cross_ab_z}) + ({cross_bc_x}, {cross_bc_y}, {cross_bc_z}) + ({cross_ca_x}, {cross_ca_y}, {cross_ca_z})"
+  - "= ({sum_x}, {sum_y}, {sum_z})"
+  - "Note: This sum always equals the zero vector due to the Jacobi identity."

@@ -1,0 +1,32 @@
+topic: precalculus/domain_and_range
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-8, 8)
+  b: integer(-8, 8)
+  c: nonzero(-8, 8)
+  d: integer(-8, 8)
+  numerator: a*x + b
+  denominator: c*x + d
+  f: numerator / denominator
+  vertical_asymptote: -d/c
+  horizontal_asymptote: a/c
+  domain_hole: simplify(vertical_asymptote)
+  range_hole: simplify(horizontal_asymptote)
+constraints:
+  - a*d - b*c != 0
+  - abs(a) != abs(c)
+  - gcd(abs(d), abs(c)) == 1
+question: "Find the domain and range of {equation('f(x)', f)}. Express your answer using interval notation."
+answer: domain_hole, range_hole
+answer_type: tuple
+solution:
+  - "Given {equation('f(x)', f)}"
+  - "Find where the denominator equals zero: {equation(denominator, 0)}"
+  - "Solving: {equation('x', domain_hole)}"
+  - "So the domain is all real numbers except x = {domain_hole}"
+  - "Domain: {equation('(-∞, domain_hole) ∪ (domain_hole, ∞)', '')}"
+  - "For the range, find the horizontal asymptote"
+  - "As x → ±∞, f(x) → {range_hole}"
+  - "The function can take any value except y = {range_hole}"
+  - "Range: {equation('(-∞, range_hole) ∪ (range_hole, ∞)', '')}"

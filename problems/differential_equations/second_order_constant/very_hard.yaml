@@ -1,0 +1,38 @@
+topic: differential_equations/second_order_constant
+difficulty: very_hard
+calculator: none
+variables:
+  r1: integer(-5, -1)
+  r2: integer(1, 5)
+  char_poly: (r - r1) * (r - r2)
+  expanded_char: expand(char_poly)
+  a: -(r1 + r2)
+  b: r1 * r2
+  c1: integer(-3, 3)
+  c2: integer(-3, 3)
+  general_solution: c1 * e^(r1 * x) + c2 * e^(r2 * x)
+  y0: evaluate(general_solution, x, 0)
+  y_prime: derivative(general_solution, x)
+  y0_prime: evaluate(y_prime, x, 0)
+  k1: simplify(y0)
+  k2: simplify(y0_prime)
+constraints:
+  - r1 != r2
+  - c1 != 0
+  - c2 != 0
+question: "Solve the initial value problem: y'' + {a}y' + {b}y = 0 with y(0) = {k1} and y'(0) = {k2}"
+answer: general_solution
+solution:
+  - "Find the characteristic equation: {equation(expanded_char, 0)}"
+  - "Factor: {equation(char_poly, 0)}"
+  - "The roots are r = {r1} and r = {r2}"
+  - "General solution: y = C₁e^({r1}x) + C₂e^({r2}x)"
+  - "Apply initial condition y(0) = {k1}: C₁ + C₂ = {k1}"
+  - "Find y' = {r1}C₁e^({r1}x) + {r2}C₂e^({r2}x)"
+  - "Apply initial condition y'(0) = {k2}: {r1}C₁ + {r2}C₂ = {k2}"
+  - "From the first equation: C₂ = {k1} - C₁"
+  - "Substitute into second equation: {r1}C₁ + {r2}({k1} - C₁) = {k2}"
+  - "Simplify: {r1}C₁ + {r2 * k1} - {r2}C₁ = {k2}"
+  - "Solve for C₁: C₁({r1} - {r2}) = {k2} - {r2 * k1}"
+  - "Therefore C₁ = {c1} and C₂ = {c2}"
+  - "The solution is y = {general_solution}"

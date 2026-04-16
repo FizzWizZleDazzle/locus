@@ -1,0 +1,28 @@
+topic: geometry/volume
+difficulty: easy
+calculator: none
+variables:
+  shape: choice(1, 2, 3)
+  # Box dimensions
+  length: integer(2, 8)
+  width: integer(2, 8)
+  height: integer(2, 8)
+  box_volume: length * width * height
+  # Cube dimension
+  side: integer(2, 6)
+  cube_volume: side^3
+  # Cylinder dimensions (using π-friendly radii)
+  radius: choice(1, 2, 3, 4, 5)
+  cyl_height: integer(2, 10)
+  cyl_volume: 3.14159 * radius^2 * cyl_height
+  cyl_volume_rounded: round(cyl_volume, 0)
+  # Select based on shape
+  answer: choice(box_volume, cube_volume, cyl_volume_rounded)
+constraints:
+  - shape == 1 or shape == 2 or shape == 3
+question: "A rectangular box has dimensions {length} cm × {width} cm × {height} cm. What is its volume in cubic centimeters?"
+answer: answer
+solution:
+  - "For a rectangular box, volume = length × width × height"
+  - "Volume = {length} × {width} × {height}"
+  - "Volume = {answer} cm³"

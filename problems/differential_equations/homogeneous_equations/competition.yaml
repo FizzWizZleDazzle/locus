@@ -1,0 +1,40 @@
+topic: differential_equations/homogeneous_equations
+difficulty: competition
+calculator: none
+variables:
+  k1: integer(2, 5)
+  k2: integer(2, 5)
+  r1: -k1
+  r2: k2
+  sum: r1 + r2
+  prod: r1 * r2
+  char_eq: lambda^2 - sum*lambda + prod
+  expanded_char: expand(char_eq)
+  c1: integer(1, 4)
+  c2: integer(-4, -1)
+  y: c1*e^(r1*x) + c2*e^(r2*x)
+  y_prime: derivative(y, x)
+  y_double_prime: derivative(y_prime, x)
+  lhs: y_double_prime - sum*y_prime + prod*y
+  simplified_lhs: simplify(lhs)
+  y_at_0: evaluate(y, x, 0)
+  y_prime_at_0: evaluate(y_prime, x, 0)
+  answer: y
+constraints:
+  - k1 != k2
+  - c1 + c2 != 0
+question: "Solve the initial value problem: {equation(y'' - sum*y' + prod*y, 0)} with y(0) = {y_at_0} and y'(0) = {y_prime_at_0}"
+answer: answer
+solution:
+  - "Find the characteristic equation by substituting y = e^(λx)"
+  - "This gives {equation(expanded_char, 0)}"
+  - "Factor: {equation((lambda - r1)*(lambda - r2), 0)}"
+  - "So λ = {r1} or λ = {r2}"
+  - "General solution: y = C₁e^({r1}x) + C₂e^({r2}x)"
+  - "Apply initial condition y(0) = {y_at_0}:"
+  - "C₁ + C₂ = {y_at_0}"
+  - "Apply initial condition y'(0) = {y_prime_at_0}:"
+  - "y' = {r1}C₁e^({r1}x) + {r2}C₂e^({r2}x)"
+  - "At x = 0: {r1}C₁ + {r2}C₂ = {y_prime_at_0}"
+  - "Solving the system: C₁ = {c1}, C₂ = {c2}"
+  - "Therefore: y = {answer}"

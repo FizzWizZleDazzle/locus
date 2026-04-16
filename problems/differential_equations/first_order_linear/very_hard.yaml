@@ -1,0 +1,42 @@
+topic: differential_equations/first_order_linear
+difficulty: very_hard
+calculator: scientific
+variables:
+  # Design backward: pick a clean solution first
+  C: integer(-5, 5)
+  k: integer(2, 5)
+  # Build a solution that involves both exponential and polynomial terms
+  y_particular: k * x^2 + (k + 1) * x + 3
+  y_homogeneous: C * exp(-x)
+  y_general: y_particular + y_homogeneous
+  # Work backward to find P(x) and Q(x) that give this solution
+  # For y' + P(x)y = Q(x), if y = y_p + C*exp(-∫P dx)
+  # then P(x) = 1 and Q(x) must equal y_p' + y_p
+  P: 1
+  y_p_prime: derivative(y_particular, x)
+  Q: y_p_prime + y_particular
+  # Initial condition that gives a specific C value
+  x0: 0
+  y0: evaluate(y_particular, x, x0) + 2
+  # The specific solution satisfying the initial condition
+  C_specific: 2
+  answer: y_particular + C_specific * exp(-x)
+constraints:
+  - C != 0
+  - k > 1
+question: "Solve the initial value problem {derivative_of(y, x)} + {P}y = {Q} with y({x0}) = {y0}."
+answer: answer
+solution:
+  - "This is a first-order linear ODE in standard form {derivative_of(y, x)} + P(x)y = Q(x)"
+  - "Here P(x) = {P} and Q(x) = {Q}"
+  - "The integrating factor is μ(x) = exp(∫{P} dx) = exp(x)"
+  - "Multiply both sides by μ(x): exp(x){derivative_of(y, x)} + exp(x)y = exp(x)({Q})"
+  - "The left side is d/dx[exp(x)y], so d/dx[exp(x)y] = exp(x)({Q})"
+  - "Integrate both sides: exp(x)y = ∫exp(x)({Q}) dx"
+  - "After integration by parts twice: exp(x)y = exp(x)({y_particular}) + C"
+  - "Therefore y = {y_particular} + C*exp(-x)"
+  - "Apply initial condition: y({x0}) = {y0}"
+  - "{evaluate(y_particular, x, x0)} + C*exp(0) = {y0}"
+  - "{evaluate(y_particular, x, x0)} + C = {y0}"
+  - "So C = {C_specific}"
+  - "The solution is y = {answer}"

@@ -1,0 +1,26 @@
+topic: calculus/chain_rule
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(2, 5)
+  c: nonzero(-3, 3)
+  inner: a * x^b + c
+  m: integer(3, 5)
+  outer_form: u^m
+  f: (a * x^b + c)^m
+  du_dx: derivative(inner, x)
+  df_du: m * u^(m-1)
+  answer: m * (a * x^b + c)^(m-1) * derivative(inner, x)
+constraints:
+  - a != -c
+  - gcd(abs(a), b) == 1
+  - m != b
+question: "Find {derivative_of(f, x)} where f(x) = {f}"
+answer: answer
+solution:
+  - "Let u = {inner}, so f(x) = {outer_form}"
+  - "By the chain rule: {derivative_of(f, x)} = {df_du} · {derivative_of(u, x)}"
+  - "Find {derivative_of(u, x)} = {du_dx}"
+  - "Substitute: {derivative_of(f, x)} = {m} · ({inner})^{m-1} · {du_dx}"
+  - "Therefore: {derivative_of(f, x)} = {answer}"

@@ -1,0 +1,25 @@
+topic: calculus/implicit_differentiation
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(2, 5)
+  curve: x^3 + a*x*y^2 - b*y^3 = c
+  x0: 1
+  y0: 1
+  numerator: 3*x0^2 + a*y0^2
+  denominator: 2*a*x0*y0 - 3*b*y0^2
+  answer: -numerator/denominator
+constraints:
+  - a != b
+  - denominator != 0
+  - x0^3 + a*x0*y0^2 - b*y0^3 == c
+question: "Find dy/dx at the point ({x0}, {y0}) on the curve {equation(x^3 + a*x*y^2 - b*y^3, c)}."
+answer: answer
+solution:
+  - "Differentiate both sides with respect to x: 3x^2 + a*y^2 + a*x*2y*dy/dx - b*3y^2*dy/dx = 0"
+  - "Collect dy/dx terms: (2axy - 3by^2)*dy/dx = -3x^2 - ay^2"
+  - "So dy/dx = -(3x^2 + ay^2)/(2axy - 3by^2)"
+  - "At ({x0}, {y0}): numerator = {numerator}, denominator = {denominator}"
+  - "Therefore dy/dx = {answer}"

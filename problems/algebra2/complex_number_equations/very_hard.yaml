@@ -1,0 +1,35 @@
+topic: algebra2/complex_number_equations
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 4)
+  d: integer(1, 4)
+  real_part: a*c - b*d
+  imag_part: a*d + b*c
+  z1: a + b*i
+  z2: c + d*i
+  product: real_part + imag_part*i
+  k: integer(2, 4)
+  power_real: real_part^k - binomial(k,2)*real_part^(k-2)*imag_part^2
+  power_imag: binomial(k,1)*real_part^(k-1)*imag_part - binomial(k,3)*real_part^(k-3)*imag_part^3
+  answer: power_real + power_imag*i
+constraints:
+  - real_part != 0
+  - imag_part != 0
+  - k == 3
+question: "If z = {equation(z1, a + b*i)} · {equation(z2, c + d*i)}, find z³."
+answer: answer
+solution:
+  - "First find the product z = {z1} · {z2}"
+  - "z = ({a})({c}) + ({a})({d}i) + ({b}i)({c}) + ({b}i)({d}i)"
+  - "z = {a*c} + {a*d}i + {b*c}i + {b*d}i²"
+  - "Since i² = -1: z = {a*c} + {a*d}i + {b*c}i - {b*d}"
+  - "z = ({a*c} - {b*d}) + ({a*d} + {b*c})i = {product}"
+  - "Now find z³ = ({real_part} + {imag_part}i)³"
+  - "Using the binomial theorem for complex numbers:"
+  - "z³ = {real_part}³ + 3({real_part})²({imag_part}i) + 3({real_part})({imag_part}i)² + ({imag_part}i)³"
+  - "z³ = {real_part^3} + {3*real_part^2*imag_part}i - {3*real_part*imag_part^2} - {imag_part^3}i"
+  - "z³ = ({real_part^3} - {3*real_part*imag_part^2}) + ({3*real_part^2*imag_part} - {imag_part^3})i"
+  - "z³ = {answer}"

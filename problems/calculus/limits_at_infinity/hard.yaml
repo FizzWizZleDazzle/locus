@@ -1,0 +1,25 @@
+topic: calculus/limits_at_infinity
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: nonzero(-5, 5)
+  d: integer(2, 4)
+  num: a * x^d + b * x
+  denom: c * x^d
+  f: num / denom
+  answer: a / c
+constraints:
+  - gcd(abs(a), abs(c)) == 1
+  - a * c > 0
+question: "Find {limit_of(f, x, infinity)}"
+answer: answer
+solution:
+  - "Given: {limit_of(f, x, infinity)}"
+  - "Factor out the highest power of x from numerator and denominator"
+  - "Numerator: {num} = x^{d}({a} + {b}/x^{d-1})"
+  - "Denominator: {denom} = x^{d}({c})"
+  - "So {f} = ({a} + {b}/x^{d-1}) / {c}"
+  - "As x → ∞, the term {b}/x^{d-1} → 0"
+  - "Therefore, {limit_of(f, x, infinity)} = {a}/{c} = {answer}"

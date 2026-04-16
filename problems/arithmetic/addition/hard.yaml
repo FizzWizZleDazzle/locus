@@ -1,0 +1,21 @@
+topic: arithmetic/addition
+difficulty: hard
+calculator: none
+variables:
+  a: integer(100, 999)
+  b: integer(100, 999)
+  c: integer(100, 999)
+  d: integer(100, 999)
+  sum_ab: a + b
+  sum_cd: c + d
+  answer: sum_ab + sum_cd
+constraints:
+  - mod(a, 10) + mod(b, 10) >= 10
+  - mod(c, 10) + mod(d, 10) >= 10
+  - mod(sum_ab, 10) + mod(sum_cd, 10) >= 10
+question: "Calculate: {a} + {b} + {c} + {d}"
+answer: answer
+solution:
+  - "Group the first two numbers: {a} + {b} = {sum_ab}"
+  - "Group the last two numbers: {c} + {d} = {sum_cd}"
+  - "Add the results: {sum_ab} + {sum_cd} = {answer}"

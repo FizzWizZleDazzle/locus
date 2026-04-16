@@ -141,6 +141,14 @@ fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
         Err(e) => return Err(vec![format!("Parse error: {e}")]),
     };
 
+    // Full generation test — this catches constraint, symengine, template, and grading errors
+    match locus_dsl::generate(&spec) {
+        Ok(_) => return Ok(()),
+        Err(e) => return Err(vec![format!("Generation error: {e}")]),
+    }
+
+    // Below checks are redundant now but kept as fallback
+    #[allow(unreachable_code)]
     let mut errors = Vec::new();
 
     // Check all variable definitions reference valid samplers or functions
@@ -295,75 +303,189 @@ async fn call_llm(
 
 const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files. Output ONLY valid YAML.
 
-# DESIGN METHOD: WORK BACKWARDS FROM THE ANSWER
+# GOLDEN RULE
 
-ALWAYS design problems answer-first:
-1. Pick a CLEAN answer (small integer, simple fraction, clean expression).
-2. Work BACKWARDS to build the problem that produces this answer.
-3. Choose variable ranges that GUARANTEE the answer works.
-4. Constraints should be trivially satisfied by your construction — not aspirational filters.
+Design BACKWARDS from the answer. Pick clean answer first, build problem around it.
+Every variable is either a sampler OR a simple formula from other variables.
+The answer must be GUARANTEED correct by construction — never by filtering.
 
-Example of backward design:
-- Want students to solve a quadratic with roots 3 and -5
-- Pick r1: integer(-8, 8), r2: integer(-8, 8), constrain r1 != r2
-- Build f: (x - r1) * (x - r2), expanded: expand(f)
-- The roots are guaranteed by construction — no need for is_integer(roots)
+# YAML STRUCTURE
 
-NEVER do forward design:
-- Do NOT pick random coefficients then hope the answer is clean
-- Do NOT use is_integer(answer) to filter — construct integrality instead
-- Do NOT write 4+ constraints to force a specific outcome
-
-# FORMAT
-
-topic: main_topic/subtopic
-calculator: none|scientific|graphing
-variables: (samplers, derived, or functions)
-constraints: (max 3, trivially satisfiable)
-question: "Text with {var} and {display_func()} refs"
+```
+topic: main/sub
+calculator: none
+variables:
+  name: value
+constraints:
+  - simple_condition
+question: "text with {var} refs"
 answer: variable_name
-solution: (step-by-step with {var} refs)
+solution:
+  - "step with {var} refs"
+```
 
-# VARIABLES
+# ALLOWED SAMPLERS
 
-Samplers: integer(lo, hi)  nonzero(lo, hi)  decimal(lo, hi, places)  choice(a, b, c)  prime(lo, hi)
-Derived: f: a * x^n + b
-Functions: derivative(expr, var)  integral(expr, var)  solve(expr, var)  expand(expr)  simplify(expr)  evaluate(expr, var, value)  sqrt(x)  abs(x)  floor(x)  ceil(x)  round(x, n)  mod(a, b)  max(a, b)  min(a, b)  sin cos tan asin acos atan log ln exp
+integer(lo, hi)          — random int in [lo, hi]
+nonzero(lo, hi)          — int excluding 0
+choice(a, b, c, ...)     — pick from list
+prime(lo, hi)            — random prime
+decimal(lo, hi, places)  — decimal with N places
 
-# DISPLAY FUNCTIONS (for {ref} in question/solution text)
+# ALLOWED FUNCTIONS IN VARIABLES
 
-{var_name}  {derivative_of(f, x)}  {integral_of(f, x)}  {definite_integral_of(f, x, a, b)}
-{limit_of(f, x, val)}  {equation(lhs, rhs)}  {system(eq1, eq2)}  {matrix_of(M)}
-{det_of(M)}  {vec(v)}  {norm(v)}  {abs_of(x)}  {set_of(s)}  {binomial(n, k)}
+derivative(expr, var)    — differentiate
+integral(expr, var)      — antiderivative (polynomial only)
+expand(expr)             — expand products
+solve(expr, var)         — roots of expr=0 (linear/quadratic only, returns comma-separated roots)
+evaluate(expr, var, val) — substitute var=val (EXACTLY 3 args, returns a number)
+sqrt(expr)               — square root
+abs(expr)                — absolute value
+floor(x)  ceil(x)  round(x, n)  mod(a, b)  max(a, b)  min(a, b)
+sin(x)  cos(x)  tan(x)  log(x)  ln(x)  exp(x)
 
-# STRICT RULES
+# ALLOWED IN {refs} IN QUESTION/SOLUTION TEXT
 
-1. Inside {} in question/solution: ONLY variable names or display functions above.
-   {b*c} is INVALID — define product: b*c as variable, use {product}.
-   {sqrt(x)} is INVALID — define val: sqrt(x) as variable, use {val}.
+{variable_name}                           — renders as $value$
+{derivative_of(f, x)}                     — renders d/dx[f]
+{integral_of(f, x)}                       — renders ∫f dx
+{definite_integral_of(f, x, a, b)}        — renders ∫_a^b f dx
+{limit_of(f, x, val)}                     — renders lim
+{equation(lhs, rhs)}                      — renders lhs = rhs (EXACTLY 2 args)
+{system(eq1, eq2)}                        — renders cases
 
-2. The answer field must be a variable name, never an expression.
+# BANNED — DO NOT USE ANY OF THESE
 
-3. YAML strings with { or : MUST be double-quoted.
+- y', y'', y''' (prime notation) — SymEngine cannot parse these
+- = sign in variable definitions — variables are expressions, not equations
+- if/else, implies, ternary — no Python syntax
+- % operator — use mod(a, b) instead
+- ∞, ∪, ≤, ≥ or any unicode math symbols
+- [index] notation like result[0] — no array indexing
+- evaluate() with more than 3 args — chain calls instead
+- equation() with more than 2 args
+- gcd(), mod(), abs(), is_integer() in CONSTRAINTS
+- Constraints with divisibility (mod(x, y) == 0)
+- Constraints comparing computed values (left_side == right_side)
+- answer_type values other than: numeric, expression, tuple, set, boolean, word
+- Invented display functions not in the list above
+- Comments in the variables section
+- $, $$, or any LaTeX markup
+- Lists or arrays as variable values: [a, b, c]
+- Equations as variable values: x^2 + y^2 = 4
 
-4. Never write LaTeX, $, $$, or %. Use display functions for all math notation.
+# CONSTRAINTS — MAXIMUM 2, TRIVIALLY SATISFIABLE
 
-5. Max 3 constraints. Every constraint must pass for >80% of the sample space.
-   If you need is_integer, redesign so integrality is guaranteed by construction.
+ONLY these patterns are allowed:
+  a != b          (two samplers differ)
+  a < b           (ordering)
+  a > 0           (positive)
 
-6. No difficulty field (injected by system). Calibrate complexity to the difficulty in the user message.
+If you need the answer to be an integer, CONSTRUCT it as an integer by design.
+If you need gcd(a,b)==1, use prime() samplers or choice() with coprime values.
+If you need divisibility, compute: answer: integer(...), then rhs: a * answer.
 
-7. Matrices: use matrix(rows, cols, lo, hi) sampler, never manual [[...]].
+# MULTI-VARIABLE EVALUATE
 
-8. Before outputting: mentally substitute one concrete value for each sampler and verify all constraints pass and the answer is clean.
+To evaluate f(x,y) at x=2, y=3:
+  step1: evaluate(f, x, 2)
+  step2: evaluate(step1, y, 3)
 
-9. INTERVALS: If the answer is an interval, define the bounds as variables and build the interval string.
-   Example for compound inequality answer (-3, 5]:
-     lo: ...computed...
-     hi: ...computed...
-     answer: "open:lo,closed:hi"   ← WRONG, this is a literal string
-   Instead, just use answer_type: tuple and return the bounds, OR avoid interval type entirely.
-   For compound inequalities, return the boundary values as a tuple: answer: lo, hi"#;
+NEVER: evaluate(f, x, 2, y, 3)
+
+# COMPOUND INEQUALITIES
+
+Do NOT use answer_type: interval or inequality.
+Return boundary values as a tuple: answer: lo, hi (answer_type: tuple)
+
+# DIFFERENTIAL EQUATIONS
+
+Do NOT use y' or y'' notation. Use derivative(y, x) for y' and define:
+  char_eq: r^2 + a*r + b     (characteristic equation in terms of r)
+  roots: solve(char_eq, r)
+
+# SYSTEMS OF EQUATIONS
+
+Pick x and y values first, compute RHS from them:
+  x: integer(-5, 5)
+  y: integer(-5, 5)
+  a1: nonzero(-5, 5)
+  b1: nonzero(-5, 5)
+  c1: a1*x + b1*y
+  a2: nonzero(-5, 5)
+  b2: nonzero(-5, 5)
+  c2: a2*x + b2*y
+  answer: x, y
+Constraint: a1*b2 != a2*b1 (ensures unique solution — ALWAYS satisfiable with these ranges)
+
+# FACTORING
+
+Build the factored form first, expand for the question:
+  r1: integer(-8, 8)
+  r2: integer(-8, 8)
+  factored: (x - r1)*(x - r2)
+  expanded: expand(factored)
+  answer: solve(expanded, x)
+  answer_type: set
+Constraint: r1 != r2
+
+For GCF factoring, build from GCF:
+  gcf: choice(2, 3, 4, 5)
+  c1: integer(1, 6)
+  c2: integer(1, 6)
+  f: gcf*c1*x + gcf*c2
+  answer: gcf*(c1*x + c2)
+
+# GRAPHING / SLOPES
+
+Pick slope and point, compute other values:
+  m: nonzero(-5, 5)
+  x1: integer(-4, 4)
+  y1: integer(-6, 6)
+  b: y1 - m*x1
+  answer: m
+
+# AREA BETWEEN CURVES / DEFINITE INTEGRALS
+
+Compute step by step:
+  f: a*x^n
+  F: integral(f, x)
+  F_hi: evaluate(F, x, hi)
+  F_lo: evaluate(F, x, lo)
+  answer: F_hi - F_lo
+NEVER: evaluate(F, x, hi) - evaluate(F, x, lo) as one expression
+
+# SEQUENCES
+
+Pick first term and common difference/ratio, compute directly:
+  a1: integer(2, 10)
+  d: nonzero(-5, 5)
+  n: integer(5, 15)
+  answer: a1 + (n - 1)*d
+
+# PERCENTAGES / GROWTH
+
+Use simple multiplication:
+  original: choice(100, 200, 250, 400, 500)
+  rate: choice(10, 15, 20, 25, 30)
+  increase: original * rate / 100
+  answer: original + increase
+
+# DIFFICULTY CALIBRATION (no difficulty field — injected by system)
+
+very_easy/easy: 1 step, single-digit or small two-digit numbers
+medium: 2-3 steps, moderate numbers
+hard/very_hard: multi-step, fractions, negative numbers
+competition: creative setup, elegant backward construction
+
+# VERIFICATION
+
+Before outputting, mentally substitute the MIDPOINT of every sampler range and trace through:
+1. Do all variables resolve to concrete values?
+2. Do all constraints pass?
+3. Is the answer a clean number or simple expression?
+4. Do all {refs} in question/solution match defined variable names?
+If ANY check fails, redesign from scratch."#;
 
 // =============================================================================
 // Examples (selected by topic relevance)

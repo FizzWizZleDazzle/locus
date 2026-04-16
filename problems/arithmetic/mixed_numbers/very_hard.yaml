@@ -1,0 +1,47 @@
+topic: arithmetic/mixed_numbers
+difficulty: very_hard
+calculator: none
+variables:
+  # Design backwards: want a clean answer like 7 1/3
+  # So we'll construct mixed numbers that when operated on give this
+  whole_ans: integer(5, 9)
+  num_ans: integer(1, 5)
+  den_ans: integer(6, 12)
+  
+  # Build two mixed numbers that subtract to give our answer
+  # Second mixed number
+  whole2: integer(2, 4)
+  num2: integer(1, 5)
+  den2: den_ans  # Same denominator as answer for cleaner work
+  
+  # First mixed number = answer + second
+  # Convert to improper fractions for calculation
+  improper_ans: whole_ans * den_ans + num_ans
+  improper2: whole2 * den2 + num2
+  improper1: improper_ans + improper2
+  
+  # Convert back to mixed number form
+  whole1: floor(improper1 / den_ans)
+  num1: mod(improper1, den_ans)
+  den1: den_ans
+  
+  # The actual answer (already designed above)
+  answer_whole: whole_ans
+  answer_num: num_ans
+  answer_den: den_ans
+  
+constraints:
+  - gcd(num_ans, den_ans) == 1  # Answer fraction in lowest terms
+  - gcd(num2, den2) == 1  # Second fraction in lowest terms
+  - num1 < den1  # Ensure first is proper mixed number
+
+question: "Calculate: {whole1} {num1}/{den1} - {whole2} {num2}/{den2}"
+
+answer: answer_whole, answer_num, answer_den
+
+solution:
+  - "Convert to improper fractions: {whole1} {num1}/{den1} = {improper1}/{den1}"
+  - "And {whole2} {num2}/{den2} = {improper2}/{den2}"
+  - "Subtract: {improper1}/{den1} - {improper2}/{den2} = {improper_ans}/{den_ans}"
+  - "Convert back to mixed number: {improper_ans} ÷ {den_ans} = {answer_whole} remainder {answer_num}"
+  - "Final answer: {answer_whole} {answer_num}/{answer_den}"

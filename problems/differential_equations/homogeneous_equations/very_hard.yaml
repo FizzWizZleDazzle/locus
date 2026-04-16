@@ -1,0 +1,27 @@
+topic: differential_equations/homogeneous_equations
+difficulty: very_hard
+calculator: none
+variables:
+  r1: integer(-4, -1)
+  r2: integer(1, 4)
+  r3: integer(-3, 3)
+  char_poly: (r - r1) * (r - r2) * (r - r3)
+  expanded: expand(char_poly)
+  a: -1 * (r1 + r2 + r3)
+  b: r1*r2 + r1*r3 + r2*r3
+  c: -1 * r1 * r2 * r3
+  answer: "C1*e^(r1*x) + C2*e^(r2*x) + C3*e^(r3*x)"
+constraints:
+  - r1 != r2
+  - r2 != r3
+  - r1 != r3
+question: "Find the general solution to the third-order homogeneous differential equation y''' + {a}y'' + {b}y' + {c}y = 0"
+answer: answer
+answer_type: expression
+solution:
+  - "For the equation y''' + {a}y'' + {b}y' + {c}y = 0, we find the characteristic equation"
+  - "r³ + {a}r² + {b}r + {c} = 0"
+  - "This factors as (r - {r1})(r - {r2})(r - {r3}) = 0"
+  - "The roots are r = {r1}, r = {r2}, r = {r3}"
+  - "Since all roots are distinct, the general solution is:"
+  - "y = C₁e^({r1}x) + C₂e^({r2}x) + C₃e^({r3}x)"

@@ -1,0 +1,27 @@
+topic: differential_equations/undetermined_coefficients
+difficulty: easy
+calculator: none
+variables:
+  r: integer(-3, -1)
+  a: integer(2, 5)
+  b: integer(1, 4)
+  char_eq: "r^2 - 2*r*r - r*r"
+  char_eq_simplified: simplify(char_eq)
+  homogeneous: "c1*e^(r*x) + c2*x*e^(r*x)"
+  f: "a*e^(r*x)"
+  yp_form: "A*x^2*e^(r*x)"
+  A_value: a / (2*r*r)
+  yp: "A_value*x^2*e^(r*x)"
+  general: "c1*e^(r*x) + c2*x*e^(r*x) + A_value*x^2*e^(r*x)"
+question: "Solve the differential equation {equation('y'' - 2*r*y' + r^2*y', f)} using the method of undetermined coefficients."
+answer: general
+solution:
+  - "First, solve the homogeneous equation {equation('y'' - 2*r*y' + r^2*y', 0)}"
+  - "The characteristic equation is {equation(char_eq_simplified, 0)}"
+  - "This gives {equation('(r - r)^2', 0)}, so r = {r} with multiplicity 2"
+  - "The homogeneous solution is {homogeneous}"
+  - "For the particular solution, since {f} and e^({r}x) is already in the homogeneous solution with multiplicity 2"
+  - "We try {yp_form}"
+  - "Substituting into the differential equation and solving gives A = {A_value}"
+  - "So the particular solution is {yp}"
+  - "The general solution is {general}"

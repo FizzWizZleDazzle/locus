@@ -1,0 +1,15 @@
+topic: arithmetic/multiplication
+difficulty: medium
+calculator: none
+variables:
+  a: integer(11, 25)
+  b: integer(11, 25)
+  answer: a * b
+constraints:
+  - mod(a, 5) == 0 or mod(b, 5) == 0
+  - a != b
+question: "Calculate: {a} × {b}"
+answer: answer
+solution:
+  - "Multiply {a} by {b}"
+  - "Break it down: {a} × {b} = {answer}"

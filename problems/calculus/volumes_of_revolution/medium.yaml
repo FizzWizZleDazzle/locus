@@ -1,0 +1,22 @@
+topic: calculus/volumes_of_revolution
+difficulty: medium
+calculator: scientific
+variables:
+  a: integer(1, 4)
+  b: integer(2, 5)
+  c: a + b
+  f: sqrt(x)
+  pi_coeff: a * c
+  answer: pi_coeff
+constraints:
+  - c > a
+question: "Find the volume of the solid obtained by rotating the region bounded by {equation(y, f)}, y = 0, x = {a}, and x = {c} about the x-axis. Express your answer as a multiple of π."
+answer: answer
+solution:
+  - "Using the disk method: V = π∫[a to b] R(x)² dx"
+  - "Here R(x) = {f}, so R(x)² = x"
+  - "V = π∫[{a} to {c}] x dx"
+  - "V = π[x²/2] from {a} to {c}"
+  - "V = π({c}²/2 - {a}²/2)"
+  - "V = π({pi_coeff})"
+  - "The answer is {answer}π"

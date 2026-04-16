@@ -1,0 +1,32 @@
+topic: calculus/area_between_curves
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(1, 3)
+  c: integer(2, 4)
+  f: a * x^3 - a * c^2 * x
+  g: b * x^2 - b * c^2
+  x1: -c
+  x2: 0
+  x3: c
+  integrand: simplify(f - g)
+  area_left: abs(integral(integrand, x, x1, x2))
+  area_right: abs(integral(integrand, x, x2, x3))
+  answer: area_left + area_right
+constraints:
+  - a > b
+  - c > 1
+question: "Find the total area enclosed between the curves {equation(y, f)} and {equation(y, g)}."
+answer: answer
+solution:
+  - "Find intersection points by solving {equation(f, g)}"
+  - "Factor: {equation(a * x * (x^2 - c^2), b * (x^2 - c^2))}"
+  - "Since x^2 - c^2 ≠ 0 at intersections, we have {equation(a * x, b)}"
+  - "So x = {b}/{a}, but we also need x^2 = c^2, giving x = ±{c}"
+  - "The curves also intersect at x = 0 (both equal -{b * c^2})"
+  - "Intersection points: x = {x1}, {x2}, {x3}"
+  - "For x in [{x1}, {x2}]: {f} - {g} = {integrand}"
+  - "Area on [{x1}, {x2}] = {area_left}"
+  - "By symmetry, area on [{x2}, {x3}] = {area_right}"
+  - "Total area = {area_left} + {area_right} = {answer}"

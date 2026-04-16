@@ -1,0 +1,21 @@
+topic: calculus/curve_sketching
+difficulty: very_easy
+calculator: none
+variables:
+  a: choice(-3, -2, -1, 1, 2, 3)
+  b: choice(-4, -2, 0, 2, 4)
+  f: a * x^2 + b
+  vertex_x: 0
+  vertex_y: b
+  answer: vertex_y
+constraints:
+  - a != 0
+question: "Find the y-coordinate of the vertex of the parabola {equation(f, y)}."
+answer: answer
+solution:
+  - "For a parabola of the form ax^2 + bx + c, the vertex has x-coordinate -b/(2a)"
+  - "Here we have {f}, so the coefficient of x is 0"
+  - "The x-coordinate of the vertex is -0/(2*{a}) = 0"
+  - "To find the y-coordinate, substitute x = 0 into the function"
+  - "y = {a}(0)^2 + {b} = {b}"
+  - "The vertex is at (0, {answer})"

@@ -1,0 +1,33 @@
+topic: geometry/perimeter
+difficulty: medium
+calculator: none
+variables:
+  shape: choice(1, 2, 3)
+  # Rectangle with integer dimensions
+  rect_length: integer(5, 12)
+  rect_width: integer(3, 8)
+  rect_perimeter: 2 * (rect_length + rect_width)
+  # Triangle with integer sides forming valid triangle
+  tri_a: integer(4, 10)
+  tri_b: integer(5, 11)
+  tri_c: integer(6, 12)
+  tri_perimeter: tri_a + tri_b + tri_c
+  # Regular hexagon with integer side length
+  hex_side: integer(3, 8)
+  hex_perimeter: 6 * hex_side
+  # Select appropriate values based on shape
+  perimeter: choice(rect_perimeter, tri_perimeter, hex_perimeter)
+  shape_name: choice("rectangle", "triangle", "regular hexagon")
+  dimension1: choice(rect_length, tri_a, hex_side)
+  dimension2: choice(rect_width, tri_b, hex_side)
+  dimension3: choice(rect_width, tri_c, hex_side)
+constraints:
+  - rect_length > rect_width
+  - tri_a + tri_b > tri_c
+  - tri_a + tri_c > tri_b
+question: "A {shape_name} has dimensions {dimension1}, {dimension2}, and {dimension3}. Find its perimeter."
+answer: perimeter
+solution:
+  - "For a {shape_name}, add all side lengths"
+  - "Perimeter = {dimension1} + {dimension2} + {dimension3} + remaining sides"
+  - "Perimeter = {perimeter}"

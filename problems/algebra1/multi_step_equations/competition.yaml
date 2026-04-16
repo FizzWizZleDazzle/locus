@@ -1,0 +1,32 @@
+topic: algebra1/multi_step_equations
+difficulty: competition
+calculator: none
+variables:
+  # Design backward: want final answer x = 7
+  x_val: 7
+  # Build a complex equation that yields x = 7
+  # Start with (x - 7) = 0 and build outward
+  a: integer(2, 5)
+  b: integer(3, 8)
+  c: integer(2, 6)
+  d: integer(4, 9)
+  # Create nested structure: a(bx + c) - d(x - 1) = k
+  # When x = 7: a(7b + c) - d(6) = k
+  k: a * (b * x_val + c) - d * (x_val - 1)
+  # The equation to solve
+  lhs: a * (b * x + c) - d * (x - 1)
+  # Expanded form for additional complexity
+  expanded: expand(lhs)
+  answer: x_val
+constraints:
+  - a != d
+  - b != 1
+  - gcd(a*b - d, k) == 1
+question: "Solve for x: {equation(lhs, k)}"
+answer: answer
+solution:
+  - "Start with {equation(lhs, k)}"
+  - "Expand the left side: {equation(expanded, k)}"
+  - "Combine like terms: {equation((a*b - d)*x + (a*c + d), k)}"
+  - "Subtract {a*c + d} from both sides: {equation((a*b - d)*x, k - (a*c + d))}"
+  - "Divide by {a*b - d}: x = {answer}"

@@ -1,0 +1,29 @@
+topic: linear_algebra/vector_spaces
+difficulty: medium
+calculator: none
+variables:
+  a1: integer(-3, 3)
+  a2: integer(-3, 3)
+  a3: integer(-3, 3)
+  b1: integer(-3, 3)
+  b2: integer(-3, 3)
+  b3: integer(-3, 3)
+  k: integer(2, 4)
+  w1: k * a1
+  w2: k * a2
+  w3: k * a3
+  answer: true
+constraints:
+  - a1 != 0 or a2 != 0 or a3 != 0
+  - b1 != 0 or b2 != 0 or b3 != 0
+question: "Consider the vectors ({a1}, {a2}, {a3}), ({b1}, {b2}, {b3}), and ({w1}, {w2}, {w3}) where the third vector equals {k} times the first vector. Do these three vectors form a linearly dependent set? Answer true or false."
+answer: answer
+answer_type: boolean
+solution:
+  - "Check if there exist scalars c1, c2, c3 (not all zero) such that c1·v1 + c2·v2 + c3·v3 = 0"
+  - "Since v3 = {k}·v1, we can write: c1·v1 + c2·v2 + c3·({k}·v1) = 0"
+  - "This gives us: (c1 + {k}c3)·v1 + c2·v2 = 0"
+  - "Choose c1 = -{k}, c2 = 0, c3 = 1 (not all zero)"
+  - "Then: -{k}·v1 + 0·v2 + 1·({k}·v1) = 0"
+  - "Since we found a non-trivial linear combination equal to zero, the vectors are linearly dependent"
+  - "Answer: true"

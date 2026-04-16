@@ -1,0 +1,49 @@
+topic: linear_algebra/row_reduction
+difficulty: medium
+calculator: none
+variables:
+  # Design backward: start with RREF form, then build original matrix
+  # This guarantees clean row reduction
+  a: nonzero(-3, 3)
+  b: integer(-4, 4)
+  c: integer(-4, 4)
+  d: nonzero(-3, 3)
+  e: integer(-4, 4)
+  f: integer(-4, 4)
+  # Build original matrix by applying row operations in reverse
+  # R1 = a*(RREF R1) + b*(RREF R2)
+  # R2 = d*(RREF R2) + e*(RREF R1)
+  r1c1: a * 1 + b * 0
+  r1c2: a * 0 + b * 1
+  r1c3: a * c + b * f
+  r2c1: e * 1 + d * 0
+  r2c2: e * 0 + d * 1
+  r2c3: e * c + d * f
+  M: matrix(2, 3, -10, 10)
+  # Set M to our constructed values
+  M[0,0]: r1c1
+  M[0,1]: r1c2
+  M[0,2]: r1c3
+  M[1,0]: r2c1
+  M[1,1]: r2c2
+  M[1,2]: r2c3
+  # RREF form
+  answer: matrix(2, 3, -10, 10)
+  answer[0,0]: 1
+  answer[0,1]: 0
+  answer[0,2]: c
+  answer[1,0]: 0
+  answer[1,1]: 1
+  answer[1,2]: f
+constraints:
+  - a * d - b * e != 0  # ensures matrix is invertible
+question: "Find the reduced row echelon form of {matrix_of(M)}"
+answer: answer
+answer_type: matrix
+solution:
+  - "Start with the augmented matrix {matrix_of(M)}"
+  - "Divide row 1 by {r1c1} to get leading 1 in position (1,1)"
+  - "Subtract {r2c1} times row 1 from row 2 to eliminate below pivot"
+  - "Divide row 2 by its leading coefficient to get leading 1 in position (2,2)"
+  - "Eliminate above the second pivot by subtracting appropriate multiple of row 2 from row 1"
+  - "The RREF is {matrix_of(answer)}"

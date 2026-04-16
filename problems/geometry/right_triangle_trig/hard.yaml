@@ -1,0 +1,33 @@
+topic: geometry/right_triangle_trig
+difficulty: hard
+calculator: scientific
+variables:
+  # Use Pythagorean triple (5,12,13) scaled by factor k
+  k: choice(2, 3, 4)
+  a: 5 * k
+  b: 12 * k
+  c: 13 * k
+  # Pick which leg is opposite to angle theta
+  opposite: choice(a, b)
+  adjacent: choice(b, a)
+  # Derived trig values
+  sin_theta: opposite / c
+  cos_theta: adjacent / c
+  tan_theta: opposite / adjacent
+  # Expression to evaluate
+  numerator: 2 * sin_theta * cos_theta
+  denominator: cos_theta^2 - sin_theta^2
+  answer: simplify(numerator / denominator)
+constraints:
+  - opposite != adjacent
+question: "In a right triangle with hypotenuse {c} and legs {a} and {b}, angle θ is opposite the side of length {opposite}. Find the exact value of {equation(2*sin(θ)*cos(θ), cos^2(θ) - sin^2(θ))}."
+answer: answer
+solution:
+  - "Given: hypotenuse = {c}, legs = {a} and {b}"
+  - "Since θ is opposite the side of length {opposite}, we have:"
+  - "sin(θ) = {opposite}/{c} = {sin_theta}"
+  - "cos(θ) = {adjacent}/{c} = {cos_theta}"
+  - "Calculate the numerator: 2sin(θ)cos(θ) = 2({sin_theta})({cos_theta}) = {numerator}"
+  - "Calculate the denominator: cos²(θ) - sin²(θ) = ({cos_theta})² - ({sin_theta})² = {denominator}"
+  - "Therefore: {equation(2*sin(θ)*cos(θ), cos^2(θ) - sin^2(θ))} = {numerator}/{denominator} = {answer}"
+  - "Note: This equals tan(2θ) by the double angle formula"

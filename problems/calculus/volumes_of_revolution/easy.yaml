@@ -1,0 +1,22 @@
+topic: calculus/volumes_of_revolution
+difficulty: easy
+calculator: scientific
+variables:
+  a: integer(1, 4)
+  b: integer(2, 5)
+  c: a + b
+  f: a * x
+  volume_factor: a^2 * (c^3 - b^3) / 3
+  answer: pi * volume_factor
+constraints:
+  - c > b
+question: "Find the volume of the solid formed by rotating the region bounded by {equation(y, f)}, {equation(x, b)}, {equation(x, c)}, and the x-axis about the x-axis."
+answer: answer
+solution:
+  - "Using the disk method: V = π∫[a to b] R(x)² dx"
+  - "The radius at position x is R(x) = {f}"
+  - "So V = π∫[{b} to {c}] ({f})² dx"
+  - "V = π∫[{b} to {c}] {a}²x² dx"
+  - "V = π · {a}² · [x³/3] from {b} to {c}"
+  - "V = π · {a}² · ({c}³/3 - {b}³/3)"
+  - "V = {answer}π"

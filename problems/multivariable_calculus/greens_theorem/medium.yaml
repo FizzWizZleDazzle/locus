@@ -1,0 +1,22 @@
+topic: multivariable_calculus/greens_theorem
+difficulty: medium
+calculator: scientific
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  P: a * x + b * y
+  Q: -b * x + a * y
+  dQ_dx: derivative(Q, x)
+  dP_dy: derivative(P, y)
+  integrand: dQ_dx - dP_dy
+  answer: -2 * b
+constraints:
+  - a != b
+question: "Use Green's theorem to evaluate the line integral {integral_of(P dx + Q dy, C)} where P = {P}, Q = {Q}, and C is the unit circle traversed counterclockwise."
+answer: answer
+solution:
+  - "Green's theorem: {integral_of(P dx + Q dy, C)} = {integral_of(integral_of(dQ/dx - dP/dy, dA), R)}"
+  - "Calculate partial derivatives: {derivative_of(Q, x)} = {dQ_dx}, {derivative_of(P, y)} = {dP_dy}"
+  - "The integrand is {dQ_dx} - {dP_dy} = {integrand}"
+  - "For the unit circle, the double integral becomes {integral_of(integral_of(integrand, dA), R)} = {integrand} × π × 1²"
+  - "Therefore, the answer is {answer}π"

@@ -1,0 +1,31 @@
+topic: multivariable_calculus/greens_theorem
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 3)
+  P: a * x * y + c * y
+  Q: b * x^2 - c * x
+  dQ_dx: derivative(Q, x)
+  dP_dy: derivative(P, y)
+  integrand: dQ_dx - dP_dy
+  simplified: simplify(integrand)
+  x_upper: integer(2, 4)
+  y_upper: integer(2, 4)
+  area: x_upper * y_upper
+  answer: simplified * area
+constraints:
+  - a != b
+  - x_upper != y_upper
+question: "Use Green's theorem to evaluate the line integral {integral_of(P dx + Q dy, C)} where P = {P}, Q = {Q}, and C is the rectangle with vertices at (0,0), ({x_upper},0), ({x_upper},{y_upper}), and (0,{y_upper}), oriented counterclockwise."
+answer: answer
+solution:
+  - "By Green's theorem: {integral_of(P dx + Q dy, C)} = {integral_of(integral_of(dQ/dx - dP/dy, y), x)} over the region R"
+  - "Calculate {derivative_of(Q, x)} = {derivative_of({Q}, x)} = {dQ_dx}"
+  - "Calculate {derivative_of(P, y)} = {derivative_of({P}, y)} = {dP_dy}"
+  - "So {derivative_of(Q, x)} - {derivative_of(P, y)} = {dQ_dx} - {dP_dy} = {simplified}"
+  - "The double integral becomes {integral_of(integral_of({simplified}, y), x)} over the rectangle"
+  - "Since the integrand is constant, this equals {simplified} × (area of rectangle)"
+  - "Area = {x_upper} × {y_upper} = {area}"
+  - "Therefore the line integral equals {simplified} × {area} = {answer}"

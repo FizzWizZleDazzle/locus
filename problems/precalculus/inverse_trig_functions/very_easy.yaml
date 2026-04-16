@@ -1,0 +1,17 @@
+topic: precalculus/inverse_trig_functions
+difficulty: very_easy
+calculator: none
+variables:
+  angle_deg: choice(30, 45, 60)
+  angle_rad: angle_deg * pi / 180
+  sin_val: sin(angle_rad)
+  cos_val: cos(angle_rad)
+  func_type: choice("sin", "cos")
+  trig_val: sin_val if func_type == "sin" else cos_val
+  answer: angle_deg
+question: "Find the value in degrees: {func_type}^(-1)({trig_val})"
+answer: answer
+solution:
+  - "We need to find the angle whose {func_type} is {trig_val}"
+  - "Recall that {func_type}({angle_deg}°) = {trig_val}"
+  - "Therefore, {func_type}^(-1)({trig_val}) = {angle_deg}°"

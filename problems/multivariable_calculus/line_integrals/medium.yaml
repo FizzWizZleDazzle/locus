@@ -1,0 +1,27 @@
+topic: multivariable_calculus/line_integrals
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 5)
+  b: integer(2, 5)
+  c: integer(1, 3)
+  t_start: 0
+  t_end: 1
+  curve_x: c * t
+  curve_y: c * t^2
+  dx_dt: derivative(curve_x, t)
+  dy_dt: derivative(curve_y, t)
+  F_x: a * curve_y
+  F_y: b * curve_x
+  integrand: simplify(F_x * dx_dt + F_y * dy_dt)
+  answer: integral(integrand, t, t_start, t_end)
+constraints:
+  - a != b
+question: "Evaluate the line integral {integral_of(F · dr, C)} where F = {vec([a*y, b*x])} and C is the curve parametrized by r(t) = {vec([curve_x, curve_y])} for t ∈ [{t_start}, {t_end}]."
+answer: answer
+solution:
+  - "Parametrize the curve: x(t) = {curve_x}, y(t) = {curve_y}"
+  - "Compute derivatives: dx/dt = {dx_dt}, dy/dt = {dy_dt}"
+  - "Substitute into F: F(r(t)) = {vec([F_x, F_y])}"
+  - "Compute F · dr/dt = {F_x} · {dx_dt} + {F_y} · {dy_dt} = {integrand}"
+  - "Integrate: {definite_integral_of(integrand, t, t_start, t_end)} = {answer}"

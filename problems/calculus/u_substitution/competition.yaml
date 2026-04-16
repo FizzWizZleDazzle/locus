@@ -1,0 +1,27 @@
+topic: calculus/u_substitution
+difficulty: competition
+calculator: none
+variables:
+  a: choice(2, 3, 4, 6)
+  b: choice(1, 2, 3, 4)
+  c: integer(2, 5)
+  inner: a*x + b
+  power: integer(3, 5)
+  integrand: c * (inner)^power
+  u: inner
+  du_dx: a
+  integrand_u: c * u^power / a
+  antideriv_u: c * u^(power + 1) / (a * (power + 1))
+  answer: simplify(c * (inner)^(power + 1) / (a * (power + 1)))
+constraints:
+  - gcd(c, a) == 1
+  - gcd(a*(power + 1), c) == 1
+question: "Evaluate {integral_of(integrand, x)} using u-substitution."
+answer: answer
+solution:
+  - "Let u = {u}, then du = {du_dx} dx"
+  - "So dx = du/{du_dx}"
+  - "Substituting: {integral_of(integrand, x)} = {integral_of(integrand_u, u)}"
+  - "= {antideriv_u} + C"
+  - "Substituting back u = {u}:"
+  - "= {answer} + C"

@@ -1,0 +1,22 @@
+topic: geometry/triangle_congruence
+difficulty: easy
+calculator: none
+variables:
+  side1: integer(3, 8)
+  side2: integer(4, 9)
+  side3: integer(5, 10)
+  angle1: choice(30, 45, 60, 90)
+  angle2: choice(30, 45, 60, 90)
+  angle3: 180 - angle1 - angle2
+constraints:
+  - side1 < side2 + side3
+  - side2 < side1 + side3
+  - side3 < side1 + side2
+question: "Triangle ABC has sides AB = {side1} cm, BC = {side2} cm, and AC = {side3} cm. Triangle DEF has sides DE = {side1} cm, EF = {side2} cm, and DF = {side3} cm. Are these triangles congruent? If yes, state the congruence criterion."
+answer: "SSS"
+solution:
+  - "Compare the corresponding sides of both triangles:"
+  - "Triangle ABC: AB = {side1} cm, BC = {side2} cm, AC = {side3} cm"
+  - "Triangle DEF: DE = {side1} cm, EF = {side2} cm, DF = {side3} cm"
+  - "All three pairs of corresponding sides are equal"
+  - "Therefore, the triangles are congruent by SSS (Side-Side-Side) criterion"

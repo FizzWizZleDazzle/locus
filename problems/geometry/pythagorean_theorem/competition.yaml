@@ -1,0 +1,28 @@
+topic: geometry/pythagorean_theorem
+difficulty: competition
+calculator: scientific
+variables:
+  k: integer(2, 5)
+  m: integer(3, 8)
+  n: integer(1, 7)
+  a: k * (m^2 - n^2)
+  b: k * (2 * m * n)
+  c: k * (m^2 + n^2)
+  p: a + b + c
+  area: (a * b) / 2
+  inradius: area / (p / 2)
+  answer: inradius
+constraints:
+  - m > n
+  - gcd(m, n) == 1
+  - mod(m - n, 2) == 1
+question: "A right triangle has legs of length {a} and {b}. Find the radius of the inscribed circle."
+answer: answer
+solution:
+  - "First verify this is a right triangle using the Pythagorean theorem"
+  - "Hypotenuse c = sqrt({a}^2 + {b}^2) = sqrt({evaluate(a^2 + b^2, a, a)}) = {c}"
+  - "The area of the triangle is (1/2) × base × height = (1/2) × {a} × {b} = {area}"
+  - "The perimeter is {a} + {b} + {c} = {p}"
+  - "The semiperimeter s = {p}/2 = {evaluate(p/2, p, p)}"
+  - "For any triangle, the inradius r = Area/s"
+  - "Therefore r = {area}/{evaluate(p/2, p, p)} = {answer}"
