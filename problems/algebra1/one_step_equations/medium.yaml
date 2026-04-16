@@ -1,0 +1,17 @@
+topic: algebra1/one_step_equations
+difficulty: medium
+calculator: none
+variables:
+  answer: integer(-12, 12)
+  a: nonzero(-8, 8)
+  b: a * answer
+constraints:
+  - a != 1
+  - a != -1
+question: "Solve for x: {equation(a*x, b)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "We have {equation(a*x, b)}"
+  - "Divide both sides by {a}: {equation(x, b/a)}"
+  - "Therefore, x = {answer}"

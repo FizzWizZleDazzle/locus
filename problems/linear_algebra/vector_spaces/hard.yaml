@@ -1,0 +1,38 @@
+topic: linear_algebra/vector_spaces
+difficulty: hard
+calculator: none
+variables:
+  a1: nonzero(-3, 3)
+  a2: nonzero(-3, 3)
+  a3: nonzero(-3, 3)
+  b1: nonzero(-3, 3)
+  b2: nonzero(-3, 3)
+  b3: nonzero(-3, 3)
+  c1: nonzero(-3, 3)
+  c2: nonzero(-3, 3)
+  c3: nonzero(-3, 3)
+  v1: (a1, a2, a3)
+  v2: (b1, b2, b3)
+  v3: (c1, c2, c3)
+  k1: integer(-2, 2)
+  k2: integer(-2, 2)
+  k3: integer(-2, 2)
+  combo1: k1*a1 + k2*b1 + k3*c1
+  combo2: k1*a2 + k2*b2 + k3*c2
+  combo3: k1*a3 + k2*b3 + k3*c3
+  w: (combo1, combo2, combo3)
+  det_coeff: a1*(b2*c3 - b3*c2) - a2*(b1*c3 - b3*c1) + a3*(b1*c2 - b2*c1)
+  answer: True
+constraints:
+  - k1 != 0
+  - k2 != 0
+question: "Consider the vectors v₁ = {v1}, v₂ = {v2}, v₃ = {v3} in ℝ³. Let w = {w} = {k1}v₁ + {k2}v₂ + {k3}v₃. Do the vectors v₁, v₂, v₃ form a basis for ℝ³?"
+answer: answer
+answer_type: boolean
+solution:
+  - "Three vectors form a basis for ℝ³ if they are linearly independent"
+  - "Check if the determinant of the matrix [v₁ v₂ v₃] is nonzero"
+  - "det = {a1}({b2}·{c3} - {b3}·{c2}) - {a2}({b1}·{c3} - {b3}·{c1}) + {a3}({b1}·{c2} - {b2}·{c1})"
+  - "det = {a1}·({b2*c3 - b3*c2}) - {a2}·({b1*c3 - b3*c1}) + {a3}·({b1*c2 - b2*c1})"
+  - "det = {det_coeff}"
+  - "Since det ≠ 0, the vectors are linearly independent and form a basis: {answer}"

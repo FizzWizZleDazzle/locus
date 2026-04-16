@@ -1,0 +1,27 @@
+topic: precalculus/inverse_trig_functions
+difficulty: hard
+calculator: none
+variables:
+  angle_deg: choice(30, 45, 60, 120, 135, 150)
+  angle_rad: angle_deg * pi / 180
+  sin_val: sin(angle_rad)
+  cos_val: cos(angle_rad)
+  a: choice(2, 3, 4, 5)
+  b: choice(2, 3, 4, 5)
+  expr: a * sin_val + b * cos_val
+  simplified: expand(expr)
+  arcsin_input: sin_val
+  arccos_input: cos_val
+  answer: angle_deg
+constraints:
+  - a != b
+question: "If arcsin({arcsin_input}) + arccos({arccos_input}) = θ radians, find θ in degrees."
+answer: answer
+answer_type: numeric
+solution:
+  - "Let α = arcsin({arcsin_input}) and β = arccos({arccos_input})"
+  - "We know that sin(α) = {arcsin_input} and cos(β) = {arccos_input}"
+  - "For special angles: sin({angle_deg}°) = {sin_val} and cos({angle_deg}°) = {cos_val}"
+  - "Since {arcsin_input} and {arccos_input} correspond to the same angle {angle_deg}°"
+  - "We have α = {angle_deg}° and β = {angle_deg}°"
+  - "Therefore θ = α + β = {angle_deg}° + {angle_deg}° = {answer}°"

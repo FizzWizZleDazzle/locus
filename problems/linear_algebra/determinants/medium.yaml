@@ -1,0 +1,20 @@
+topic: linear_algebra/determinants
+difficulty: medium
+calculator: none
+variables:
+  a: integer(-5, 5)
+  b: integer(-5, 5)
+  c: integer(-5, 5)
+  d: integer(-5, 5)
+  det: a*d - b*c
+  answer: det
+constraints:
+  - det != 0
+question: "Find the determinant of the matrix [[{a}, {b}], [{c}, {d}]]"
+answer: answer
+answer_type: numeric
+solution:
+  - "For a 2×2 matrix [[a, b], [c, d]], the determinant is ad - bc"
+  - "Here we have [[{a}, {b}], [{c}, {d}]]"
+  - "det = ({a})({d}) - ({b})({c})"
+  - "det = {answer}"

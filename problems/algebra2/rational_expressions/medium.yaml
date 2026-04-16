@@ -1,0 +1,26 @@
+topic: algebra2/rational_expressions
+difficulty: medium
+calculator: none
+variables:
+  a: integer(2, 6)
+  b: integer(2, 6)
+  c: integer(2, 6)
+  d: integer(2, 6)
+  numerator: a*x + b
+  denominator: c*x + d
+  f: numerator / denominator
+  x_val: integer(-3, 3)
+  num_eval: evaluate(numerator, x, x_val)
+  den_eval: evaluate(denominator, x, x_val)
+  answer: num_eval / den_eval
+constraints:
+  - a != c
+  - den_eval != 0
+question: "Evaluate {f} when x = {x_val}"
+answer: answer
+answer_type: numeric
+solution:
+  - "Substitute x = {x_val} into {f}"
+  - "Numerator: {numerator} = {a}({x_val}) + {b} = {num_eval}"
+  - "Denominator: {denominator} = {c}({x_val}) + {d} = {den_eval}"
+  - "Result: {equation(num_eval / den_eval, answer)}"

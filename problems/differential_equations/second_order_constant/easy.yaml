@@ -1,0 +1,19 @@
+topic: differential_equations/second_order_constant
+difficulty: easy
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_eq: r^2 - (r1 + r2)*r + r1*r2
+  expanded: expand(char_eq)
+  answer: r1, r2
+constraints:
+  - r1 != r2
+  - r1 < r2
+question: "Find the roots of the characteristic equation for the differential equation {equation(derivative(derivative(y, x), x) - (r1 + r2)*derivative(y, x) + r1*r2*y, 0)}"
+answer: answer
+answer_type: set
+solution:
+  - "The characteristic equation is {equation(expanded, 0)}"
+  - "This factors as {equation((r - r1)*(r - r2), 0)}"
+  - "So r = {r1} or r = {r2}"

@@ -1,0 +1,21 @@
+topic: algebra1/compound_inequalities
+difficulty: hard
+calculator: none
+variables:
+  a: integer(-8, -2)
+  b: integer(3, 8)
+  m: choice(2, 3, 4, 5)
+  c: integer(-15, -5)
+  left_bound: (c - b) / m
+  right_bound: (c - a) / m
+  answer: left_bound, right_bound
+constraints:
+  - a < b
+question: "Solve the compound inequality {a} < {m}x + {b} < {c}"
+answer: answer
+answer_type: tuple
+solution:
+  - "We need to isolate x in the middle of {a} < {m}x + {b} < {c}"
+  - "Subtract {b} from all parts: {a - b} < {m}x < {c - b}"
+  - "Divide all parts by {m}: {left_bound} < x < {right_bound}"
+  - "So x is between {left_bound} and {right_bound}"

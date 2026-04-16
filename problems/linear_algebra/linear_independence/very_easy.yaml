@@ -1,0 +1,19 @@
+topic: linear_algebra/linear_independence
+difficulty: very_easy
+calculator: none
+variables:
+  a1: integer(1, 5)
+  a2: integer(1, 5)
+  k: integer(2, 4)
+  b1: k * a1
+  b2: k * a2
+  answer: word(dependent)
+constraints:
+  - a1 != a2
+question: "Are the vectors v₁ = ({a1}, {a2}) and v₂ = ({b1}, {b2}) linearly independent or dependent?"
+answer: answer
+answer_type: word
+solution:
+  - "Check if one vector is a scalar multiple of the other"
+  - "v₂ = ({b1}, {b2}) = {k}({a1}, {a2}) = {k}v₁"
+  - "Since v₂ = {k}v₁, the vectors are linearly dependent"

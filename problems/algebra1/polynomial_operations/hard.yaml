@@ -1,0 +1,29 @@
+topic: algebra1/polynomial_operations
+difficulty: hard
+calculator: none
+variables:
+  a1: nonzero(-4, 4)
+  b1: integer(-5, 5)
+  c1: integer(-6, 6)
+  p1: a1*x^2 + b1*x + c1
+  a2: nonzero(-3, 3)
+  b2: integer(-4, 4)
+  c2: integer(-5, 5)
+  p2: a2*x^2 + b2*x + c2
+  sum_poly: p1 + p2
+  expanded_sum: expand(sum_poly)
+  diff_poly: p1 - p2
+  expanded_diff: expand(diff_poly)
+  product: p1 * p2
+  expanded_product: expand(product)
+  answer: expanded_product
+constraints:
+  - a1 != a2
+question: "Find the product of {equation(p1, 0)} and {equation(p2, 0)}. Express your answer in standard form."
+answer: answer
+answer_type: expression
+solution:
+  - "We need to multiply ({p1}) by ({p2})"
+  - "Using the distributive property: ({p1})({p2})"
+  - "Multiply each term in the first polynomial by each term in the second"
+  - "After expanding and collecting like terms: {answer}"

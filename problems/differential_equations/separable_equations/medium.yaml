@@ -1,0 +1,19 @@
+topic: differential_equations/separable_equations
+difficulty: medium
+calculator: none
+variables:
+  k: choice(2, 3, 4, 5)
+  C: integer(1, 5)
+  y0: k * C
+  f: k * y
+  answer: C * exp(k*x)
+question: "Solve the differential equation {derivative_of(y, x)} = {f} with initial condition y(0) = {y0}"
+answer: answer
+solution:
+  - "Separate variables: {equation(1/y * dy, k * dx)}"
+  - "Integrate both sides: {integral_of(1/y, y)} = {integral_of(k, x)}"
+  - "This gives: ln|y| = {k}x + c"
+  - "Exponentiate: |y| = e^({k}x + c) = Ce^({k}x)"
+  - "Since y(0) = {y0} > 0, we have y = Ce^({k}x)"
+  - "Apply initial condition: {y0} = C * e^0 = C"
+  - "Therefore C = {C} and y = {answer}"

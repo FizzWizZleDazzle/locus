@@ -1,0 +1,20 @@
+topic: differential_equations/characteristic_equation
+difficulty: medium
+calculator: none
+variables:
+  r1: integer(-8, -2)
+  r2: integer(-8, -2)
+  p: -(r1 + r2)
+  q: r1 * r2
+  char_eq: r^2 + p*r + q
+  answer: r1, r2
+constraints:
+  - r1 != r2
+  - r1 < r2
+question: "Find the roots of the characteristic equation for the differential equation y'' + {p}y' + {q}y = 0"
+answer: answer
+answer_type: set
+solution:
+  - "The differential equation y'' + {p}y' + {q}y = 0 has characteristic equation {equation(char_eq, 0)}"
+  - "Factor: (r - {r1})(r - {r2}) = 0"
+  - "The roots are r = {r1} and r = {r2}"

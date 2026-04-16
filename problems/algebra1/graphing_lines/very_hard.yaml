@@ -1,0 +1,37 @@
+topic: algebra1/graphing_lines
+difficulty: very_hard
+calculator: none
+variables:
+  m1: nonzero(-5, 5)
+  m2: nonzero(-5, 5)
+  x_int: integer(-3, 3)
+  y_int: integer(-4, 4)
+  b1: y_int - m1*x_int
+  b2: y_int - m2*x_int
+  line1: m1*x + b1
+  line2: m2*x + b2
+  x_mid: integer(-2, 2)
+  y_mid: m1*x_mid + b1
+  m_perp: -1/m1
+  b_perp: y_mid - m_perp*x_mid
+  line_perp: m_perp*x + b_perp
+  answer: x_int, y_int
+constraints:
+  - m1 != m2
+question: "Two lines intersect at a point. The first line passes through ({x_mid}, {y_mid}) with slope {m1}. The second line has slope {m2} and the same y-intercept as a line perpendicular to the first line passing through ({x_mid}, {y_mid}). Find the intersection point of the two original lines."
+answer: answer
+answer_type: tuple
+solution:
+  - "First line has slope {m1} and passes through ({x_mid}, {y_mid})"
+  - "Using point-slope form: y - {y_mid} = {m1}(x - {x_mid})"
+  - "First line: y = {line1}"
+  - "Perpendicular line has slope {m_perp} = -1/{m1}"
+  - "Perpendicular line through ({x_mid}, {y_mid}): y = {line_perp}"
+  - "Y-intercept of perpendicular line: {b_perp}"
+  - "Second line has slope {m2} and y-intercept {b_perp}"
+  - "Second line: y = {line2}"
+  - "Set equal: {equation(line1, line2)}"
+  - "Solve for x: {m1}x + {b1} = {m2}x + {b2}"
+  - "x = {x_int}"
+  - "Substitute: y = {y_int}"
+  - "Intersection point: ({x_int}, {y_int})"

@@ -1,0 +1,19 @@
+topic: differential_equations/second_order_constant
+difficulty: very_easy
+calculator: none
+variables:
+  r1: integer(1, 3)
+  r2: integer(1, 3)
+  char_eq: r^2 - (r1 + r2)*r + r1*r2
+  expanded: expand(char_eq)
+  answer: r1, r2
+constraints:
+  - r1 != r2
+question: "Find the roots of the characteristic equation {equation(expanded, 0)}"
+answer: answer
+answer_type: tuple
+solution:
+  - "The characteristic equation is {equation(expanded, 0)}"
+  - "Factor: {equation((r - r1)*(r - r2), 0)}"
+  - "Set each factor to zero: r - {r1} = 0 or r - {r2} = 0"
+  - "Therefore r = {r1} or r = {r2}"

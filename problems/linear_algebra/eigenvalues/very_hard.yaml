@@ -1,0 +1,35 @@
+topic: linear_algebra/eigenvalues
+difficulty: very_hard
+calculator: none
+variables:
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+  r: nonzero(-3, 3)
+  s: nonzero(-3, 3)
+  det_P: p*s - q*r
+  P_inv_p: s/det_P
+  P_inv_q: -q/det_P
+  P_inv_r: -r/det_P
+  P_inv_s: p/det_P
+  a11: p*lambda1*P_inv_p + q*lambda2*P_inv_r
+  a12: p*lambda1*P_inv_q + q*lambda2*P_inv_s
+  a21: r*lambda1*P_inv_p + s*lambda2*P_inv_r
+  a22: r*lambda1*P_inv_q + s*lambda2*P_inv_s
+  char_poly: (lambda1 - lambda)*(lambda2 - lambda)
+  expanded_char: expand(char_poly)
+  answer: solve(expanded_char, lambda)
+constraints:
+  - lambda1 != lambda2
+  - det_P != 0
+question: "Find the eigenvalues of the matrix A = [[{a11}, {a12}], [{a21}, {a22}]]"
+answer: answer
+answer_type: set
+solution:
+  - "The characteristic polynomial is det(A - λI) = 0"
+  - "det([[{a11} - λ, {a12}], [{a21}, {a22} - λ]]) = 0"
+  - "({a11} - λ)({a22} - λ) - ({a12})({a21}) = 0"
+  - "This gives us {equation(expanded_char, 0)}"
+  - "Factoring: {equation(char_poly, 0)}"
+  - "Therefore λ = {lambda1} or λ = {lambda2}"

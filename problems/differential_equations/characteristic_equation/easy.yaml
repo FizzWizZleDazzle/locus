@@ -1,0 +1,20 @@
+topic: differential_equations/characteristic_equation
+difficulty: easy
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  char_eq: r^2 - (r1 + r2)*r + r1*r2
+  a: -(r1 + r2)
+  b: r1*r2
+  answer: solve(char_eq, r)
+constraints:
+  - r1 != r2
+  - r1 < r2
+question: "Find the roots of the characteristic equation for {equation(derivative(derivative(y, x), x) + a*derivative(y, x) + b*y, 0)}"
+answer: answer
+answer_type: set
+solution:
+  - "The characteristic equation is {equation(char_eq, 0)}"
+  - "Factor: {equation((r - r1)*(r - r2), 0)}"
+  - "The roots are r = {r1} and r = {r2}"

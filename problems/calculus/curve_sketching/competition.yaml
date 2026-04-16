@@ -1,0 +1,30 @@
+topic: calculus/curve_sketching
+difficulty: competition
+calculator: none
+variables:
+  a: choice(2, 3, 4)
+  b: choice(1, 2)
+  c: choice(1, 2, 3)
+  f: a*x^3 - b*a*x^2 - c*a*x + b*c*a
+  f_factored: a*(x - b)*(x + c)*(x - 1)
+  f_prime: derivative(f, x)
+  f_double_prime: derivative(f_prime, x)
+  inflection_x_num: b
+  inflection_x_den: 3
+  inflection_y_temp: evaluate(f, x, inflection_x_num)
+  inflection_y: inflection_y_temp / inflection_x_den^3
+  y_intercept: evaluate(f, x, 0)
+  neg_c: -c
+  one: 1
+  answer: neg_c, one, b
+constraints:
+  - b != c
+question: "Consider the function {equation(f(x), f)}. Find all x-intercepts of f(x) in increasing order."
+answer: answer
+answer_type: tuple
+solution:
+  - "To find x-intercepts, solve {equation(f(x), 0)}"
+  - "Factor: {equation(f(x), f_factored)}"
+  - "Setting each factor to zero: {equation(x + c, 0)}, {equation(x - 1, 0)}, {equation(x - b, 0)}"
+  - "x-intercepts: x = {neg_c}, x = {one}, x = {b}"
+  - "In increasing order: {answer}"

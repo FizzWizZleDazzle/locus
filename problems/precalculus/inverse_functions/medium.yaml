@@ -1,0 +1,21 @@
+topic: precalculus/inverse_functions
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(2, 5)
+  b: integer(-8, 8)
+  f: a*x + b
+  y_val: integer(-10, 10)
+  x_val: (y_val - b)/a
+  answer: x_val
+constraints:
+  - a > 0
+  - mod(y_val - b, a) == 0
+question: "If {equation(f(x), a*x + b)}, find the value of x when {equation(f(x), y_val)}."
+answer: answer
+answer_type: numeric
+solution:
+  - "Given {equation(f(x), a*x + b)} and {equation(f(x), y_val)}"
+  - "Set up the equation: {equation(a*x + b, y_val)}"
+  - "Subtract {b} from both sides: {equation(a*x, y_val - b)}"
+  - "Divide by {a}: {equation(x, answer)}"

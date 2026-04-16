@@ -1,0 +1,36 @@
+topic: calculus/volumes_of_revolution
+difficulty: hard
+calculator: scientific
+variables:
+  a: integer(2, 4)
+  b: integer(1, 3)
+  f: a * sqrt(x)
+  g: b * x^(1/4)
+  x1: 0
+  x2: 4
+  f_squared: a^2 * x
+  g_squared: b^2 * x^(1/2)
+  F: integral(f_squared, x)
+  G: integral(g_squared, x)
+  F_x2: evaluate(F, x, x2)
+  F_x1: evaluate(F, x, x1)
+  G_x2: evaluate(G, x, x2)
+  G_x1: evaluate(G, x, x1)
+  vol_f: F_x2 - F_x1
+  vol_g: G_x2 - G_x1
+  vol_diff: vol_f - vol_g
+  answer: round(3.14159 * vol_diff, 2)
+constraints:
+  - a > b
+question: "Find the volume of the solid obtained by rotating the region bounded by {equation(y, f)}, {equation(y, g)}, and the lines {equation(x, x1)} and {equation(x, x2)} about the x-axis. Round to 2 decimal places."
+answer: answer
+solution:
+  - "Using the washer method: V = π∫[R(x)² - r(x)²]dx"
+  - "Outer radius R(x) = {f}, inner radius r(x) = {g}"
+  - "R(x)² = {f_squared}, r(x)² = {g_squared}"
+  - "V = π{definite_integral_of(f_squared - g_squared, x, x1, x2)}"
+  - "V = π[{F} - {G}] from {x1} to {x2}"
+  - "V = π[({F_x2} - {F_x1}) - ({G_x2} - {G_x1})]"
+  - "V = π({vol_f} - {vol_g})"
+  - "V = π({vol_diff})"
+  - "V ≈ {answer}"

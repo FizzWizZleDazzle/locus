@@ -1,0 +1,38 @@
+topic: differential_equations/undetermined_coefficients
+difficulty: hard
+calculator: none
+variables:
+  a: choice(2, 3, 4)
+  b: choice(5, 6, 8)
+  c: integer(1, 3)
+  d: integer(2, 4)
+  char_eq: r^2 + a*r + b
+  forcing: c*x + d
+  A: integer(1, 3)
+  B: integer(1, 4)
+  yp: A*x + B
+  yp_prime: derivative(yp, x)
+  yp_double_prime: derivative(yp_prime, x)
+  left_side: yp_double_prime + a*yp_prime + b*yp
+  expanded_left: expand(left_side)
+  coeff_x: a*A
+  coeff_const: a*B + b*B
+  A_num: c
+  A_denom: b
+  B_num: d*b - a*c
+  B_denom: b^2
+  answer: A_num/A_denom, B_num/B_denom
+constraints:
+  - c < d
+question: "Find a particular solution to y'' + {a}y' + {b}y = {forcing} using the method of undetermined coefficients. Express your answer as y_p = Ax + B where A and B are fractions."
+answer: answer
+answer_type: tuple
+solution:
+  - "For the forcing term {forcing}, we try y_p = Ax + B"
+  - "Then y_p' = {yp_prime} and y_p'' = {yp_double_prime}"
+  - "Substituting into the differential equation:"
+  - "{equation(expanded_left, forcing)}"
+  - "Comparing coefficients of x: {equation(coeff_x, c)}"
+  - "So A = {A_num}/{A_denom}"
+  - "Comparing constant terms: {equation(coeff_const, d)}"
+  - "So B = {B_num}/{B_denom}"

@@ -1,0 +1,22 @@
+topic: algebra1/graphing_lines
+difficulty: medium
+calculator: none
+variables:
+  m: nonzero(-4, 4)
+  x1: integer(-3, 3)
+  y1: integer(-5, 5)
+  b: y1 - m*x1
+  x2: integer(-3, 3)
+  y2: m*x2 + b
+  answer: m
+constraints:
+  - x1 != x2
+  - m != 1
+question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). What is the slope of the line?"
+answer: answer
+answer_type: numeric
+solution:
+  - "Use the slope formula: m = (y2 - y1)/(x2 - x1)"
+  - "m = ({y2} - {y1})/({x2} - {x1})"
+  - "m = ({y2 - y1})/({x2 - x1})"
+  - "m = {answer}"

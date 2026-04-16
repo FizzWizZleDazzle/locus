@@ -1,0 +1,25 @@
+topic: precalculus/unit_circle
+difficulty: medium
+calculator: none
+variables:
+  angle_deg: choice(30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330)
+  quadrant: choice(1, 2, 3, 4)
+  ref_angle: choice(30, 45, 60)
+  cos_num: choice(1, 1, 1, 2, 3)
+  sin_num: choice(1, 2, 3, 1, 1)
+  cos_denom: choice(1, 2, 2, 2, 2)
+  sin_denom: choice(1, 2, 2, 2, 2)
+  cos_sign: choice(1, -1)
+  sin_sign: choice(1, -1)
+  cos_val: cos_sign * cos_num / cos_denom
+  sin_val: sin_sign * sin_num / sin_denom
+  answer: cos_val, sin_val
+constraints:
+  - cos_val != sin_val
+question: "A point on the unit circle has coordinates ({cos_val}, {sin_val}). Find the angle in degrees between 0° and 360°."
+answer: angle_deg
+answer_type: numeric
+solution:
+  - "The point ({cos_val}, {sin_val}) is on the unit circle"
+  - "We need to find the angle θ such that cos(θ) = {cos_val} and sin(θ) = {sin_val}"
+  - "Based on the signs and values, this corresponds to {angle_deg}°"

@@ -1,0 +1,39 @@
+topic: linear_algebra/diagonalization
+difficulty: very_hard
+calculator: none
+variables:
+  lambda1: integer(-3, 3)
+  lambda2: integer(-3, 3)
+  lambda3: integer(-3, 3)
+  p11: 1
+  p12: 1
+  p13: 1
+  p21: 1
+  p22: lambda2 - lambda1
+  p23: lambda3 - lambda1
+  p31: 1
+  p32: (lambda2 - lambda1)^2
+  p33: (lambda3 - lambda1)^2
+  d11: lambda1
+  d22: lambda2
+  d33: lambda3
+  a11: p11*d11 + p12*d22 + p13*d33
+  a12: p11*d11 + p12*d22*p22/p12 + p13*d33*p23/p13
+  a13: p11*d11 + p12*d22*p32/p12 + p13*d33*p33/p13
+  a21: p21*d11
+  a22: p21*d11 + p22*d22
+  a23: p21*d11 + p22*d22*p32/p22 + p23*d33*p33/p23
+  a31: p31*d11
+  a32: p31*d11 + p32*d22
+  a33: p31*d11 + p32*d22 + p33*d33
+  answer: lambda1, lambda2, lambda3
+constraints:
+  - lambda1 < lambda2
+  - lambda2 < lambda3
+question: "Find the eigenvalues of the matrix A = [[{a11}, {a12}, {a13}], [{a21}, {a22}, {a23}], [{a31}, {a32}, {a33}]]"
+answer: answer
+answer_type: tuple
+solution:
+  - "To find eigenvalues, we solve det(A - λI) = 0"
+  - "The matrix A was constructed as PDP^(-1) where D = diag({lambda1}, {lambda2}, {lambda3})"
+  - "Therefore the eigenvalues are λ = {lambda1}, {lambda2}, {lambda3}"

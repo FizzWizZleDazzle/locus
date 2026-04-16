@@ -1,0 +1,24 @@
+topic: linear_algebra/eigenvalues
+difficulty: medium
+calculator: none
+variables:
+  lambda1: integer(-5, 5)
+  lambda2: integer(-5, 5)
+  a: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  b: a * d - lambda1 - lambda2
+  c: lambda1 * lambda2 / a
+  char_poly: expand((lambda - a) * (lambda - d) - b * c)
+  answer: solve(char_poly, lambda)
+constraints:
+  - lambda1 != lambda2
+  - a != d
+question: "Find the eigenvalues of the matrix [[{a}, {b}], [{c}, {d}]]"
+answer: answer
+answer_type: set
+solution:
+  - "The characteristic polynomial is det(A - λI) = 0"
+  - "det([[{a} - λ, {b}], [{c}, {d} - λ]]) = 0"
+  - "({a} - λ)({d} - λ) - ({b})({c}) = 0"
+  - "Expanding: {char_poly} = 0"
+  - "The eigenvalues are λ = {lambda1} and λ = {lambda2}"

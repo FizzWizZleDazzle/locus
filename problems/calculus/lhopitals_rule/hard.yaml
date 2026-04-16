@@ -1,0 +1,23 @@
+topic: calculus/lhopitals_rule
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-3, 3)
+  c: integer(2, 5)
+  numerator: a*x^3 - a*c^3
+  denominator: b*x^2 - b*c^2
+  num_derivative: derivative(numerator, x)
+  den_derivative: derivative(denominator, x)
+  num_at_c: evaluate(num_derivative, x, c)
+  den_at_c: evaluate(den_derivative, x, c)
+  answer: num_at_c / den_at_c
+constraints:
+  - a != b
+question: "Evaluate {limit_of(numerator/denominator, x, c)}"
+answer: answer
+solution:
+  - "Direct substitution gives 0/0, so apply L'Hôpital's rule"
+  - "Differentiate numerator: {derivative_of(numerator, x)} = {num_derivative}"
+  - "Differentiate denominator: {derivative_of(denominator, x)} = {den_derivative}"
+  - "Evaluate at x = {c}: {num_at_c}/{den_at_c} = {answer}"

@@ -1,0 +1,24 @@
+topic: differential_equations/first_order_linear
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-5, 5)
+  b: integer(-8, 8)
+  y: a*x + b
+  dy: derivative(y, x)
+  lhs: dy + 2*y
+  rhs: expand(dy + 2*y)
+  answer: a
+constraints:
+  - a > 0
+question: "Find the value of a if y = {y} is a solution to {equation(derivative(y, x) + 2*y, rhs)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "Given y = {y}, find {derivative_of(y, x)}"
+  - "{derivative_of(y, x)} = {dy}"
+  - "Substitute into the differential equation:"
+  - "{derivative_of(y, x)} + 2y = {dy} + 2({y})"
+  - "= {dy} + {expand(2*y)}"
+  - "= {rhs}"
+  - "Since this equals {rhs}, we have a = {a}"

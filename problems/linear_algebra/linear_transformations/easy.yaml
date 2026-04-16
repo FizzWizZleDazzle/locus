@@ -1,0 +1,23 @@
+topic: linear_algebra/linear_transformations
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(-3, 3)
+  c: integer(-3, 3)
+  d: integer(1, 4)
+  x_val: integer(-2, 2)
+  y_val: integer(-2, 2)
+  result_x: a * x_val + b * y_val
+  result_y: c * x_val + d * y_val
+  answer: result_x, result_y
+constraints:
+  - a > 0
+  - d > 0
+question: "Let T be the linear transformation defined by T(x, y) = ({a}x + {b}y, {c}x + {d}y). Find T({x_val}, {y_val})."
+answer: answer
+answer_type: tuple
+solution:
+  - "Apply the transformation T to the point ({x_val}, {y_val})"
+  - "T({x_val}, {y_val}) = ({a}({x_val}) + {b}({y_val}), {c}({x_val}) + {d}({y_val}))"
+  - "T({x_val}, {y_val}) = ({result_x}, {result_y})"

@@ -1,0 +1,24 @@
+topic: linear_algebra/diagonalization
+difficulty: easy
+calculator: none
+variables:
+  lambda1: integer(1, 5)
+  lambda2: integer(1, 5)
+  a11: lambda1
+  a22: lambda2
+  a12: 0
+  a21: 0
+  char_poly: (lambda1 - t)*(lambda2 - t)
+  expanded_char: expand(char_poly)
+  answer: lambda1, lambda2
+constraints:
+  - lambda1 != lambda2
+  - lambda1 < lambda2
+question: "Find the eigenvalues of the diagonal matrix A = [[{a11}, {a12}], [{a21}, {a22}]]"
+answer: answer
+answer_type: set
+solution:
+  - "For a diagonal matrix, the eigenvalues are the diagonal entries"
+  - "The characteristic polynomial is det(A - tI) = {expanded_char}"
+  - "Setting equal to zero: {equation(expanded_char, 0)}"
+  - "The eigenvalues are {lambda1} and {lambda2}"

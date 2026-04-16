@@ -1,0 +1,35 @@
+topic: precalculus/inverse_functions
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-6, 6)
+  c: nonzero(-8, 8)
+  d: nonzero(-5, 5)
+  det: a*d - b*c
+  f: (a*x + b)/(c*x + d)
+  y_val: integer(-3, 3)
+  x_val: (d*y_val - b)/(a - c*y_val)
+  numerator: d*x - b
+  denominator: a - c*x
+  f_inv: numerator/denominator
+  check_num: a*x_val + b
+  check_den: c*x_val + d
+  check_result: check_num/check_den
+  answer: f_inv
+constraints:
+  - det != 0
+  - a != c*y_val
+question: "Find the inverse function of {equation(f(x), f)}"
+answer: answer
+answer_type: expression
+solution:
+  - "Let {equation(y, f)}"
+  - "Cross multiply: {equation(y(c*x + d), a*x + b)}"
+  - "Expand: {equation(c*x*y + d*y, a*x + b)}"
+  - "Collect x terms: {equation(c*x*y - a*x, b - d*y)}"
+  - "Factor: {equation(x(c*y - a), b - d*y)}"
+  - "Solve for x: {equation(x, (b - d*y)/(c*y - a))}"
+  - "Rewrite: {equation(x, (-d*y + b)/(-a + c*y))}"
+  - "Factor out -1: {equation(x, (d*y - b)/(a - c*y))}"
+  - "Therefore {equation(f^{-1}(x), f_inv)}"

@@ -1,0 +1,28 @@
+topic: precalculus/graphing_trig
+difficulty: hard
+calculator: none
+variables:
+  a: choice(2, 3, 4)
+  b: choice(1, 2, 4)
+  c: choice(-3, -2, -1, 1, 2, 3)
+  d: choice(-2, -1, 0, 1, 2)
+  f: a*sin(b*x + c) + d
+  amplitude: a
+  phase_shift: -c/b
+  vertical_shift: d
+  max_value: a + d
+  min_value: -a + d
+  answer: amplitude, b, phase_shift, vertical_shift
+constraints:
+  - a > 0
+  - b > 0
+question: "Find the amplitude, period coefficient B (where period = 2π/B), phase shift, and vertical shift of {f}."
+answer: answer
+answer_type: tuple
+solution:
+  - "The function {f} is in the form A·sin(Bx + C) + D"
+  - "Amplitude = |A| = |{a}| = {amplitude}"
+  - "Period coefficient B = {b}, so period = 2π/{b}"
+  - "Phase shift = -C/B = -({c})/{b} = {phase_shift}"
+  - "Vertical shift = D = {vertical_shift}"
+  - "The graph oscillates between {min_value} and {max_value}"

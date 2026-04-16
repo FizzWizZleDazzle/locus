@@ -1,0 +1,26 @@
+topic: linear_algebra/vector_spaces
+difficulty: easy
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  a3: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  b3: integer(-5, 5)
+  k: nonzero(-3, 3)
+  c1: a1 + k*b1
+  c2: a2 + k*b2
+  c3: a3 + k*b3
+  answer: c1, c2, c3
+constraints:
+  - a1 != b1
+question: "Let u = ({a1}, {a2}, {a3}) and v = ({b1}, {b2}, {b3}). Find u + {k}v."
+answer: answer
+answer_type: tuple
+solution:
+  - "We need to compute u + {k}v where u = ({a1}, {a2}, {a3}) and v = ({b1}, {b2}, {b3})"
+  - "First, find {k}v = {k}({b1}, {b2}, {b3}) = ({k*b1}, {k*b2}, {k*b3})"
+  - "Then u + {k}v = ({a1}, {a2}, {a3}) + ({k*b1}, {k*b2}, {k*b3})"
+  - "Add component-wise: ({a1} + {k*b1}, {a2} + {k*b2}, {a3} + {k*b3})"
+  - "Therefore u + {k}v = ({c1}, {c2}, {c3})"

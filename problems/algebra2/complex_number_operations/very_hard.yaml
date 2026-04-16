@@ -1,0 +1,20 @@
+topic: algebra2/complex_number_operations
+difficulty: very_hard
+calculator: none
+variables:
+  a1: nonzero(-5, 5)
+  b1: nonzero(-5, 5)
+  a2: nonzero(-5, 5)
+  b2: nonzero(-5, 5)
+  z1: a1 + b1*i
+  z2: a2 + b2*i
+  answer: z1
+constraints:
+  - a1 != a2
+  - b1 != b2
+question: "If z_1 = {z1} and z_2 = {z2}, find (z_1 · z_2) / z_2"
+answer: answer
+solution:
+  - "We need to find (z_1 · z_2) / z_2"
+  - "This simplifies to z_1 · (z_2 / z_2) = z_1 · 1 = z_1"
+  - "Therefore (z_1 · z_2) / z_2 = {answer}"

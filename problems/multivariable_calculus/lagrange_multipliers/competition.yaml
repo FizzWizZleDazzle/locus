@@ -1,0 +1,28 @@
+topic: multivariable_calculus/lagrange_multipliers
+difficulty: competition
+calculator: none
+variables:
+  k: choice(2, 3, 4, 6)
+  scale: choice(1, 2, 3)
+  a: k * scale
+  b: k * scale
+  c: k * scale * scale
+  x_opt: scale
+  y_opt: scale
+  z_opt: scale
+  f_opt: 3 * scale * scale
+  answer: f_opt
+constraints:
+  - a > 0
+  - b > 0
+question: "Find the maximum value of f(x,y,z) = x + y + z subject to the constraint x^2 + y^2 + z^2 = {c}"
+answer: answer
+solution:
+  - "Set up Lagrangian: L = x + y + z - λ(x^2 + y^2 + z^2 - {c})"
+  - "Take partial derivatives: ∂L/∂x = 1 - 2λx = 0"
+  - "Similarly: ∂L/∂y = 1 - 2λy = 0 and ∂L/∂z = 1 - 2λz = 0"
+  - "From these equations: x = y = z = 1/(2λ)"
+  - "Substitute into constraint: 3(1/(2λ))^2 = {c}"
+  - "Solving: 3/(4λ^2) = {c}, so λ = 1/(2{scale})"
+  - "Therefore x = y = z = {x_opt}"
+  - "Maximum value: f({x_opt},{y_opt},{z_opt}) = {answer}"

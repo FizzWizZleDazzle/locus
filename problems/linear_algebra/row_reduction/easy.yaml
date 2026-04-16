@@ -1,0 +1,23 @@
+topic: linear_algebra/row_reduction
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 4)
+  b: integer(1, 4)
+  c: integer(1, 5)
+  d: integer(1, 5)
+  det: a*d - b*c
+  answer: 1, 0, d/det, -b/det, 0, 1, -c/det, a/det
+constraints:
+  - det > 0
+question: "Find the reduced row echelon form of the matrix [[{a}, {b}], [{c}, {d}]]"
+answer: answer
+answer_type: tuple
+solution:
+  - "Start with the matrix [[{a}, {b}], [{c}, {d}]]"
+  - "Divide row 1 by {a}: [[1, {b}/{a}], [{c}, {d}]]"
+  - "Subtract {c} times row 1 from row 2: [[1, {b}/{a}], [0, {d} - {c}*{b}/{a}]]"
+  - "Simplify row 2: [[1, {b}/{a}], [0, {det}/{a}]]"
+  - "Divide row 2 by {det}/{a}: [[1, {b}/{a}], [0, 1]]"
+  - "Subtract {b}/{a} times row 2 from row 1: [[1, 0], [0, 1]]"
+  - "The reduced row echelon form is the 2×2 identity matrix"

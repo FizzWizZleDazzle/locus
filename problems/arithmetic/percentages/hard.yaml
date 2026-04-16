@@ -1,0 +1,24 @@
+topic: arithmetic/percentages
+difficulty: hard
+calculator: none
+variables:
+  original: choice(240, 360, 480, 600, 720)
+  first_rate: choice(25, 30, 40, 50)
+  first_increase: original * first_rate / 100
+  after_first: original + first_increase
+  second_rate: choice(20, 25, 40, 50)
+  second_decrease: after_first * second_rate / 100
+  final: after_first - second_decrease
+  net_change: final - original
+  net_percent: net_change * 100 / original
+  answer: round(net_percent, 1)
+constraints:
+  - first_rate != second_rate
+question: "A store increases the price of an item by {first_rate}%, then later decreases the new price by {second_rate}%. What is the net percentage change from the original price?"
+answer: answer
+solution:
+  - "Original price: {original}"
+  - "After {first_rate}% increase: {original} + {first_increase} = {after_first}"
+  - "After {second_rate}% decrease: {after_first} - {second_decrease} = {final}"
+  - "Net change: {final} - {original} = {net_change}"
+  - "Net percentage: {net_change}/{original} × 100% = {answer}%"

@@ -1,0 +1,44 @@
+topic: multivariable_calculus/line_integrals
+difficulty: very_hard
+calculator: none
+variables:
+  a: integer(2, 4)
+  b: integer(2, 4)
+  c: integer(1, 3)
+  t_start: 0
+  t_end: 1
+  x_param: c * t^2
+  y_param: c * t^3
+  dx_dt: derivative(x_param, t)
+  dy_dt: derivative(y_param, t)
+  F_x: a * x * y
+  F_y: b * x^2
+  F_x_on_curve: a * (c * t^2) * (c * t^3)
+  F_y_on_curve: b * (c * t^2)^2
+  F_x_simplified: a * c^2 * t^5
+  F_y_simplified: b * c^2 * t^4
+  integrand_x: F_x_simplified * dx_dt
+  integrand_y: F_y_simplified * dy_dt
+  integrand_x_expanded: a * c^2 * t^5 * 2 * c * t
+  integrand_y_expanded: b * c^2 * t^4 * 3 * c * t^2
+  integrand_x_final: 2 * a * c^3 * t^6
+  integrand_y_final: 3 * b * c^3 * t^6
+  integrand_total: (2 * a + 3 * b) * c^3 * t^6
+  antiderivative: integral(integrand_total, t)
+  antiderivative_expanded: (2 * a + 3 * b) * c^3 * t^7 / 7
+  value_at_1: evaluate(antiderivative_expanded, t, 1)
+  value_at_0: evaluate(antiderivative_expanded, t, 0)
+  answer: (2 * a + 3 * b) * c^3 / 7
+constraints:
+  - a != b
+question: "Evaluate the line integral {integral_of(F · dr, C)} where F = ({F_x}, {F_y}) and C is the curve parameterized by x = {x_param}, y = {y_param} for t ∈ [{t_start}, {t_end}]."
+answer: answer
+solution:
+  - "Parameterization: x(t) = {x_param}, y(t) = {y_param}"
+  - "Compute derivatives: {derivative_of(x, t)} = {dx_dt}, {derivative_of(y, t)} = {dy_dt}"
+  - "Substitute into F: F(x(t), y(t)) = ({F_x_simplified}, {F_y_simplified})"
+  - "F · dr = {F_x_simplified} · {dx_dt} dt + {F_y_simplified} · {dy_dt} dt"
+  - "= {integrand_x_final} dt + {integrand_y_final} dt"
+  - "= {integrand_total} dt"
+  - "{integral_of(integrand_total, t)} = {antiderivative_expanded}"
+  - "Evaluate from {t_start} to {t_end}: {value_at_1} - {value_at_0} = {answer}"

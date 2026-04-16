@@ -1,0 +1,21 @@
+topic: algebra1/two_step_equations
+difficulty: medium
+calculator: none
+variables:
+  x: integer(-8, 8)
+  a: nonzero(-6, 6)
+  b: integer(-20, 20)
+  rhs: a*x + b
+  answer: x
+constraints:
+  - a != 1
+  - a != -1
+question: "Solve for x: {equation(a*x + b, rhs)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "Start with {equation(a*x + b, rhs)}"
+  - "Subtract {b} from both sides: {equation(a*x, rhs - b)}"
+  - "Since {rhs - b} = {a*x}, we have {equation(a*x, a*x)}"
+  - "Divide both sides by {a}: {equation(x, x)}"
+  - "Therefore, x = {x}"

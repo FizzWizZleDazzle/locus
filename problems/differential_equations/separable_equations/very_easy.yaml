@@ -1,0 +1,18 @@
+topic: differential_equations/separable_equations
+difficulty: very_easy
+calculator: none
+variables:
+  k: choice(2, 3, 4, 5)
+  C: integer(1, 5)
+  y0: k * C
+  answer: k * C * exp(k * x)
+question: "Solve the differential equation {equation(derivative(y, x), k * y)} with initial condition y(0) = {y0}"
+answer: answer
+solution:
+  - "This is a separable equation: {equation(derivative(y, x), k * y)}"
+  - "Separate variables: dy/y = {k} dx"
+  - "Integrate both sides: ln|y| = {k}x + C"
+  - "Solve for y: y = A * exp({k}x) where A = e^C"
+  - "Apply initial condition: {y0} = A * exp(0) = A"
+  - "Therefore A = {y0}"
+  - "Final solution: y = {answer}"

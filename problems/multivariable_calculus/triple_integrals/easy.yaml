@@ -1,0 +1,17 @@
+topic: multivariable_calculus/triple_integrals
+difficulty: easy
+calculator: none
+variables:
+  a: integer(1, 3)
+  x_hi: integer(1, 2)
+  y_hi: integer(1, 2)
+  z_hi: integer(1, 2)
+  f: a
+  volume: x_hi * y_hi * z_hi
+  answer: a * volume
+question: "Evaluate the triple integral ∫∫∫ {f} dV over the box [0,{x_hi}]×[0,{y_hi}]×[0,{z_hi}]"
+answer: answer
+solution:
+  - "Since f = {f} is constant, the integral equals {f} times the volume"
+  - "Volume = {x_hi} × {y_hi} × {z_hi} = {volume}"
+  - "Answer = {f} × {volume} = {answer}"

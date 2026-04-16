@@ -1,0 +1,30 @@
+topic: algebra1/factoring_trinomials
+difficulty: very_hard
+calculator: none
+variables:
+  p: prime(2, 7)
+  q: prime(2, 7)
+  r: nonzero(-9, 9)
+  s: nonzero(-9, 9)
+  a: p * q
+  b: p * s + q * r
+  c: r * s
+  factored: p * (q * x + r) * (x + s / p)
+  expanded: a * x^2 + b * x + c
+  factor1: q * x + r
+  factor2: p * x + s
+  answer: (factor1) * (factor2)
+constraints:
+  - p != q
+  - r != s
+question: "Factor completely: {expanded}"
+answer: answer
+answer_type: expression
+solution:
+  - "We need to factor {expanded} where a = {a}, b = {b}, c = {c}"
+  - "Since a = {a} = {p} × {q}, we look for factors of ac = {a} × {c} = {evaluate(a * c, x, 1)}"
+  - "We need two numbers that multiply to {evaluate(a * c, x, 1)} and add to {b}"
+  - "These numbers are {evaluate(p * s, x, 1)} and {evaluate(q * r, x, 1)}"
+  - "Rewrite: {expanded} = {a}x^2 + {evaluate(p * s, x, 1)}x + {evaluate(q * r, x, 1)}x + {c}"
+  - "Factor by grouping: {p}x({q}x + {r}) + {s}({q}x + {r})"
+  - "Factor out ({q}x + {r}): ({q}x + {r})({p}x + {s})"

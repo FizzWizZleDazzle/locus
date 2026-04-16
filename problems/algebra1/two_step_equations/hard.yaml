@@ -1,0 +1,20 @@
+topic: algebra1/two_step_equations
+difficulty: hard
+calculator: none
+variables:
+  x: integer(-12, 12)
+  a: choice(-8, -6, -4, -3, 3, 4, 6, 8)
+  b: nonzero(-24, 24)
+  c: a*x + b
+  answer: x
+constraints:
+  - x != 0
+question: "Solve for x: {equation(a*x + b, c)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "Start with {equation(a*x + b, c)}"
+  - "Subtract {b} from both sides: {equation(a*x, c - b)}"
+  - "Since {c} - {b} = {c - b}, we have {equation(a*x, c - b)}"
+  - "Divide both sides by {a}: {equation(x, (c - b)/a)}"
+  - "Therefore x = {answer}"

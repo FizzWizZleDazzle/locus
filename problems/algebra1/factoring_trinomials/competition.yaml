@@ -1,0 +1,19 @@
+topic: algebra1/factoring_trinomials
+difficulty: competition
+calculator: none
+variables:
+  p: prime(11, 19)
+  q: prime(23, 29)
+  r: p + q
+  s: p * q
+  expanded: x^2 - r*x + s
+  factored: (x - p)*(x - q)
+  answer: factored
+question: "Factor {expanded}"
+answer: answer
+solution:
+  - "We need to factor {expanded}"
+  - "Look for two numbers that multiply to {s} and add to {-r}"
+  - "Since {s} is quite large, consider its prime factorization"
+  - "Testing factors, we find {p} and {q} work: {p} × {q} = {s} and {p} + {q} = {r}"
+  - "Therefore {expanded} = {factored}"

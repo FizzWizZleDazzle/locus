@@ -1,0 +1,41 @@
+topic: precalculus/inverse_functions
+difficulty: competition
+calculator: none
+variables:
+  a: prime(3, 7)
+  b: prime(11, 19)
+  c: integer(2, 5)
+  d: integer(6, 9)
+  numerator: a*x + b
+  denominator: c*x + d
+  f: numerator / denominator
+  y_num: a*y + b
+  y_den: c*y + d
+  cross_left: y * y_den
+  cross_right: y_num
+  expanded_left: expand(cross_left)
+  expanded_right: expand(cross_right)
+  rearranged: expanded_left - expanded_right
+  factored: expand(y*(c*x + d) - (a*x + b))
+  x_coeff: d*y - b
+  y_coeff: c*y - a
+  x_expr: x_coeff / y_coeff
+  inv_num: d*x - b
+  inv_den: c*x - a
+  answer: inv_num / inv_den
+constraints:
+  - a != c
+  - b != d
+question: "Find the inverse function of {equation(f(x), f)}"
+answer: answer
+answer_type: expression
+solution:
+  - "Let {equation(y, f)}"
+  - "Cross multiply: {equation(y*(denominator), numerator)}"
+  - "Expand: {equation(c*x*y + d*y, a*x + b)}"
+  - "Rearrange: {equation(c*x*y - a*x, b - d*y)}"
+  - "Factor: {equation(x*(c*y - a), b - d*y)}"
+  - "Solve for x: {equation(x, (b - d*y)/(c*y - a))}"
+  - "Rewrite: {equation(x, (-d*y + b)/(-a + c*y))}"
+  - "Factor out -1: {equation(x, (d*y - b)/(c*y - a))}"
+  - "Therefore {equation(f^{-1}(x), answer)}"

@@ -1,0 +1,26 @@
+topic: precalculus/dot_cross_product
+difficulty: medium
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  a2: integer(-5, 5)
+  a3: integer(-5, 5)
+  b1: integer(-5, 5)
+  b2: integer(-5, 5)
+  b3: integer(-5, 5)
+  dot_product: a1*b1 + a2*b2 + a3*b3
+  cross_i: a2*b3 - a3*b2
+  cross_j: a3*b1 - a1*b3
+  cross_k: a1*b2 - a2*b1
+  answer: dot_product
+constraints:
+  - a1 != 0
+  - b1 != 0
+question: "Let a = <{a1}, {a2}, {a3}> and b = <{b1}, {b2}, {b3}>. Find a · b."
+answer: answer
+answer_type: numeric
+solution:
+  - "The dot product is a · b = a₁b₁ + a₂b₂ + a₃b₃"
+  - "Substitute: ({a1})({b1}) + ({a2})({b2}) + ({a3})({b3})"
+  - "Calculate: {a1*b1} + {a2*b2} + {a3*b3}"
+  - "Therefore a · b = {answer}"

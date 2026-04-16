@@ -1,0 +1,30 @@
+topic: algebra2/complex_number_operations
+difficulty: medium
+calculator: none
+variables:
+  a1: integer(-5, 5)
+  b1: nonzero(-5, 5)
+  a2: integer(-5, 5)
+  b2: nonzero(-5, 5)
+  z1: a1 + b1*i
+  z2: a2 + b2*i
+  product: expand((a1 + b1*i)*(a2 + b2*i))
+  real_part: a1*a2 - b1*b2
+  imag_part: a1*b2 + b1*a2
+  answer: real_part + imag_part*i
+constraints:
+  - a1 != a2
+  - b1 != b2
+question: "Multiply the complex numbers {equation(z1, '')} and {equation(z2, '')}. Express your answer in the form a + bi."
+answer: answer
+answer_type: expression
+solution:
+  - "Use FOIL to multiply {equation((a1 + b1*i), '')} and {equation((a2 + b2*i), '')}"
+  - "First terms: {a1} × {a2} = {a1*a2}"
+  - "Outer terms: {a1} × {b2}i = {a1*b2}i"
+  - "Inner terms: {b1}i × {a2} = {b1*a2}i"
+  - "Last terms: {b1}i × {b2}i = {b1*b2}i² = {-1*b1*b2}"
+  - "Combine: {a1*a2} + {a1*b2}i + {b1*a2}i + {-1*b1*b2}"
+  - "Real part: {a1*a2} + ({-1*b1*b2}) = {real_part}"
+  - "Imaginary part: {a1*b2} + {b1*a2} = {imag_part}"
+  - "Answer: {answer}"

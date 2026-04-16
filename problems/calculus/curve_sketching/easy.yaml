@@ -1,0 +1,23 @@
+topic: calculus/curve_sketching
+difficulty: easy
+calculator: none
+variables:
+  a: nonzero(-3, 3)
+  b: integer(-4, 4)
+  f: a*x^2 + b
+  f_prime: derivative(f, x)
+  critical_x: solve(f_prime, x)
+  vertex_y: evaluate(f, x, critical_x)
+  answer: critical_x, vertex_y
+constraints:
+  - a != 1
+  - a != -1
+question: "Find the vertex of the parabola {equation(y, f)}."
+answer: answer
+answer_type: tuple
+solution:
+  - "To find the vertex, we need the critical point where {derivative_of(f, x)} = 0"
+  - "Taking the derivative: {derivative_of(f, x)} = {f_prime}"
+  - "Setting {f_prime} = 0, we get x = {critical_x}"
+  - "The y-coordinate at x = {critical_x} is y = {vertex_y}"
+  - "Therefore, the vertex is ({critical_x}, {vertex_y})"

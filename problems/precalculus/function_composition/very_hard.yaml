@@ -1,0 +1,32 @@
+topic: precalculus/function_composition
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(-3, 3)
+  c: nonzero(-3, 3)
+  d: integer(-2, 2)
+  f: a*x + b
+  g: c*x^2 + d
+  fog: a*g + b
+  fog_expanded: expand(a*(c*x^2 + d) + b)
+  gof: c*f^2 + d
+  gof_expanded: expand(c*(a*x + b)^2 + d)
+  h: gof_expanded - fog_expanded
+  h_simplified: expand(h)
+  answer: h_simplified
+constraints:
+  - a != c
+  - b != d
+question: "Let {equation(f(x), f)} and {equation(g(x), g)}. Find h(x) = (g∘f)(x) - (f∘g)(x)."
+answer: answer
+answer_type: expression
+solution:
+  - "First find (f∘g)(x) = f(g(x))"
+  - "Substitute {g} into f: f({g}) = a({g}) + b"
+  - "(f∘g)(x) = {fog_expanded}"
+  - "Next find (g∘f)(x) = g(f(x))"
+  - "Substitute {f} into g: g({f}) = c({f})^2 + d"
+  - "(g∘f)(x) = {gof_expanded}"
+  - "Therefore h(x) = {gof_expanded} - ({fog_expanded})"
+  - "h(x) = {answer}"

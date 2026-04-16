@@ -1,0 +1,31 @@
+topic: linear_algebra/linear_transformations
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  c: nonzero(-3, 3)
+  d: nonzero(-3, 3)
+  v1: integer(-4, 4)
+  v2: integer(-4, 4)
+  w1: a*v1 + b*v2
+  w2: c*v1 + d*v2
+  det: a*d - b*c
+  x: integer(-5, 5)
+  y: integer(-5, 5)
+  Tx: a*x + b*y
+  Ty: c*x + d*y
+  answer: Tx, Ty
+constraints:
+  - det != 0
+  - v1 != 0
+  - v2 != 0
+question: "A linear transformation T: R² → R² maps the vector ({v1}, 0) to ({w1}, {w2}) and the vector (0, {v2}) to ({b*v2}, {d*v2}). Find T({x}, {y})."
+answer: answer
+answer_type: tuple
+solution:
+  - "The transformation matrix is determined by where T maps the standard basis vectors"
+  - "Since T({v1}, 0) = ({w1}, {w2}), we have T(1, 0) = ({w1}/{v1}, {w2}/{v1}) = ({a}, {c})"
+  - "Since T(0, {v2}) = ({b*v2}, {d*v2}), we have T(0, 1) = ({b*v2}/{v2}, {d*v2}/{v2}) = ({b}, {d})"
+  - "So the transformation matrix is [[{a}, {b}], [{c}, {d}]]"
+  - "Therefore T({x}, {y}) = [{a}, {b}; {c}, {d}] * [{x}; {y}] = ({Tx}, {Ty})"

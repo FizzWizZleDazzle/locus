@@ -1,0 +1,27 @@
+topic: algebra1/systems_elimination
+difficulty: easy
+calculator: none
+variables:
+  x: integer(1, 5)
+  y: integer(1, 5)
+  a1: choice(1, 2, 3)
+  b1: choice(1, 2)
+  c1: a1*x + b1*y
+  a2: choice(1, 2)
+  b2: choice(1, 2, 3)
+  c2: a2*x + b2*y
+  answer: x, y
+constraints:
+  - a1*b2 != a2*b1
+question: "Solve the system of equations using elimination: {system(a1*x + b1*y = c1, a2*x + b2*y = c2)}"
+answer: answer
+answer_type: tuple
+solution:
+  - "Given system: {equation(a1*x + b1*y, c1)} and {equation(a2*x + b2*y, c2)}"
+  - "Multiply first equation by {b2}: {equation(a1*b2*x + b1*b2*y, c1*b2)}"
+  - "Multiply second equation by {b1}: {equation(a2*b1*x + b1*b2*y, c2*b1)}"
+  - "Subtract to eliminate y: {equation((a1*b2 - a2*b1)*x, c1*b2 - c2*b1)}"
+  - "Solve for x: x = {x}"
+  - "Substitute into first equation: {equation(a1*x + b1*y, c1)}"
+  - "Solve for y: y = {y}"
+  - "Solution: ({x}, {y})"

@@ -1,0 +1,24 @@
+topic: linear_algebra/linear_transformations
+difficulty: very_easy
+calculator: none
+variables:
+  a: integer(1, 3)
+  b: integer(0, 2)
+  c: integer(0, 2)
+  d: integer(1, 3)
+  x: integer(1, 4)
+  y: integer(1, 4)
+  result_x: a*x + b*y
+  result_y: c*x + d*y
+  answer: result_x, result_y
+constraints:
+  - a*d - b*c > 0
+question: "Let T be the linear transformation with matrix {equation([[a, b], [c, d]], [[a, b], [c, d]])}. Find T({equation([x, y], [x, y])})."
+answer: answer
+answer_type: tuple
+solution:
+  - "Apply the transformation matrix to the vector:"
+  - "T({equation([x, y], [x, y])}) = {equation([[a, b], [c, d]], [[a, b], [c, d]])} {equation([x, y], [x, y])}"
+  - "First component: {a} × {x} + {b} × {y} = {result_x}"
+  - "Second component: {c} × {x} + {d} × {y} = {result_y}"
+  - "Therefore T({equation([x, y], [x, y])}) = {equation([result_x, result_y], [result_x, result_y])}"

@@ -1,0 +1,28 @@
+topic: differential_equations/characteristic_equation
+difficulty: hard
+calculator: none
+variables:
+  r1: integer(-5, -1)
+  r2: integer(1, 5)
+  char_eq: (r - r1)*(r - r2)
+  expanded_char: expand(char_eq)
+  a: -(r1 + r2)
+  b: r1 * r2
+  diff_eq: derivative(derivative(y, x), x) + a*derivative(y, x) + b*y
+  roots: solve(expanded_char, r)
+  c1: choice(2, 3, 4)
+  c2: choice(-3, -2, -1)
+  general_solution: c1*exp(r1*x) + c2*exp(r2*x)
+  answer: general_solution
+constraints:
+  - r1 < r2
+question: "Find the general solution to the differential equation {equation(diff_eq, 0)}"
+answer: answer
+answer_type: expression
+solution:
+  - "Write the characteristic equation by substituting y = e^(rx)"
+  - "This gives {equation(expanded_char, 0)}"
+  - "Factor: {equation(char_eq, 0)}"
+  - "The roots are r = {r1} and r = {r2}"
+  - "Since we have two distinct real roots, the general solution is y = C₁e^({r1}x) + C₂e^({r2}x)"
+  - "Using C₁ = {c1} and C₂ = {c2}, we get y = {answer}"

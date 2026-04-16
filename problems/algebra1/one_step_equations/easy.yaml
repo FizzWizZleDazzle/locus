@@ -1,0 +1,15 @@
+topic: algebra1/one_step_equations
+difficulty: easy
+calculator: none
+variables:
+  x: integer(2, 9)
+  a: choice(3, 4, 5, 6)
+  b: a * x
+  answer: x
+question: "Solve for x: {equation(a*x, b)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "We have {equation(a*x, b)}"
+  - "Divide both sides by {a}: {equation(x, b/a)}"
+  - "Therefore, x = {answer}"

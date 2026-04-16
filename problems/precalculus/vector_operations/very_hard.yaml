@@ -1,0 +1,40 @@
+topic: precalculus/vector_operations
+difficulty: very_hard
+calculator: none
+variables:
+  a1: nonzero(-4, 4)
+  a2: nonzero(-4, 4)
+  a3: nonzero(-4, 4)
+  b1: nonzero(-4, 4)
+  b2: nonzero(-4, 4)
+  b3: nonzero(-4, 4)
+  c1: nonzero(-4, 4)
+  c2: nonzero(-4, 4)
+  c3: nonzero(-4, 4)
+  cross_ab_1: a2*b3 - a3*b2
+  cross_ab_2: a3*b1 - a1*b3
+  cross_ab_3: a1*b2 - a2*b1
+  dot_cross_c: cross_ab_1*c1 + cross_ab_2*c2 + cross_ab_3*c3
+  cross_bc_1: b2*c3 - b3*c2
+  cross_bc_2: b3*c1 - b1*c3
+  cross_bc_3: b1*c2 - b2*c1
+  dot_a_cross: a1*cross_bc_1 + a2*cross_bc_2 + a3*cross_bc_3
+  cross_ca_1: c2*a3 - c3*a2
+  cross_ca_2: c3*a1 - c1*a3
+  cross_ca_3: c1*a2 - c2*a1
+  dot_b_cross: b1*cross_ca_1 + b2*cross_ca_2 + b3*cross_ca_3
+  answer: dot_cross_c + dot_a_cross + dot_b_cross
+constraints:
+  - a1 != b1
+  - b2 != c2
+question: "Let a = ({a1}, {a2}, {a3}), b = ({b1}, {b2}, {b3}), and c = ({c1}, {c2}, {c3}). Compute (a × b) · c + a · (b × c) + b · (c × a)."
+answer: answer
+solution:
+  - "First compute a × b = ({cross_ab_1}, {cross_ab_2}, {cross_ab_3})"
+  - "Then (a × b) · c = {cross_ab_1}·{c1} + {cross_ab_2}·{c2} + {cross_ab_3}·{c3} = {dot_cross_c}"
+  - "Next compute b × c = ({cross_bc_1}, {cross_bc_2}, {cross_bc_3})"
+  - "Then a · (b × c) = {a1}·{cross_bc_1} + {a2}·{cross_bc_2} + {a3}·{cross_bc_3} = {dot_a_cross}"
+  - "Finally compute c × a = ({cross_ca_1}, {cross_ca_2}, {cross_ca_3})"
+  - "Then b · (c × a) = {b1}·{cross_ca_1} + {b2}·{cross_ca_2} + {b3}·{cross_ca_3} = {dot_b_cross}"
+  - "The sum is {dot_cross_c} + {dot_a_cross} + {dot_b_cross} = {answer}"
+  - "Note: This always equals 0 by the scalar triple product identity"

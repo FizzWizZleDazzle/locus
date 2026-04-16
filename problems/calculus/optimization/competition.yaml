@@ -1,0 +1,24 @@
+topic: calculus/optimization
+difficulty: competition
+calculator: none
+variables:
+  k: choice(12, 18, 24, 36, 48)
+  a: choice(2, 3, 4, 6)
+  b: k / a
+  critical_x: sqrt(b / a)
+  critical_y: 2 * sqrt(a * b)
+  f: a * x^2 + b / x
+  df: derivative(f, x)
+  answer_x: critical_x
+  answer_y: critical_y
+question: "A function is defined as {equation(f(x), f)} for x > 0. Find the coordinates (x, y) of the minimum point."
+answer: answer_x, answer_y
+answer_type: tuple
+solution:
+  - "To find the minimum, we take the derivative and set it equal to zero"
+  - "{derivative_of(f, x)} = {df}"
+  - "Setting {equation(df, 0)} and solving for x"
+  - "Multiply through by x^2: {equation(2*a*x^3 - b, 0)}"
+  - "So x^3 = {b}/(2*{a}), giving x = {answer_x}"
+  - "The y-coordinate is f({answer_x}) = {answer_y}"
+  - "The minimum occurs at ({answer_x}, {answer_y})"

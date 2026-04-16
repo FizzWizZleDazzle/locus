@@ -1,0 +1,26 @@
+topic: precalculus/transformations
+difficulty: hard
+calculator: none
+variables:
+  a: choice(-3, -2, 2, 3)
+  h: nonzero(-4, 4)
+  k: nonzero(-6, 6)
+  base_f: x^2
+  transformed: a * (x - h)^2 + k
+  expanded: expand(transformed)
+  vertex_x: h
+  vertex_y: k
+  stretch_factor: abs(a)
+  reflection: a < 0
+  answer: vertex_x, vertex_y
+constraints:
+  - h != k
+question: "The parabola {equation(expanded, y)} is a transformation of {equation(base_f, y)}. Find the coordinates of the vertex."
+answer: answer
+answer_type: tuple
+solution:
+  - "Rewrite {equation(expanded, y)} in vertex form by completing the square"
+  - "Factor out the coefficient of x^2: {equation(y, a * ((x - h)^2 + k/a))}"
+  - "This gives us {equation(y, transformed)}"
+  - "The vertex form shows a vertical stretch by factor {stretch_factor}, horizontal shift {h} units, and vertical shift {k} units"
+  - "Therefore, the vertex is at ({vertex_x}, {vertex_y})"

@@ -1,0 +1,27 @@
+topic: calculus/antiderivatives
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: nonzero(-5, 5)
+  d: nonzero(-4, 4)
+  f: a*x^3 + b*x^2 + c*x + d
+  F_no_C: integral(f, x)
+  x_val: nonzero(-3, 3)
+  F_at_x: evaluate(F_no_C, x, x_val)
+  given_val: integer(-20, 20)
+  C: given_val - F_at_x
+  answer: F_no_C + C
+constraints:
+  - a != b
+  - c != d
+question: "Find the antiderivative F(x) of {f} such that F({x_val}) = {given_val}."
+answer: answer
+solution:
+  - "First find the general antiderivative: {integral_of(f, x)}"
+  - "Integrating term by term: F(x) = {F_no_C} + C"
+  - "Use the condition F({x_val}) = {given_val} to find C"
+  - "F({x_val}) = {F_at_x} + C = {given_val}"
+  - "So C = {given_val} - {F_at_x} = {C}"
+  - "Therefore F(x) = {answer}"

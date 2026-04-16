@@ -1,0 +1,15 @@
+topic: arithmetic/addition
+difficulty: medium
+calculator: none
+variables:
+  a: integer(15, 45)
+  b: integer(25, 55)
+  c: integer(10, 40)
+  answer: a + b + c
+constraints:
+  - a < b
+question: "Calculate: {a} + {b} + {c}"
+answer: answer
+solution:
+  - "Add the first two numbers: {a} + {b} = {evaluate(a + b, x, 0)}"
+  - "Add the third number: {evaluate(a + b, x, 0)} + {c} = {answer}"

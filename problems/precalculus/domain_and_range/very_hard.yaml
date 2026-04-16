@@ -1,0 +1,31 @@
+topic: precalculus/domain_and_range
+difficulty: very_hard
+calculator: none
+variables:
+  a: nonzero(-8, 8)
+  b: integer(-5, 5)
+  c: integer(2, 8)
+  d: nonzero(-6, 6)
+  numerator: a*x + b
+  denominator: (x - c)*(x + d)
+  expanded_denom: expand(denominator)
+  f: numerator / expanded_denom
+  hole_x: c
+  hole_y_num: evaluate(numerator, x, c)
+  hole_y_denom: evaluate(x + d, x, c)
+  hole_y: hole_y_num / hole_y_denom
+  va: -d
+  ha: 0
+  answer: (-d, c)
+constraints:
+  - c > 0
+  - d > 0
+question: "Find all x-values NOT in the domain of {equation(f(x), f)}"
+answer: answer
+answer_type: tuple
+solution:
+  - "The function {equation(f(x), f)} has denominator {expanded_denom}"
+  - "Set denominator equal to zero: {equation(expanded_denom, 0)}"
+  - "Factor: {equation(denominator, 0)}"
+  - "So x = {c} or x = {-d}"
+  - "The domain excludes x = {-d} and x = {c}"

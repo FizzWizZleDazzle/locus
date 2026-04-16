@@ -1,0 +1,29 @@
+topic: linear_algebra/linear_independence
+difficulty: easy
+calculator: none
+variables:
+  a1: integer(1, 5)
+  a2: integer(-5, -1)
+  b1: integer(1, 5)
+  b2: integer(1, 5)
+  k: integer(2, 4)
+  c1: k * a1
+  c2: k * a2
+  det_ab: a1 * b2 - a2 * b1
+  det_ac: a1 * c2 - a2 * c1
+  answer: det_ab != 0
+constraints:
+  - a1 != b1
+  - det_ab != 0
+question: "Are the vectors v₁ = ({a1}, {a2}) and v₂ = ({b1}, {b2}) linearly independent?"
+answer: answer
+answer_type: boolean
+solution:
+  - "Two vectors are linearly independent if one is not a scalar multiple of the other"
+  - "Check if v₂ = k·v₁ for some scalar k"
+  - "This would require {b1} = k·{a1} and {b2} = k·{a2}"
+  - "From the first equation: k = {b1}/{a1}"
+  - "From the second equation: k = {b2}/{a2}"
+  - "Since these give different values of k, the vectors are linearly independent"
+  - "Alternatively, compute the determinant: {a1}·{b2} - {a2}·{b1} = {det_ab}"
+  - "Since {det_ab} ≠ 0, the vectors are linearly independent"

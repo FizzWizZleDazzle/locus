@@ -1,0 +1,19 @@
+topic: algebra1/quadratic_formula
+difficulty: easy
+calculator: none
+variables:
+  r1: integer(-5, 5)
+  r2: integer(-5, 5)
+  f: (x - r1) * (x - r2)
+  expanded: expand(f)
+  answer: solve(expanded, x)
+constraints:
+  - r1 != r2
+question: "Find the solutions to {equation(expanded, 0)}"
+answer: answer
+answer_type: set
+solution:
+  - "We have the equation {equation(expanded, 0)}"
+  - "This factors as {equation(f, 0)}"
+  - "Setting each factor to zero: x - {r1} = 0 or x - {r2} = 0"
+  - "Therefore x = {r1} or x = {r2}"

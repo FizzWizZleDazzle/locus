@@ -1,0 +1,28 @@
+topic: calculus/antiderivatives
+difficulty: competition
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-6, 6)
+  c: nonzero(-6, 6)
+  k: choice(2, 3, 4, 5)
+  f: a*x^k + b*x^(k-1) + c*x^(k-2)
+  F: integral(f, x)
+  x0: integer(-3, 3)
+  F_at_x0: evaluate(F, x, x0)
+  target: integer(-20, 20)
+  C: target - F_at_x0
+  answer: F + C
+constraints:
+  - a != b
+  - b != c
+question: "Find the antiderivative F(x) of {f} such that F({x0}) = {target}."
+answer: answer
+answer_type: expression
+solution:
+  - "First find the general antiderivative of {f}"
+  - "Using the power rule: {integral_of(f, x)} = {F} + C"
+  - "We need F({x0}) = {target}"
+  - "Substituting x = {x0}: {F_at_x0} + C = {target}"
+  - "Therefore C = {target} - {F_at_x0} = {C}"
+  - "The specific antiderivative is F(x) = {answer}"

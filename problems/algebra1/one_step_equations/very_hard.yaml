@@ -1,0 +1,20 @@
+topic: algebra1/one_step_equations
+difficulty: very_hard
+calculator: none
+variables:
+  answer: nonzero(-12, 12)
+  a: choice(-8, -6, -4, -3, -2, 2, 3, 4, 6, 8)
+  b: a * answer
+  equation_form: choice(1, 2, 3, 4)
+  lhs: a * x
+  rhs: b
+constraints:
+  - answer != 1
+  - answer != -1
+question: "Solve for x: {equation(lhs, rhs)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "We have {equation(lhs, rhs)}"
+  - "Divide both sides by {a}: {equation(x, b/a)}"
+  - "Therefore, x = {answer}"

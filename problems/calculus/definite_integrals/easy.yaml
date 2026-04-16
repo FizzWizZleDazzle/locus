@@ -1,0 +1,22 @@
+topic: calculus/definite_integrals
+difficulty: easy
+calculator: none
+variables:
+  a: integer(2, 5)
+  lower: integer(0, 2)
+  upper: integer(3, 5)
+  f: a*x
+  F: integral(f, x)
+  F_upper: evaluate(F, x, upper)
+  F_lower: evaluate(F, x, lower)
+  answer: F_upper - F_lower
+constraints:
+  - lower < upper
+question: "Evaluate {definite_integral_of(f, x, lower, upper)}"
+answer: answer
+solution:
+  - "Find the antiderivative: {integral_of(f, x)} = {F} + C"
+  - "Apply the fundamental theorem: F({upper}) - F({lower})"
+  - "F({upper}) = {F_upper}"
+  - "F({lower}) = {F_lower}"
+  - "Answer: {F_upper} - {F_lower} = {answer}"

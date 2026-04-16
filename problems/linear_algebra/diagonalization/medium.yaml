@@ -1,0 +1,25 @@
+topic: linear_algebra/diagonalization
+difficulty: medium
+calculator: none
+variables:
+  lambda1: integer(-3, 3)
+  lambda2: integer(-3, 3)
+  A11: lambda1 + lambda2
+  A12: lambda1 - lambda2
+  A21: lambda1 - lambda2
+  A22: lambda1 + lambda2
+  trace: A11 + A22
+  det: A11*A22 - A12*A21
+  answer: lambda1, lambda2
+constraints:
+  - lambda1 != lambda2
+  - lambda1 < lambda2
+question: "Find the eigenvalues of the matrix A = [[{A11}, {A12}], [{A21}, {A22}]]"
+answer: answer
+answer_type: set
+solution:
+  - "To find eigenvalues, solve det(A - λI) = 0"
+  - "The characteristic polynomial is det([[{A11} - x, {A12}], [{A21}, {A22} - x]]) = 0"
+  - "This gives ({A11} - x)({A22} - x) - ({A12})({A21}) = 0"
+  - "Expanding: ({trace}/2 - x)^2 - ({A12})^2 = 0"
+  - "The eigenvalues are λ = {lambda1} and λ = {lambda2}"

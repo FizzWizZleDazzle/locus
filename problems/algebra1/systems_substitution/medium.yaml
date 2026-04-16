@@ -1,0 +1,28 @@
+topic: algebra1/systems_substitution
+difficulty: medium
+calculator: none
+variables:
+  x: integer(-4, 4)
+  y: integer(-5, 5)
+  a: nonzero(-3, 3)
+  b: integer(2, 5)
+  c: a*x + b
+  d: nonzero(-4, 4)
+  e: nonzero(-3, 3)
+  f: d*x + e*y
+  answer: x, y
+constraints:
+  - a != d
+  - e != 0
+question: "Solve the system of equations using substitution: {system(y = c, f = 0)}"
+answer: answer
+answer_type: tuple
+solution:
+  - "From the first equation: y = {c}"
+  - "Substitute into the second equation: {d}x + {e}({c}) = 0"
+  - "Simplify: {d}x + {e*a}x + {e*b} = 0"
+  - "Combine like terms: {d + e*a}x + {e*b} = 0"
+  - "Solve for x: {d + e*a}x = {-e*b}"
+  - "x = {x}"
+  - "Substitute back: y = {a}({x}) + {b} = {y}"
+  - "Solution: ({x}, {y})"

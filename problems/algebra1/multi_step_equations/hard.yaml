@@ -1,0 +1,24 @@
+topic: algebra1/multi_step_equations
+difficulty: hard
+calculator: none
+variables:
+  x: integer(-8, 8)
+  a: nonzero(-6, 6)
+  b: nonzero(-9, 9)
+  c: nonzero(-12, 12)
+  d: nonzero(-8, 8)
+  left: a*x + b
+  right: c*x + d
+  answer: x
+constraints:
+  - a != c
+question: "Solve for x: {equation(left, right)}"
+answer: answer
+answer_type: numeric
+solution:
+  - "Start with {equation(left, right)}"
+  - "Subtract {c}x from both sides: {equation(a*x - c*x + b, d)}"
+  - "Simplify: {equation((a - c)*x + b, d)}"
+  - "Subtract {b} from both sides: {equation((a - c)*x, d - b)}"
+  - "Divide both sides by {a - c}: {equation(x, (d - b)/(a - c))}"
+  - "Therefore, x = {answer}"

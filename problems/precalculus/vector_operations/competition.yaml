@@ -1,0 +1,32 @@
+topic: precalculus/vector_operations
+difficulty: competition
+calculator: none
+variables:
+  a1: integer(-3, 3)
+  a2: integer(-3, 3)
+  b1: integer(-3, 3)
+  b2: integer(-3, 3)
+  c1: integer(-3, 3)
+  c2: integer(-3, 3)
+  dot_ab: a1*b1 + a2*b2
+  dot_bc: b1*c1 + b2*c2
+  dot_ac: a1*c1 + a2*c2
+  mag_a_sq: a1^2 + a2^2
+  mag_b_sq: b1^2 + b2^2
+  mag_c_sq: c1^2 + c2^2
+  k: integer(2, 4)
+  proj_scalar: k*mag_b_sq
+  answer: proj_scalar
+constraints:
+  - mag_b_sq > 0
+  - dot_ab == k*mag_b_sq
+question: "Vectors a = ({a1}, {a2}), b = ({b1}, {b2}), and c = ({c1}, {c2}) form a triangle. If the projection of a onto b equals {k} times the length of b, find the value of {k} · |b|²."
+answer: answer
+answer_type: numeric
+solution:
+  - "The projection of a onto b is (a·b)/|b|"
+  - "Given: projection = {k}|b|, so (a·b)/|b| = {k}|b|"
+  - "Therefore a·b = {k}|b|²"
+  - "Calculate a·b = {a1}·{b1} + {a2}·{b2} = {dot_ab}"
+  - "Calculate |b|² = {b1}² + {b2}² = {mag_b_sq}"
+  - "So {k}|b|² = {k}·{mag_b_sq} = {answer}"

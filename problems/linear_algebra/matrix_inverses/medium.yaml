@@ -1,0 +1,25 @@
+topic: linear_algebra/matrix_inverses
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  c: nonzero(-3, 3)
+  d: nonzero(-3, 3)
+  det: a*d - b*c
+  inv_a: d/det
+  inv_b: -b/det
+  inv_c: -c/det
+  inv_d: a/det
+  answer: inv_a, inv_b, inv_c, inv_d
+constraints:
+  - det != 0
+question: "Find the inverse of the matrix A = [[{a}, {b}], [{c}, {d}]]"
+answer: answer
+answer_type: tuple
+solution:
+  - "For a 2×2 matrix [[a, b], [c, d]], the inverse is (1/det)[[d, -b], [-c, a]]"
+  - "Calculate determinant: det = {a}({d}) - {b}({c}) = {det}"
+  - "Since det = {det} ≠ 0, the matrix is invertible"
+  - "A^(-1) = (1/{det})[[{d}, {-b}], [{-c}, {a}]]"
+  - "A^(-1) = [[{inv_a}, {inv_b}], [{inv_c}, {inv_d}]]"

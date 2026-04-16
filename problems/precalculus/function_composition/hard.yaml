@@ -1,0 +1,24 @@
+topic: precalculus/function_composition
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: integer(-5, 5)
+  c: nonzero(-3, 3)
+  d: integer(-4, 4)
+  f: a*x + b
+  g: c*x + d
+  g_of_f: c*(a*x + b) + d
+  expanded: expand(g_of_f)
+  x_val: integer(-3, 3)
+  answer: evaluate(expanded, x, x_val)
+constraints:
+  - a != c
+question: "Let {equation(f(x), f)} and {equation(g(x), g)}. Find (g ∘ f)({x_val})."
+answer: answer
+solution:
+  - "First find (g ∘ f)(x) = g(f(x))"
+  - "Substitute f(x) into g: g({f}) = c({f}) + d"
+  - "Expand: {expanded}"
+  - "Now evaluate at x = {x_val}:"
+  - "(g ∘ f)({x_val}) = {answer}"

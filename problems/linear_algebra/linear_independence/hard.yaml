@@ -1,0 +1,39 @@
+topic: linear_algebra/linear_independence
+difficulty: hard
+calculator: none
+variables:
+  v1_x: nonzero(-3, 3)
+  v1_y: nonzero(-3, 3)
+  v1_z: nonzero(-3, 3)
+  k: nonzero(-3, 3)
+  m: nonzero(-3, 3)
+  v2_x: k * v1_x
+  v2_y: k * v1_y
+  v2_z: k * v1_z
+  v3_x: m * v1_x
+  v3_y: m * v1_y + 1
+  v3_z: m * v1_z
+  c1: 2
+  c2: -2 * k
+  c3: 2 * m
+  check_x: c1 * v1_x + c2 * v2_x + c3 * v3_x
+  check_y: c1 * v1_y + c2 * v2_y + c3 * v3_y
+  check_z: c1 * v1_z + c2 * v2_z + c3 * v3_z
+  answer: c1, c2, c3
+constraints:
+  - k != m
+question: "Consider the vectors v₁ = ({v1_x}, {v1_y}, {v1_z}), v₂ = ({v2_x}, {v2_y}, {v2_z}), and v₃ = ({v3_x}, {v3_y}, {v3_z}). Find scalars c₁, c₂, c₃ (not all zero) such that c₁v₁ + c₂v₂ + c₃v₃ = 0."
+answer: answer
+answer_type: tuple
+solution:
+  - "Set up the equation c₁v₁ + c₂v₂ + c₃v₃ = 0"
+  - "This gives us the system:"
+  - "{equation(c1 * v1_x + c2 * v2_x + c3 * v3_x, 0)}"
+  - "{equation(c1 * v1_y + c2 * v2_y + c3 * v3_y, 0)}"
+  - "{equation(c1 * v1_z + c2 * v2_z + c3 * v3_z, 0)}"
+  - "Notice that v₂ = {k}v₁ (v₂ is a scalar multiple of v₁)"
+  - "Also notice that v₃ differs from {m}v₁ only in the y-component"
+  - "We can choose c₁ = {c1}, c₂ = {c2}, c₃ = {c3}"
+  - "Verify: ({c1})({v1_x}, {v1_y}, {v1_z}) + ({c2})({v2_x}, {v2_y}, {v2_z}) + ({c3})({v3_x}, {v3_y}, {v3_z})"
+  - "= ({check_x}, {check_y}, {check_z}) = (0, 0, 0) ✓"
+  - "Since we found a nontrivial linear combination equal to zero, the vectors are linearly dependent"

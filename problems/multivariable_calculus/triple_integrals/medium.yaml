@@ -1,0 +1,41 @@
+topic: multivariable_calculus/triple_integrals
+difficulty: medium
+calculator: scientific
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  f: a*x + b*y + c*z
+  x_lo: 0
+  x_hi: integer(1, 2)
+  y_lo: 0
+  y_hi: integer(1, 2)
+  z_lo: 0
+  z_hi: integer(1, 2)
+  F_x: integral(f, x)
+  F_x_hi: evaluate(F_x, x, x_hi)
+  F_x_lo: evaluate(F_x, x, x_lo)
+  inner: F_x_hi - F_x_lo
+  G_y: integral(inner, y)
+  G_y_hi: evaluate(G_y, y, y_hi)
+  G_y_lo: evaluate(G_y, y, y_lo)
+  middle: G_y_hi - G_y_lo
+  H_z: integral(middle, z)
+  H_z_hi: evaluate(H_z, z, z_hi)
+  H_z_lo: evaluate(H_z, z, z_lo)
+  answer: H_z_hi - H_z_lo
+constraints:
+  - x_hi != y_hi
+  - y_hi != z_hi
+question: "Evaluate the triple integral of {f} over the region [{x_lo}, {x_hi}] × [{y_lo}, {y_hi}] × [{z_lo}, {z_hi}]"
+answer: answer
+solution:
+  - "Integrate with respect to x first: {definite_integral_of(f, x, x_lo, x_hi)}"
+  - "The antiderivative is {F_x}"
+  - "Evaluating from {x_lo} to {x_hi}: {F_x_hi} - {F_x_lo} = {inner}"
+  - "Now integrate {inner} with respect to y from {y_lo} to {y_hi}"
+  - "The antiderivative is {G_y}"
+  - "Evaluating: {G_y_hi} - {G_y_lo} = {middle}"
+  - "Finally integrate {middle} with respect to z from {z_lo} to {z_hi}"
+  - "The antiderivative is {H_z}"
+  - "Evaluating: {H_z_hi} - {H_z_lo} = {answer}"

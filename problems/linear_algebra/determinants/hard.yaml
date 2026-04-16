@@ -1,0 +1,29 @@
+topic: linear_algebra/determinants
+difficulty: hard
+calculator: none
+variables:
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  e: nonzero(-4, 4)
+  f: nonzero(-4, 4)
+  g: nonzero(-4, 4)
+  h: nonzero(-4, 4)
+  i: nonzero(-4, 4)
+  det_minor1: e*i - f*h
+  det_minor2: d*i - f*g
+  det_minor3: d*h - e*g
+  answer: a*det_minor1 - b*det_minor2 + c*det_minor3
+constraints:
+  - a != b
+  - det_minor1 != 0
+question: "Find the determinant of the matrix [[{a}, {b}, {c}], [{d}, {e}, {f}], [{g}, {h}, {i}]]"
+answer: answer
+answer_type: numeric
+solution:
+  - "Expand along the first row"
+  - "det = {a} * det([[{e}, {f}], [{h}, {i}]]) - {b} * det([[{d}, {f}], [{g}, {i}]]) + {c} * det([[{d}, {e}], [{g}, {h}]])"
+  - "Calculate 2x2 determinants: {a}*({det_minor1}) - {b}*({det_minor2}) + {c}*({det_minor3})"
+  - "= {a*det_minor1} - {b*det_minor2} + {c*det_minor3}"
+  - "= {answer}"

@@ -1,0 +1,25 @@
+topic: calculus/antiderivatives
+difficulty: medium
+calculator: none
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  c: integer(-10, 10)
+  f: a*x^2 + b*x + c
+  F: integral(f, x)
+  x0: integer(1, 4)
+  F_at_x0: evaluate(F, x, x0)
+  given_value: integer(-20, 20)
+  C: given_value - F_at_x0
+  answer: F + C
+constraints:
+  - a != b
+question: "Find the antiderivative F(x) of {f} such that F({x0}) = {given_value}."
+answer: answer
+solution:
+  - "First find the general antiderivative of {f}"
+  - "{integral_of(f, x)} = {F} + C"
+  - "Use the condition F({x0}) = {given_value} to find C"
+  - "Substituting x = {x0}: {F_at_x0} + C = {given_value}"
+  - "Therefore C = {C}"
+  - "The antiderivative is F(x) = {answer}"

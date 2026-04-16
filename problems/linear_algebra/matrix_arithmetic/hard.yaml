@@ -1,0 +1,36 @@
+topic: linear_algebra/matrix_arithmetic
+difficulty: hard
+calculator: none
+variables:
+  a11: nonzero(-4, 4)
+  a12: integer(-4, 4)
+  a21: integer(-4, 4)
+  a22: nonzero(-4, 4)
+  b11: nonzero(-3, 3)
+  b12: integer(-3, 3)
+  b21: integer(-3, 3)
+  b22: nonzero(-3, 3)
+  c11: a11*b11 + a12*b21
+  c12: a11*b12 + a12*b22
+  c21: a21*b11 + a22*b21
+  c22: a21*b12 + a22*b22
+  k: choice(2, 3, -2, -3)
+  d11: k*c11
+  d12: k*c12
+  d21: k*c21
+  d22: k*c22
+  answer: d11, d12, d21, d22
+constraints:
+  - a11 != a22
+  - b11 != b22
+question: "Let A = [[{a11}, {a12}], [{a21}, {a22}]] and B = [[{b11}, {b12}], [{b21}, {b22}]]. Find {k}(AB)."
+answer: answer
+answer_type: tuple
+solution:
+  - "First compute AB by matrix multiplication"
+  - "Row 1, Col 1: ({a11})({b11}) + ({a12})({b21}) = {c11}"
+  - "Row 1, Col 2: ({a11})({b12}) + ({a12})({b22}) = {c12}"
+  - "Row 2, Col 1: ({a21})({b11}) + ({a22})({b21}) = {c21}"
+  - "Row 2, Col 2: ({a21})({b12}) + ({a22})({b22}) = {c22}"
+  - "So AB = [[{c11}, {c12}], [{c21}, {c22}]]"
+  - "Now multiply by {k}: {k}(AB) = [[{d11}, {d12}], [{d21}, {d22}]]"

@@ -1,0 +1,28 @@
+topic: multivariable_calculus/double_integrals
+difficulty: competition
+calculator: none
+variables:
+  a: integer(2, 4)
+  b: integer(2, 4)
+  c: integer(1, 3)
+  d: integer(1, 3)
+  f: c*x*y
+  inner_int: integral(f, y)
+  inner_eval_b: evaluate(inner_int, y, b)
+  inner_eval_0: evaluate(inner_int, y, 0)
+  inner_result: inner_eval_b - inner_eval_0
+  outer_int: integral(inner_result, x)
+  outer_eval_a: evaluate(outer_int, x, a)
+  outer_eval_0: evaluate(outer_int, x, 0)
+  answer: outer_eval_a - outer_eval_0
+constraints:
+  - a != b
+question: "Evaluate the double integral {definite_integral_of(c*x*y, y, 0, b)} dx from 0 to {a}."
+answer: answer
+solution:
+  - "First integrate with respect to y: {definite_integral_of(f, y, 0, b)}"
+  - "The antiderivative of {f} with respect to y is {inner_int}"
+  - "Evaluating from 0 to {b}: {inner_eval_b} - {inner_eval_0} = {inner_result}"
+  - "Now integrate {inner_result} with respect to x from 0 to {a}"
+  - "The antiderivative is {outer_int}"
+  - "Evaluating from 0 to {a}: {outer_eval_a} - {outer_eval_0} = {answer}"

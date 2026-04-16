@@ -1,0 +1,20 @@
+topic: precalculus/inverse_functions
+difficulty: very_easy
+calculator: none
+variables:
+  m: choice(2, 3, 4, 5)
+  b: integer(-5, 5)
+  f: m*x + b
+  y_val: integer(-3, 3)
+  x_val: (y_val - b)/m
+  answer: x_val
+constraints:
+  - (y_val - b) % m == 0
+question: "If f(x) = {f}, find the value of x such that f(x) = {y_val}."
+answer: answer
+answer_type: numeric
+solution:
+  - "We need to solve {equation(f, y_val)}"
+  - "Substitute: {equation(m*x + b, y_val)}"
+  - "Subtract {b}: {equation(m*x, y_val - b)}"
+  - "Divide by {m}: {equation(x, answer)}"
