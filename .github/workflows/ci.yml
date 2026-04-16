@@ -109,6 +109,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set image name
+        id: meta
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "tag_latest=${{ env.REGISTRY }}/${OWNER}/${{ matrix.image }}:latest" >> "$GITHUB_OUTPUT"
+          echo "tag_sha=${{ env.REGISTRY }}/${OWNER}/${{ matrix.image }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -116,5 +123,5 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.sha }}
+            ${{ steps.meta.outputs.tag_latest }}
+            ${{ steps.meta.outputs.tag_sha }}
