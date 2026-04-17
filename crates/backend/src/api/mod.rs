@@ -4,6 +4,7 @@ mod auth;
 mod daily;
 mod leaderboard;
 mod oauth;
+mod physics;
 mod problems;
 mod profile;
 mod stats;
@@ -147,6 +148,8 @@ pub fn router() -> Router<AppState> {
         .route("/daily/activity", get(daily::get_activity))
         // Public profile
         .route("/profile/{username}", get(profile::get_public_profile))
+        // Physics learning platform
+        .nest("/physics", physics::router())
 }
 
 /// Health check endpoint

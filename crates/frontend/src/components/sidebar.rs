@@ -65,6 +65,17 @@ pub fn Sidebar() -> impl IntoView {
                             )>"Practice"</span>
                         </A>
 
+                        // Physics
+                        <A href="/physics" attr:class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m-7-9H4m16 0h1M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            <span class=move || format!(
+                                "whitespace-nowrap transition-all duration-300 {}",
+                                if is_expanded.get() { "opacity-100" } else { "opacity-0 w-0" }
+                            )>"Physics"</span>
+                        </A>
+
                         // Ranked
                         <A href="/ranked" attr:class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-800 transition-colors">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

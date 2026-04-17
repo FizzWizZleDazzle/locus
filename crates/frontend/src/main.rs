@@ -141,9 +141,9 @@ use leptos_router::{
     path,
 };
 use pages::{
-    Daily, DailyArchive, DailyPuzzleDetail, ForgotPassword, Home, Leaderboard, Login, Practice,
-    PrivacyPolicy, Profile, Ranked, Register, ResetPassword, Settings, Stats, TermsOfService,
-    VerifyEmail,
+    Daily, DailyArchive, DailyPuzzleDetail, ForgotPassword, Home, Leaderboard, Login, Physics,
+    PhysicsProblem, Practice, PrivacyPolicy, Profile, Ranked, Register, ResetPassword, Settings,
+    Stats, TermsOfService, VerifyEmail,
 };
 
 fn main() {
@@ -231,6 +231,8 @@ fn App() -> impl IntoView {
                         <Route path=path!("/profile/:username") view=Profile />
                         <Route path=path!("/stats") view=Stats />
                         <Route path=path!("/settings") view=Settings />
+                        <Route path=path!("/physics") view=Physics />
+                        <Route path=path!("/physics/problem/:id") view=PhysicsProblem />
                         <Route path=path!("/privacy-policy") view=PrivacyPolicy />
                         <Route path=path!("/terms-of-service") view=TermsOfService />
                     </Routes>

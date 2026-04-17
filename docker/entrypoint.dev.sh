@@ -52,7 +52,7 @@ echo ""
 
 # Start backend (with hot reload)
 log_info "Starting backend on port ${PORT:-3000} (hot reload)..."
-cargo watch --poll -w crates/backend/src -w crates/common/src -x 'run -p locus-backend' &
+cargo watch --poll -w crates/backend/src -w crates/common/src -w crates/physics-common/src -x 'run -p locus-backend' &
 BACKEND_PID=$!
 
 # Start frontend (trunk serve)

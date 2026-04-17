@@ -1,0 +1,35 @@
+[package]
+name = "locus-physics-sim"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+locus-physics-common = { path = "../physics-common" }
+
+# Physics engine
+rapier2d = { workspace = true }
+nalgebra = { workspace = true }
+
+# WASM bindings
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+web-sys = { workspace = true, features = [
+    "Window",
+    "Document",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+    "Performance",
+    "DomRect",
+] }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging in WASM
+console_error_panic_hook = { workspace = true }
