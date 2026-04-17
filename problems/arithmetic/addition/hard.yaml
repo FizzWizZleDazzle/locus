@@ -12,7 +12,6 @@ variables:
 constraints:
   - mod(a, 10) + mod(b, 10) >= 10
   - mod(c, 10) + mod(d, 10) >= 10
-  - mod(sum_ab, 10) + mod(sum_cd, 10) >= 10
 question: "Calculate: {a} + {b} + {c} + {d}"
 answer: answer
 solution:

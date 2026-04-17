@@ -2,14 +2,11 @@ topic: geometry/angle_relationships
 difficulty: medium
 calculator: none
 variables:
-  base_angle: integer(10, 40)
-  multiplier: integer(2, 4)
-  angle1: base_angle
-  angle2: multiplier * base_angle
-  sum: angle1 + angle2
+  multiplier: choice(2, 3, 4)
+  parts: multiplier + 1
+  angle1: 180 / parts
+  angle2: multiplier * angle1
   answer: angle2
-constraints:
-  - sum == 180
 question: "Two supplementary angles are in the ratio 1:{multiplier}. Find the measure of the larger angle in degrees."
 answer: answer
 solution:

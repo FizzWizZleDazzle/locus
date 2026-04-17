@@ -1,26 +1,18 @@
 //! SymEngine FFI bindings (WASM and native).
 //!
-//! On native targets, all FFI calls are serialized through a global mutex
-//! because SymEngine was compiled without `WITH_SYMENGINE_THREAD_SAFE`.
-//! On WASM (single-threaded), the lock is a no-op.
+//! SymEngine is compiled with `WITH_SYMENGINE_THREAD_SAFE=ON` (atomic refcounts
+//! and hash caching). Each thread can safely work on its own `Expr` objects.
+//! `Expr` is `Send` but not `Sync` — do not share references across threads.
 
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_ulong};
 
-// Native builds need a mutex to protect non-thread-safe SymEngine.
-// WASM is single-threaded so this compiles out.
-#[cfg(not(target_arch = "wasm32"))]
-use std::sync::Mutex;
-
-#[cfg(not(target_arch = "wasm32"))]
-static SYMENGINE_LOCK: Mutex<()> = Mutex::new(());
-
-/// Acquire the SymEngine lock. On WASM this is a no-op.
+// SymEngine is compiled with WITH_SYMENGINE_THREAD_SAFE=ON (atomic refcounts
+// + atomic hash caching). Each thread can safely work on its own Expr objects.
+// No mutex needed on native. WASM is single-threaded so also a no-op.
 #[cfg(not(target_arch = "wasm32"))]
 macro_rules! se_lock {
-    () => {
-        let _guard = SYMENGINE_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-    };
+    () => {};
 }
 
 #[cfg(target_arch = "wasm32")]

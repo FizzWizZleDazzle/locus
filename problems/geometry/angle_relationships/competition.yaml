@@ -2,16 +2,14 @@ topic: geometry/angle_relationships
 difficulty: competition
 calculator: none
 variables:
-  k: integer(3, 8)
-  base: integer(10, 25)
+  k: choice(4, 5, 8)
+  base: 180 / (2*k + 2)
   angle1: k * base
   angle2: (k + 2) * base
   angle3: (k - 1) * base
-  sum_adj: angle1 + angle2
   sum_all: angle1 + angle2 + angle3
   answer: angle3
 constraints:
-  - sum_adj == 180
   - sum_all < 360
 question: "Three angles meet at a point. The first two angles are adjacent and supplementary. The ratio of these two angles is {k}:{k + 2}. The third angle is {base} degrees less than the first angle. Find the measure of the third angle."
 answer: answer

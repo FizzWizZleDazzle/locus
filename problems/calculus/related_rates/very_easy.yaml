@@ -7,7 +7,7 @@ variables:
   area_rate: 2 * 3.14159 * radius * rate
   answer: area_rate
 constraints:
-  - radius % 2 == 0 or radius % 3 == 0
+  - mod(radius, 2) == 0 or mod(radius, 3) == 0
 question: "A circular oil spill is expanding. When the radius is {radius} meters, it is increasing at {rate} m/s. Find the rate at which the area is increasing at this instant. Use π ≈ 3.14159."
 answer: answer
 solution:

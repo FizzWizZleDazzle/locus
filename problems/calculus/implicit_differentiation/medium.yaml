@@ -8,8 +8,8 @@ variables:
   equation: a*x^2 + b*y^2 = c
   dy_dx: -a*x / (b*y)
 constraints:
-  - c % a == 0
-  - c % b == 0
+  - mod(c, a) == 0
+  - mod(c, b) == 0
 question: "Find {derivative_of(y, x)} for the equation {equation(a*x^2 + b*y^2, c)}"
 answer: dy_dx
 solution:

@@ -2,23 +2,18 @@ topic: multivariable_calculus/change_of_variables
 difficulty: very_hard
 calculator: none
 variables:
-  # Design backward: pick a clean Jacobian determinant first
-  det_value: choice(2, 3, 4, 6)
-  # Build transformation that gives this determinant
   a: integer(1, 4)
   b: integer(1, 3)
   c: integer(1, 3)
   d: integer(2, 5)
-  # Ensure determinant matches our choice
   u_expr: a*x + b*y
   v_expr: c*x + d*y
   jacobian_det: a*d - b*c
-  # Simple region bounds for clean answer
   k: integer(2, 4)
-  area: k^2
-  answer: area * det_value
+  area: k*k
+  answer: area * abs(jacobian_det)
 constraints:
-  - jacobian_det == det_value
+  - jacobian_det != 0
   - a != b
   - c != d
 question: "Consider the transformation u = {u_expr}, v = {v_expr}. Find the area of the image of the square R = [0, {k}] × [0, {k}] under this transformation."

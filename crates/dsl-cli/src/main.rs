@@ -27,6 +27,9 @@ enum Command {
         /// Number of problems to generate
         #[arg(short = 'n', long, default_value = "1")]
         count: usize,
+        /// Skip self-grade and KaTeX validation (for batch generation of pre-validated YAMLs)
+        #[arg(long)]
+        fast: bool,
     },
 
     /// Run full validation on a file or directory
@@ -38,16 +41,22 @@ enum Command {
         runs: usize,
     },
 
-    /// Batch generate from a directory of YAML files
+    /// Batch generate from a directory of YAML files (parallel, NDJSON output)
     Batch {
         /// Directory containing .yaml problem files
         dir: PathBuf,
-        /// Output file (JSON or SQL)
+        /// Output file (NDJSON: one JSON object per line)
         #[arg(short, long)]
         output: PathBuf,
         /// Problems per file
         #[arg(short = 'n', long, default_value = "10")]
         count: usize,
+        /// Skip self-grade and KaTeX validation (for pre-validated YAMLs)
+        #[arg(long)]
+        fast: bool,
+        /// Number of rayon threads (default: all cores)
+        #[arg(short = 'j', long)]
+        threads: Option<usize>,
     },
 
     /// Use AI to generate new problem YAML files (concurrent)
@@ -78,13 +87,15 @@ fn main() {
 
     match cli.command {
         Command::Parse { file } => cmd_parse(&file),
-        Command::Generate { file, count } => cmd_generate(&file, count),
+        Command::Generate { file, count, fast } => cmd_generate(&file, count, fast),
         Command::Validate { path, runs } => cmd_validate(&path, runs),
         Command::Batch {
             dir,
             output,
             count,
-        } => cmd_batch(&dir, &output, count),
+            fast,
+            threads,
+        } => cmd_batch(&dir, &output, count, fast, threads),
         Command::Ai {
             topic,
             difficulty,
@@ -114,7 +125,7 @@ fn cmd_parse(file: &PathBuf) {
     }
 }
 
-fn cmd_generate(file: &PathBuf, count: usize) {
+fn cmd_generate(file: &PathBuf, count: usize, fast: bool) {
     let yaml = read_file(file);
     let spec = match locus_dsl::parse(&yaml) {
         Ok(s) => s,
@@ -128,8 +139,9 @@ fn cmd_generate(file: &PathBuf, count: usize) {
     let mut errors = 0;
     let max_consecutive_errors = 5; // bail early if file is broken
     let mut consecutive_errors = 0;
+    let gen_fn = if fast { locus_dsl::generate_fast } else { locus_dsl::generate };
     for _ in 0..count {
-        match locus_dsl::generate(&spec) {
+        match gen_fn(&spec) {
             Ok(problem) => {
                 println!("{}", serde_json::to_string(&problem).unwrap());
                 success += 1;
@@ -202,41 +214,107 @@ fn cmd_validate(path: &PathBuf, runs: usize) {
     }
 }
 
-fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize) {
+fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize, fast: bool, threads: Option<usize>) {
+    use rayon::prelude::*;
+    use std::io::{BufWriter, Write};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::{Arc, Mutex};
+
+    let n_threads = threads.unwrap_or_else(|| {
+        std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8)
+    });
+    rayon::ThreadPoolBuilder::new()
+        .num_threads(n_threads)
+        .build_global()
+        .ok();
+
     let files = collect_yaml_files(dir);
     if files.is_empty() {
         eprintln!("No .yaml files found in {}", dir.display());
         std::process::exit(1);
     }
 
-    let mut all_problems = Vec::new();
-    for file in &files {
-        let yaml = read_file(file);
-        let spec = match locus_dsl::parse(&yaml) {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("Skip {}: {e}", file.display());
-                continue;
+    // Parse all files upfront
+    let specs: Vec<(String, locus_dsl::spec::ProblemSpec)> = files
+        .iter()
+        .filter_map(|f| {
+            let yaml = read_file(f);
+            match locus_dsl::parse(&yaml) {
+                Ok(s) => Some((f.display().to_string(), s)),
+                Err(e) => {
+                    eprintln!("Skip {}: {e}", f.display());
+                    None
+                }
             }
-        };
+        })
+        .collect();
 
-        for _ in 0..count {
-            match locus_dsl::generate(&spec) {
-                Ok(p) => all_problems.push(p),
-                Err(e) => eprintln!("Error {}: {e}", file.display()),
-            }
-        }
-    }
+    let n_specs = specs.len();
+    let total_target = n_specs * count;
+    eprintln!(
+        "{n_specs} specs × {count} = {total_target} problems, {n_threads} threads{}",
+        if fast { " [fast]" } else { "" }
+    );
 
-    let json = serde_json::to_string_pretty(&all_problems).unwrap();
-    std::fs::write(output, &json).unwrap_or_else(|e| {
-        eprintln!("Failed to write {}: {e}", output.display());
+    let file_out = std::fs::File::create(output).unwrap_or_else(|e| {
+        eprintln!("Failed to create {}: {e}", output.display());
         std::process::exit(1);
     });
+    let writer = Arc::new(Mutex::new(BufWriter::with_capacity(1 << 20, file_out)));
+
+    let gen_fn: fn(&locus_dsl::spec::ProblemSpec) -> Result<locus_dsl::ProblemOutput, _> =
+        if fast { locus_dsl::generate_fast } else { locus_dsl::generate };
+
+    let total_written = Arc::new(AtomicUsize::new(0));
+    let total_errors = Arc::new(AtomicUsize::new(0));
+    let files_done = Arc::new(AtomicUsize::new(0));
+
+    specs.par_iter().for_each(|(name, spec)| {
+        let mut buf = Vec::with_capacity(count * 1024);
+        let mut ok = 0usize;
+        let mut consecutive_errors = 0u32;
+
+        for _ in 0..count {
+            match gen_fn(spec) {
+                Ok(p) => {
+                    serde_json::to_writer(&mut buf, &p).unwrap();
+                    buf.push(b'\n');
+                    ok += 1;
+                    consecutive_errors = 0;
+                }
+                Err(e) => {
+                    consecutive_errors += 1;
+                    total_errors.fetch_add(1, Ordering::Relaxed);
+                    if consecutive_errors >= 5 {
+                        eprintln!("Bail {name} after 5 consecutive errors: {e}");
+                        break;
+                    }
+                }
+            }
+        }
+
+        if !buf.is_empty() {
+            let mut w = writer.lock().unwrap();
+            w.write_all(&buf).unwrap();
+        }
+
+        total_written.fetch_add(ok, Ordering::Relaxed);
+        let done = files_done.fetch_add(1, Ordering::Relaxed) + 1;
+        if done % 25 == 0 || done == n_specs {
+            eprintln!(
+                "[{done}/{n_specs}] {} written, {} errors",
+                total_written.load(Ordering::Relaxed),
+                total_errors.load(Ordering::Relaxed)
+            );
+        }
+    });
+
+    writer.lock().unwrap().flush().unwrap();
     eprintln!(
-        "Wrote {} problems to {}",
-        all_problems.len(),
-        output.display()
+        "Done: {} problems → {}, {} errors",
+        total_written.load(Ordering::Relaxed),
+        output.display(),
+        total_errors.load(Ordering::Relaxed)
     );
 }
 

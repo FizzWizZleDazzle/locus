@@ -8,16 +8,12 @@ variables:
   f: a*x^3*y^2 + b*x^2*y^3 + c*x*y
   fx: derivative(f, x)
   fy: derivative(f, y)
-  x0: integer(-2, 2)
-  y0: integer(-2, 2)
+  x0: choice(-2, -1, 1, 2)
+  y0: choice(-2, -1, 1, 2)
   fx_at_point: evaluate(fx, x, x0, y, y0)
   fy_at_point: evaluate(fy, x, x0, y, y0)
   grad_magnitude_squared: fx_at_point^2 + fy_at_point^2
   answer: sqrt(grad_magnitude_squared)
-constraints:
-  - x0 != 0
-  - y0 != 0
-  - is_integer(answer)
 question: "Let f(x,y) = {f}. Find the magnitude of the gradient vector of f at the point ({x0}, {y0})."
 answer: answer
 solution:

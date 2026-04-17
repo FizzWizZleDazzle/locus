@@ -6,7 +6,7 @@ variables:
   angle2: 180 - angle1
   answer: angle2
 constraints:
-  - angle1 % 5 == 0
+  - mod(angle1, 5) == 0
 question: "Two angles form a linear pair. If one angle measures {angle1}°, what is the measure of the other angle?"
 answer: answer
 solution:

@@ -9,7 +9,7 @@ variables:
   V: r_val^2 * h_val
   dV_dt: 2 * r_val * h_val * r_rate + r_val^2 * h_rate
 constraints:
-  - r_val % 2 == 0
+  - mod(r_val, 2) == 0
   - h_val != r_val
   - dV_dt < 1000
 question: "A right circular cylinder has radius r and height h, both changing with time. At the instant when r = {r_val} cm and h = {h_val} cm, the radius is increasing at {r_rate} cm/s and the height is increasing at {h_rate} cm/s. Find the rate of change of the volume at this instant."

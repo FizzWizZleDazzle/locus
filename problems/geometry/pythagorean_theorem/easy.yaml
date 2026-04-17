@@ -2,8 +2,11 @@ topic: geometry/pythagorean_theorem
 difficulty: easy
 calculator: none
 variables:
-  a: integer(3, 12)
-  b: integer(4, 12)
+  scale: integer(1, 4)
+  base_a: choice(3, 5, 8, 7)
+  base_b: choice(4, 12, 15, 24)
+  a: scale * base_a
+  b: scale * base_b
   c_squared: a^2 + b^2
   c: sqrt(c_squared)
 constraints:

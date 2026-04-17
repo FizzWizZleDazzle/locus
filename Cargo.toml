@@ -41,6 +41,7 @@ tower_governor = "0.8"
 governor = "0.10"
 validator = { version = "0.20", features = ["derive"] }
 regex = "1.12"
+rayon = "1.10"
 lazy_static = "1.5"
 reqwest = { version = "0.13", default-features = false, features = ["json", "form", "rustls"] }
 urlencoding = "2"

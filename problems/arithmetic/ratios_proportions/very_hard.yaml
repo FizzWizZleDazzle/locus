@@ -34,7 +34,7 @@ variables:
 constraints:
   - gcd(a, b) == k
   - gcd(b, c) == m
-  - d_num % a == 0
+  - mod(d_num, a) == 0
   
 question: "If {a}:{b} = {c}:d, find the value of d."
 answer: answer

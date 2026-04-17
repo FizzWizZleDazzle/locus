@@ -2,15 +2,23 @@ topic: precalculus/vector_operations
 difficulty: competition
 calculator: none
 variables:
-  a1: integer(-3, 3)
-  a2: integer(-3, 3)
-  a3: integer(-3, 3)
-  b1: integer(-3, 3)
-  b2: integer(-3, 3)
-  b3: integer(-3, 3)
-  c1: integer(-3, 3)
-  c2: integer(-3, 3)
-  c3: integer(-3, 3)
+  # Construct orthogonal vectors algebraically: b ⊥ a via (-q,p,0), c ⊥ b via (0,-r,q) pattern
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+  r: nonzero(-3, 3)
+  s: nonzero(-3, 3)
+  t: nonzero(-3, 3)
+  a1: p
+  a2: q
+  a3: r
+  # b = (-q, p, 0) guarantees a·b = -pq + qp + 0 = 0
+  b1: -q
+  b2: p
+  b3: 0
+  # c = (p*s, q*s, t) guarantees b·c = -q*p*s + p*q*s + 0 = 0
+  c1: p * s
+  c2: q * s
+  c3: t
   dot_ab: a1*b1 + a2*b2 + a3*b3
   dot_bc: b1*c1 + b2*c2 + b3*c3
   dot_ac: a1*c1 + a2*c2 + a3*c3

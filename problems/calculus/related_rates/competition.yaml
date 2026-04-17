@@ -9,7 +9,7 @@ variables:
   answer: round(dV_dt, 0)
 constraints:
   - r_rate * r_initial < 100
-  - r_initial % 3 == 0
+  - mod(r_initial, 3) == 0
 question: "A spherical balloon is being inflated. When its radius is {r_initial} cm, the radius is increasing at {r_rate} cm/s. At what rate is the volume increasing at this instant? Use π ≈ 3.14159 and round to the nearest cubic cm per second."
 answer: answer
 solution:

@@ -13,13 +13,8 @@ variables:
   a2: a1 * scale_num / scale_den
   b2: b1 * scale_num / scale_den
   c2: c1 * scale_num / scale_den
-  # Area calculations
-  s1: (a1 + b1 + c1) / 2
-  area1: sqrt(s1 * (s1 - a1) * (s1 - b1) * (s1 - c1))
-  s2: (a2 + b2 + c2) / 2
-  area2: sqrt(s2 * (s2 - a2) * (s2 - b2) * (s2 - c2))
-  # The answer is the area ratio
-  answer: area2 / area1
+  # Area ratio for similar triangles = k^2
+  answer: scale_num^2 / scale_den^2
 constraints:
   - a1 < b1
   - b1 < c1

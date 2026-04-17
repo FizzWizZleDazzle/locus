@@ -14,7 +14,7 @@ variables:
   answer: simplify(area_segment)
 constraints:
   - chord_factor <= r
-  - r % 2 == 0
+  - mod(r, 2) == 0
 question: "A circle has radius {r}. A chord divides the circle such that the perpendicular distance from the center to the chord is {perpendicular_dist}. Find the area of the smaller circular segment (between the chord and the arc)."
 answer: answer
 solution:

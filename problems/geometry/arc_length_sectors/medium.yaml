@@ -16,7 +16,7 @@ variables:
   answer: arc_length
 constraints:
   - angle_num <= angle_den
-  - radius % 3 == 0
+  - mod(radius, 3) == 0
 question: "A circular sector has radius {radius} cm and central angle {angle_degrees}°. Find the arc length of the sector. Round to 2 decimal places."
 answer: answer
 solution:

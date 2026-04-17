@@ -14,7 +14,7 @@ variables:
   z2_conj: a2 - b2*i
   num_real: a1*a2 + b1*b2
   num_imag: b1*a2 - a1*b2
-  denom: a2^2 + b2^2
+  denom: a2*a2 + b2*b2
   quot_real: num_real/denom
   quot_imag: num_imag/denom
   answer: quot_real + quot_imag*i

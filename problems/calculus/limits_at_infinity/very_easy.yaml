@@ -9,7 +9,7 @@ variables:
   simplified: a/c
   answer: simplified
 constraints:
-  - a % c != 0
+  - mod(a, c) != 0
 question: "Find {limit_of(f, x, infinity)}"
 answer: answer
 solution:

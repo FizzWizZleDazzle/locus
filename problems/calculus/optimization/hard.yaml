@@ -14,7 +14,7 @@ variables:
   min_value: evaluate(f, x, critical_x)
   answer: min_value
 constraints:
-  - b % 3 == 0
+  - mod(2*b, 3*a) == 0
   - a * 2 < b
 question: "A particle's height is given by {f} for x in [0, 4]. Find the minimum height."
 answer: answer

@@ -15,12 +15,12 @@ variables:
   fy_at_point: evaluate(fy, x, x0, y, y0)
   u1: choice(-1, 1, 2)
   u2: choice(-2, -1, 1, 2)
-  norm_squared: u1^2 + u2^2
+  norm_squared: u1*u1 + u2*u2
   norm: sqrt(norm_squared)
   v1: u1/norm
   v2: u2/norm
-  directional_deriv: fx_at_point * v1 + fy_at_point * v2
-  answer: simplify(directional_deriv)
+  dir_deriv_num: fx_at_point * u1 + fy_at_point * u2
+  answer: dir_deriv_num / norm
 constraints:
   - u1^2 + u2^2 in [1, 2, 4, 5, 8]
   - x0 != 0 or y0 != 0
