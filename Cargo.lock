@@ -2468,24 +2468,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "locus-forum"
-version = "0.1.5"
-dependencies = [
- "chrono",
- "console_error_panic_hook",
- "getrandom 0.4.2",
- "gloo-net",
- "js-sys",
- "leptos",
- "leptos_router",
- "serde",
- "serde_json",
- "uuid",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
 name = "locus-frontend"
 version = "0.1.5"
 dependencies = [

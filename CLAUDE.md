@@ -12,7 +12,7 @@ Competitive math learning platform: Rust backend (Axum) + frontend (Leptos WASM)
 | Change database schema or queries | [`docs/DATABASE.md`](docs/DATABASE.md) — all tables, columns, indexes, migrations, PG functions |
 | Understand crate structure, grading, ELO, auth | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — module map, grading dispatch, build system, caching, routing |
 | Change env vars, Docker, K8s, deployment | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — all env vars, Docker files, Helm, Cloudflare, scripts |
-| Modify problem generation pipeline | [`factory/README.md`](factory/README.md) — LLM config, Julia/Python scripts, validation, automation |
+| Modify problem generation | `crates/dsl/` + `crates/dsl-cli/` — YAML DSL parser, generator, AI scaffolding |
 
 ## Documentation Maintenance
 
@@ -24,7 +24,6 @@ When modifying code, **always update the corresponding doc**:
 | Database migrations, models, indexes | `docs/DATABASE.md` |
 | Crate structure, modules, grading, components, pages | `docs/ARCHITECTURE.md` |
 | Env vars, Docker, K8s, scripts | `docs/DEPLOYMENT.md` |
-| Factory pipeline, scripts, LLM config | `factory/README.md` |
 
 ## Key Conventions
 
@@ -50,7 +49,7 @@ These rules prevent segfaults and undefined behavior. Violating them crashes the
 
 ```bash
 ./dev.sh                    # Starts DB (5433), backend (3000), frontend (8080)
-cd factory && ./start.sh    # Starts factory backend (9090) + UI (9091)
+./dev.sh --services         # Starts services-backend (8090) + status page (8082)
 ```
 
 Requires: `cargo`, `trunk`, `cargo-watch`, `docker`. Creates `.env` from `.env.example` automatically.

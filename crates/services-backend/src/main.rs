@@ -1,6 +1,5 @@
 mod auth;
 mod config;
-mod forum;
 mod status;
 
 use axum::{Json, Router, http::Method, middleware, routing::{get, post}};
@@ -112,8 +111,6 @@ async fn main() -> anyhow::Result<()> {
         // Auth routes (login handled by main app; shared cookie read here)
         .route("/api/auth/logout", post(auth_logout))
         .route("/api/auth/me", get(auth_me))
-        // Forum routes
-        .nest("/api/forum", forum::router())
         // Status routes
         .nest("/api/status", status::router())
         .layer(middleware::from_fn(security_headers))

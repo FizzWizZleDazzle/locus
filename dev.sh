@@ -26,7 +26,6 @@ cleanup() {
     kill $BACKEND_PID 2>/dev/null || true
     kill $FRONTEND_PID 2>/dev/null || true
     kill $SERVICES_PID 2>/dev/null || true
-    kill $FORUM_PID 2>/dev/null || true
     kill $STATUS_PID 2>/dev/null || true
     exit 0
 }
@@ -184,24 +183,13 @@ start_frontend() {
     cd ../..
 }
 
-# Start community services backend
+# Start services backend
 start_services_backend() {
     log_info "Starting services backend on http://localhost:8090"
-    PORT=8090 ALLOWED_ORIGINS="http://localhost:8081,http://localhost:8082" \
+    PORT=8090 ALLOWED_ORIGINS="http://localhost:8082" \
         cargo watch -w crates/services-backend/src -x 'run -p locus-services-backend' &
     SERVICES_PID=$!
     sleep 2
-}
-
-# Start forum frontend
-start_forum_frontend() {
-    log_info "Starting forum frontend on http://localhost:8081"
-    export COMMUNITY_API_URL="http://localhost:8090/api"
-    export LOCUS_FRONTEND_URL="http://localhost:8080"
-    cd crates/forum
-    trunk serve &
-    FORUM_PID=$!
-    cd ../..
 }
 
 # Start status frontend
@@ -215,11 +203,11 @@ start_status_frontend() {
 }
 
 main() {
-    local run_community=false
+    local run_services=false
 
     for arg in "$@"; do
         case "$arg" in
-            --community) run_community=true ;;
+            --services|--community) run_services=true ;;
         esac
     done
 
@@ -232,9 +220,9 @@ main() {
 
     check_deps
 
-    if [ "$run_community" = true ]; then
-        # Community services mode
-        for port in 8090 8081 8082; do
+    if [ "$run_services" = true ]; then
+        # Services mode (services-backend + status frontend)
+        for port in 8090 8082; do
             pid=$(lsof -ti ":$port" 2>/dev/null) && {
                 log_warn "Killing process on port $port (PID $pid)"
                 kill -9 $pid 2>/dev/null || true
@@ -242,19 +230,17 @@ main() {
         done
         start_db
         start_services_backend
-        start_forum_frontend
         start_status_frontend
 
         echo ""
-        log_success "Community services running!"
+        log_success "Services running!"
         echo "  Services API:  http://localhost:8090"
-        echo "  Forum:         http://localhost:8081/forum"
         echo "  Status:        http://localhost:8082/status"
         echo ""
         log_info "Press Ctrl+C to stop all servers"
         echo ""
 
-        wait $SERVICES_PID $FORUM_PID $STATUS_PID
+        wait $SERVICES_PID $STATUS_PID
     else
         # Main app mode
         for port in 3000 8080; do

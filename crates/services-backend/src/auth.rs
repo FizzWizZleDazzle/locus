@@ -96,12 +96,3 @@ impl FromRequestParts<AppState> for Option<AuthUser> {
     }
 }
 
-// Admin check
-
-pub async fn is_admin(pool: &sqlx::PgPool, user_id: Uuid) -> bool {
-    sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM forum_admins WHERE user_id = $1)")
-        .bind(user_id)
-        .fetch_one(pool)
-        .await
-        .unwrap_or(false)
-}

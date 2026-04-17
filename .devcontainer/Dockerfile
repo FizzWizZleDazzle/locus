@@ -50,13 +50,7 @@ RUN rustup target add wasm32-unknown-unknown \
     && cargo binstall -y trunk cargo-watch cargo-chef
 USER root
 
-# 4. Node.js LTS + TypeScript
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm install -g typescript
-
-# 5. WASI SDK 25 (arch-aware)
+# 4. WASI SDK 25 (arch-aware)
 RUN ARCH="$(uname -m)" \
     && case "$ARCH" in \
         x86_64)  WASI_ARCH="x86_64" ;; \
@@ -71,7 +65,7 @@ RUN ARCH="$(uname -m)" \
     && rm /tmp/wasi-sdk.tar.gz
 ENV WASI_SDK_PATH="/opt/wasi-sdk"
 
-# 6. Native SymEngine (for backend)
+# 5. Native SymEngine (for backend)
 RUN cd /tmp \
     && git clone --depth 1 https://github.com/symengine/symengine.git \
     && cd symengine \
@@ -86,7 +80,7 @@ RUN cd /tmp \
     && make install \
     && cd / && rm -rf /tmp/symengine
 
-# 7. WASM SymEngine (for frontend)
+# 6. WASM SymEngine (for frontend)
 #    Uses symengine.js/build_wasm.sh from the repo (submodule must be checked out).
 #    CI does `actions/checkout` with `submodules: recursive` so these files exist.
 COPY symengine.js/build_wasm.sh /tmp/symengine-wasm-build/build_wasm.sh

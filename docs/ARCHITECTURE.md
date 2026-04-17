@@ -2,7 +2,7 @@
 
 ## Workspace
 
-Rust workspace with six crates. The `common` crate is shared between frontend (WASM) and backend (native) via conditional compilation. The `services-backend`, `forum`, and `status` crates are standalone (no dependency on `common`).
+Rust workspace. The `common` crate is shared between frontend (WASM) and backend (native) via conditional compilation. The `services-backend` and `status` crates are standalone (no dependency on `common`).
 
 ```
 Cargo.toml              Workspace root
@@ -10,17 +10,18 @@ crates/
   common/               Shared library (grading, SymEngine FFI, types)
   frontend/             Leptos 0.8 CSR app (wasm32-unknown-unknown)
   backend/              Axum REST API (native target)
-  services-backend/     Community services API (forum + status, Axum)
-  forum/                Forum frontend (Leptos WASM, Cloudflare Pages)
+  dsl/                  Problem DSL parser + generator
+  dsl-cli/              DSL CLI tool (generate, validate, parse, ai)
+  services-backend/     Services API (status page, Axum)
   status/               Status page frontend (Leptos WASM, Cloudflare Pages)
 ```
 
 ### Services Architecture
 
 ```
-forum.locusmath.org  -> Cloudflare Pages (crates/forum WASM)   -+
-status.locusmath.org -> Cloudflare Pages (crates/status WASM)  -+-- API calls
-                                                                  v
+status.locusmath.org -> Cloudflare Pages (crates/status WASM)
+                             |
+                             v  API calls
                         crates/services-backend (K8s pod, port 8090)
                              |
                              v
@@ -28,7 +29,7 @@ status.locusmath.org -> Cloudflare Pages (crates/status WASM)  -+-- API calls
                              + pings api.locusmath.org/api/health
 ```
 
-Services backend runs its own migrations (`crates/services-backend/migrations/`), manages forum tables (`forum_posts`, `forum_comments`, `forum_votes`, `forum_admins`) and status tables (`status_checks`). Auth reads the main `users` table directly (shared JWT_SECRET).
+Services backend runs its own migrations (`crates/services-backend/migrations/`) and manages the `status_checks` table. Auth reads the main `users` table directly (shared JWT_SECRET). The `forum_*` tables from migration 001 are orphaned — the forum was migrated to GitHub Discussions and no code currently reads them.
 
 ## Crate Map
 
@@ -149,26 +150,24 @@ Axum REST API. Compiles to native target.
 | `/privacy-policy` | Privacy policy | None |
 | `/terms-of-service` | Terms of service | None |
 
-## Factory (Python)
+## Problem Generation
 
-Problem generation pipeline. See [`../factory/README.md`](../factory/README.md).
+Problems are authored as YAML files under `problems/` and generated via the Rust `dsl-cli` binary.
 
 ```
-factory/
-  backend/              FastAPI app (port 9090)
-    main.py             Entry point
-    config.py           LLM + database configuration
-    models.py           Pydantic models
-    routes/             config_routes, problem_routes, script_routes
-    services/           LLM, script execution, DB access, validation
-    scripts/src/        Generated Python problem scripts
-  frontend/             TypeScript UI (port 9091)
-  automate_pipeline.py  Full automation: topics -> scripts -> problems -> upload
-  import_db.py          SQLite -> PostgreSQL importer
-  publish_db.py         SQL -> SQLite -> GitHub Release
-  topup.py              Re-run scripts for thin subtopics
-  generate_daily_puzzles.py  LLM-based olympiad puzzle generation (inserts draft daily puzzles)
+problems/                     YAML source files (one per topic/subtopic)
+crates/dsl/                   DSL parser + SymEngine-backed evaluator
+crates/dsl-cli/               CLI: generate, parse, validate, ai
 ```
+
+Typical workflow:
+
+```bash
+cargo run --bin dsl-cli -- generate problems/calculus/derivative_rules.yaml -n 100
+cargo run --bin dsl-cli -- validate problems/ --runs 3
+```
+
+`dsl-cli` emits JSONL to stdout; `scripts/import_jsonl.py` bulk-loads into PostgreSQL via `COPY`.
 
 ## Grading System
 

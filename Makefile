@@ -1,4 +1,4 @@
-.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help tunnel-instructions restart-backend delete-secrets build-services-backend push-services-backend deploy-services-backend deploy-forum-frontend deploy-status-frontend
+.PHONY: all init build push deploy-backend deploy-frontend deploy data status clean help tunnel-instructions restart-backend delete-secrets build-services-backend push-services-backend deploy-services-backend deploy-status-frontend
 
 # Configuration
 REGISTRY := ghcr.io/fizzwizzledazzle
@@ -118,7 +118,7 @@ clean:
 	@cd crates/frontend && rm -rf dist/
 	@echo "✓ Frontend dist/ cleaned"
 
-# === Community Services ===
+# === Services (status page) ===
 
 build-services-backend:
 	@echo "Building services backend Docker image..."
@@ -131,10 +131,6 @@ push-services-backend:
 
 deploy-services-backend: build-services-backend push-services-backend
 	@echo "✓ Services backend deployed"
-
-deploy-forum-frontend:
-	cd crates/forum && COMMUNITY_API_URL=https://community-api.locusmath.org/api trunk build --release && wrangler pages deploy dist --project-name locus-forum
-	@echo "✓ Forum frontend deployed"
 
 deploy-status-frontend:
 	cd crates/status && COMMUNITY_API_URL=https://community-api.locusmath.org/api trunk build --release && wrangler pages deploy dist --project-name locus-status

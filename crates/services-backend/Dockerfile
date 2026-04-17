@@ -3,6 +3,11 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/li
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY crates/services-backend/ crates/services-backend/
+
+# Trim workspace to only services-backend so we don't need other crate sources
+RUN sed -i '/^members/,/^\]/c\members = ["crates/services-backend"]' Cargo.toml && \
+    sed -i '/^exclude/d' Cargo.toml
+
 RUN cargo build -p locus-services-backend --release
 
 FROM debian:bookworm-slim

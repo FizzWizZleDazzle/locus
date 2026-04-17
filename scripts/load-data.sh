@@ -3,7 +3,7 @@
 
 set -e
 
-PROBLEMS_FILE="${PROBLEMS_FILE:-factory/exports/problems_import.sql}"
+PROBLEMS_FILE="${PROBLEMS_FILE:-exports/problems_import.sql}"
 
 echo "============================================"
 echo "Loading Problem Data"
@@ -13,7 +13,7 @@ echo ""
 # Check if file exists
 if [ ! -f "$PROBLEMS_FILE" ]; then
     echo "ERROR: Problems file not found at $PROBLEMS_FILE"
-    echo "Run the factory to generate problems first."
+    echo "Generate problems with dsl-cli and import them first (see docs/DEPLOYMENT.md)."
     exit 1
 fi
 

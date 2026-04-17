@@ -9,8 +9,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   REGISTRY: ghcr.io
-  # Compile-time env vars for forum/status crates
-  COMMUNITY_API_URL: http://localhost:9090
+  # Compile-time env vars for status crate
+  COMMUNITY_API_URL: http://localhost:8090
   LOCUS_FRONTEND_URL: http://localhost:8080
 
 jobs:

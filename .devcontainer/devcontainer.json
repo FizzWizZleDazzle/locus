@@ -12,7 +12,7 @@
     "WASI_SDK_PATH": "/opt/wasi-sdk",
     "CARGO_TARGET_DIR": "/opt/cargo-target"
   },
-  "forwardPorts": [8080, 3000, 5433, 9090, 9091],
+  "forwardPorts": [8080, 3000, 5433, 8082, 8090],
   "customizations": {
     "vscode": {
       "settings": {
@@ -22,8 +22,7 @@
         "rust-lang.rust-analyzer",
         "ms-azuretools.vscode-docker",
         "tamasfe.even-better-toml",
-        "serayuzgur.crates",
-        "ms-python.python"
+        "serayuzgur.crates"
       ]
     }
   }

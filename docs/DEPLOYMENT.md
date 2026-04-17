@@ -36,24 +36,14 @@
 | `LOCUS_API_URL` | `https://api.locusmath.org/api` | Backend API base URL |
 | `LOCUS_FRONTEND_URL` | - | Frontend base URL |
 
-### Factory Backend (runtime)
-
-| Variable | Description |
-|---|---|
-| `LLM_ENDPOINT` | LLM API URL (OpenAI or Anthropic) |
-| `LLM_API_KEY` | LLM API key |
-| `LLM_MODEL` | Model name (e.g. `gpt-4`, `claude-sonnet-4-5-20250929`) |
-| `DATABASE_URL` | Postgres connection string (same DB as main backend) |
-
 ## Development Setup
 
 ### Option 1: Dev container (recommended)
 
 Open in VS Code Dev Containers or GitHub Codespaces. Everything is pre-installed:
 - Rust toolchain + WASM target
-- Node.js, Trunk, cargo-watch
+- Trunk, cargo-watch
 - Native and WASM SymEngine
-- Python venv for factory
 - PostgreSQL via Docker-in-Docker
 
 Post-create script (`.devcontainer/setup.sh`) validates tools, seeds the database, and creates `.env` files.
@@ -79,13 +69,14 @@ docker compose -f docker/docker-compose.dev.yml up
 
 Builds from `docker/Dockerfile.dev`. Mounts workspace with cargo caches. Same ports as dev.sh.
 
-### Factory
+### Problem Generation
 
 ```bash
-cd factory && ./start.sh
+cargo run --bin dsl-cli -- generate problems/calculus/derivative_rules.yaml -n 100
+cargo run --bin dsl-cli -- ai 'algebra1/quadratic_formula' -n 5 -j 3
 ```
 
-Starts factory backend (port 9090) and frontend (port 9091). Creates Python venv, installs deps, compiles TypeScript.
+Output is JSONL; pipe to `scripts/import_jsonl.py` to bulk-load into PostgreSQL.
 
 ## Production Deployment
 
@@ -176,12 +167,9 @@ npx wrangler pages deploy dist --project-name locus --branch main
 | 5432 | PostgreSQL | Production |
 | 28743 | Backend (Docker) | Production |
 | 8090 | Services backend | Both |
-| 8081 | Forum frontend (Trunk) | Development |
 | 8082 | Status frontend (Trunk) | Development |
-| 9090 | Factory backend | Development |
-| 9091 | Factory frontend | Development |
 
-## Community Services
+## Services (status page)
 
 ### Services Backend Env Vars
 
@@ -191,13 +179,13 @@ npx wrangler pages deploy dist --project-name locus --branch main
 | `JWT_SECRET` | yes | - | JWT signing secret (must match main backend) |
 | `PORT` | no | 8090 | Bind port |
 | `ENVIRONMENT` | no | development | `development` or `production` |
-| `ALLOWED_ORIGINS` | no | localhost:8081,8082 | Comma-separated CORS origins |
+| `ALLOWED_ORIGINS` | no | localhost:8082 | Comma-separated CORS origins |
 | `HEALTH_CHECK_URL` | no | api.locusmath.org/api/health | URL to monitor |
 | `HEALTH_CHECK_INTERVAL_SECS` | no | 300 | Health check interval (seconds) |
 
 ### Env Files
 
-All environment configuration lives in a single `.env` file. Community services dev vars (`PORT`, `ALLOWED_ORIGINS`) are passed as inline overrides in `dev.sh`. Production community vars use the `PRODUCTION_COMMUNITY_` prefix in `.env`.
+All environment configuration lives in a single `.env` file. Services dev vars (`PORT`, `ALLOWED_ORIGINS`) are passed as inline overrides in `dev.sh`. Production services vars use the `PRODUCTION_SERVICES_` prefix in `.env`.
 
 ### Deployment
 
@@ -206,18 +194,13 @@ All environment configuration lives in a single `.env` file. Community services 
 make build-services-backend
 make push-services-backend
 
-# Forum frontend (Cloudflare Pages)
-make deploy-forum-frontend
-
 # Status frontend (Cloudflare Pages)
 make deploy-status-frontend
 ```
 
-### Helm Chart
-
-`helm/community/` -- separate chart from main backend. Includes cloudflared sidecar for Cloudflare Tunnel.
-
 ### Cloudflare Setup
 
-- Tunnel: `community-api.locusmath.org` -> K8s community service pod
-- Pages: `forum.locusmath.org` (locus-forum project), `status.locusmath.org` (locus-status project)
+- Tunnel: `community-api.locusmath.org` -> K8s services pod
+- Pages: `status.locusmath.org` (locus-status project)
+
+> **Note:** The `forum_*` DB tables and the `locus-forum` Cloudflare Pages project are deprecated. The forum was migrated to GitHub Discussions; tables remain in the DB but no code reads them.

@@ -7,7 +7,6 @@ on:
       - '.devcontainer/Dockerfile'
       - '.github/workflows/devcontainer.yml'
       - 'symengine.js/**'
-      - 'factory/backend/requirements.txt'
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'crates/*/Cargo.toml'

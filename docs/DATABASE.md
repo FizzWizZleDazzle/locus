@@ -1,6 +1,6 @@
 # Database Schema
 
-PostgreSQL 16. Migrations managed by SQLx in `crates/backend/migrations/` (main) and `crates/services-backend/migrations/` (community services).
+PostgreSQL 16. Migrations managed by SQLx in `crates/backend/migrations/` (main) and `crates/services-backend/migrations/` (status page).
 
 ## Tables
 
@@ -291,11 +291,11 @@ idx_daily_puzzles_date_status       ON daily_puzzles(puzzle_date, status) WHERE 
 | 019 | daily_puzzles | daily_puzzles + daily_puzzle_attempts tables, daily_puzzle_streak + daily_puzzle_last_solve on users |
 | 020 | performance_indexes | Composite indexes for ELO history queries and daily puzzle lookups |
 
-### Community Services Migrations (`crates/services-backend/migrations/`)
+### Services Migrations (`crates/services-backend/migrations/`)
 
 | # | Name | Description |
 |---|---|---|
-| 001 | forum_tables | forum_posts, forum_comments, forum_votes, forum_admins tables |
+| 001 | forum_tables | **Deprecated.** forum_posts, forum_comments, forum_votes, forum_admins. Forum migrated to GitHub Discussions; tables retained for historical data, no code reads them. |
 | 002 | status_checks | status_checks table for uptime monitoring |
 
 ### `forum_posts`

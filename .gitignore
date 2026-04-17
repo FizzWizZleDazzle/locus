@@ -40,8 +40,11 @@ venv/
 # Generated SQL files
 content-gen/*.sql
 
-# Factory generated exports
-factory/exports/
+# Exports (dsl-cli output, import SQL, SQLite dumps)
+exports/
+
+# Generated JSONL dumps
+*.jsonl
 
 # Editor
 .vscode/
