@@ -8,6 +8,7 @@ mod email_input;
 mod latex_renderer;
 mod math_field;
 mod navbar;
+pub mod physics;
 mod problem_card;
 mod problem_interface;
 mod sidebar;

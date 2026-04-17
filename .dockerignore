@@ -23,7 +23,9 @@ crates/frontend/dist/
 
 # Docker
 .dockerignore
-docker/
+docker/Dockerfile*
+docker/docker-compose*
+!docker/entrypoint.dev.sh
 
 # Logs
 *.log

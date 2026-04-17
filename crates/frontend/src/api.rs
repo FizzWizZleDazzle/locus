@@ -456,6 +456,45 @@ pub async fn get_daily_activity() -> Result<DailyActivityResponse, RequestError>
 }
 
 // ============================================================================
+// Physics API
+// ============================================================================
+
+pub async fn get_physics_topics() -> Result<Vec<locus_physics_common::PhysicsTopicInfo>, RequestError> {
+    get_request("/physics/topics").await
+}
+
+pub async fn get_physics_problems(
+    topic: Option<&str>,
+    subtopic: Option<&str>,
+    count: u32,
+) -> Result<Vec<locus_physics_common::PhysicsProblemSummary>, RequestError> {
+    let mut path = format!("/physics/problems?count={}", count);
+    if let Some(t) = topic {
+        path.push_str(&format!("&physics_topic={}", t));
+    }
+    if let Some(st) = subtopic {
+        path.push_str(&format!("&physics_subtopic={}", st));
+    }
+    get_request(&path).await
+}
+
+pub async fn get_physics_problem(
+    id: uuid::Uuid,
+) -> Result<locus_physics_common::PhysicsProblemResponse, RequestError> {
+    get_request(&format!("/physics/problem/{}", id)).await
+}
+
+pub async fn submit_physics_answer(
+    req: &locus_physics_common::PhysicsSubmitRequest,
+) -> Result<locus_physics_common::PhysicsSubmitResponse, RequestError> {
+    post_request("/physics/submit", req).await
+}
+
+pub async fn get_physics_progress() -> Result<locus_physics_common::PhysicsProgressResponse, RequestError> {
+    get_request("/physics/progress").await
+}
+
+// ============================================================================
 // Profile API
 // ============================================================================
 

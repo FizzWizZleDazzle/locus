@@ -9,6 +9,8 @@ members = [
     "crates/services-backend",
     "crates/forum",
     "crates/status",
+    "crates/physics-common",
+    "crates/physics-sim",
 ]
 exclude = ["symengine.js/examples/rust-trunk", "crates/simulations"]
 
@@ -44,6 +46,10 @@ regex = "1.12"
 lazy_static = "1.5"
 reqwest = { version = "0.13", default-features = false, features = ["json", "form", "rustls"] }
 urlencoding = "2"
+
+# Physics
+rapier2d = { version = "0.22", features = ["serde-serialize"] }
+nalgebra = "0.33"
 
 # Frontend
 leptos = { version = "0.8", features = ["csr"] }
