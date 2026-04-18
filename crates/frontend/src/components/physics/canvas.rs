@@ -45,25 +45,105 @@ pub fn PhysicsCanvas(
         set_loading.set(true);
         set_error.set(None);
 
-        // Use JS eval to dynamically import the physics-sim WASM module
-        // and instantiate the engine on the canvas.
+        let scene_escaped = json.replace('\\', r"\\").replace('`', r"\`");
         let init_code = format!(
             r#"
-            (async function() {{
+            (function() {{
                 try {{
-                    // The physics sim WASM module is built by Trunk as a
-                    // separate asset and placed in the dist directory.
-                    // For development, we fall back to a placeholder.
-                    if (!window.__physics_sim_engine) {{
-                        // Placeholder: in production this would be:
-                        // const mod = await import('/physics_sim.js');
-                        // await mod.default();
-                        // window.__physics_sim_engine = new mod.SimulationEngine('{canvas_id}', sceneJson);
-                        console.log('[physics-sim] Engine placeholder initialised');
+                    var canvas = document.getElementById('{canvas_id}');
+                    if (!canvas) return false;
+                    var ctx = canvas.getContext('2d');
+                    var scene = JSON.parse(`{scene_escaped}`);
+                    var ppm = scene.pixels_per_metre || 50;
+                    var cam = scene.camera || [0,0,1];
+                    var W = canvas.width, H = canvas.height;
+                    function worldToPx(x, y) {{
+                        var px = W/2 + (x - cam[0]) * ppm * cam[2];
+                        var py = H/2 - (y - cam[1]) * ppm * cam[2];
+                        return [px, py];
                     }}
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.fillRect(0, 0, W, H);
+                    // Draw boundaries
+                    ctx.strokeStyle = '#64748b';
+                    ctx.lineWidth = 2;
+                    (scene.boundaries || []).forEach(function(b) {{
+                        var s = worldToPx(b.start[0], b.start[1]);
+                        var e = worldToPx(b.end[0], b.end[1]);
+                        ctx.beginPath();
+                        ctx.moveTo(s[0], s[1]);
+                        ctx.lineTo(e[0], e[1]);
+                        ctx.stroke();
+                    }});
+                    // Draw bodies: fixed/kinematic first, dynamic on top
+                    var sorted = (scene.bodies || []).slice().sort(function(a, b) {{
+                        var aw = a.body_type === 'dynamic' ? 1 : 0;
+                        var bw = b.body_type === 'dynamic' ? 1 : 0;
+                        return aw - bw;
+                    }});
+                    sorted.forEach(function(body) {{
+                        var pos = worldToPx(body.position[0], body.position[1]);
+                        var rot = -(body.rotation || 0);
+                        ctx.save();
+                        ctx.translate(pos[0], pos[1]);
+                        ctx.rotate(rot);
+                        ctx.fillStyle = body.fill_color || '#93c5fd';
+                        ctx.strokeStyle = body.stroke_color || '#1e3a5f';
+                        ctx.lineWidth = 1.5;
+                        var sh = body.shape;
+                        if (sh.type === 'circle') {{
+                            var r = sh.radius * ppm * cam[2];
+                            ctx.beginPath();
+                            ctx.arc(0, 0, r, 0, Math.PI*2);
+                            ctx.fill();
+                            ctx.stroke();
+                        }} else if (sh.type === 'rectangle') {{
+                            var w = sh.width * ppm * cam[2];
+                            var h = sh.height * ppm * cam[2];
+                            ctx.fillRect(-w/2, -h/2, w, h);
+                            ctx.strokeRect(-w/2, -h/2, w, h);
+                        }} else if (sh.type === 'triangle') {{
+                            var b2 = sh.base * ppm * cam[2] / 2;
+                            var h2 = sh.height * ppm * cam[2];
+                            ctx.beginPath();
+                            ctx.moveTo(-b2, 0);
+                            ctx.lineTo(b2, 0);
+                            ctx.lineTo(0, -h2);
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.stroke();
+                        }} else if (sh.type === 'polygon') {{
+                            ctx.beginPath();
+                            sh.vertices.forEach(function(v, i) {{
+                                var x = v[0] * ppm * cam[2];
+                                var y = -v[1] * ppm * cam[2];
+                                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                            }});
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.stroke();
+                        }} else if (sh.type === 'segment') {{
+                            var s = [sh.start[0] * ppm * cam[2], -sh.start[1] * ppm * cam[2]];
+                            var e = [sh.end[0] * ppm * cam[2], -sh.end[1] * ppm * cam[2]];
+                            ctx.beginPath();
+                            ctx.moveTo(s[0], s[1]);
+                            ctx.lineTo(e[0], e[1]);
+                            ctx.lineWidth = 4;
+                            ctx.stroke();
+                        }}
+                        ctx.restore();
+                        if (body.label) {{
+                            ctx.fillStyle = '#1f2937';
+                            ctx.font = '12px system-ui';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(body.label, pos[0], pos[1] - 10);
+                        }}
+                    }});
+                    window.__physics_scene = scene;
+                    console.log('[physics-sim] Scene rendered: ' + (scene.bodies || []).length + ' bodies');
                     return true;
                 }} catch (e) {{
-                    console.error('[physics-sim] Failed to initialise:', e);
+                    console.error('[physics-sim] Render failed:', e);
                     return false;
                 }}
             }})()

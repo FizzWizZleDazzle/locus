@@ -279,6 +279,20 @@ pub async fn reset_password(
     post_request("/auth/reset-password", &req).await
 }
 
+/// Dev-only auto login by username. Compiled out of release builds and also
+/// guarded at runtime against production hosts.
+#[cfg(debug_assertions)]
+pub async fn dev_login(username: &str) -> Result<AuthResponse, RequestError> {
+    if env::frontend_base().contains("locusmath.org") {
+        return Err(RequestError { message: "dev login disabled on prod host".into() });
+    }
+    #[derive(Serialize)]
+    struct Req<'a> { username: &'a str }
+    let resp: AuthResponse = post_request("/auth/dev-login", &Req { username }).await?;
+    store_username(&resp.user.username);
+    Ok(resp)
+}
+
 pub async fn login(email: &str, password: &str) -> Result<AuthResponse, RequestError> {
     let req = LoginRequest {
         email: email.to_string(),

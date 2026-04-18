@@ -97,6 +97,12 @@ pub fn router() -> Router<AppState> {
         .route("/auth/reset-password", post(auth::reset_password))
         .layer(rate_limit::sensitive_rate_limiter());
 
+    // Dev-only routes, compiled out of release builds
+    #[cfg(debug_assertions)]
+    let dev_routes: Router<AppState> = Router::new().route("/auth/dev-login", post(auth::dev_login));
+    #[cfg(not(debug_assertions))]
+    let dev_routes: Router<AppState> = Router::new();
+
     Router::new()
         // Auth routes (with specific rate limiting)
         .route("/auth/register", post(auth::register))
@@ -115,6 +121,7 @@ pub fn router() -> Router<AppState> {
             post(auth::validate_reset_token),
         )
         .merge(sensitive_auth_routes)
+        .merge(dev_routes)
         // OAuth routes
         .route("/auth/oauth/{provider}", get(oauth::oauth_redirect))
         .route(

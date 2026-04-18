@@ -1,119 +1,261 @@
 //! Phase 2: Free-body diagram builder.
 //!
-//! Students drag force arrows onto the correct body in the correct direction.
-//! Forces are validated against expected directions with a tolerance.
+//! Interactive SVG: a target body sits at the centre of an SVG panel; each
+//! expected force is represented as an arrow emanating from the body. The
+//! student drags the arrow's tip to rotate it to the correct direction.
+//! On Check, each picked angle is compared to the expected direction within
+//! `tolerance_deg`.
 
 use leptos::prelude::*;
 use std::collections::HashMap;
+use wasm_bindgen::JsCast;
 
 use locus_physics_common::challenge::ForceSpec;
 
+const PANEL: f32 = 240.0;
+const ARROW_LEN: f32 = 85.0;
+const HANDLE_R: f32 = 10.0;
+
 #[component]
 pub fn FbdBuilder(
-    /// The body on which forces should be placed.
     target_body: String,
-    /// Expected forces with directions.
     expected_forces: Vec<ForceSpec>,
-    /// Direction tolerance in degrees.
-    #[prop(default = 15.0)]
-    tolerance_deg: f32,
-    /// Per-force hints.
-    #[prop(default = HashMap::new())]
-    per_force_hints: HashMap<String, String>,
-    /// Fired with the number of attempts it took.
+    #[prop(default = 15.0)] tolerance_deg: f32,
+    #[prop(default = HashMap::new())] per_force_hints: HashMap<String, String>,
     on_complete: Callback<i32>,
 ) -> impl IntoView {
     let (attempts, set_attempts) = signal(0i32);
-    let (placed_forces, set_placed_forces) = signal(Vec::<(String, bool)>::new());
+    // angle in degrees, physics frame (0=right, 90=up, CCW)
+    let initial: HashMap<String, f32> = expected_forces
+        .iter()
+        .enumerate()
+        .map(|(i, f)| (f.id.clone(), (i as f32) * (360.0 / expected_forces.len().max(1) as f32)))
+        .collect();
+    let (angles, set_angles) = signal(initial);
+    let (feedback, set_feedback) = signal(HashMap::<String, bool>::new());
     let (completed, set_completed) = signal(false);
-    let (show_hint, set_show_hint) = signal(Option::<String>::None);
+    let (dragging, set_dragging) = signal(Option::<String>::None);
+
+    let forces = expected_forces.clone();
+    let tol = tolerance_deg;
+
+    let on_check = move |_| {
+        set_attempts.update(|a| *a += 1);
+        let a = angles.get();
+        let mut fb = HashMap::new();
+        let mut all_ok = true;
+        for f in &forces {
+            let picked = a.get(&f.id).copied().unwrap_or(-999.0);
+            let d = (picked - f.direction_deg).rem_euclid(360.0);
+            let diff = d.min(360.0 - d);
+            let ok = diff <= tol;
+            if !ok { all_ok = false; }
+            fb.insert(f.id.clone(), ok);
+        }
+        set_feedback.set(fb);
+        if all_ok {
+            set_completed.set(true);
+            on_complete.run(attempts.get_untracked());
+        }
+    };
+
+    let on_pointer_move = move |ev: web_sys::PointerEvent| {
+        let Some(id) = dragging.get() else { return };
+        let target = ev.current_target().unwrap().dyn_into::<web_sys::Element>().unwrap();
+        let rect = target.get_bounding_client_rect();
+        let cx = rect.left() + rect.width() / 2.0;
+        let cy = rect.top() + rect.height() / 2.0;
+        let dx = ev.client_x() as f64 - cx;
+        let dy = ev.client_y() as f64 - cy;
+        // physics frame: y-up, angle CCW from +x
+        let angle = (-dy).atan2(dx).to_degrees();
+        let mut angle = if angle < 0.0 { angle + 360.0 } else { angle } as f32;
+        // snap to nearest 5°
+        angle = (angle / 5.0).round() * 5.0;
+        if angle >= 360.0 { angle -= 360.0; }
+        set_angles.update(|map| { map.insert(id.clone(), angle); });
+    };
+
+    let on_pointer_up = move |_ev: web_sys::PointerEvent| {
+        set_dragging.set(None);
+    };
 
     let forces_for_view = expected_forces.clone();
     let hints = per_force_hints.clone();
 
-    let on_check = move |_| {
-        set_attempts.update(|a| *a += 1);
-
-        // In a full implementation, this would read the actual placed arrows
-        // from the canvas. For now, we simulate a check against expected forces.
-        // The student interacts with the canvas to place arrows, and we validate
-        // positions/directions via the SimulationEngine.
-
-        // Placeholder: check if all forces have been placed
-        let placed = placed_forces.get();
-        let all_correct = expected_forces.iter().all(|ef| {
-            placed.iter().any(|(id, correct)| id == &ef.id && *correct)
-        });
-
-        if all_correct {
-            set_completed.set(true);
-            on_complete.run(attempts.get_untracked() + 1);
-        }
-    };
-
     view! {
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-                "Drag the force arrows onto the "
-                <span class="font-semibold">{target_body.clone()}</span>
-                " in the correct directions."
+        <div class="space-y-2">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+                "Drag each handle to point the force in its direction."
             </p>
 
-            // Available force arrows
-            <div class="flex flex-wrap gap-2">
-                {forces_for_view.into_iter().map(|force| {
-                    let force_id = force.id.clone();
-                    let force_id2 = force.id.clone();
-                    let hint_text = hints.get(&force.id).cloned();
+            <div class="flex justify-center">
+                <svg
+                    width=PANEL
+                    height=PANEL
+                    viewBox=format!("0 0 {} {}", PANEL, PANEL)
+                    class="bg-slate-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 touch-none"
+                    on:pointermove=on_pointer_move
+                    on:pointerup=on_pointer_up
+                    on:pointerleave=on_pointer_up
+                >
+                    // Compass guide
+                    <g stroke="#cbd5e1" stroke-width="1" fill="none">
+                        <circle cx=PANEL/2.0 cy=PANEL/2.0 r=ARROW_LEN stroke-dasharray="2,3"></circle>
+                        <line x1=PANEL/2.0 - 110.0 y1=PANEL/2.0 x2=PANEL/2.0 + 110.0 y2=PANEL/2.0></line>
+                        <line x1=PANEL/2.0 y1=PANEL/2.0 - 110.0 x2=PANEL/2.0 y2=PANEL/2.0 + 110.0></line>
+                    </g>
+                    <g fill="#94a3b8" font-size="10" text-anchor="middle">
+                        <text x=PANEL/2.0 y=14>"up"</text>
+                        <text x=PANEL/2.0 y=PANEL - 6.0>"down"</text>
+                        <text x=8 y=PANEL/2.0 + 4.0 text-anchor="start">"left"</text>
+                        <text x=PANEL - 8.0 y=PANEL/2.0 + 4.0 text-anchor="end">"right"</text>
+                    </g>
+
+                    <rect
+                        x=PANEL/2.0 - 20.0
+                        y=PANEL/2.0 - 16.0
+                        width=40
+                        height=32
+                        fill="#e5e7eb"
+                        stroke="#6b7280"
+                        stroke-width=1
+                        rx=2
+                    ></rect>
+
+                    // Arrows
+                    {forces_for_view.into_iter().map(|force| {
+                        let fid = force.id.clone();
+                        let fid_line = force.id.clone();
+                        let fid_head = force.id.clone();
+                        let fid_handle = force.id.clone();
+                        let fid_lbl = force.id.clone();
+                        let fid_down = force.id.clone();
+                        let color = force.color.clone();
+                        let color2 = color.clone();
+                        let color3 = color.clone();
+                        let color4 = color.clone();
+                        let label = force.label.clone();
+
+                        // Convert physics angle (CCW from +x, y-up) → SVG coords (y-down)
+                        let get_tip = move |id: &str| {
+                            let a = angles.get().get(id).copied().unwrap_or(0.0) as f64;
+                            let rad = a.to_radians();
+                            let tx = PANEL as f64 / 2.0 + rad.cos() * ARROW_LEN as f64;
+                            let ty = PANEL as f64 / 2.0 - rad.sin() * ARROW_LEN as f64;
+                            (tx, ty)
+                        };
+
+                        let line_x2 = {
+                            let fid = fid_line.clone();
+                            move || { let (x, _) = get_tip(&fid); x }
+                        };
+                        let line_y2 = {
+                            let fid = fid_line.clone();
+                            move || { let (_, y) = get_tip(&fid); y }
+                        };
+                        let head_transform = move || {
+                            let a = angles.get().get(&fid_head).copied().unwrap_or(0.0);
+                            let svg_rot = -a;
+                            let (tx, ty) = {
+                                let rad = (a as f64).to_radians();
+                                let tx = PANEL as f64 / 2.0 + rad.cos() * ARROW_LEN as f64;
+                                let ty = PANEL as f64 / 2.0 - rad.sin() * ARROW_LEN as f64;
+                                (tx, ty)
+                            };
+                            format!("translate({}, {}) rotate({})", tx, ty, svg_rot)
+                        };
+                        let handle_cx = {
+                            let fid = fid_handle.clone();
+                            move || { let (x, _) = get_tip(&fid); x }
+                        };
+                        let handle_cy = {
+                            let fid = fid_handle.clone();
+                            move || { let (_, y) = get_tip(&fid); y }
+                        };
+                        let lbl_x = {
+                            let fid = fid_lbl.clone();
+                            move || { let (x, _) = get_tip(&fid); x + 10.0 }
+                        };
+                        let lbl_y = {
+                            let fid = fid_lbl.clone();
+                            move || { let (_, y) = get_tip(&fid); y - 10.0 }
+                        };
+
+                        view! {
+                            <g>
+                                <line
+                                    x1=PANEL/2.0 y1=PANEL/2.0
+                                    x2=line_x2 y2=line_y2
+                                    stroke=color
+                                    stroke-width=3
+                                    stroke-linecap="round"
+                                ></line>
+                                <polygon
+                                    points="0,0 -10,-5 -10,5"
+                                    fill=color2
+                                    transform=head_transform
+                                ></polygon>
+                                <circle
+                                    cx=handle_cx cy=handle_cy r=HANDLE_R
+                                    fill="white"
+                                    stroke=color3
+                                    stroke-width=2
+                                    style="cursor: grab"
+                                    on:pointerdown=move |ev: web_sys::PointerEvent| {
+                                        ev.stop_propagation();
+                                        set_dragging.set(Some(fid_down.clone()));
+                                    }
+                                ></circle>
+                                <text
+                                    x=lbl_x y=lbl_y
+                                    fill=color4
+                                    font-size="11"
+                                    font-weight="600"
+                                    pointer-events="none"
+                                >{label}</text>
+                            </g>
+                        }
+                    }).collect::<Vec<_>>()}
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                {expected_forces.iter().map(|f| {
+                    let fid_fb = f.id.clone();
+                    let fid_ang = f.id.clone();
+                    let label = f.label.clone();
+                    let color = f.color.clone();
                     view! {
-                        <div
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 cursor-grab active:cursor-grabbing transition-colors"
-                            style=format!("border-color: {}; background-color: {}22", force.color, force.color)
-                            draggable="true"
-                        >
-                            // Arrow icon
-                            <svg class="w-4 h-4" style=format!("color: {}", force.color) fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l-5 9h3v11h4V11h3z"></path>
-                            </svg>
-                            <span class="text-xs font-medium">{force.label.clone()}</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="inline-block w-2 h-2 rounded-full" style=format!("background-color: {}", color)></span>
+                            <span class="text-gray-700 dark:text-gray-300 truncate">{label}</span>
+                            <span class="ml-auto font-mono text-gray-500">
+                                {move || format!("{:.0}°", angles.get().get(&fid_ang).copied().unwrap_or(0.0))}
+                            </span>
+                            {move || feedback.get().get(&fid_fb).map(|ok| {
+                                if *ok { view! { <span class="text-green-600">"✓"</span> }.into_any() }
+                                else { view! { <span class="text-red-600">"✗"</span> }.into_any() }
+                            })}
                         </div>
                     }
                 }).collect::<Vec<_>>()}
             </div>
 
-            // Check button
-            {move || (!completed.get()).then(|| view! {
-                <div class="flex items-center gap-2">
+            {move || if completed.get() {
+                view! {
+                    <div class="text-xs text-green-700 dark:text-green-400 font-medium">
+                        {move || format!("FBD correct ({} attempts)", attempts.get())}
+                    </div>
+                }.into_any()
+            } else {
+                view! {
                     <button
-                        class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                        class="w-full py-1.5 px-3 bg-gray-900 text-white dark:bg-white dark:text-gray-900 rounded text-xs font-medium hover:opacity-90"
                         on:click=on_check.clone()
-                    >
-                        "Check my FBD"
-                    </button>
-                    <span class="text-xs text-gray-500">
-                        {move || format!("Attempt {}", attempts.get() + 1)}
-                    </span>
-                </div>
-            })}
-
-            // Success message
-            {move || completed.get().then(|| view! {
-                <div class="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-700 dark:text-green-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-sm font-medium">
-                        {move || format!("Free-body diagram correct! (attempt {})", attempts.get())}
-                    </span>
-                </div>
-            })}
-
-            // Hint display
-            {move || show_hint.get().map(|hint| view! {
-                <div class="px-3 py-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-700 dark:text-amber-400 text-xs">
-                    {hint}
-                </div>
-            })}
+                    >{move || format!("Check FBD (attempt {})", attempts.get() + 1)}</button>
+                }.into_any()
+            }}
         </div>
     }
 }

@@ -13,7 +13,7 @@ use locus_physics_common::{
 use crate::{
     api,
     components::physics::{ChallengePanel, PhysicsCanvas, PhysicsControls},
-    components::LatexRenderer,
+    components::{LatexRenderer, MathField},
 };
 
 #[component]
@@ -225,30 +225,31 @@ pub fn PhysicsProblem() -> impl IntoView {
                                 <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                                     <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">"Your Answer"</h3>
                                     <div class="space-y-2">
-                                        {move || answers.get().into_iter().enumerate().map(|(i, (label, val))| {
-                                            let unit = p.answer_spec.parts.get(i).map(|p| p.unit.clone()).unwrap_or_default();
-                                            view! {
-                                                <div class="flex items-center gap-2">
-                                                    <label class="text-sm text-gray-600 dark:text-gray-400 w-24 truncate">{label}</label>
-                                                    <input
-                                                        type="number"
-                                                        step="any"
-                                                        class="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                                        placeholder="0.00"
-                                                        prop:value=val.clone()
-                                                        on:input=move |ev| {
-                                                            let new_val = event_target_value(&ev);
-                                                            set_answers.update(|a| {
-                                                                if let Some(slot) = a.get_mut(i) {
-                                                                    slot.1 = new_val;
-                                                                }
-                                                            });
+                                        {
+                                            let parts = p.answer_spec.parts.clone();
+                                            parts.into_iter().enumerate().map(|(i, part)| {
+                                                let label = part.label.clone();
+                                                let unit = part.unit.clone();
+                                                let (plain_rs, set_plain_ws) = signal(String::new());
+                                                Effect::new(move |_| {
+                                                    let v = plain_rs.get();
+                                                    set_answers.update(|a| {
+                                                        if let Some(slot) = a.get_mut(i) {
+                                                            if slot.1 != v { slot.1 = v; }
                                                         }
-                                                    />
-                                                    <span class="text-xs text-gray-500 font-mono">{unit}</span>
-                                                </div>
-                                            }
-                                        }).collect::<Vec<_>>()}
+                                                    });
+                                                });
+                                                view! {
+                                                    <div class="flex items-center gap-2">
+                                                        <label class="text-sm text-gray-600 dark:text-gray-400 w-24 truncate">{label}</label>
+                                                        <div class="flex-1">
+                                                            <MathField set_plain=set_plain_ws />
+                                                        </div>
+                                                        <span class="text-xs text-gray-500 font-mono">{unit}</span>
+                                                    </div>
+                                                }
+                                            }).collect::<Vec<_>>()
+                                        }
                                     </div>
 
                                     // Submit button

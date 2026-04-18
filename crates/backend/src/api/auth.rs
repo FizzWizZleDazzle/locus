@@ -159,6 +159,41 @@ pub async fn login(
     ))
 }
 
+/// Dev-only passwordless login by username. Compiled out of release builds.
+#[cfg(debug_assertions)]
+#[derive(Deserialize)]
+pub struct DevLoginRequest {
+    pub username: String,
+}
+
+#[cfg(debug_assertions)]
+pub async fn dev_login(
+    State(state): State<AppState>,
+    Json(req): Json<DevLoginRequest>,
+) -> Result<
+    (
+        AppendHeaders<[(axum::http::HeaderName, String); 1]>,
+        Json<AuthResponse>,
+    ),
+    AppError,
+> {
+    if state.is_production {
+        return Err(AppError::Auth("dev login disabled".into()));
+    }
+    let user = User::find_by_username(&state.pool, &req.username)
+        .await?
+        .ok_or_else(|| AppError::Auth("user not found".into()))?;
+    let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
+        .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
+    let cookie = build_auth_cookie(&token, 24, state.is_production, state.cookie_domain.as_deref());
+    Ok((
+        AppendHeaders([(SET_COOKIE, cookie)]),
+        Json(AuthResponse {
+            user: user.to_profile(&state.pool).await?,
+        }),
+    ))
+}
+
 /// Set password for the current user (for OAuth users who want email+password login)
 pub async fn set_password(
     State(state): State<AppState>,

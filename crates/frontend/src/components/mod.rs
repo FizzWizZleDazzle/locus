@@ -22,6 +22,7 @@ pub use badge_grid::BadgeGrid;
 pub use draggable::Draggable;
 pub use email_input::EmailInput;
 pub use latex_renderer::LatexRenderer;
+pub use math_field::MathField;
 pub use navbar::Navbar;
 pub use problem_card::ProblemCard;
 pub use problem_interface::ProblemInterface;

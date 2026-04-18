@@ -30,7 +30,7 @@ pub fn PredictionInput(
     let answer_val = answer;
     let tol = tolerance_pct;
 
-    let on_submit = move |_| {
+    let submit = move || {
         let Ok(val) = input_value.get().parse::<f64>() else {
             return;
         };
@@ -47,7 +47,6 @@ pub fn PredictionInput(
 
         on_predict.run((val, is_close));
 
-        // Simulate waiting for sim to finish (in real impl, canvas signals this)
         set_sim_finished.set(true);
         on_complete.run(());
     };
@@ -76,7 +75,7 @@ pub fn PredictionInput(
                     disabled=move || locked.get()
                     on:keydown=move |ev: web_sys::KeyboardEvent| {
                         if ev.key() == "Enter" && !locked.get() {
-                            on_submit(ev);
+                            submit();
                         }
                     }
                 />
@@ -84,7 +83,7 @@ pub fn PredictionInput(
                 {move || (!locked.get()).then(|| view! {
                     <button
                         class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium text-sm whitespace-nowrap"
-                        on:click=on_submit.clone()
+                        on:click=move |_| submit()
                     >
                         "Lock in prediction"
                     </button>

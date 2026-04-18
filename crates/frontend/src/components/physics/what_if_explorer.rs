@@ -55,7 +55,8 @@ pub fn WhatIfExplorer(
                         </p>
 
                         {move || if active_prompt.get() == Some(i) && !explored.get().contains(&i) {
-                            Some(view! {
+                            let prompt_insight = prompt_insight.clone();
+                            view! {
                                 <div class="mt-2 space-y-2">
                                     <input
                                         type="text"
@@ -85,9 +86,9 @@ pub fn WhatIfExplorer(
                                         </div>
                                     })}
                                 </div>
-                            })
+                            }.into_any()
                         } else if !explored.get().contains(&i) {
-                            Some(view! {
+                            view! {
                                 <button
                                     class="mt-1 text-xs text-blue-600 hover:underline"
                                     on:click=move |_| {
@@ -98,16 +99,16 @@ pub fn WhatIfExplorer(
                                 >
                                     "Explore this"
                                 </button>
-                            })
+                            }.into_any()
                         } else {
-                            Some(view! {
+                            view! {
                                 <span class="text-xs text-green-600 mt-1 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                     "Explored"
                                 </span>
-                            })
+                            }.into_any()
                         }}
                     </div>
                 }

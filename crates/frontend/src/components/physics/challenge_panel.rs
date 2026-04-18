@@ -131,17 +131,89 @@ pub fn ChallengePanel(
                         return view! { <p>"No stages available."</p> }.into_any();
                     }
 
-                    let stage = &stages_for_render[idx];
+                    let stage = stages_for_render[idx].clone();
                     let prompt = stage.prompt_text.clone();
                     let hint = stage.hint_text.clone();
-                    let success_msg = stage.success_response.clone();
+
+                    let on_advance = {
+                        let advance = advance_stage;
+                        Callback::new(move |_| advance())
+                    };
+                    let on_fbd_done = {
+                        let advance = advance_stage;
+                        Callback::new(move |n: i32| {
+                            fbd_attempts.set(n);
+                            advance();
+                        })
+                    };
+                    let on_predict = Callback::new(move |_: (f64, bool)| {
+                        on_unlock_sim.run(());
+                    });
+                    let on_reflect = {
+                        let advance = advance_stage;
+                        Callback::new(move |_: String| advance())
+                    };
+
+                    let widget = match stage.stage_data.clone() {
+                        StageData::IdentifyQuantities { correct, distractors, explanations } => {
+                            view! {
+                                <QuantitySelector
+                                    correct=correct
+                                    distractors=distractors
+                                    explanations=explanations
+                                    on_complete=on_advance
+                                />
+                            }.into_any()
+                        }
+                        StageData::FreebodyDiagram { target_body, expected_forces, direction_tolerance_deg, per_force_hints } => {
+                            view! {
+                                <FbdBuilder
+                                    target_body=target_body
+                                    expected_forces=expected_forces
+                                    tolerance_deg=direction_tolerance_deg
+                                    per_force_hints=per_force_hints
+                                    on_complete=on_fbd_done
+                                />
+                            }.into_any()
+                        }
+                        StageData::EquationBuilder { axis_label, correct_terms, available_terms, error_feedback } => {
+                            view! {
+                                <EquationBuilder
+                                    axis_label=axis_label
+                                    correct_terms=correct_terms
+                                    available_terms=available_terms
+                                    error_feedback=error_feedback
+                                    on_complete=on_advance
+                                />
+                            }.into_any()
+                        }
+                        StageData::Prediction { question, answer, unit, tolerance_pct, .. } => {
+                            view! {
+                                <PredictionInput
+                                    question=question
+                                    unit=unit
+                                    answer=answer
+                                    tolerance_pct=tolerance_pct
+                                    on_predict=on_predict
+                                    on_complete=on_advance
+                                />
+                            }.into_any()
+                        }
+                        StageData::Reflection { diagnostic_options, micro_lessons, .. } => {
+                            view! {
+                                <ReflectionPanel
+                                    options=diagnostic_options
+                                    micro_lessons=micro_lessons
+                                    on_complete=on_reflect
+                                />
+                            }.into_any()
+                        }
+                    };
 
                     view! {
                         <div class="space-y-3">
-                            // Stage prompt
                             <p class="text-sm text-gray-700 dark:text-gray-300">{prompt}</p>
 
-                            // Hint button
                             {hint.map(|h| {
                                 let hint_text = h.clone();
                                 view! {
@@ -173,20 +245,7 @@ pub fn ChallengePanel(
                                 }
                             })}
 
-                            // Stage-specific content is rendered by the parent
-                            // based on the StageData type. This panel provides
-                            // the container and navigation; the actual interactive
-                            // widgets (QuantitySelector, FbdBuilder, etc.) are
-                            // instantiated by the physics_problem page which has
-                            // access to the full stage data.
-                            <div class="min-h-[100px]">
-                                // Placeholder — in the full implementation, the page
-                                // component reads `stage.stage_data` and renders the
-                                // appropriate widget here.
-                                <p class="text-xs text-gray-400 italic">
-                                    "Interactive challenge widget loads here"
-                                </p>
-                            </div>
+                            <div class="min-h-[100px]">{widget}</div>
                         </div>
                     }.into_any()
                 }}

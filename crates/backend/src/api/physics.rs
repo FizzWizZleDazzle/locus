@@ -18,7 +18,7 @@ use locus_physics_common::{
 };
 
 use crate::api::AppState;
-use crate::auth::middleware::AuthUser;
+use crate::auth::AuthUser;
 use crate::models::{PhysicsAttempt, PhysicsProblem, PhysicsProgress};
 
 /// Build the physics sub-router.

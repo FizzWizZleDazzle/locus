@@ -296,7 +296,7 @@ fn build_collider(
             let half_b = base / 2.0;
             ColliderBuilder::triangle(
                 nalgebra::Point2::new(-half_b, 0.0),
-                nalgebra::Point2::new(*half_b, 0.0),
+                nalgebra::Point2::new(half_b, 0.0),
                 nalgebra::Point2::new(0.0, *height),
             )
         }

@@ -157,6 +157,18 @@ fn App() -> impl IntoView {
     let (is_logged_in, set_logged_in) = signal(api::is_logged_in());
     let (username, set_username) = signal(api::get_stored_username());
 
+    // Dev-only auto sign-in as "mathwiz47" when not already logged in.
+    // Compiled out of release builds; also skipped on the production host.
+    #[cfg(debug_assertions)]
+    if !is_logged_in.get_untracked() && !env::frontend_base().contains("locusmath.org") {
+        leptos::task::spawn_local(async move {
+            if let Ok(resp) = api::dev_login("mathwiz47").await {
+                set_username.set(Some(resp.user.username));
+                set_logged_in.set(true);
+            }
+        });
+    }
+
     // Provide auth context to all components
     provide_context(AuthContext {
         is_logged_in,

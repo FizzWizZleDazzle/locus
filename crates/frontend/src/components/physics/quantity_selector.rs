@@ -6,6 +6,7 @@
 use leptos::prelude::*;
 use std::collections::{HashMap, HashSet};
 
+use crate::components::LatexRenderer;
 use locus_physics_common::challenge::QuantityOption;
 
 #[component]
@@ -21,6 +22,7 @@ pub fn QuantitySelector(
 ) -> impl IntoView {
     let (selected, set_selected) = signal(HashSet::<String>::new());
     let (submitted, set_submitted) = signal(false);
+    let (all_correct_sig, set_all_correct_sig) = signal(false);
     let (feedback, set_feedback) = signal(Vec::<(String, bool, String)>::new());
 
     let correct_ids: HashSet<String> = correct.iter().map(|q| q.id.clone()).collect();
@@ -67,10 +69,17 @@ pub fn QuantitySelector(
 
         set_feedback.set(fb);
         set_submitted.set(true);
+        set_all_correct_sig.set(all_correct);
 
         if all_correct {
             on_complete.run(());
         }
+    };
+
+    let on_retry = move |_| {
+        set_submitted.set(false);
+        set_feedback.set(Vec::new());
+        set_all_correct_sig.set(false);
     };
 
     view! {
@@ -114,26 +123,41 @@ pub fn QuantitySelector(
                                         }
                                     });
                                 }
-                                disabled=move || submitted.get()
+                                disabled=move || submitted.get() && all_correct_sig.get()
                             />
                             <span class="text-sm">{q.label}</span>
                             {(!q.symbol_latex.is_empty()).then(|| view! {
-                                <span class="text-xs text-gray-500 ml-auto font-mono">{q.symbol_latex}</span>
+                                <span class="text-xs text-gray-500 ml-auto">
+                                    <LatexRenderer content=format!("${}$", q.symbol_latex) />
+                                </span>
                             })}
                         </label>
                     }
                 }).collect::<Vec<_>>()}
             </div>
 
-            // Submit button (only before submission)
-            {move || (!submitted.get()).then(|| view! {
-                <button
-                    class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-                    on:click=on_submit.clone()
-                >
-                    "Check my selections"
-                </button>
-            })}
+            // Submit / retry button
+            {move || if !submitted.get() {
+                view! {
+                    <button
+                        class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                        on:click=on_submit.clone()
+                    >
+                        "Check my selections"
+                    </button>
+                }.into_any()
+            } else if !all_correct_sig.get() {
+                view! {
+                    <button
+                        class="w-full py-2 px-4 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium text-sm"
+                        on:click=on_retry.clone()
+                    >
+                        "Try again"
+                    </button>
+                }.into_any()
+            } else {
+                view! { <span></span> }.into_any()
+            }}
 
             // Feedback
             {move || submitted.get().then(|| {
