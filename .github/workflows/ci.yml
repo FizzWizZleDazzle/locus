@@ -73,6 +73,8 @@ jobs:
         with:
           shared-key: build
       - uses: ./.github/actions/setup-symengine
+      - name: Fetch cetz_core.wasm (vendored binary, gitignored)
+        run: scripts/fetch-diagram-assets.sh
       - name: Cargo check
         run: cargo check --workspace
       - name: Cargo clippy
@@ -92,6 +94,8 @@ jobs:
         with:
           shared-key: test
       - uses: ./.github/actions/setup-symengine
+      - name: Fetch cetz_core.wasm (vendored binary, gitignored)
+        run: scripts/fetch-diagram-assets.sh
       - name: Cargo test (common + dsl)
         run: cargo test -p locus-common -p locus-dsl
 
