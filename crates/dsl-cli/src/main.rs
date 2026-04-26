@@ -59,6 +59,20 @@ enum Command {
         threads: Option<usize>,
     },
 
+    /// Audit YAMLs: render N samples each, scan for banlist patterns and orphan
+    /// variable names. Reports which files would fail today's validators so you
+    /// can hand-fix or regenerate before re-running batch generation.
+    Audit {
+        /// Path to .yaml file or directory of .yaml files
+        path: PathBuf,
+        /// Number of seeds to render per YAML
+        #[arg(short = 'n', long, default_value = "8")]
+        runs: usize,
+        /// Print full output for each failing file
+        #[arg(short, long)]
+        verbose: bool,
+    },
+
     /// Use AI to generate new problem YAML files (concurrent)
     Ai {
         /// Topics, comma-separated (e.g. "calculus/derivative_rules,algebra1/quadratic_formula")
@@ -70,7 +84,7 @@ enum Command {
         #[arg(short, long)]
         output: Option<PathBuf>,
         /// LLM model to use
-        #[arg(short, long, default_value = "claude-sonnet-4-20250514")]
+        #[arg(short, long, default_value = "claude-sonnet-4-6")]
         model: String,
         /// Number of different problems to generate
         #[arg(short = 'n', long, default_value = "1")]
@@ -89,6 +103,7 @@ fn main() {
         Command::Parse { file } => cmd_parse(&file),
         Command::Generate { file, count, fast } => cmd_generate(&file, count, fast),
         Command::Validate { path, runs } => cmd_validate(&path, runs),
+        Command::Audit { path, runs, verbose } => cmd_audit(&path, runs, verbose),
         Command::Batch {
             dir,
             output,
@@ -210,6 +225,73 @@ fn cmd_validate(path: &PathBuf, runs: usize) {
 
     println!("\n{} files OK, {} files FAILED", total_ok, total_err);
     if total_err > 0 {
+        std::process::exit(1);
+    }
+}
+
+fn cmd_audit(path: &PathBuf, runs: usize, verbose: bool) {
+    let files = collect_yaml_files(path);
+    if files.is_empty() {
+        eprintln!("No .yaml files found in {}", path.display());
+        std::process::exit(1);
+    }
+
+    let mut total_ok = 0;
+    let mut failures: Vec<(PathBuf, Vec<String>)> = Vec::new();
+
+    for file in &files {
+        let yaml = read_file(file);
+        match ai::audit_yaml(&yaml, runs) {
+            Ok(()) => total_ok += 1,
+            Err(issues) => failures.push((file.clone(), issues)),
+        }
+    }
+
+    // Group failures by leading issue category so the user sees a histogram —
+    // makes it obvious whether one bug is responsible for many files.
+    let mut by_category: std::collections::BTreeMap<&str, usize> = std::collections::BTreeMap::new();
+    for (_, issues) in &failures {
+        if let Some(first) = issues.first() {
+            // Take everything before the first " — " or ":" as the category.
+            let category = first
+                .split_once(" — ")
+                .map(|(a, _)| a)
+                .or_else(|| first.split_once(": ").map(|(_, b)| b))
+                .unwrap_or(first.as_str());
+            *by_category.entry(category).or_insert(0) += 1;
+        }
+    }
+
+    println!("=== AUDIT SUMMARY ===");
+    println!("{} OK, {} FAILED of {} total", total_ok, failures.len(), files.len());
+    if !by_category.is_empty() {
+        println!("\nFailure categories (first issue per file):");
+        let mut sorted: Vec<_> = by_category.iter().collect();
+        sorted.sort_by(|a, b| b.1.cmp(a.1));
+        for (cat, n) in sorted {
+            println!("  {n:4} × {cat}");
+        }
+    }
+
+    if verbose && !failures.is_empty() {
+        println!("\n=== PER-FILE DETAILS ===");
+        for (path, issues) in &failures {
+            println!("\n{}:", path.display());
+            for issue in issues {
+                println!("  - {issue}");
+            }
+        }
+    } else if !failures.is_empty() {
+        println!("\nFiles failing (first 20):");
+        for (path, issues) in failures.iter().take(20) {
+            println!("  {} : {}", path.display(), issues.first().map(|s| s.as_str()).unwrap_or(""));
+        }
+        if failures.len() > 20 {
+            println!("  … and {} more (re-run with -v for full list)", failures.len() - 20);
+        }
+    }
+
+    if !failures.is_empty() {
         std::process::exit(1);
     }
 }

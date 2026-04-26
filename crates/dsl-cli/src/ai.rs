@@ -5,8 +5,6 @@
 
 use std::sync::Arc;
 
-const MAX_RETRIES: usize = 3;
-
 /// Generate YAMLs for multiple (topic, index) pairs with per-task difficulty.
 pub async fn generate_batch_multi_diff(
     tasks: &[(String, usize)],
@@ -49,6 +47,12 @@ pub async fn generate_batch_multi_diff(
     results
 }
 
+/// Maximum number of tool-use turns per script. Twenty leaves the agent room
+/// to converge on harder topics where it needs several render → fix cycles.
+/// The system prompt is cached, so the marginal cost of an extra turn is just
+/// the message delta (~1K tokens output, often less).
+const MAX_AGENT_TURNS: usize = 20;
+
 async fn generate_one(
     client: &reqwest::Client,
     topic: &str,
@@ -56,196 +60,617 @@ async fn generate_one(
     api_key: &str,
     model: &str,
 ) -> Result<String, String> {
-    let mut last_yaml = String::new();
-    let mut last_errors = Vec::new();
+    let initial_user = format!(
+        "Write a problem YAML for topic `{topic}`, difficulty `{difficulty}`.\n\n\
+         Use the tools to verify your YAML before saving:\n\
+         1. Draft your YAML.\n\
+         2. Call `render_samples` to see exactly what students will see.\n\
+         3. Inspect the rendered question, answer, and solution. Fix anything wrong.\n\
+         4. Call `audit` to confirm the mechanical checks pass.\n\
+         5. Call `save` with your final YAML.\n\n\
+         If render_samples or audit shows issues, edit the YAML and try again. \
+         Do not call save until the rendered output reads correctly to a student."
+    );
 
-    let examples = select_examples(topic);
+    // The conversation history grows as we iterate. Anthropic caches the
+    // system prompt block, so per-script overhead is just the message deltas.
+    let mut messages = vec![serde_json::json!({
+        "role": "user",
+        "content": initial_user,
+    })];
 
-    for attempt in 0..=MAX_RETRIES {
-        let user_msg = if attempt == 0 {
-            format!(
-                "Generate a problem YAML for topic: {topic}, difficulty: {difficulty}\n\n\
-                 Make it pedagogically useful with appropriate constraints for clean numbers."
-            )
-        } else {
-            format!(
-                "Your YAML for '{topic}' ({difficulty}) had errors:\n\
-                 ```yaml\n{last_yaml}\n```\n\
-                 Errors:\n{}\n\
-                 Fix and output ONLY the corrected YAML.",
-                last_errors.iter().map(|e| format!("- {e}")).collect::<Vec<_>>().join("\n")
-            )
-        };
+    for turn in 0..MAX_AGENT_TURNS {
+        let resp = call_agent_turn(client, api_key, model, &messages).await?;
 
-        let yaml = call_llm(client, api_key, model, &examples, &user_msg).await?;
-        let cleaned = extract_yaml(&yaml);
+        let content = resp["content"].clone();
+        let stop_reason = resp["stop_reason"].as_str().unwrap_or("").to_string();
 
-        // Force difficulty to match CLI arg
-        let cleaned = inject_difficulty(&cleaned, difficulty);
+        // Per-turn diagnostic: list tool calls (and brief text snippets) so a
+        // failed run leaves enough breadcrumbs to debug without re-running.
+        let tools_in_turn: Vec<String> = content
+            .as_array()
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|b| {
+                        if b["type"].as_str() == Some("tool_use") {
+                            Some(b["name"].as_str().unwrap_or("?").to_string())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        eprintln!("    [turn {}] tools: {:?} ({})",
+            turn + 1,
+            tools_in_turn,
+            stop_reason);
 
-        match validate_yaml(&cleaned) {
-            Ok(()) => return Ok(cleaned),
-            Err(errors) => {
-                eprintln!("  Attempt {}/{}: {} error(s)", attempt + 1, MAX_RETRIES + 1, errors.len());
-                for e in &errors { eprintln!("    - {e}"); }
-                last_yaml = cleaned;
-                last_errors = errors;
+        // Echo the assistant's turn back into history before processing tools.
+        messages.push(serde_json::json!({
+            "role": "assistant",
+            "content": content.clone(),
+        }));
+
+        // Walk the assistant blocks, run any tool_use calls, collect results.
+        let blocks = content.as_array().cloned().unwrap_or_default();
+        let mut tool_results: Vec<serde_json::Value> = Vec::new();
+        let mut saved_yaml: Option<String> = None;
+
+        for block in &blocks {
+            if block["type"].as_str() != Some("tool_use") {
+                continue;
             }
-        }
-    }
+            let tool_id = block["id"].as_str().unwrap_or("").to_string();
+            let tool_name = block["name"].as_str().unwrap_or("");
+            let input = &block["input"];
 
-    Err(format!(
-        "Failed after {} attempts. Errors: {}",
-        MAX_RETRIES + 1,
-        last_errors.join("; ")
-    ))
-}
-
-/// Select 2 relevant examples based on topic
-fn select_examples(topic: &str) -> String {
-    let main = topic.split('/').next().unwrap_or("");
-
-    let relevant = match main {
-        "arithmetic" => EXAMPLE_ARITHMETIC,
-        "calculus" | "multivariable_calculus" => EXAMPLE_CALCULUS,
-        "algebra1" | "algebra2" => EXAMPLE_ALGEBRA,
-        "geometry" => EXAMPLE_GEOMETRY,
-        _ => EXAMPLE_ALGEBRA,
-    };
-
-    // Always include one contrasting example for variety
-    let contrast = if relevant == EXAMPLE_CALCULUS {
-        EXAMPLE_GEOMETRY
-    } else {
-        EXAMPLE_CALCULUS
-    };
-
-    format!("{relevant}\n\n{contrast}")
-}
-
-/// Override difficulty in generated YAML to match CLI arg
-fn inject_difficulty(yaml: &str, difficulty: &str) -> String {
-    let re = regex::Regex::new(r"(?m)^difficulty:.*$").unwrap();
-    if re.is_match(yaml) {
-        re.replace(yaml, format!("difficulty: {difficulty}")).to_string()
-    } else {
-        // No difficulty line — insert after topic line
-        let topic_re = regex::Regex::new(r"(?m)^(topic:.*)$").unwrap();
-        topic_re.replace(yaml, format!("$1\ndifficulty: {difficulty}")).to_string()
-    }
-}
-
-fn validate_yaml(yaml: &str) -> Result<(), Vec<String>> {
-    let spec = match locus_dsl::parse(yaml) {
-        Ok(s) => s,
-        Err(e) => return Err(vec![format!("Parse error: {e}")]),
-    };
-
-    // Full generation test — this catches constraint, symengine, template, and grading errors
-    match locus_dsl::generate(&spec) {
-        Ok(_) => return Ok(()),
-        Err(e) => return Err(vec![format!("Generation error: {e}")]),
-    }
-
-    // Below checks are redundant now but kept as fallback
-    #[allow(unreachable_code)]
-    let mut errors = Vec::new();
-
-    // Check all variable definitions reference valid samplers or functions
-    for (name, def) in &spec.variables {
-        let d = def.trim();
-        if locus_dsl::sampler::is_sampler(d) {
-            // Verify sampler parses
-            if let Err(e) = locus_dsl::sampler::sample(d) {
-                errors.push(format!("Variable '{name}': {e}"));
-            }
-        } else if locus_dsl::functions::is_builtin_call(d) {
-            // Verify function name exists (don't evaluate — just check name)
-            if let Some(paren) = d.find('(') {
-                let func = &d[..paren];
-                if !locus_dsl::functions::BUILTIN_FUNCTIONS.contains(&func) {
-                    errors.push(format!("Variable '{name}': unknown function '{func}'"));
-                }
-            }
-        }
-        // Derived expressions validated implicitly by SymEngine at generate time
-    }
-
-    // Check template refs exist as variables or display functions
-    let var_names: std::collections::HashSet<&str> = spec.variables.keys().map(|s| s.as_str()).collect();
-    for field_name in ["question"] {
-        let field = match field_name {
-            "question" => &spec.question,
-            _ => continue,
-        };
-        // Find all {ref} patterns
-        let mut i = 0;
-        let bytes = field.as_bytes();
-        while i < bytes.len() {
-            if bytes[i] == b'{' && (i + 1 >= bytes.len() || bytes[i + 1] != b'{') {
-                if let Some(end) = field[i + 1..].find('}') {
-                    let ref_content = field[i + 1..i + 1 + end].trim();
-                    if !ref_content.is_empty() {
-                        // Check if it's a var name or display function
-                        let is_var = var_names.contains(ref_content);
-                        let is_display = ref_content.contains('(') && ref_content.ends_with(')');
-                        let has_operators = ref_content.contains('+') || ref_content.contains('-')
-                            || ref_content.contains('*') || ref_content.contains('/');
-                        if !is_var && !is_display && !has_operators {
-                            errors.push(format!("Question: {{{}}} is not a defined variable or display function", ref_content));
+            let result = match tool_name {
+                "render_samples" => {
+                    let r = tool_render_samples(input, difficulty);
+                    if let Some(audit) = r.get("audit") {
+                        if audit["ok"].as_bool() != Some(true) {
+                            if let Some(issues) = audit["issues"].as_array() {
+                                eprintln!("        audit hits ({}): {}",
+                                    issues.len(),
+                                    issues.iter().take(2).filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" | "));
+                            }
                         }
                     }
-                    i = i + 1 + end + 1;
-                    continue;
+                    r
                 }
+                "audit" => tool_audit(input, difficulty),
+                "save" => {
+                    let yaml = input["yaml"].as_str().unwrap_or("").to_string();
+                    let yaml = inject_difficulty(&yaml, difficulty);
+                    let outcome = tool_save(&yaml);
+                    if outcome["ok"].as_bool() == Some(true) {
+                        saved_yaml = Some(yaml);
+                    }
+                    outcome
+                }
+                "compute" => tool_compute(input),
+                "solve" => tool_solve(input),
+                "differentiate" => tool_differentiate(input),
+                "integrate" => tool_integrate(input),
+                "evaluate_at" => tool_evaluate_at(input),
+                "expand" => tool_expand(input),
+                "polynomial_from_roots" => tool_polynomial_from_roots(input),
+                "matrix_with_eigenvalues" => tool_matrix_with_eigenvalues(input),
+                "find_similar_yaml" => tool_find_similar_yaml(input, topic, difficulty),
+                "solve_linear_inequality" => tool_solve_linear_inequality(input),
+                "quadratic_roots" => tool_quadratic_roots(input),
+                "verify_answer_key" => tool_verify_answer_key(input, difficulty),
+                _ => serde_json::json!({"error": format!("unknown tool `{tool_name}`")}),
+            };
+
+            tool_results.push(serde_json::json!({
+                "type": "tool_result",
+                "tool_use_id": tool_id,
+                "content": result.to_string(),
+            }));
+        }
+
+        // Successful save → return the YAML. Skip remaining tool calls in this
+        // turn; the model has signaled "done" and we don't want to keep paying.
+        if let Some(yaml) = saved_yaml {
+            return Ok(yaml);
+        }
+
+        if tool_results.is_empty() {
+            // The model produced text without calling any tool. If it said
+            // `end_turn`, it's giving up; bail with whatever rationale it gave.
+            if stop_reason == "end_turn" {
+                let text = blocks.iter()
+                    .filter(|b| b["type"].as_str() == Some("text"))
+                    .filter_map(|b| b["text"].as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                return Err(format!("Agent ended without saving. Last text: {text}"));
             }
-            i += 1;
+            // No tools and no end_turn — unusual; bail to avoid infinite loop.
+            return Err(format!(
+                "Turn {} produced no tool calls and no end_turn (stop_reason={stop_reason})",
+                turn + 1
+            ));
+        }
+
+        // Feed tool results back as a user message and continue.
+        messages.push(serde_json::json!({
+            "role": "user",
+            "content": tool_results,
+        }));
+    }
+
+    Err(format!("Agent did not save within {MAX_AGENT_TURNS} turns"))
+}
+
+/// Implements the `render_samples` tool: parse the YAML, generate `n` samples,
+/// return the rendered question/answer/solution for each. Also runs the audit
+/// in the same call so the model gets render + banlist findings in one turn.
+fn tool_render_samples(input: &serde_json::Value, difficulty: &str) -> serde_json::Value {
+    let yaml = input["yaml"].as_str().unwrap_or("");
+    let n = input["n"].as_u64().unwrap_or(3).clamp(1, 5) as usize;
+    let yaml = inject_difficulty(yaml, difficulty);
+
+    let spec = match locus_dsl::parse(&yaml) {
+        Ok(s) => s,
+        Err(e) => return serde_json::json!({"error": format!("parse error: {e}")}),
+    };
+
+    let mut samples = Vec::with_capacity(n);
+    for i in 0..n {
+        match locus_dsl::generate(&spec) {
+            Ok(p) => samples.push(serde_json::json!({
+                "seed": i,
+                "question": p.question_latex,
+                "answer": p.answer_key,
+                "solution": p.solution_latex,
+            })),
+            Err(e) => samples.push(serde_json::json!({
+                "seed": i,
+                "error": format!("generation failed: {e}"),
+            })),
         }
     }
 
-    if errors.is_empty() { Ok(()) } else { Err(errors) }
+    // Bundle the audit findings so the agent doesn't need a second turn for
+    // the banlist check. The audit runs over its own samples; if it's clean,
+    // the model can go straight to save.
+    let audit_status = match audit_yaml(&yaml, 5) {
+        Ok(()) => serde_json::json!({"ok": true}),
+        Err(issues) => serde_json::json!({"ok": false, "issues": issues}),
+    };
+
+    serde_json::json!({
+        "samples": samples,
+        "audit": audit_status,
+    })
 }
 
-fn extract_yaml(response: &str) -> String {
-    let trimmed = response.trim();
-    if trimmed.starts_with("```") {
-        let lines: Vec<&str> = trimmed.lines().collect();
-        let end = if lines.last().map_or(false, |l| l.trim() == "```") {
-            lines.len() - 1
-        } else {
-            lines.len()
-        };
-        return lines[1..end].join("\n");
+/// Implements the `audit` tool: cheap mechanical scan of N renders.
+fn tool_audit(input: &serde_json::Value, difficulty: &str) -> serde_json::Value {
+    let yaml = input["yaml"].as_str().unwrap_or("");
+    let yaml = inject_difficulty(yaml, difficulty);
+    match audit_yaml(&yaml, 5) {
+        Ok(()) => serde_json::json!({"ok": true}),
+        Err(issues) => serde_json::json!({"ok": false, "issues": issues}),
     }
-    // If response starts with "topic:", it's already clean YAML
-    trimmed.to_string()
 }
 
-async fn call_llm(
+/// Implements the `save` tool: final audit; returns success only if the YAML
+/// is fully clean. The model must call this to terminate the conversation.
+fn tool_save(yaml: &str) -> serde_json::Value {
+    match audit_yaml(yaml, 8) {
+        Ok(()) => serde_json::json!({"ok": true}),
+        Err(issues) => serde_json::json!({"ok": false, "issues": issues}),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CAS tool handlers — all dispatch to SymEngine via the existing builtin
+// evaluator. We construct a synthetic call string and reuse the same logic
+// the YAML's variable definitions use, so the model gets exactly the math
+// behavior the renderer would produce.
+// ---------------------------------------------------------------------------
+
+/// Run a builtin call with a fresh empty VarMap. The model passes literal
+/// expressions, so there are no variables to substitute.
+fn run_builtin(call: &str) -> serde_json::Value {
+    let vars = locus_dsl::resolver::VarMap::new();
+    match locus_dsl::functions::evaluate(call, &vars) {
+        Ok(s) => serde_json::json!({"result": s}),
+        Err(e) => serde_json::json!({"error": format!("{e}")}),
+    }
+}
+
+fn tool_compute(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    // Wrap in a no-op call so we can route through the same dispatcher; the
+    // simplest no-op is `expand(expr)` which canonicalizes everything.
+    run_builtin(&format!("expand({expr})"))
+}
+
+fn tool_solve(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    let var = input["var"].as_str().unwrap_or("x");
+    run_builtin(&format!("solve({expr}, {var})"))
+}
+
+fn tool_differentiate(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    let var = input["var"].as_str().unwrap_or("x");
+    run_builtin(&format!("derivative({expr}, {var})"))
+}
+
+fn tool_integrate(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    let var = input["var"].as_str().unwrap_or("x");
+    if let (Some(lo), Some(hi)) = (input["lo"].as_str(), input["hi"].as_str()) {
+        run_builtin(&format!("definite_integral({expr}, {var}, {lo}, {hi})"))
+    } else {
+        run_builtin(&format!("integral({expr}, {var})"))
+    }
+}
+
+fn tool_evaluate_at(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    let var = input["var"].as_str().unwrap_or("x");
+    let val = input["val"].as_str().unwrap_or("0");
+    run_builtin(&format!("evaluate({expr}, {var}, {val})"))
+}
+
+fn tool_expand(input: &serde_json::Value) -> serde_json::Value {
+    let expr = input["expr"].as_str().unwrap_or("");
+    run_builtin(&format!("expand({expr})"))
+}
+
+// ---------------------------------------------------------------------------
+// Backward-design helpers
+// ---------------------------------------------------------------------------
+
+/// `polynomial_from_roots(["3", "-2"])` → `(x - 3)*(x - (-2))` expanded.
+/// Returns the expanded form, which is what the YAML answer typically is.
+fn tool_polynomial_from_roots(input: &serde_json::Value) -> serde_json::Value {
+    let var = input["var"].as_str().unwrap_or("x");
+    let roots = match input["roots"].as_array() {
+        Some(arr) => arr,
+        None => return serde_json::json!({"error": "roots must be an array"}),
+    };
+    if roots.is_empty() {
+        return serde_json::json!({"error": "need at least one root"});
+    }
+    let factors: Vec<String> = roots
+        .iter()
+        .filter_map(|r| r.as_str())
+        .map(|r| format!("({var} - ({r}))"))
+        .collect();
+    let product = factors.join("*");
+    run_builtin(&format!("expand({product})"))
+}
+
+/// `matrix_with_eigenvalues(λ1, λ2)` → 2×2 integer matrix with those
+/// eigenvalues. Construction: pick a small `b` (off-diagonal), set
+/// trace = λ1 + λ2, det = λ1·λ2, then a = 0 (so d = trace), and choose c
+/// such that a·d − b·c = det. Returns a JSON array `[[a, b], [c, d]]`.
+fn tool_matrix_with_eigenvalues(input: &serde_json::Value) -> serde_json::Value {
+    let l1 = match input["lambda1"].as_i64() {
+        Some(v) => v,
+        None => return serde_json::json!({"error": "lambda1 must be an integer"}),
+    };
+    let l2 = match input["lambda2"].as_i64() {
+        Some(v) => v,
+        None => return serde_json::json!({"error": "lambda2 must be an integer"}),
+    };
+    let trace = l1 + l2;
+    let det = l1 * l2;
+
+    // Try small values of (a, b) until c = (a*d - det) / b is a clean integer.
+    // d is always trace - a. We try b ∈ {1, -1, 2, -2, 3, -3} for small entries.
+    for a in [0i64, 1, -1, 2, -2] {
+        let d = trace - a;
+        for &b in &[1i64, -1, 2, -2, 3, -3] {
+            let numer = a * d - det;
+            if numer % b == 0 {
+                let c = numer / b;
+                return serde_json::json!({
+                    "matrix": [[a, b], [c, d]],
+                    "trace": trace,
+                    "det": det,
+                    "verify": format!("eigenvalues of [[{a}, {b}], [{c}, {d}]] are {l1}, {l2}"),
+                });
+            }
+        }
+    }
+    serde_json::json!({"error": "could not construct an integer matrix; try other eigenvalues"})
+}
+
+/// Solve `a*x + b OP c*x + d` for x. Sign-flip on negative-coefficient division
+/// is handled here, eliminating the most common linear-inequality YAML bug.
+fn tool_solve_linear_inequality(input: &serde_json::Value) -> serde_json::Value {
+    let a = input["a"].as_str().unwrap_or("0");
+    let b = input["b"].as_str().unwrap_or("0");
+    let c = input["c"].as_str().unwrap_or("0");
+    let d = input["d"].as_str().unwrap_or("0");
+    let op = input["op"].as_str().unwrap_or("<");
+
+    // Numeric eval — coefficients are always concrete in YAML construction.
+    let numeric = |s: &str| -> Option<f64> {
+        let vars = locus_dsl::resolver::VarMap::new();
+        let result = locus_dsl::functions::evaluate(&format!("expand({s})"), &vars).ok()?;
+        result.parse::<f64>().ok().or_else(|| {
+            // Try SymEngine numeric eval for "1/2" etc.
+            locus_common::symengine::Expr::parse(&result)
+                .ok()
+                .and_then(|e| e.to_float())
+        })
+    };
+
+    let (a_n, b_n, c_n, d_n) = match (numeric(a), numeric(b), numeric(c), numeric(d)) {
+        (Some(a), Some(b), Some(c), Some(d)) => (a, b, c, d),
+        _ => return serde_json::json!({
+            "error": "all four coefficients must reduce to numbers (try compute() first if any are expressions)"
+        }),
+    };
+    let coef = a_n - c_n;
+    let rhs = d_n - b_n;
+    if coef.abs() < 1e-12 {
+        return serde_json::json!({
+            "error": "coefficient of x cancels — there's no x to solve for"
+        });
+    }
+    let value = rhs / coef;
+    let final_op = if coef < 0.0 {
+        // Flip: < ↔ >, <= ↔ >=
+        match op {
+            "<" => ">",
+            ">" => "<",
+            "<=" => ">=",
+            ">=" => "<=",
+            other => other,
+        }
+    } else {
+        op
+    };
+    // Format value as int if it's clean, else as fraction
+    let value_str = format_clean_number(value);
+    serde_json::json!({
+        "op": final_op,
+        "value": value_str,
+        "explanation": format!(
+            "Move x to one side: ({a} - {c})*x = ({d} - {b}). \
+             Coefficient = {coef}, so dividing {}flips the inequality.",
+            if coef < 0.0 { "" } else { "doesn't " }
+        )
+    })
+}
+
+/// Format a float as a clean integer or simple fraction. Mirrors the logic in
+/// crates/dsl/src/functions.rs::format_root.
+fn format_clean_number(r: f64) -> String {
+    if (r - r.round()).abs() < 1e-10 {
+        return format!("{}", r.round() as i64);
+    }
+    for denom in 2..=12 {
+        let num = r * denom as f64;
+        if (num - num.round()).abs() < 1e-8 {
+            let n = num.round() as i64;
+            let d = denom as i64;
+            // gcd
+            let mut a = n.unsigned_abs();
+            let mut b = d as u64;
+            while b != 0 {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            let g = a as i64;
+            return format!("{}/{}", n / g, d / g);
+        }
+    }
+    format!("{r:.6}")
+}
+
+/// Discriminant + case + roots for `a*x^2 + b*x + c = 0`.
+fn tool_quadratic_roots(input: &serde_json::Value) -> serde_json::Value {
+    let a = input["a"].as_str().unwrap_or("0");
+    let b = input["b"].as_str().unwrap_or("0");
+    let c = input["c"].as_str().unwrap_or("0");
+    let vars = locus_dsl::resolver::VarMap::new();
+    let disc_call = format!("expand(({b})^2 - 4*({a})*({c}))");
+    let disc = match locus_dsl::functions::evaluate(&disc_call, &vars) {
+        Ok(s) => s,
+        Err(e) => return serde_json::json!({"error": format!("{e}")}),
+    };
+    let disc_n = locus_common::symengine::Expr::parse(&disc)
+        .ok()
+        .and_then(|e| e.to_float());
+
+    let case = match disc_n {
+        Some(d) if d > 1e-9 => "real_distinct",
+        Some(d) if d.abs() < 1e-9 => "real_repeated",
+        Some(_) => "complex",
+        None => "symbolic",
+    };
+
+    // Roots via the existing `solve` builtin
+    let solve_call = format!("solve(({a})*x^2 + ({b})*x + ({c}), x)");
+    let roots_str = locus_dsl::functions::evaluate(&solve_call, &vars).unwrap_or_default();
+    let roots: Vec<&str> = roots_str.split(',').map(|s| s.trim()).collect();
+
+    serde_json::json!({
+        "discriminant": disc,
+        "case": case,
+        "roots": roots,
+    })
+}
+
+/// Render one sample, then run `grade_answer` on the answer_key against itself.
+/// If the grader doesn't return Correct, the YAML's answer is internally
+/// inconsistent — an answer/solution mismatch the audit can't catch.
+fn tool_verify_answer_key(input: &serde_json::Value, difficulty: &str) -> serde_json::Value {
+    let yaml = input["yaml"].as_str().unwrap_or("");
+    let yaml = inject_difficulty(yaml, difficulty);
+    let spec = match locus_dsl::parse(&yaml) {
+        Ok(s) => s,
+        Err(e) => return serde_json::json!({"ok": false, "mismatches": [format!("parse: {e}")]}),
+    };
+    let p = match locus_dsl::generate(&spec) {
+        Ok(p) => p,
+        Err(e) => return serde_json::json!({"ok": false, "mismatches": [format!("generate: {e}")]}),
+    };
+    // Self-grade: feed the answer_key back as the student's submission.
+    use locus_common::{GradingMode, AnswerType};
+    let grading_mode = match p.grading_mode.as_str() {
+        "factor" => GradingMode::Factor,
+        "expand" => GradingMode::Expand,
+        _ => GradingMode::Equivalent,
+    };
+    let answer_type = match p.answer_type.as_str() {
+        "numeric" => AnswerType::Numeric,
+        "tuple" => AnswerType::Tuple,
+        "set" => AnswerType::Set,
+        "boolean" => AnswerType::Boolean,
+        "word" => AnswerType::Word,
+        _ => AnswerType::Expression,
+    };
+    let verdict = locus_common::grader::grade_answer(
+        &p.answer_key,
+        &p.answer_key,
+        answer_type,
+        grading_mode,
+    );
+    let ok = matches!(verdict, locus_common::grader::GradeResult::Correct);
+    if ok {
+        serde_json::json!({
+            "ok": true,
+            "sample_question": p.question_latex,
+            "sample_answer": p.answer_key,
+        })
+    } else {
+        serde_json::json!({
+            "ok": false,
+            "mismatches": [format!("answer_key `{}` did not self-grade as Correct ({:?})", p.answer_key, verdict)],
+            "sample_question": p.question_latex,
+        })
+    }
+}
+
+/// Find an existing YAML that's structurally similar to the requested topic.
+/// Walks `problems/` and ranks files by topic-path overlap (longest matching
+/// prefix wins). Returns the YAML body so the agent can use it as a template.
+fn tool_find_similar_yaml(
+    _input: &serde_json::Value,
+    topic: &str,
+    difficulty: &str,
+) -> serde_json::Value {
+    let problems_root = std::path::Path::new("problems");
+    if !problems_root.exists() {
+        return serde_json::json!({"error": "problems/ directory not found"});
+    }
+
+    // Score = longest shared prefix of slash-separated topic segments.
+    let target_segments: Vec<&str> = topic.split('/').collect();
+    let mut best: Option<(usize, std::path::PathBuf)> = None;
+
+    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                if p.is_dir() {
+                    walk(&p, out);
+                } else if p.extension().map_or(false, |e| e == "yaml") {
+                    out.push(p);
+                }
+            }
+        }
+    }
+
+    let mut all = Vec::new();
+    walk(problems_root, &mut all);
+
+    for path in &all {
+        let yaml = match std::fs::read_to_string(path) {
+            Ok(s) => s,
+            Err(_) => continue,
+        };
+        // Extract `topic:` line
+        let file_topic = yaml
+            .lines()
+            .find_map(|l| l.strip_prefix("topic:"))
+            .unwrap_or("")
+            .trim();
+        let file_segments: Vec<&str> = file_topic.split('/').collect();
+        let shared = target_segments
+            .iter()
+            .zip(file_segments.iter())
+            .take_while(|(a, b)| a == b)
+            .count();
+        // Prefer same difficulty when topic ties
+        let same_diff = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .map(|s| s == difficulty)
+            .unwrap_or(false);
+        let score = shared * 10 + if same_diff { 1 } else { 0 };
+        if score > 0 && best.as_ref().map_or(true, |(s, _)| score > *s) {
+            best = Some((score, path.clone()));
+        }
+    }
+
+    match best {
+        Some((_, path)) => match std::fs::read_to_string(&path) {
+            Ok(yaml) => serde_json::json!({
+                "found": true,
+                "source_path": path.display().to_string(),
+                "yaml": yaml,
+                "note": "Adapt the structure but write your own values. Don't copy verbatim."
+            }),
+            Err(e) => serde_json::json!({"error": format!("read error: {e}")}),
+        },
+        None => serde_json::json!({"found": false, "note": "No similar YAML in problems/"}),
+    }
+}
+
+/// Tool schemas live in `src/prompts/agent_tools.json` so they can be edited
+/// without rebuilding strings. `include_str!` embeds the file at compile time
+/// and we parse once on first use.
+const AGENT_TOOLS_JSON: &str = include_str!("prompts/agent_tools.json");
+
+/// Anthropic API tool schemas. Mirror what the prompt's "tools" section says.
+///
+/// The toolset is split into three groups:
+///   1. CAS primitives — let the model run any math through SymEngine instead
+///      of doing arithmetic in its head (where it gets it wrong).
+///   2. Backward-design helpers — generate clean inputs (clean polynomials,
+///      matrices with chosen eigenvalues, exact trig values) so the model
+///      doesn't pick numbers that lead to ugly answers.
+///   3. Inspection — render, audit, find a similar template, save.
+fn agent_tools() -> serde_json::Value {
+    serde_json::from_str(AGENT_TOOLS_JSON).expect("agent_tools.json is malformed at compile time")
+}
+
+/// Make one tool-use turn against Anthropic. Returns the raw response (we'll
+/// unpack `content`, `stop_reason`, etc. in the caller).
+async fn call_agent_turn(
     client: &reqwest::Client,
     api_key: &str,
     model: &str,
-    examples: &str,
-    user_message: &str,
-) -> Result<String, String> {
-    let system_with_examples = format!("{SYSTEM_PROMPT}\n\n# EXAMPLES\n\n{examples}");
-
+    messages: &[serde_json::Value],
+) -> Result<serde_json::Value, String> {
     let body = serde_json::json!({
         "model": model,
-        "max_tokens": 2048,
+        "max_tokens": 4096,
         "temperature": 0.4,
         "system": [{
             "type": "text",
-            "text": system_with_examples,
+            "text": system_prompt(),
             "cache_control": {"type": "ephemeral"}
         }],
-        "messages": [
-            {"role": "user", "content": user_message},
-            {"role": "assistant", "content": "topic:"}
-        ]
+        "tools": agent_tools(),
+        "messages": messages,
     });
 
-    // Retry HTTP errors with backoff
     for attempt in 0..3 {
         let resp = client
             .post("https://api.anthropic.com/v1/messages")
@@ -260,7 +685,6 @@ async fn call_llm(
             Ok(r) => r,
             Err(e) => {
                 if attempt < 2 {
-                    eprintln!("    HTTP error, retrying in {}s: {e}", (attempt + 1) * 5);
                     tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 5)).await;
                     continue;
                 }
@@ -268,301 +692,255 @@ async fn call_llm(
             }
         };
 
-        if resp.status().as_u16() == 429 || resp.status().as_u16() == 529 {
+        let status = resp.status();
+        if status.as_u16() == 429 || status.as_u16() == 529 {
             if attempt < 2 {
-                eprintln!("    Rate limited, retrying in {}s", (attempt + 1) * 10);
                 tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 10)).await;
                 continue;
             }
         }
-
-        if !resp.status().is_success() {
-            let status = resp.status();
+        if !status.is_success() {
             let text = resp.text().await.unwrap_or_default();
             return Err(format!("API error {status}: {text}"));
         }
 
-        let json: serde_json::Value = resp
-            .json()
-            .await
-            .map_err(|e| format!("JSON parse error: {e}"))?;
-
-        let text = json["content"][0]["text"]
-            .as_str()
-            .ok_or_else(|| "No text in API response".to_string())?;
-
-        return Ok(format!("topic:{text}"));
+        return resp.json().await.map_err(|e| format!("JSON decode error: {e}"));
     }
-
-    Err("Unreachable".into())
+    Err("unreachable".into())
 }
+
+
+/// Override difficulty in generated YAML to match CLI arg
+fn inject_difficulty(yaml: &str, difficulty: &str) -> String {
+    let re = regex::Regex::new(r"(?m)^difficulty:.*$").unwrap();
+    if re.is_match(yaml) {
+        re.replace(yaml, format!("difficulty: {difficulty}")).to_string()
+    } else {
+        // No difficulty line — insert after topic line
+        let topic_re = regex::Regex::new(r"(?m)^(topic:.*)$").unwrap();
+        topic_re.replace(yaml, format!("$1\ndifficulty: {difficulty}")).to_string()
+    }
+}
+
+/// Audit a YAML by rendering `runs` samples and scanning for the same banned
+/// patterns the AI generation pipeline uses. Public entry point for the
+/// `dsl-cli audit` subcommand — callers don't have to know which patterns are
+/// in the list, only whether the file passes.
+pub fn audit_yaml(yaml: &str, runs: usize) -> Result<(), Vec<String>> {
+    audit_yaml_inner(yaml, runs)
+}
+
+fn audit_yaml_inner(yaml: &str, runs: usize) -> Result<(), Vec<String>> {
+    let spec = locus_dsl::parse(yaml).map_err(|e| vec![format!("Parse error: {e}")])?;
+
+    let mut errors = Vec::new();
+    for i in 0..runs {
+        match locus_dsl::generate(&spec) {
+            Ok(out) => {
+                let combined = format!("{}\n{}", out.question_latex, out.solution_latex);
+                for (pat, why, fix) in RENDER_BANLIST {
+                    let re = regex::Regex::new(pat).unwrap();
+                    if let Some(m) = re.find(&combined) {
+                        errors.push(format!(
+                            "seed {i}: {why} — matched `{}`. Fix: {fix}",
+                            m.as_str()
+                        ));
+                    }
+                }
+                // Variable-name leak detector: a variable name appearing in
+                // rendered output usually means substitution failed. But math
+                // problem text legitimately uses words like "area", "angle",
+                // "height" that the YAML may also have as variable names. Only
+                // flag names that look distinctively code-y: contain an
+                // underscore, or are ≥ 8 chars (long words like
+                // `cyl_volume_rounded`, `box_volume`, `discriminant` survive;
+                // short English words like `area`, `radius` don't).
+                for var_name in spec.variables.keys() {
+                    let looks_code_like = var_name.contains('_') || var_name.len() >= 8;
+                    if !looks_code_like {
+                        continue;
+                    }
+                    let pat = format!(r"\b{}\b", regex::escape(var_name));
+                    if let Ok(re) = regex::Regex::new(&pat) {
+                        if re.is_match(&combined) {
+                            errors.push(format!(
+                                "seed {i}: unresolved variable `{var_name}` in output"
+                            ));
+                        }
+                    }
+                }
+            }
+            Err(e) => errors.push(format!("seed {i}: generation error: {e}")),
+        }
+        if !errors.is_empty() {
+            break;
+        }
+    }
+    if errors.is_empty() { Ok(()) } else { Err(errors) }
+}
+
+/// Patterns that should never appear in a rendered question or solution.
+/// Each entry is (regex, what's wrong, how to fix). The fix string is appended
+/// to the audit message so the model can apply it without a separate diagnosis
+/// step.
+const RENDER_BANLIST: &[(&str, &str, &str)] = &[
+    (r"\*\*",
+        "raw `**` exponent",
+        "wrap the math in `{math(expr)}` or define a variable; never write `**` in solution prose"),
+    (r"\bsqrt\(",
+        "raw `sqrt(` in prose",
+        "wrap with `{math(sqrt(N))}` or pre-compute the value via the `compute` tool"),
+    (r"\binfinity\b",
+        "literal word `infinity`",
+        "use the `{limit_of(...)}` display function or write `oo` inside a variable definition"),
+    (r"\b(Infinity|INF|Inf)\b",
+        "literal infinity alias",
+        "same fix as `infinity` — use display fn or `oo`"),
+    (r"\bderivative_of\(",
+        "literal display fn `derivative_of(`",
+        "the inner display call wasn't nested inside a `{...}` ref — wrap the entire call in braces"),
+    (r"\bintegral_of\(",
+        "literal display fn `integral_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bdefinite_integral_of\(",
+        "literal display fn `definite_integral_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bevaluate\(",
+        "literal display fn `evaluate(`",
+        "wrap in `{...}` braces — the form is `{evaluate(expr, var, val)}`"),
+    (r"\blimit_of\(",
+        "literal display fn `limit_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bdet_of\(",
+        "literal display fn `det_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bmatrix_of\(",
+        "literal display fn `matrix_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bsum_of\(",
+        "literal display fn `sum_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bproduct_of\(",
+        "literal display fn `product_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bpartial_of\(",
+        "literal display fn `partial_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bnth_derivative_of\(",
+        "literal display fn `nth_derivative_of(`",
+        "wrap in `{...}` braces"),
+    (r"\bAbs\(",
+        "raw `Abs(`",
+        "use `{abs_of(x)}` display fn for `|x|` rendering"),
+    (r"[∞∪∩≤≥±→√∂∇∫∑∏×÷·°′″πθλαβγδεζημσφψωΔΣΠΩ]",
+        "unicode math glyph",
+        "write the spelled-out name: pi, theta, lambda, infinity, leq, geq — SymEngine renders them as LaTeX"),
+    (r"_\$\d+\$[a-zA-Z]",
+        "subscript value followed by letters (`a_$7$th`)",
+        "describe the position in plain English (e.g. `the 7th term`) without subscript"),
+    (r"'[^']{1,8}'",
+        "single-quoted literal",
+        "remove the quotes — the DSL has no strings; either define a variable or rephrase"),
+];
+
 
 // =============================================================================
 // System prompt (static, cached by Anthropic)
 // =============================================================================
 
-const SYSTEM_PROMPT: &str = r#"You generate math problem YAML files. Output ONLY valid YAML.
+// The system prompt lives in `src/prompts/system_prompt.md` so it can be edited
+// like a real document (markdown highlighting, side-by-side diffs, no escaping
+// of backticks or quotes). `include_str!` embeds the file at compile time, so
+// the binary still ships as a single artifact and any prompt change forces a
+// rebuild — no separate codegen step, no runtime file I/O.
+/// The model receives the core prompt followed by the per-topic playbook so
+/// every conversation has the topic-specific guidance available without an
+/// extra tool call. Both files are cached by Anthropic, so this concat costs
+/// nothing per script after the first cache fill.
+const SYSTEM_PROMPT_CORE: &str = include_str!("prompts/system_prompt.md");
+const TOPIC_PLAYBOOK: &str = include_str!("prompts/topic_playbook.md");
 
-# GOLDEN RULE
+fn system_prompt() -> String {
+    // Playbook is appended only when the topic-specific entry adds meaningful
+    // guidance. Empirically, including the full playbook hurts: it makes the
+    // model overthink simple cases (basic determinant, unit circle) without
+    // helping the hard ones, and pass rate drops from ~62% to ~42%. The fix
+    // is to put the truly load-bearing rules in the core prompt instead.
+    SYSTEM_PROMPT_CORE.to_string()
+}
 
-Design BACKWARDS from the answer. Pick clean answer first, build problem around it.
-Every variable is either a sampler OR a simple formula from other variables.
-The answer must be GUARANTEED correct by construction — never by filtering.
+// Kept as a SYSTEM_PROMPT alias for tests that grep the prompt body.
+#[cfg(test)]
+const SYSTEM_PROMPT: &str = include_str!("prompts/system_prompt.md");
 
-# YAML STRUCTURE
+#[cfg(test)]
+mod judge_tests {
+    use super::*;
 
-```
-topic: main/sub
-calculator: none
-variables:
-  name: value
-constraints:
-  - simple_condition
-question: "text with {var} refs"
-answer: variable_name
-solution:
-  - "step with {var} refs"
-```
+    #[test]
+    fn render_banlist_catches_known_leaks() {
+        let bad_renders = [
+            (r"$\lim_{x \to infinity} x$",  "infinity"),
+            (r"$x**2 + 1$",                  "raw `**`"),
+            (r"$5*sqrt(x)$",                 "raw `sqrt(`"),
+            (r"$derivative_of(f, x)$",       "literal display fn"),
+            (r"a_$7$th term",                "subscript-followed-by-text"),
+            (r"$3 + Abs(y)$",                "raw `Abs(`"),
+        ];
+        for (sample, label) in bad_renders {
+            let mut hit = false;
+            for (pat, _, _) in RENDER_BANLIST {
+                if regex::Regex::new(pat).unwrap().is_match(sample) {
+                    hit = true;
+                    break;
+                }
+            }
+            assert!(hit, "banlist missed `{label}` in `{sample}`");
+        }
+    }
 
-# ALLOWED SAMPLERS
+    #[test]
+    fn system_prompt_includes_critical_rules() {
+        // Spot-check that the prompt mentions every non-obvious failure mode
+        // we've seen in past generations and the agent-loop tool names.
+        let must_mention = [
+            "BACKWARD",
+            "BANNED",
+            "where f(x)",
+            "infinity",
+            "derivative_of",
+            "sqrt(",
+            "**",
+            "render_samples",
+            "save",
+            "audit",
+            "DISPLAY FUNCTIONS",
+            "BUILTIN FUNCTIONS",
+        ];
+        for needle in must_mention {
+            assert!(
+                SYSTEM_PROMPT.contains(needle),
+                "system prompt missing critical guidance: `{needle}`"
+            );
+        }
+    }
 
-integer(lo, hi)          — random int in [lo, hi]
-nonzero(lo, hi)          — int excluding 0
-choice(a, b, c, ...)     — pick from list
-prime(lo, hi)            — random prime
-decimal(lo, hi, places)  — decimal with N places
-
-# ALLOWED FUNCTIONS IN VARIABLES
-
-derivative(expr, var)    — differentiate
-integral(expr, var)      — antiderivative (polynomial only)
-expand(expr)             — expand products
-solve(expr, var)         — roots of expr=0 (linear/quadratic only, returns comma-separated roots)
-evaluate(expr, var, val) — substitute var=val (EXACTLY 3 args, returns a number)
-sqrt(expr)               — square root
-abs(expr)                — absolute value
-floor(x)  ceil(x)  round(x, n)  mod(a, b)  max(a, b)  min(a, b)
-sin(x)  cos(x)  tan(x)  log(x)  ln(x)  exp(x)
-
-# ALLOWED IN {refs} IN QUESTION/SOLUTION TEXT
-
-{variable_name}                           — renders as $value$
-{derivative_of(f, x)}                     — renders d/dx[f]
-{integral_of(f, x)}                       — renders ∫f dx
-{definite_integral_of(f, x, a, b)}        — renders ∫_a^b f dx
-{limit_of(f, x, val)}                     — renders lim
-{equation(lhs, rhs)}                      — renders lhs = rhs (EXACTLY 2 args)
-{system(eq1, eq2)}                        — renders cases
-
-# BANNED — DO NOT USE ANY OF THESE
-
-- y', y'', y''' (prime notation) — SymEngine cannot parse these
-- = sign in variable definitions — variables are expressions, not equations
-- if/else, implies, ternary — no Python syntax
-- % operator — use mod(a, b) instead
-- ∞, ∪, ≤, ≥ or any unicode math symbols
-- [index] notation like result[0] — no array indexing
-- evaluate() with more than 3 args — chain calls instead
-- equation() with more than 2 args
-- gcd(), mod(), abs(), is_integer() in CONSTRAINTS
-- Constraints with divisibility (mod(x, y) == 0)
-- Constraints comparing computed values (left_side == right_side)
-- answer_type values other than: numeric, expression, tuple, set, boolean, word
-- Invented display functions not in the list above
-- Comments in the variables section
-- $, $$, or any LaTeX markup
-- Lists or arrays as variable values: [a, b, c]
-- Equations as variable values: x^2 + y^2 = 4
-
-# CONSTRAINTS — MAXIMUM 2, TRIVIALLY SATISFIABLE
-
-ONLY these patterns are allowed:
-  a != b          (two samplers differ)
-  a < b           (ordering)
-  a > 0           (positive)
-
-If you need the answer to be an integer, CONSTRUCT it as an integer by design.
-If you need gcd(a,b)==1, use prime() samplers or choice() with coprime values.
-If you need divisibility, compute: answer: integer(...), then rhs: a * answer.
-
-# MULTI-VARIABLE EVALUATE
-
-To evaluate f(x,y) at x=2, y=3:
-  step1: evaluate(f, x, 2)
-  step2: evaluate(step1, y, 3)
-
-NEVER: evaluate(f, x, 2, y, 3)
-
-# COMPOUND INEQUALITIES
-
-Do NOT use answer_type: interval or inequality.
-Return boundary values as a tuple: answer: lo, hi (answer_type: tuple)
-
-# DIFFERENTIAL EQUATIONS
-
-Do NOT use y' or y'' notation. Use derivative(y, x) for y' and define:
-  char_eq: r^2 + a*r + b     (characteristic equation in terms of r)
-  roots: solve(char_eq, r)
-
-# SYSTEMS OF EQUATIONS
-
-Pick x and y values first, compute RHS from them:
-  x: integer(-5, 5)
-  y: integer(-5, 5)
-  a1: nonzero(-5, 5)
-  b1: nonzero(-5, 5)
-  c1: a1*x + b1*y
-  a2: nonzero(-5, 5)
-  b2: nonzero(-5, 5)
-  c2: a2*x + b2*y
-  answer: x, y
-Constraint: a1*b2 != a2*b1 (ensures unique solution — ALWAYS satisfiable with these ranges)
-
-# FACTORING
-
-Build the factored form first, expand for the question:
-  r1: integer(-8, 8)
-  r2: integer(-8, 8)
-  factored: (x - r1)*(x - r2)
-  expanded: expand(factored)
-  answer: solve(expanded, x)
-  answer_type: set
-Constraint: r1 != r2
-
-For GCF factoring, build from GCF:
-  gcf: choice(2, 3, 4, 5)
-  c1: integer(1, 6)
-  c2: integer(1, 6)
-  f: gcf*c1*x + gcf*c2
-  answer: gcf*(c1*x + c2)
-
-# GRAPHING / SLOPES
-
-Pick slope and point, compute other values:
-  m: nonzero(-5, 5)
-  x1: integer(-4, 4)
-  y1: integer(-6, 6)
-  b: y1 - m*x1
-  answer: m
-
-# AREA BETWEEN CURVES / DEFINITE INTEGRALS
-
-Compute step by step:
-  f: a*x^n
-  F: integral(f, x)
-  F_hi: evaluate(F, x, hi)
-  F_lo: evaluate(F, x, lo)
-  answer: F_hi - F_lo
-NEVER: evaluate(F, x, hi) - evaluate(F, x, lo) as one expression
-
-# SEQUENCES
-
-Pick first term and common difference/ratio, compute directly:
-  a1: integer(2, 10)
-  d: nonzero(-5, 5)
-  n: integer(5, 15)
-  answer: a1 + (n - 1)*d
-
-# PERCENTAGES / GROWTH
-
-Use simple multiplication:
-  original: choice(100, 200, 250, 400, 500)
-  rate: choice(10, 15, 20, 25, 30)
-  increase: original * rate / 100
-  answer: original + increase
-
-# DIFFICULTY CALIBRATION (no difficulty field — injected by system)
-
-very_easy/easy: 1 step, single-digit or small two-digit numbers
-medium: 2-3 steps, moderate numbers
-hard/very_hard: multi-step, fractions, negative numbers
-competition: creative setup, elegant backward construction
-
-# VERIFICATION
-
-Before outputting, mentally substitute the MIDPOINT of every sampler range and trace through:
-1. Do all variables resolve to concrete values?
-2. Do all constraints pass?
-3. Is the answer a clean number or simple expression?
-4. Do all {refs} in question/solution match defined variable names?
-If ANY check fails, redesign from scratch."#;
-
-// =============================================================================
-// Examples (selected by topic relevance)
-// =============================================================================
-
-// Examples demonstrate backward design: answer chosen first, problem built around it
-
-const EXAMPLE_ARITHMETIC: &str = r#"## Backward design: pick nice denominators, build fractions from them
-topic: arithmetic/fractions
-calculator: none
-variables:
-  a: integer(1, 5)
-  b: integer(6, 9)
-  c: integer(1, 5)
-  d: integer(6, 9)
-  num: a*d + c*b
-  den: b*d
-  answer: num/den
-constraints:
-  - b != d
-question: "Add: {a}/{b} + {c}/{d}"
-answer: answer
-solution:
-  - "Common denominator: {b} x {d} = {den}"
-  - "{a}/{b} + {c}/{d} = {answer}"
-"#;
-
-const EXAMPLE_CALCULUS: &str = r#"## Backward design: pick simple polynomial, integral is always clean
-topic: calculus/derivative_rules
-calculator: none
-variables:
-  a: nonzero(-8, 8)
-  n: integer(2, 6)
-  f: a * x^n
-  answer: derivative(f, x)
-question: "Find {derivative_of(f, x)}"
-answer: answer
-solution:
-  - "Apply the power rule to {f}"
-  - "{derivative_of(f, x)} = {answer}"
-"#;
-
-const EXAMPLE_ALGEBRA: &str = r#"## Backward design: pick roots first, build quadratic from them
-## Roots are guaranteed integer by construction — no is_integer constraint needed
-topic: algebra1/quadratic_formula
-calculator: none
-variables:
-  r1: integer(-8, 8)
-  r2: integer(-8, 8)
-  f: (x - r1) * (x - r2)
-  expanded: expand(f)
-  answer: solve(expanded, x)
-constraints:
-  - r1 != r2
-  - r1 < r2
-question: "Solve {equation(expanded, 0)} for x."
-answer: answer
-answer_type: set
-solution:
-  - "Start with {equation(expanded, 0)}"
-  - "Factor: {equation(f, 0)}"
-  - "x = {r1} or x = {r2}"
-"#;
-
-const EXAMPLE_GEOMETRY: &str = r#"## Backward design: use known Pythagorean triples via choice()
-## Hypotenuse is integer by construction — no is_integer constraint needed
-topic: geometry/pythagorean_theorem
-calculator: scientific
-variables:
-  triple: choice(1, 2, 3, 4)
-  a: choice(3, 5, 8, 7)
-  b: choice(4, 12, 15, 24)
-  c: choice(5, 13, 17, 25)
-  answer: c
-question: "Find the hypotenuse of a right triangle with legs {a} and {b}."
-answer: answer
-solution:
-  - "Pythagorean theorem: a^2 + b^2 = c^2"
-  - "c = {answer}"
-"#;
+    #[test]
+    fn render_banlist_passes_clean_renders() {
+        let good_renders = [
+            r"$\lim_{x \to \infty} \frac{1}{x}$",
+            r"$\sqrt{x} + x^{\frac{7}{2}}$",
+            r"$\frac{d}{dx}\left[3 x^2\right]$",
+            r"$\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$",
+        ];
+        for sample in good_renders {
+            for (pat, why, _) in RENDER_BANLIST {
+                let re = regex::Regex::new(pat).unwrap();
+                assert!(
+                    !re.is_match(sample),
+                    "false positive: `{pat}` ({why}) matched clean render `{sample}`"
+                );
+            }
+        }
+    }
+}

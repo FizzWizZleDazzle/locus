@@ -2458,6 +2458,7 @@ version = "0.1.5"
 dependencies = [
  "clap",
  "dotenvy",
+ "locus-common",
  "locus-dsl",
  "rayon",
  "regex",

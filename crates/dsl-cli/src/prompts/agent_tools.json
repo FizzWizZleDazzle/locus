@@ -1,0 +1,171 @@
+[
+  {
+    "name": "render_samples",
+    "description": "Render N sample problems AND run the audit in one call. Returns `{samples: [...], audit: {ok, issues?}}`. Each sample has the EXACT rendered question, answer, and solution that students will see. The audit field reports any banlist hits or variable-leak issues. Use this as your single inspection tool — render + audit together. If audit.ok is true and the samples look right, go straight to save.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "yaml": {"type": "string", "description": "Full YAML spec (everything except difficulty, which the system injects)"},
+        "n": {"type": "integer", "description": "Number of samples to render (1-5). Default 3."}
+      },
+      "required": ["yaml"]
+    }
+  },
+  {
+    "name": "audit",
+    "description": "Run the mechanical banlist + variable-leak audit on your YAML. Returns ok=true if clean, otherwise a list of specific issues. Faster than render_samples and useful for a quick check after edits. Doesn't catch math errors — use render_samples and the CAS tools for that.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"yaml": {"type": "string"}},
+      "required": ["yaml"]
+    }
+  },
+  {
+    "name": "find_similar_yaml",
+    "description": "Look up an existing well-formed YAML on the same or a similar topic and return it as a reference. Use this at the start to anchor your structure on something that already passes the audit. Returns the closest match by topic-path overlap.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  {
+    "name": "compute",
+    "description": "Evaluate any expression through SymEngine and return the canonical form. Use for ALL arithmetic — never compute (-10)^2 - 4*6*(-4) in your head, ask this tool. Returns the simplified expression as a string.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"expr": {"type": "string", "description": "Math expression, e.g. `(-10)^2 - 4*6*(-4)`"}},
+      "required": ["expr"]
+    }
+  },
+  {
+    "name": "solve",
+    "description": "Solve `expr = 0` for `var`. Returns roots as a comma-separated string. Linear and quadratic only. For finding x in `2*x + 3 = 7`, rearrange first: solve(`2*x + 3 - 7`, `x`).",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "expr": {"type": "string"},
+        "var": {"type": "string"}
+      },
+      "required": ["expr", "var"]
+    }
+  },
+  {
+    "name": "differentiate",
+    "description": "Symbolic derivative of `expr` with respect to `var`.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "expr": {"type": "string"},
+        "var": {"type": "string"}
+      },
+      "required": ["expr", "var"]
+    }
+  },
+  {
+    "name": "integrate",
+    "description": "Symbolic antiderivative of `expr` with respect to `var`. If `lo` and `hi` are provided, returns the definite integral from `lo` to `hi`. Polynomial in `var` only.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "expr": {"type": "string"},
+        "var": {"type": "string"},
+        "lo": {"type": "string"},
+        "hi": {"type": "string"}
+      },
+      "required": ["expr", "var"]
+    }
+  },
+  {
+    "name": "evaluate_at",
+    "description": "Substitute `var = val` in `expr` and reduce. Use for verifying that f(c) gives the value you claim, or for computing the answer at a point.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "expr": {"type": "string"},
+        "var": {"type": "string"},
+        "val": {"type": "string"}
+      },
+      "required": ["expr", "var", "val"]
+    }
+  },
+  {
+    "name": "expand",
+    "description": "Algebraically expand `expr`. Use to turn `(x - 3)*(x + 5)` into `x^2 + 2*x - 15`.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"expr": {"type": "string"}},
+      "required": ["expr"]
+    }
+  },
+  {
+    "name": "polynomial_from_roots",
+    "description": "Given a list of roots (integers or rationals like '1/2'), return the expanded polynomial that has exactly those roots. Use to build a quadratic for `solve` or `factor` problems where you've decided the roots first.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "roots": {"type": "array", "items": {"type": "string"}, "description": "Roots, e.g. [\"3\", \"-2\", \"1/2\"]"},
+        "var": {"type": "string", "description": "Variable name. Default `x`."}
+      },
+      "required": ["roots"]
+    }
+  },
+  {
+    "name": "matrix_with_eigenvalues",
+    "description": "Given two integer eigenvalues, return a 2×2 integer matrix that has them as eigenvalues. Use this BEFORE building any system_of_odes / eigenvalue YAML — picking the matrix entries first and hoping the eigenvalues are clean is how the systems_of_odes problems went wrong.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "lambda1": {"type": "integer"},
+        "lambda2": {"type": "integer"}
+      },
+      "required": ["lambda1", "lambda2"]
+    }
+  },
+  {
+    "name": "solve_linear_inequality",
+    "description": "Solve a linear inequality `a*x + b OP c*x + d` for x. Returns `{op: \"<\"|\">\"|\"<=\"|\">=\", value: \"<rhs>\"}` with the inequality direction correctly flipped if you divide by a negative coefficient — the failure mode that breaks every linear-inequality YAML when done by hand. Pass the four coefficients and the original operator string.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "a": {"type": "string", "description": "Coefficient of x on left side"},
+        "b": {"type": "string", "description": "Constant on left side"},
+        "c": {"type": "string", "description": "Coefficient of x on right side"},
+        "d": {"type": "string", "description": "Constant on right side"},
+        "op": {"type": "string", "enum": ["<", ">", "<=", ">="]}
+      },
+      "required": ["a", "b", "c", "d", "op"]
+    }
+  },
+  {
+    "name": "quadratic_roots",
+    "description": "Given a, b, c, return the discriminant, case, and roots for `a*x^2 + b*x + c = 0`. Returns `{discriminant, case: \"real_distinct\"|\"real_repeated\"|\"complex\", roots: [\"<r1>\", \"<r2>\"]}`. Use this BEFORE designing a quadratic problem so you know which case the YAML must handle.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "a": {"type": "string"},
+        "b": {"type": "string"},
+        "c": {"type": "string"}
+      },
+      "required": ["a", "b", "c"]
+    }
+  },
+  {
+    "name": "verify_answer_key",
+    "description": "Render one sample of the YAML and confirm that the question is self-consistent: the answer_key, when graded against itself, returns Correct, AND the solution's last step matches the answer. Use this after render_samples and before save when the YAML's answer derivation is non-trivial. Returns `{ok: bool, mismatches: [...]}`.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"yaml": {"type": "string"}},
+      "required": ["yaml"]
+    }
+  },
+  {
+    "name": "save",
+    "description": "Finalize the YAML. Pass the complete final YAML. Returns ok=true if it passes all audits and is accepted; otherwise returns ok=false with the remaining issues. Only call when render_samples shows clean output and audit returns ok=true. Call exactly once when you're confident.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"yaml": {"type": "string"}},
+      "required": ["yaml"]
+    }
+  }
+]
