@@ -120,6 +120,25 @@ jobs:
             "$BIN" parse "$f" || exit 1
           done
 
+  # Single required status check for branch protection. Always runs; succeeds
+  # when every gated upstream job either passed or was skipped by path filter.
+  mergeable:
+    name: Mergeable
+    needs: [changes, build, test, validate]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate gated job results
+        run: |
+          fail() { echo "::error::$1"; exit 1; }
+          [[ "${{ needs.changes.result }}" == "success" ]] || fail "changes failed"
+          for r in "${{ needs.build.result }}" "${{ needs.test.result }}" "${{ needs.validate.result }}"; do
+            case "$r" in
+              success|skipped) ;;
+              *) fail "downstream job result=$r" ;;
+            esac
+          done
+
   docker-locus:
     name: Docker - locus
     needs: [changes, build, test]
