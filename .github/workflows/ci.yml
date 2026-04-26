@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /usr/local/lib/libsymengine.a
-          key: symengine-static-v1
+          key: symengine-static-threadsafe-v1
 
       - name: Install system deps
         run: |
@@ -52,7 +52,7 @@ jobs:
           if [ ! -f /usr/local/lib/libsymengine.a ]; then
             git clone --depth 1 https://github.com/symengine/symengine.git /tmp/symengine
             cd /tmp/symengine && mkdir build && cd build
-            cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWITH_SYMENGINE_THREAD_SAFE=ON -DCMAKE_INSTALL_PREFIX=/usr/local ..
             make -j$(nproc)
             sudo make install
             cd / && rm -rf /tmp/symengine

@@ -72,6 +72,7 @@ RUN cd /tmp \
     && mkdir build && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
              -DBUILD_SHARED_LIBS=OFF \
+             -DWITH_SYMENGINE_THREAD_SAFE=ON \
              -DBUILD_TESTS=OFF \
              -DBUILD_BENCHMARKS=OFF \
              -DCMAKE_INSTALL_PREFIX=/usr/local \
