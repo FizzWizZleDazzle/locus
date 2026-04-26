@@ -4,6 +4,12 @@ Competitive math learning platform. Solve problems, earn ELO ratings, climb lead
 
 **Live at [locusmath.org](https://locusmath.org)**
 
+<p align="center">
+  <a href="https://locusmath.org">
+    <img src=".github/locus.png" alt="Locus screenshot" width="720">
+  </a>
+</p>
+
 ## Features
 
 - **Symbolic grading** — SymEngine CAS checks mathematical equivalence, not string matching
