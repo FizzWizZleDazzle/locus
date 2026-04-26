@@ -1,26 +1,28 @@
 topic: calculus/derivative_rules
 difficulty: medium
 calculator: none
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  d: nonzero(-5, 5)
-  u: a*x + b
-  v: c*x^2 + d
-  f: (a*x + b)*(c*x^2 + d)
-  du: derivative(u, x)
-  dv: derivative(v, x)
-  term1: (a*x + b)*(2*c*x)
-  term2: (c*x^2 + d)*a
-  f_prime: derivative(f, x)
-  answer: expand(f_prime)
-question: "Use the product rule to find {derivative_of(f, x)}."
-answer: answer
-answer_type: expression
-solution:
-  - "The two factors are {u} and {v}."
-  - "Differentiate each factor: {derivative_of(u, x)} = {du} and {derivative_of(v, x)} = {dv}."
-  - "The product rule gives {derivative_of(f, x)} = (first factor)(derivative of second) + (second factor)(derivative of first)."
-  - "Substituting: {derivative_of(f, x)} = {expand(term1)} + {expand(term2)}."
-  - "Expanding and simplifying: {derivative_of(f, x)} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(-5, 5)
+      d: nonzero(-5, 5)
+      u: a*x + b
+      v: c*x^2 + d
+      f: (a*x + b)*(c*x^2 + d)
+      du: derivative(u, x)
+      dv: derivative(v, x)
+      term1: (a*x + b)*(2*c*x)
+      term2: (c*x^2 + d)*a
+      f_prime: derivative(f, x)
+      answer: expand(f_prime)
+    question: Use the product rule to find {derivative_of(f, x)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - The two factors are {u} and {v}.
+      - 'Differentiate each factor: {derivative_of(u, x)} = {du} and {derivative_of(v, x)} = {dv}.'
+      - The product rule gives {derivative_of(f, x)} = (first factor)(derivative of second) + (second factor)(derivative of first).
+      - 'Substituting: {derivative_of(f, x)} = {expand(term1)} + {expand(term2)}.'
+      - 'Expanding and simplifying: {derivative_of(f, x)} = {answer}.'

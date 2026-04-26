@@ -1,22 +1,21 @@
 topic: algebra2/logarithm_properties
 difficulty: easy
 calculator: none
-
-variables:
-  b: choice(2, 3, 5, 10)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  A: b^p
-  B: b^q
-  AB: A * B
-  answer: p + q
-
-constraints:
-  - p != q
-
-question: "Given that log base {b} of {A} equals {p} and log base {b} of {B} equals {q}, use the product rule to find log base {b} of {AB}."
-answer: answer
-answer_type: numeric
-solution:
-  - "The product rule states: log base {b} of {math(A*B)} = log base {b} of {A} + log base {b} of {B}."
-  - "Substitute the given values: {p} + {q} = {answer}."
+variants:
+  - name: default
+    variables:
+      b: choice(2, 3, 5, 10)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      A: b^p
+      B: b^q
+      AB: A * B
+      answer: p + q
+    constraints:
+      - p != q
+    question: Given that log base {b} of {A} equals {p} and log base {b} of {B} equals {q}, use the product rule to find log base {b} of {AB}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'The product rule states: log base {b} of {math(A*B)} = log base {b} of {A} + log base {b} of {B}.'
+      - 'Substitute the given values: {p} + {q} = {answer}.'

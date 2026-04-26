@@ -1,17 +1,16 @@
 topic: arithmetic/percentages
 difficulty: easy
 calculator: none
-
-variables:
-  pct: choice(10, 20, 25, 50)
-  base: integer(1, 10)
-  answer: base * 4
-  whole: answer * 100 / pct
-
-question: "What is {pct}% of {whole}?"
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Convert the percentage to a decimal: {pct}% = {math(pct/100)}"
-  - "Multiply: {math(pct/100)} times {whole} = {answer}"
+variants:
+  - name: default
+    variables:
+      pct: choice(10, 20, 25, 50)
+      base: integer(1, 10)
+      answer: base * 4
+      whole: answer * 100 / pct
+    question: What is {pct}% of {whole}?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Convert the percentage to a decimal: {pct}% = {math(pct/100)}'
+      - 'Multiply: {math(pct/100)} times {whole} = {answer}'

@@ -1,29 +1,27 @@
 topic: differential_equations/undetermined_coefficients
 difficulty: hard
 calculator: scientific
-
-variables:
-  k: integer(2, 4)
-  k2: k*k
-  A_val: integer(1, 5)
-  B_val: integer(1, 5)
-  C_val: integer(1, 5)
-  forcing: A_val*x^2 + B_val*x + C_val
-  E_val: A_val/k2
-  D_val: B_val/k2
-  F_val: (C_val - 2*E_val)/k2
-  yp: E_val*x^2 + D_val*x + F_val
-
-question: "Find a particular solution to the differential equation {nth_derivative_of(y, x, 2)} + {k2}{math(y)} = {forcing} using undetermined coefficients."
-
-answer: yp
-answer_type: expression
-
-solution:
-  - "Since the forcing is a quadratic polynomial, assume {math(y_p = E*x^2 + D*x + F)}."
-  - "Compute {nth_derivative_of(yp, x, 2)} = {math(2*E)}."
-  - "Substitute into the ODE: {math(2*E)} + {k2}({math(E*x^2 + D*x + F)}) = {forcing}."
-  - "Match coefficients of {math(x^2)}: {math(k2*E)} = {A_val}, so {equation(E, E_val)}."
-  - "Match coefficients of {math(x)}: {math(k2*D)} = {B_val}, so {equation(D, D_val)}."
-  - "Match constants: {math(2*E + k2*F)} = {C_val}, giving {equation(F, F_val)}."
-  - "The particular solution is {yp}."
+variants:
+  - name: default
+    variables:
+      k: integer(2, 4)
+      k2: k*k
+      A_val: integer(1, 5)
+      B_val: integer(1, 5)
+      C_val: integer(1, 5)
+      forcing: A_val*x^2 + B_val*x + C_val
+      E_val: A_val/k2
+      D_val: B_val/k2
+      F_val: (C_val - 2*E_val)/k2
+      yp: E_val*x^2 + D_val*x + F_val
+    question: Find a particular solution to the differential equation {nth_derivative_of(y, x, 2)} + {k2}{math(y)} = {forcing} using undetermined coefficients.
+    answer: yp
+    answer_type: expression
+    solution:
+      - Since the forcing is a quadratic polynomial, assume {math(y_p = E*x^2 + D*x + F)}.
+      - Compute {nth_derivative_of(yp, x, 2)} = {math(2*E)}.
+      - 'Substitute into the ODE: {math(2*E)} + {k2}({math(E*x^2 + D*x + F)}) = {forcing}.'
+      - 'Match coefficients of {math(x^2)}: {math(k2*E)} = {A_val}, so {equation(E, E_val)}.'
+      - 'Match coefficients of {math(x)}: {math(k2*D)} = {B_val}, so {equation(D, D_val)}.'
+      - 'Match constants: {math(2*E + k2*F)} = {C_val}, giving {equation(F, F_val)}.'
+      - The particular solution is {yp}.

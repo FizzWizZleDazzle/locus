@@ -1,22 +1,21 @@
 topic: arithmetic/multiplication
 difficulty: hard
 calculator: none
-
-variables:
-  a: integer(100, 499)
-  b_tens: integer(1, 4)
-  b_ones: integer(1, 9)
-  b: b_tens * 10 + b_ones
-  partial_ones: a * b_ones
-  partial_tens_val: a * b_tens * 10
-  answer: a * b
-
-question: "Find the product {a} times {b} by computing and adding partial products."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Write {b} as {b_tens} tens and {b_ones} ones."
-  - "Ones partial product: {a} times {b_ones} = {partial_ones}."
-  - "Tens partial product: {a} times {b_tens} times 10 = {partial_tens_val}."
-  - "Add the partial products: {partial_ones} + {partial_tens_val} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(100, 499)
+      b_tens: integer(1, 4)
+      b_ones: integer(1, 9)
+      b: b_tens * 10 + b_ones
+      partial_ones: a * b_ones
+      partial_tens_val: a * b_tens * 10
+      answer: a * b
+    question: Find the product {a} times {b} by computing and adding partial products.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Write {b} as {b_tens} tens and {b_ones} ones.
+      - 'Ones partial product: {a} times {b_ones} = {partial_ones}.'
+      - 'Tens partial product: {a} times {b_tens} times 10 = {partial_tens_val}.'
+      - 'Add the partial products: {partial_ones} + {partial_tens_val} = {answer}.'

@@ -1,24 +1,23 @@
 topic: algebra2/rational_expressions
 difficulty: easy
 calculator: none
-
-variables:
-  r1: integer(-5, 5)
-  r2: integer(-6, 6)
-  a: nonzero(-4, 4)
-  num: expand(a*(x - r1)*(x - r2))
-  den: expand(a*(x - r1))
-  common: expand(a*(x - r1))
-  answer: x - r2
-
-constraints:
-  - r1 != r2
-
-question: "Simplify the rational expression {math(num/den)}, where {math(x != r1)}."
-answer: answer
-answer_type: expression
-solution:
-  - "Factor the numerator: {math(num)} = {math(a*(x - r1)*(x - r2))}."
-  - "The denominator is {math(den)} = {math(a*(x - r1))}."
-  - "Cancel the common factor {math(common)} from numerator and denominator."
-  - "The simplified expression is {answer}."
+variants:
+  - name: default
+    variables:
+      r1: integer(-5, 5)
+      r2: integer(-6, 6)
+      a: nonzero(-4, 4)
+      num: expand(a*(x - r1)*(x - r2))
+      den: expand(a*(x - r1))
+      common: expand(a*(x - r1))
+      answer: x - r2
+    constraints:
+      - r1 != r2
+    question: Simplify the rational expression {math(num/den)}, where {math(x != r1)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Factor the numerator: {math(num)} = {math(a*(x - r1)*(x - r2))}.'
+      - The denominator is {math(den)} = {math(a*(x - r1))}.
+      - Cancel the common factor {math(common)} from numerator and denominator.
+      - The simplified expression is {answer}.

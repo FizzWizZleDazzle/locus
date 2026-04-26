@@ -1,27 +1,29 @@
 topic: linear_algebra/matrix_inverses
 difficulty: medium
 calculator: scientific
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: nonzero(-4, 4)
-  det: a*d - b*c
-  ad_prod: a*d
-  bc_prod: b*c
-  i11: d/det
-  i12: -b/det
-  i21: -c/det
-  i22: a/det
-constraints:
-  - det != 0
-question: "Find the inverse of the matrix {matrix_of([[a, b], [c, d]])}. Give the entry in row 1, column 1 of the inverse."
-answer: i11
-answer_type: numeric
-solution:
-  - "For a 2x2 matrix, the inverse formula is: swap the main diagonal entries, negate the off-diagonal entries, and divide by the determinant."
-  - "Step 1 — Compute the determinant: {ad_prod} - {bc_prod} = {det}."
-  - "Step 2 — Since the determinant is {det}, which is nonzero, the inverse exists."
-  - "Step 3 — The adjugate matrix is {matrix_of([[d, -b], [-c, a]])}."
-  - "Step 4 — Multiply the adjugate by {math(1/det)}: the inverse is {matrix_of([[i11, i12], [i21, i22]])}."
-  - "The (1,1) entry of the inverse is {i11}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: integer(-4, 4)
+      c: integer(-4, 4)
+      d: nonzero(-4, 4)
+      det: a*d - b*c
+      ad_prod: a*d
+      bc_prod: b*c
+      i11: d/det
+      i12: -b/det
+      i21: -c/det
+      i22: a/det
+    constraints:
+      - det != 0
+    question: Find the inverse of the matrix {matrix_of([[a, b], [c, d]])}. Give the entry in row 1, column 1 of the inverse.
+    answer: i11
+    answer_type: numeric
+    solution:
+      - 'For a 2x2 matrix, the inverse formula is: swap the main diagonal entries, negate the off-diagonal entries, and divide by the determinant.'
+      - 'Step 1 — Compute the determinant: {ad_prod} - {bc_prod} = {det}.'
+      - Step 2 — Since the determinant is {det}, which is nonzero, the inverse exists.
+      - Step 3 — The adjugate matrix is {matrix_of([[d, -b], [-c, a]])}.
+      - 'Step 4 — Multiply the adjugate by {math(1/det)}: the inverse is {matrix_of([[i11, i12], [i21, i22]])}.'
+      - The (1,1) entry of the inverse is {i11}.

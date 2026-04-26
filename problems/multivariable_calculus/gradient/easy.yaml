@@ -1,17 +1,19 @@
 topic: multivariable_calculus/gradient
 difficulty: easy
 calculator: none
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  func: a*x^2 + b*x*y + c*y^2
-  fx: derivative(a*x^2 + b*x*y + c*y^2, x)
-  fy: derivative(a*x^2 + b*x*y + c*y^2, y)
-question: "Find the gradient of {math(f(x,y))} where {equation(math(f(x,y)), func)}."
-answer: fx, fy
-answer_type: tuple
-solution:
-  - "Compute the partial derivative with respect to {math(x)}: {equation(partial_of(func, x), fx)}."
-  - "Compute the partial derivative with respect to {math(y)}: {equation(partial_of(func, y), fy)}."
-  - "The gradient is {vec([fx, fy])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(-5, 5)
+      func: a*x^2 + b*x*y + c*y^2
+      fx: derivative(a*x^2 + b*x*y + c*y^2, x)
+      fy: derivative(a*x^2 + b*x*y + c*y^2, y)
+    question: Find the gradient of {math(f(x,y))} where {equation(math(f(x,y)), func)}.
+    answer: fx, fy
+    answer_type: tuple
+    solution:
+      - 'Compute the partial derivative with respect to {math(x)}: {equation(partial_of(func, x), fx)}.'
+      - 'Compute the partial derivative with respect to {math(y)}: {equation(partial_of(func, y), fy)}.'
+      - The gradient is {vec([fx, fy])}.

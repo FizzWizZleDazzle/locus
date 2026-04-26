@@ -1,33 +1,30 @@
 topic: algebra1/slope_and_intercept
 difficulty: hard
 calculator: none
-
-variables:
-  m: nonzero(-4, 4)
-  b: nonzero(-8, 8)
-  x1: nonzero(-3, -1)
-  y1: m*x1 + b
-  x2: integer(1, 4)
-  y2: m*x2 + b
-  dy: y2 - y1
-  dx: x2 - x1
-  slope: dy / dx
-  y_int: b
-  x_int: -b / m
-  line_expr: m*x + b
-  answer: x_int
-
-constraints:
-  - m != b
-  - x1 != x2
-
-question: "A line passes through the points {math((x1, y1))} and {math((x2, y2))}. Find the x-intercept of the line."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Find the slope using rise over run. The rise is {dy} and the run is {dx}, so the slope is {slope}."
-  - "Use slope-intercept form {math(y = m*x + b)} with slope {slope} and point {math((x1, y1))}. The y-intercept is {y_int}."
-  - "The equation of the line is {equation(math(y), line_expr)}."
-  - "Set {math(y = 0)} and solve for {math(x)}: {equation(0, line_expr)}, so the x-intercept is {x_int}."
+variants:
+  - name: default
+    variables:
+      m: nonzero(-4, 4)
+      b: nonzero(-8, 8)
+      x1: nonzero(-3, -1)
+      y1: m*x1 + b
+      x2: integer(1, 4)
+      y2: m*x2 + b
+      dy: y2 - y1
+      dx: x2 - x1
+      slope: dy / dx
+      y_int: b
+      x_int: -b / m
+      line_expr: m*x + b
+      answer: x_int
+    constraints:
+      - m != b
+      - x1 != x2
+    question: A line passes through the points {math((x1, y1))} and {math((x2, y2))}. Find the x-intercept of the line.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Find the slope using rise over run. The rise is {dy} and the run is {dx}, so the slope is {slope}.
+      - Use slope-intercept form {math(y = m*x + b)} with slope {slope} and point {math((x1, y1))}. The y-intercept is {y_int}.
+      - The equation of the line is {equation(math(y), line_expr)}.
+      - 'Set {math(y = 0)} and solve for {math(x)}: {equation(0, line_expr)}, so the x-intercept is {x_int}.'

@@ -1,22 +1,22 @@
 topic: linear_algebra/row_reduction
 difficulty: easy
 calculator: none
-
-variables:
-  x_sol: integer(-4, 4)
-  y_sol: integer(-4, 4)
-  a11: nonzero(-3, 3)
-  a12: nonzero(-3, 3)
-  c1: a11*x_sol + a12*y_sol
-  a22: nonzero(-3, 3)
-  c2: a22*y_sol
-  x_ans: x_sol
-  y_ans: y_sol
-
-question: "Use back-substitution on the row-reduced augmented matrix {matrix_of([[a11, a12, c1], [0, a22, c2]])} to find the values of {math(x)} and {math(y)} that satisfy the system."
-answer: x_ans, y_ans
-answer_type: tuple
-solution:
-  - "The second row represents the equation {equation(a22*y, c2)}, giving {equation(y, y_ans)}."
-  - "Substituting {equation(y, y_ans)} into the first row: {equation(a11*x, c1 - a12*y_ans)}, giving {equation(x, x_ans)}."
-  - "The solution is {equation(x, x_ans)} and {equation(y, y_ans)}."
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-4, 4)
+      y_sol: integer(-4, 4)
+      a11: nonzero(-3, 3)
+      a12: nonzero(-3, 3)
+      c1: a11*x_sol + a12*y_sol
+      a22: nonzero(-3, 3)
+      c2: a22*y_sol
+      x_ans: x_sol
+      y_ans: y_sol
+    question: Use back-substitution on the row-reduced augmented matrix {matrix_of([[a11, a12, c1], [0, a22, c2]])} to find the values of {math(x)} and {math(y)} that satisfy the system.
+    answer: x_ans, y_ans
+    answer_type: tuple
+    solution:
+      - The second row represents the equation {equation(a22*y, c2)}, giving {equation(y, y_ans)}.
+      - 'Substituting {equation(y, y_ans)} into the first row: {equation(a11*x, c1 - a12*y_ans)}, giving {equation(x, x_ans)}.'
+      - The solution is {equation(x, x_ans)} and {equation(y, y_ans)}.

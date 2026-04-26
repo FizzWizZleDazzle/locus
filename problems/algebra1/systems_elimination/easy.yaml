@@ -1,34 +1,31 @@
 topic: algebra1/systems_elimination
 difficulty: easy
 calculator: none
-
-variables:
-  x_sol: nonzero(-4, 4)
-  y_sol: nonzero(-4, 4)
-  a1: nonzero(-4, 4)
-  a2: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  neg_b: -b
-  c1: a1*x_sol + b*y_sol
-  c2: a2*x_sol + neg_b*y_sol
-  sum_a: a1 + a2
-  sum_c: c1 + c2
-  lhs_sub: a1*x_sol
-  answer_x: x_sol
-  answer_y: y_sol
-
-constraints:
-  - a1 != a2
-  - a1 != -a2
-
-question: "Solve the system by elimination: {system(equation(a1*x + b*y, c1), equation(a2*x + neg_b*y, c2))}"
-
-answer: answer_x, answer_y
-answer_type: tuple
-
-solution:
-  - "The {math(y)}-coefficients are {b} and {neg_b}, which are opposites. Add the equations to eliminate {math(y)}."
-  - "Adding gives {equation(sum_a*x, sum_c)}, so {equation(math(x), answer_x)}."
-  - "Substitute {equation(math(x), answer_x)} into the first equation: {equation(lhs_sub + b*y, c1)}."
-  - "Solve for {math(y)}: {equation(math(y), answer_y)}."
-  - "The solution is {math(x)} = {answer_x} and {math(y)} = {answer_y}."
+variants:
+  - name: default
+    variables:
+      x_sol: nonzero(-4, 4)
+      y_sol: nonzero(-4, 4)
+      a1: nonzero(-4, 4)
+      a2: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      neg_b: -b
+      c1: a1*x_sol + b*y_sol
+      c2: a2*x_sol + neg_b*y_sol
+      sum_a: a1 + a2
+      sum_c: c1 + c2
+      lhs_sub: a1*x_sol
+      answer_x: x_sol
+      answer_y: y_sol
+    constraints:
+      - a1 != a2
+      - a1 != -a2
+    question: 'Solve the system by elimination: {system(equation(a1*x + b*y, c1), equation(a2*x + neg_b*y, c2))}'
+    answer: answer_x, answer_y
+    answer_type: tuple
+    solution:
+      - The {math(y)}-coefficients are {b} and {neg_b}, which are opposites. Add the equations to eliminate {math(y)}.
+      - Adding gives {equation(sum_a*x, sum_c)}, so {equation(math(x), answer_x)}.
+      - 'Substitute {equation(math(x), answer_x)} into the first equation: {equation(lhs_sub + b*y, c1)}.'
+      - 'Solve for {math(y)}: {equation(math(y), answer_y)}.'
+      - The solution is {math(x)} = {answer_x} and {math(y)} = {answer_y}.

@@ -1,19 +1,16 @@
 topic: geometry/angle_relationships
 difficulty: easy
 calculator: none
-
-variables:
-  angle_a: integer(20, 160)
-  answer: 180 - angle_a
-
-constraints:
-  - angle_a != 90
-
-question: "Two angles are supplementary. One angle measures {angle_a} degrees. What is the measure of the other angle, in degrees?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Supplementary angles sum to 180 degrees."
-  - "Other angle = 180 - {angle_a} = {answer} degrees."
+variants:
+  - name: default
+    variables:
+      angle_a: integer(20, 160)
+      answer: 180 - angle_a
+    constraints:
+      - angle_a != 90
+    question: Two angles are supplementary. One angle measures {angle_a} degrees. What is the measure of the other angle, in degrees?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Supplementary angles sum to 180 degrees.
+      - Other angle = 180 - {angle_a} = {answer} degrees.

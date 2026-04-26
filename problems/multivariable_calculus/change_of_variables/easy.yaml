@@ -1,25 +1,20 @@
 topic: multivariable_calculus/change_of_variables
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: integer(2, 5)
-  b: integer(1, 4)
-  inner: a^2 / 2
-  answer: a^2 * b / 4
-
-question: >
-  Use the substitution {math(u = x + y)}, {math(v = x - y)} to evaluate
-  the double integral of {math(x + y)} over the region {math(R)} in the
-  {math(xy)}-plane bounded by {math(x + y = 0)}, {math(x + y = a)},
-  {math(x - y = 0)}, and {math(x - y = b)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "With {math(u = x + y)} and {math(v = x - y)}, the region {math(R)} maps to the rectangle {math(0 <= u <= a)}, {math(0 <= v <= b)} in the {math(uv)}-plane."
-  - "The Jacobian of the inverse transformation is {math(|J| = 1/2)}, so {math(dA = (1/2) du dv)}."
-  - "Since {math(x + y = u)}, the integral becomes {definite_integral_of(definite_integral_of(u, u, 0, a), v, 0, b)} times {math(1/2)}."
-  - "Evaluate the inner integral {definite_integral_of(u, u, 0, a)} = {inner}."
-  - "Evaluate the outer integral: {math(1/2)} times {inner} times {b} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 5)
+      b: integer(1, 4)
+      inner: a^2 / 2
+      answer: a^2 * b / 4
+    question: |
+      Use the substitution {math(u = x + y)}, {math(v = x - y)} to evaluate the double integral of {math(x + y)} over the region {math(R)} in the {math(xy)}-plane bounded by {math(x + y = 0)}, {math(x + y = a)}, {math(x - y = 0)}, and {math(x - y = b)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - With {math(u = x + y)} and {math(v = x - y)}, the region {math(R)} maps to the rectangle {math(0 <= u <= a)}, {math(0 <= v <= b)} in the {math(uv)}-plane.
+      - The Jacobian of the inverse transformation is {math(|J| = 1/2)}, so {math(dA = (1/2) du dv)}.
+      - Since {math(x + y = u)}, the integral becomes {definite_integral_of(definite_integral_of(u, u, 0, a), v, 0, b)} times {math(1/2)}.
+      - Evaluate the inner integral {definite_integral_of(u, u, 0, a)} = {inner}.
+      - 'Evaluate the outer integral: {math(1/2)} times {inner} times {b} = {answer}.'

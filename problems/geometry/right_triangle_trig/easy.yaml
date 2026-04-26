@@ -1,26 +1,29 @@
 topic: geometry/right_triangle_trig
 difficulty: easy
 calculator: scientific
-
-variables:
-  hyp: choice(4, 6, 8, 10, 12)
-  angle_deg: 30
-  sin_val: sin(pi/6)
-  answer: hyp * sin(pi/6)
-
-question: "In a right triangle, the hypotenuse has length {hyp} and one acute angle measures {angle_deg} degrees. Find the length of the side opposite the {angle_deg}-degree angle."
-
-answer: answer
-answer_type: numeric
-
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  sides: {AB: hyp, BC: answer}
-  angles: {A: angle_deg}
-  right_angle: B
-
-solution:
-  - "Use the sine ratio: opposite = hypotenuse times sin(30 degrees)."
-  - "sin(30 degrees) = {sin_val}."
-  - "opposite = {hyp} times {sin_val} = {answer}."
+variants:
+  - name: default
+    variables:
+      hyp: choice(4, 6, 8, 10, 12)
+      angle_deg: 30
+      sin_val: sin(pi/6)
+      answer: hyp * sin(pi/6)
+    question: In a right triangle, the hypotenuse has length {hyp} and one acute angle measures {angle_deg} degrees. Find the length of the side opposite the {angle_deg}-degree angle.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Use the sine ratio: opposite = hypotenuse times sin(30 degrees).'
+      - sin(30 degrees) = {sin_val}.
+      - opposite = {hyp} times {sin_val} = {answer}.
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      sides:
+        AB: hyp
+        BC: answer
+      angles:
+        A: angle_deg
+      right_angle: B

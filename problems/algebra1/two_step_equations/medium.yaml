@@ -1,24 +1,21 @@
 topic: algebra1/two_step_equations
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-9, 9)
-  answer: nonzero(-8, 8)
-  b: integer(-15, 15)
-  rhs: a * answer + b
-  rhs_minus_b: rhs - b
-
-constraints:
-  - a != 1
-  - a != -1
-
-question: "Solve for {math(x)}: {equation(a*x + b, rhs)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Start with the equation {equation(a*x + b, rhs)}."
-  - "Subtract {b} from both sides: {equation(a*x, rhs_minus_b)}."
-  - "Divide both sides by {a}: {equation(math(x), answer)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-9, 9)
+      answer: nonzero(-8, 8)
+      b: integer(-15, 15)
+      rhs: a * answer + b
+      rhs_minus_b: rhs - b
+    constraints:
+      - a != 1
+      - a != -1
+    question: 'Solve for {math(x)}: {equation(a*x + b, rhs)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Start with the equation {equation(a*x + b, rhs)}.
+      - 'Subtract {b} from both sides: {equation(a*x, rhs_minus_b)}.'
+      - 'Divide both sides by {a}: {equation(math(x), answer)}.'

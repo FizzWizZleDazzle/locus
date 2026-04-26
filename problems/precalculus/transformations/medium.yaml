@@ -1,19 +1,19 @@
 topic: precalculus/transformations
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  h: nonzero(-5, 5)
-  k: nonzero(-6, 6)
-  f: a*(x - h)^2 + k
-  f_expanded: expand(f)
-
-question: "The function {math(g(x) = f_expanded)} is obtained by transforming {math(y = x^2)}. Identify the vertex of {math(g(x))}."
-answer: h, k
-answer_type: tuple
-solution:
-  - "Complete the square to rewrite {math(g(x) = f_expanded)} in vertex form."
-  - "The vertex form is {f}."
-  - "This represents {math(y = x^2)} stretched vertically by a factor of {a}, shifted {h} units horizontally, and {k} units vertically."
-  - "The vertex is ({h}, {k})."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      h: nonzero(-5, 5)
+      k: nonzero(-6, 6)
+      f: a*(x - h)^2 + k
+      f_expanded: expand(f)
+    question: The function {math(g(x) = f_expanded)} is obtained by transforming {math(y = x^2)}. Identify the vertex of {math(g(x))}.
+    answer: h, k
+    answer_type: tuple
+    solution:
+      - Complete the square to rewrite {math(g(x) = f_expanded)} in vertex form.
+      - The vertex form is {f}.
+      - This represents {math(y = x^2)} stretched vertically by a factor of {a}, shifted {h} units horizontally, and {k} units vertically.
+      - The vertex is ({h}, {k}).

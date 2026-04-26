@@ -1,45 +1,51 @@
 topic: linear_algebra/diagonalization
 difficulty: medium
 calculator: scientific
-variables:
-  lam1: integer(-4, 4)
-  lam2: integer(-4, 4)
-  tr: lam1 + lam2
-  det_val: lam1 * lam2
-  neg_det: -det_val
-  mat_a: 0
-  mat_b: 1
-  mat_c: neg_det
-  mat_d: tr
-  char_poly: expand((x - lam1)*(x - lam2))
-  small_lam: min(lam1, lam2)
-  large_lam: max(lam1, lam2)
-constraints:
-  - lam1 != lam2
-question: "Find the eigenvalues of the matrix {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}."
-answer: lam1, lam2
-answer_type: set
-solution:
-  - "Eigenvalues satisfy the characteristic equation, found by computing the determinant of {math(A - x I)} and setting it equal to zero."
-  - "The characteristic polynomial is {equation(char_poly, 0)}."
-  - "The eigenvalues are {lam1} and {lam2}."
-
 variants:
   - name: find_eigenvalues
-    question: "Find the eigenvalues of the matrix {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}."
+    variables:
+      lam1: integer(-4, 4)
+      lam2: integer(-4, 4)
+      tr: lam1 + lam2
+      det_val: lam1 * lam2
+      neg_det: -det_val
+      mat_a: 0
+      mat_b: 1
+      mat_c: neg_det
+      mat_d: tr
+      char_poly: expand((x - lam1)*(x - lam2))
+      small_lam: min(lam1, lam2)
+      large_lam: max(lam1, lam2)
+    constraints:
+      - lam1 != lam2
+    question: Find the eigenvalues of the matrix {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}.
     answer: lam1, lam2
     answer_type: set
     solution:
-      - "Eigenvalues satisfy the characteristic equation, found by computing the determinant of {math(A - x I)} and setting it equal to zero."
-      - "The characteristic polynomial is {equation(char_poly, 0)}."
-      - "Solving gives eigenvalues {lam1} and {lam2}."
-
+      - Eigenvalues satisfy the characteristic equation, found by computing the determinant of {math(A - x I)} and setting it equal to zero.
+      - The characteristic polynomial is {equation(char_poly, 0)}.
+      - Solving gives eigenvalues {lam1} and {lam2}.
   - name: find_diagonal_matrix
-    question: "The matrix {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])} is diagonalizable. Find its diagonal matrix {math(D)}, listing eigenvalues in increasing order."
+    variables:
+      lam1: integer(-4, 4)
+      lam2: integer(-4, 4)
+      tr: lam1 + lam2
+      det_val: lam1 * lam2
+      neg_det: -det_val
+      mat_a: 0
+      mat_b: 1
+      mat_c: neg_det
+      mat_d: tr
+      char_poly: expand((x - lam1)*(x - lam2))
+      small_lam: min(lam1, lam2)
+      large_lam: max(lam1, lam2)
+    constraints:
+      - lam1 != lam2
+    question: The matrix {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])} is diagonalizable. Find its diagonal matrix {math(D)}, listing eigenvalues in increasing order.
     answer: small_lam, large_lam
     answer_type: tuple
     solution:
-      - "Eigenvalues satisfy the characteristic equation, found by computing the determinant of {math(A - x I)} and setting it equal to zero."
-      - "The characteristic polynomial is {equation(char_poly, 0)}, giving eigenvalues {lam1} and {lam2}."
-      - "Since the matrix has two distinct real eigenvalues, it is diagonalizable."
-      - "Ordering from smallest to largest, the diagonal matrix is {matrix_of([[small_lam, 0], [0, large_lam]])}."
+      - Eigenvalues satisfy the characteristic equation, found by computing the determinant of {math(A - x I)} and setting it equal to zero.
+      - The characteristic polynomial is {equation(char_poly, 0)}, giving eigenvalues {lam1} and {lam2}.
+      - Since the matrix has two distinct real eigenvalues, it is diagonalizable.
+      - Ordering from smallest to largest, the diagonal matrix is {matrix_of([[small_lam, 0], [0, large_lam]])}.

@@ -1,31 +1,28 @@
 topic: differential_equations/laplace_transforms
 difficulty: hard
 calculator: scientific
-
-variables:
-  r1: nonzero(-3, 3)
-  r2: nonzero(-3, 3)
-  A: nonzero(-3, 3)
-  B: nonzero(-3, 3)
-  numer: expand(A*(s - r2) + B*(s - r1))
-  denom: expand((s - r1)*(s - r2))
-  numer_at_r1: evaluate(numer, s, r1)
-  numer_at_r2: evaluate(numer, s, r2)
-  diff_r1: r1 - r2
-  diff_r2: r2 - r1
-  answer: A*exp(r1*t) + B*exp(r2*t)
-
-constraints:
-  - r1 != r2
-
-question: "Find the inverse Laplace transform {math(f(t))} of {math(F(s) = numer / denom)} using partial fraction decomposition."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Factor the denominator: {equation(denom, (s - r1)*(s - r2))}, with poles at {math(s)} = {r1} and {math(s)} = {r2}."
-  - "Write {equation(F(s), P / (s - r1) + Q / (s - r2))} for constants {math(P)} and {math(Q)}, then multiply through by {denom} to get {equation(numer, P*(s - r2) + Q*(s - r1))}."
-  - "Cover-up method: set {math(s)} = {r1} to isolate {math(P)}: {equation(numer_at_r1, P*diff_r1)}, so {math(P)} = {A}."
-  - "Set {math(s)} = {r2} to isolate {math(Q)}: {equation(numer_at_r2, Q*diff_r2)}, so {math(Q)} = {B}."
-  - "Apply the inverse Laplace transform using the pair {math(1/(s - a))} maps to {math(e^(a*t))}: {equation(f(t), answer)}."
+variants:
+  - name: default
+    variables:
+      r1: nonzero(-3, 3)
+      r2: nonzero(-3, 3)
+      A: nonzero(-3, 3)
+      B: nonzero(-3, 3)
+      numer: expand(A*(s - r2) + B*(s - r1))
+      denom: expand((s - r1)*(s - r2))
+      numer_at_r1: evaluate(numer, s, r1)
+      numer_at_r2: evaluate(numer, s, r2)
+      diff_r1: r1 - r2
+      diff_r2: r2 - r1
+      answer: A*exp(r1*t) + B*exp(r2*t)
+    constraints:
+      - r1 != r2
+    question: Find the inverse Laplace transform {math(f(t))} of {math(F(s) = numer / denom)} using partial fraction decomposition.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Factor the denominator: {equation(denom, (s - r1)*(s - r2))}, with poles at {math(s)} = {r1} and {math(s)} = {r2}.'
+      - Write {equation(F(s), P / (s - r1) + Q / (s - r2))} for constants {math(P)} and {math(Q)}, then multiply through by {denom} to get {equation(numer, P*(s - r2) + Q*(s - r1))}.
+      - 'Cover-up method: set {math(s)} = {r1} to isolate {math(P)}: {equation(numer_at_r1, P*diff_r1)}, so {math(P)} = {A}.'
+      - 'Set {math(s)} = {r2} to isolate {math(Q)}: {equation(numer_at_r2, Q*diff_r2)}, so {math(Q)} = {B}.'
+      - 'Apply the inverse Laplace transform using the pair {math(1/(s - a))} maps to {math(e^(a*t))}: {equation(f(t), answer)}.'

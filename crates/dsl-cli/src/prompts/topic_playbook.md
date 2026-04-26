@@ -65,7 +65,7 @@ Pure number problems. Pick clean inputs, compute the answer with `compute`. No C
 
 ## geometry/*
 
-Always include a `diagram:` block when the topic is visual.
+Always include a `diagram:` block (inside the variant — never at the top level) when the topic is visual.
 
 - `geometry/triangle_*` / `pythagorean_theorem` / `right_triangle_trig` — `type: triangle` diagram. Pick the answer first; for trig, pick angle from {30, 45, 60} and use `compute` for exact ratios.
 - `geometry/circle_*` / `arc_length_sectors` — `type: circle` diagram. Pick radius and central angle in degrees; convert to radians inside `compute` for arc length.

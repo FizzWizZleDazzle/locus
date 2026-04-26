@@ -1,26 +1,23 @@
 topic: calculus/limits_at_infinity
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-6, 6)
-  c: nonzero(-5, 5)
-  d: nonzero(-6, 6)
-  num: a*x^2 + b
-  den: c*x^2 + d
-  answer: a/c
-
-constraints:
-  - a != c
-
-question: "Evaluate {limit_of(num/den, x, infinity)}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Divide every term in the numerator and denominator by {math(x^2)}, the highest power of {math(x)} present."
-  - "The expression becomes {math((a + b/x^2)/(c + d/x^2))}."
-  - "As {math(x)} grows without bound, the terms {math(b/x^2)} and {math(d/x^2)} both tend to 0."
-  - "The limit reduces to the ratio of leading coefficients: {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-6, 6)
+      c: nonzero(-5, 5)
+      d: nonzero(-6, 6)
+      num: a*x^2 + b
+      den: c*x^2 + d
+      answer: a/c
+    constraints:
+      - a != c
+    question: Evaluate {limit_of(num/den, x, infinity)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Divide every term in the numerator and denominator by {math(x^2)}, the highest power of {math(x)} present.
+      - The expression becomes {math((a + b/x^2)/(c + d/x^2))}.
+      - As {math(x)} grows without bound, the terms {math(b/x^2)} and {math(d/x^2)} both tend to 0.
+      - 'The limit reduces to the ratio of leading coefficients: {answer}.'

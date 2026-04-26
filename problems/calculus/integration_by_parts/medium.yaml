@@ -1,25 +1,23 @@
 topic: calculus/integration_by_parts
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: choice(1, 2, 3)
-  f: x * exp(a*x)
-  dv_part: exp(a*x)
-  lo: 0
-  hi: 1
-  v_ibp: exp(a*x)/a
-  term1: x*exp(a*x)/a
-  term2: exp(a*x)/a^2
-  antideriv: term1 - term2
-  answer: exp(a)*(a-1)/a^2 + 1/a^2
-
-question: "Use integration by parts to evaluate {definite_integral_of(f, x, lo, hi)}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Let {math(u = x)} and {math(dv)} = {dv_part} {math(dx)}, so {math(du = dx)} and {equation(math(v), v_ibp)}."
-  - "The IBP formula gives: antiderivative of {f} = {term1} minus {term2}, which simplifies to {antideriv} + C."
-  - "Evaluating from {lo} to {hi}: the answer is {answer}."
+variants:
+  - name: default
+    variables:
+      a: choice(1, 2, 3)
+      f: x * exp(a*x)
+      dv_part: exp(a*x)
+      lo: 0
+      hi: 1
+      v_ibp: exp(a*x)/a
+      term1: x*exp(a*x)/a
+      term2: exp(a*x)/a^2
+      antideriv: term1 - term2
+      answer: exp(a)*(a-1)/a^2 + 1/a^2
+    question: Use integration by parts to evaluate {definite_integral_of(f, x, lo, hi)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Let {math(u = x)} and {math(dv)} = {dv_part} {math(dx)}, so {math(du = dx)} and {equation(math(v), v_ibp)}.
+      - 'The IBP formula gives: antiderivative of {f} = {term1} minus {term2}, which simplifies to {antideriv} + C.'
+      - 'Evaluating from {lo} to {hi}: the answer is {answer}.'

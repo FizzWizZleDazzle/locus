@@ -1,29 +1,26 @@
 topic: linear_algebra/diagonalization
 difficulty: easy
 calculator: scientific
-
-variables:
-  lam1: nonzero(-4, -1)
-  lam2: integer(1, 4)
-  a: 0
-  b: 1
-  c: -lam1*lam2
-  d: lam1 + lam2
-  tr: a + d
-  det_val: a*d - b*c
-  char_poly: expand((x - lam1)*(x - lam2))
-
-constraints:
-  - lam1 != lam2
-
-question: "Find the eigenvalues of the matrix {matrix_of([[a, b], [c, d]])} by solving its characteristic polynomial. Enter the eigenvalues as a set."
-
-answer: lam1, lam2
-answer_type: set
-
-solution:
-  - "Compute the trace and determinant: trace is {tr}, determinant is {det_val}."
-  - "The characteristic polynomial is {equation(char_poly, 0)}."
-  - "Factoring: {equation((x - lam1)*(x - lam2), 0)}."
-  - "The eigenvalues are {lam1} and {lam2}."
-  - "A 2x2 matrix with two distinct real eigenvalues is always diagonalizable over the reals."
+variants:
+  - name: default
+    variables:
+      lam1: nonzero(-4, -1)
+      lam2: integer(1, 4)
+      a: 0
+      b: 1
+      c: -lam1*lam2
+      d: lam1 + lam2
+      tr: a + d
+      det_val: a*d - b*c
+      char_poly: expand((x - lam1)*(x - lam2))
+    constraints:
+      - lam1 != lam2
+    question: Find the eigenvalues of the matrix {matrix_of([[a, b], [c, d]])} by solving its characteristic polynomial. Enter the eigenvalues as a set.
+    answer: lam1, lam2
+    answer_type: set
+    solution:
+      - 'Compute the trace and determinant: trace is {tr}, determinant is {det_val}.'
+      - The characteristic polynomial is {equation(char_poly, 0)}.
+      - 'Factoring: {equation((x - lam1)*(x - lam2), 0)}.'
+      - The eigenvalues are {lam1} and {lam2}.
+      - A 2x2 matrix with two distinct real eigenvalues is always diagonalizable over the reals.

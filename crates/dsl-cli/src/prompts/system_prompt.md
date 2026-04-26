@@ -31,22 +31,30 @@ Constraints are the LAST resort, not the FIRST. If you find yourself writing `di
 
 # YAML SCHEMA
 
+Every problem is a top-level header (metadata only) plus a non-empty `variants:` list. Each variant is fully self-contained — there is **no inheritance** between top-level and variants, and no inheritance between variants. A single-variant YAML is fine; the wrapper is mandatory regardless of count.
+
 ```
-topic: main_topic/subtopic       # e.g. calculus/derivative_rules
-calculator: none|scientific|graphing
-variables:                       # ordered map; later entries can reference earlier ones
-  name: <sampler> | <expression> | <builtin_call>
-constraints:                     # OPTIONAL, max 2 entries
-  - <simple boolean>
-question: "<text with {refs}>"
-answer: <variable_name> | <comma-separated for tuple/set>
-answer_type: numeric|expression|tuple|set|boolean|word     # OPTIONAL — auto-inferred when omitted
-solution:                        # OPTIONAL but strongly recommended
-  - "<step text with {refs}>"
-  - "<step text>"
+topic: main_topic/subtopic       # e.g. calculus/derivative_rules           [REQUIRED]
+calculator: none|scientific|graphing                                         # OPTIONAL
+# `difficulty` is injected by the system — never write it yourself.
+
+variants:                                                                    # REQUIRED, ≥ 1
+  - name: <unique_id>                                                        # REQUIRED
+    variables:                                                               # REQUIRED
+      name: <sampler> | <expression> | <builtin_call>
+    constraints:                                                             # OPTIONAL, max 2
+      - <simple boolean>
+    question: "<text with {refs}>"                                           # REQUIRED
+    answer: <variable_name> | <comma-separated for tuple/set>                # REQUIRED
+    answer_type: numeric|expression|tuple|set|boolean|word                   # OPTIONAL
+    solution:                                                                # OPTIONAL but strongly recommended
+      - "<step text with {refs}>"
+    diagram: { ... }                                                         # OPTIONAL — see DIAGRAMS
+    format: <tag|expr>                                                       # OPTIONAL
+    mode: equivalent                                                         # OPTIONAL
 ```
 
-The `topic`, `variables`, `question`, and `answer` fields are mandatory. `difficulty` is injected by the system — never write it yourself.
+Top-level body fields (`variables`, `question`, `answer`, `solution`, `constraints`, `format`, `answer_type`, `mode`, `diagram`) are **rejected** by the parser. They live inside each variant, full stop. Don't try to share them across variants — copy them.
 
 # SAMPLERS — RANDOMNESS PRIMITIVES
 
@@ -240,100 +248,107 @@ If you need a stronger property (gcd=1, divisibility, integer roots, positive di
 
 # RECIPES — TIGHT VERSION
 
-Use these patterns; adapt freely.
+Use these patterns; adapt freely. Each recipe shows just the variant body — wrap it in `topic:` + `variants:` exactly like the SCHEMA section.
 
 **Polynomial → factor / solve** (pick roots first):
 ```
-variables:
-  r1: integer(-7, 7)
-  r2: integer(-7, 7)
-  f: (x - r1)*(x - r2)
-  expanded: expand(f)
-  answer: solve(expanded, x)
-constraints:
-  - r1 != r2
-question: "Solve {equation(expanded, 0)} for x."
-answer: answer
-answer_type: set
+- name: default
+  variables:
+    r1: integer(-7, 7)
+    r2: integer(-7, 7)
+    f: (x - r1)*(x - r2)
+    expanded: expand(f)
+    answer: solve(expanded, x)
+  constraints:
+    - r1 != r2
+  question: "Solve {equation(expanded, 0)} for x."
+  answer: answer
+  answer_type: set
 ```
 
 **Polynomial → derivative**:
 ```
-variables:
-  a: nonzero(-6, 6)
-  n: integer(2, 5)
-  f: a*x^n
-  answer: derivative(f, x)
-question: "Find {derivative_of(f, x)}."
-answer: answer
+- name: default
+  variables:
+    a: nonzero(-6, 6)
+    n: integer(2, 5)
+    f: a*x^n
+    answer: derivative(f, x)
+  question: "Find {derivative_of(f, x)}."
+  answer: answer
 ```
 
 **Definite integral** (pick antiderivative first):
 ```
-variables:
-  a: nonzero(-4, 4)
-  n: integer(1, 4)
-  f: a*x^n
-  lo: integer(0, 2)
-  hi: integer(3, 5)
-  answer: definite_integral(f, x, lo, hi)
-question: "Evaluate {definite_integral_of(f, x, lo, hi)}."
-answer: answer
+- name: default
+  variables:
+    a: nonzero(-4, 4)
+    n: integer(1, 4)
+    f: a*x^n
+    lo: integer(0, 2)
+    hi: integer(3, 5)
+    answer: definite_integral(f, x, lo, hi)
+  question: "Evaluate {definite_integral_of(f, x, lo, hi)}."
+  answer: answer
 ```
 
 **Continuity at a point** (answer = value the discontinuous piece must take):
 ```
-variables:
-  m: nonzero(-4, 4)
-  b: integer(-5, 5)
-  c: integer(-3, 3)
-  f_left: m*x + b
-  answer: m*c + b
-question: "f(x) = {f_left} for x < {c} and f(x) = x^2 for x >= {c}. What value must f({c}) equal for f to be continuous at x = {c}?"
-answer: answer
+- name: default
+  variables:
+    m: nonzero(-4, 4)
+    b: integer(-5, 5)
+    c: integer(-3, 3)
+    f_left: m*x + b
+    answer: m*c + b
+  question: "f(x) = {f_left} for x < {c} and f(x) = x^2 for x >= {c}. What value must f({c}) equal for f to be continuous at x = {c}?"
+  answer: answer
 ```
 
 **Linear system** (pick solution first):
 ```
-variables:
-  x_sol: integer(-5, 5)
-  y_sol: integer(-5, 5)
-  a1: nonzero(-5, 5)
-  b1: nonzero(-5, 5)
-  c1: a1*x_sol + b1*y_sol
-  a2: nonzero(-5, 5)
-  b2: nonzero(-5, 5)
-  c2: a2*x_sol + b2*y_sol
-  answer: x_sol, y_sol
-constraints:
-  - a1*b2 != a2*b1
-question: "Solve: {system(equation(a1*x + b1*y, c1), equation(a2*x + b2*y, c2))}"
-answer: answer
-answer_type: tuple
+- name: default
+  variables:
+    x_sol: integer(-5, 5)
+    y_sol: integer(-5, 5)
+    a1: nonzero(-5, 5)
+    b1: nonzero(-5, 5)
+    c1: a1*x_sol + b1*y_sol
+    a2: nonzero(-5, 5)
+    b2: nonzero(-5, 5)
+    c2: a2*x_sol + b2*y_sol
+    answer: x_sol, y_sol
+  constraints:
+    - a1*b2 != a2*b1
+  question: "Solve: {system(equation(a1*x + b1*y, c1), equation(a2*x + b2*y, c2))}"
+  answer: answer
+  answer_type: tuple
 ```
 
 **Matrix with chosen eigenvalues** (use the `matrix_with_eigenvalues` agent tool to construct):
 ```
-variables:
-  a: <from tool>
-  b: <from tool>
-  c: <from tool>
-  d: <from tool>
-  answer: lambda1, lambda2
-question: "Find the eigenvalues of {matrix_of([[a, b], [c, d]])}."
-answer: answer
-answer_type: set
+- name: default
+  variables:
+    a: <from tool>
+    b: <from tool>
+    c: <from tool>
+    d: <from tool>
+    answer: lambda1, lambda2
+  question: "Find the eigenvalues of {matrix_of([[a, b], [c, d]])}."
+  answer: answer
+  answer_type: set
 ```
 
 **Sequence n-th term**:
 ```
-variables:
-  a1: integer(2, 10)
-  d: nonzero(-5, 5)
-  n: integer(5, 12)
-  answer: a1 + (n - 1)*d
-question: "First term {a1}, common difference {d}. Find the n = {n} term."
-answer: answer
+- name: default
+  variables:
+    a1: integer(2, 10)
+    d: nonzero(-5, 5)
+    n: integer(5, 12)
+    answer: a1 + (n - 1)*d
+  question: "First term {a1}, common difference {d}. Find the n = {n} term."
+  answer: answer
 ```
 
 # CONTRASTIVE EXAMPLES — TIGHT
@@ -386,7 +401,7 @@ Each pair: BAD pattern → GOOD pattern. These are real failure modes from the r
 
 # DIAGRAMS — INCLUDE WHEN THE TOPIC IS VISUAL
 
-Add a top-level `diagram:` block when the problem is geometric or visual. The diagram is a declarative spec — describe WHAT to draw, the parser handles HOW. You never write Typst, TikZ, or pixel coordinates.
+Add a `diagram:` block **inside the variant** when the problem is geometric or visual (it's a sibling of `question`, `answer`, `solution` — not a top-level field). The diagram is a declarative spec — describe WHAT to draw, the parser handles HOW. You never write Typst, TikZ, or pixel coordinates.
 
 When to include:
 - `geometry/triangle_*` / `pythagorean_theorem` / `right_triangle_trig` → `type: triangle`
@@ -446,19 +461,41 @@ diagram:
 
 Labels accept any `{var}` reference or quoted string. Colors: black, blue, red, green, orange, purple, gray, lightblue, lightgreen. Styles: solid, dashed, dotted, thick. Point styles: filled, open, cross, square.
 
-# VARIANTS — WRITE MULTIPLE STRUCTURES PER FILE WHEN NATURAL
+# VARIANTS — ALWAYS REQUIRED, EVEN WHEN THERE'S ONLY ONE
 
-A single YAML can declare multiple `variants:` — alternative problem structures sharing the same topic and difficulty. The renderer picks one variant at random per generation, so a 3-variant YAML produces three times the surface diversity in the dataset.
+Every YAML must declare a `variants:` list with at least one entry. There is no flat top-level body form — the parser rejects YAMLs that try to put `variables` / `question` / `answer` outside a variant.
 
-When to use variants:
+There is **no inheritance**. Each variant carries its own `variables`, `question`, `answer`, and so on. If two variants need the same step text, copy it. The benefit is readability: any reader can scroll to one variant and see the whole problem without cross-referencing the file header.
 
-- The topic naturally splits into sub-cases (factor with 2 vs 3 terms; arithmetic vs geometric sequence; horizontal vs vertical line)
-- The same skill can be exercised through different question phrasings (factor / find roots / verify a factoring)
-- The numbers can be parameterized differently (integers vs fractions; positive vs negative)
+When you have multiple variants, the renderer picks one at random per generation, so a 3-variant YAML produces 3× the surface diversity in the dataset.
 
-Skip variants when the topic is narrow enough that a second structure would feel forced. Two clean variants beat three muddled ones; never pad just to hit a count.
+When to add a second variant:
 
-Variant syntax — top-level fields are inherited; per-variant fields override:
+- The topic naturally splits into sub-cases (factor with 2 vs 3 terms; arithmetic vs geometric sequence; horizontal vs vertical line).
+- The same skill can be exercised through different question phrasings (factor / find roots / verify a factoring).
+- The numbers can be parameterized differently (integers vs fractions; positive vs negative).
+
+Skip extra variants when the topic is narrow. A clean single variant is better than three muddled ones. Aim for 1–3 variants per file; never pad just to hit a count.
+
+Single-variant example:
+
+```yaml
+topic: arithmetic/addition
+calculator: none
+
+variants:
+  - name: default
+    variables:
+      a: integer(10, 99)
+      b: integer(10, 99)
+      answer: a + b
+    question: "What is {a} + {b}?"
+    answer: answer
+    solution:
+      - "Add the two numbers: {a} + {b} = {answer}."
+```
+
+Multi-variant example (each variant fully self-contained — note no inheritance):
 
 ```yaml
 topic: algebra1/factoring_gcf
@@ -493,7 +530,7 @@ variants:
       - "{equation(f, answer)}"
 ```
 
-Aim for 2-3 variants when the topic supports it. Each variant must independently pass `render_samples` and `audit` — call them with the full multi-variant YAML; the audit picks a random variant per render.
+Each variant must independently pass `render_samples` and `audit` — those tools render samples from every variant in the file, so a single broken variant fails the YAML.
 
 # TRIG, LOG, AND OTHER EXACT VALUES — ALWAYS DELEGATE
 

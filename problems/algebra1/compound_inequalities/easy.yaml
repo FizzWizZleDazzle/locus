@@ -1,31 +1,39 @@
 topic: algebra1/compound_inequalities
 difficulty: easy
 calculator: none
-
-variables:
-  a: choice(2, 3, 4, 5)
-  b: integer(-5, 5)
-  x_lo: integer(-4, 0)
-  x_hi: integer(1, 5)
-  lo: a*x_lo + b
-  hi: a*x_hi + b
-  mid_lo: lo - b
-  mid_hi: hi - b
-
-question: "Solve the compound inequality: {math(lo <= a*x + b)} and {math(a*x + b <= hi)}."
-answer: x_lo, x_hi
-answer_type: tuple
-
-solution:
-  - "Write as a three-part inequality: {math(lo <= a*x + b <= hi)}."
-  - "Subtract {b} from all three parts: {math(mid_lo <= a*x <= mid_hi)}."
-  - "Divide all three parts by {a}: {math(x_lo <= x <= x_hi)}."
-  - "The solution is {math(x_lo <= x <= x_hi)}."
-
-diagram:
-  type: number_line
-  range: [-6, 7]
-  elements:
-    - point: {at: x_lo, style: filled}
-    - point: {at: x_hi, style: filled}
-    - arrow: {from: x_lo, to: x_hi, direction: right, color: blue}
+variants:
+  - name: default
+    variables:
+      a: choice(2, 3, 4, 5)
+      b: integer(-5, 5)
+      x_lo: integer(-4, 0)
+      x_hi: integer(1, 5)
+      lo: a*x_lo + b
+      hi: a*x_hi + b
+      mid_lo: lo - b
+      mid_hi: hi - b
+    question: 'Solve the compound inequality: {math(lo <= a*x + b)} and {math(a*x + b <= hi)}.'
+    answer: x_lo, x_hi
+    answer_type: tuple
+    solution:
+      - 'Write as a three-part inequality: {math(lo <= a*x + b <= hi)}.'
+      - 'Subtract {b} from all three parts: {math(mid_lo <= a*x <= mid_hi)}.'
+      - 'Divide all three parts by {a}: {math(x_lo <= x <= x_hi)}.'
+      - The solution is {math(x_lo <= x <= x_hi)}.
+    diagram:
+      type: number_line
+      range:
+        - -6
+        - 7
+      elements:
+        - point:
+            at: x_lo
+            style: filled
+        - point:
+            at: x_hi
+            style: filled
+        - arrow:
+            from: x_lo
+            to: x_hi
+            direction: right
+            color: blue

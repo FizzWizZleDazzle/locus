@@ -1,24 +1,22 @@
 topic: geometry/surface_area
 difficulty: easy
 calculator: scientific
-
-variables:
-  l: integer(2, 10)
-  w: integer(2, 10)
-  h: integer(2, 10)
-  lw: l * w
-  wh: w * h
-  lh: l * h
-  sum_faces: lw + wh + lh
-  answer: 2 * sum_faces
-
-question: "Find the total surface area of a rectangular prism with length {l}, width {w}, and height {h}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The surface area formula for a rectangular prism is SA = 2(lw + wh + lh)."
-  - "Compute each pair of opposite faces: the l-w faces have area {lw}, the w-h faces have area {wh}, and the l-h faces have area {lh}."
-  - "Sum of the three distinct face areas: {lw} + {wh} + {lh} = {sum_faces}."
-  - "Total surface area: 2 x {sum_faces} = {answer}."
+variants:
+  - name: default
+    variables:
+      l: integer(2, 10)
+      w: integer(2, 10)
+      h: integer(2, 10)
+      lw: l * w
+      wh: w * h
+      lh: l * h
+      sum_faces: lw + wh + lh
+      answer: 2 * sum_faces
+    question: Find the total surface area of a rectangular prism with length {l}, width {w}, and height {h}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The surface area formula for a rectangular prism is SA = 2(lw + wh + lh).
+      - 'Compute each pair of opposite faces: the l-w faces have area {lw}, the w-h faces have area {wh}, and the l-h faces have area {lh}.'
+      - 'Sum of the three distinct face areas: {lw} + {wh} + {lh} = {sum_faces}.'
+      - 'Total surface area: 2 x {sum_faces} = {answer}.'

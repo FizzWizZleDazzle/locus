@@ -1,35 +1,33 @@
 topic: linear_algebra/determinants
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: integer(-4, 4)
-  e: nonzero(-4, 4)
-  f: integer(-4, 4)
-  g: integer(-4, 4)
-  h: integer(-4, 4)
-  k: nonzero(-4, 4)
-  minor00: e*k - f*h
-  minor01: d*k - f*g
-  minor02: d*h - e*g
-  contrib0: a*minor00
-  contrib1: b*minor01
-  contrib2: c*minor02
-  det: a*(e*k - f*h) - b*(d*k - f*g) + c*(d*h - e*g)
-
-question: "Compute the determinant of the matrix {matrix_of([[a, b, c], [d, e, f], [g, h, k]])}."
-
-answer: det
-answer_type: numeric
-
-solution:
-  - "Expand along the first row using cofactor expansion."
-  - "Compute the three 2x2 minors obtained by deleting the first row and each column in turn."
-  - "Column 1 minor: {det_of([[e, f], [h, k]])} = {minor00}"
-  - "Column 2 minor: {det_of([[d, f], [g, k]])} = {minor01}"
-  - "Column 3 minor: {det_of([[d, e], [g, h]])} = {minor02}"
-  - "Apply the checkerboard sign pattern (+, -, +) and multiply by the first-row entries."
-  - "det = {a}({minor00}) - {b}({minor01}) + {c}({minor02}) = {contrib0} - {contrib1} + {contrib2} = {det}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: integer(-4, 4)
+      c: integer(-4, 4)
+      d: integer(-4, 4)
+      e: nonzero(-4, 4)
+      f: integer(-4, 4)
+      g: integer(-4, 4)
+      h: integer(-4, 4)
+      k: nonzero(-4, 4)
+      minor00: e*k - f*h
+      minor01: d*k - f*g
+      minor02: d*h - e*g
+      contrib0: a*minor00
+      contrib1: b*minor01
+      contrib2: c*minor02
+      det: a*(e*k - f*h) - b*(d*k - f*g) + c*(d*h - e*g)
+    question: Compute the determinant of the matrix {matrix_of([[a, b, c], [d, e, f], [g, h, k]])}.
+    answer: det
+    answer_type: numeric
+    solution:
+      - Expand along the first row using cofactor expansion.
+      - Compute the three 2x2 minors obtained by deleting the first row and each column in turn.
+      - 'Column 1 minor: {det_of([[e, f], [h, k]])} = {minor00}'
+      - 'Column 2 minor: {det_of([[d, f], [g, k]])} = {minor01}'
+      - 'Column 3 minor: {det_of([[d, e], [g, h]])} = {minor02}'
+      - Apply the checkerboard sign pattern (+, -, +) and multiply by the first-row entries.
+      - det = {a}({minor00}) - {b}({minor01}) + {c}({minor02}) = {contrib0} - {contrib1} + {contrib2} = {det}

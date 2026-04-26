@@ -1,25 +1,23 @@
 topic: differential_equations/homogeneous_equations
 difficulty: hard
 calculator: none
-
-variables:
-  b: nonzero(1, 4)
-  C_val: b
-  answer: b*x^2 - b*x
-  rhs_simple: 2*y/x + b
-  rhs_full: (2*y + b*x)/x
-
-question: "Solve the initial value problem {equation(derivative_of(y, x), rhs_full)}, with initial condition {math(y(1) = 0)}, using the substitution {math(v = y/x)}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "The right side is {rhs_simple}, which depends only on {math(y/x)}, so the equation is homogeneous."
-  - "Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}."
-  - "Substitute: {math(v + x*(dv/dx) = 2*v + b)}, simplifying to {math(x*(dv/dx) = v + b)}."
-  - "Separate: {math((1/(v + b))*dv = (1/x)*dx)}."
-  - "Integrate: {math(ln(v + b) = ln(x) + K)}, so {math(v + b = C*x)}."
-  - "Substitute back {math(v = y/x)}: {math(y/x + b = C*x)}, giving {math(y = C*x^2 - b*x)}."
-  - "Apply {math(y(1) = 0)}: {math(C - b = 0)}, so {equation(C, C_val)}."
-  - "The particular solution is {equation(y, answer)}."
+variants:
+  - name: default
+    variables:
+      b: nonzero(1, 4)
+      C_val: b
+      answer: b*x^2 - b*x
+      rhs_simple: 2*y/x + b
+      rhs_full: (2*y + b*x)/x
+    question: Solve the initial value problem {equation(derivative_of(y, x), rhs_full)}, with initial condition {math(y(1) = 0)}, using the substitution {math(v = y/x)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - The right side is {rhs_simple}, which depends only on {math(y/x)}, so the equation is homogeneous.
+      - Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}.
+      - 'Substitute: {math(v + x*(dv/dx) = 2*v + b)}, simplifying to {math(x*(dv/dx) = v + b)}.'
+      - 'Separate: {math((1/(v + b))*dv = (1/x)*dx)}.'
+      - 'Integrate: {math(ln(v + b) = ln(x) + K)}, so {math(v + b = C*x)}.'
+      - 'Substitute back {math(v = y/x)}: {math(y/x + b = C*x)}, giving {math(y = C*x^2 - b*x)}.'
+      - 'Apply {math(y(1) = 0)}: {math(C - b = 0)}, so {equation(C, C_val)}.'
+      - The particular solution is {equation(y, answer)}.

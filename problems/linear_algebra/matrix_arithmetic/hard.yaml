@@ -1,49 +1,36 @@
 topic: linear_algebra/matrix_arithmetic
 difficulty: hard
 calculator: scientific
-
-variables:
-  # Scalar multipliers
-  p: nonzero(-3, 3)
-  q: nonzero(-3, 3)
-
-  # Matrix A entries (2x2)
-  a11: nonzero(-4, 4)
-  a12: nonzero(-4, 4)
-  a21: nonzero(-4, 4)
-  a22: nonzero(-4, 4)
-
-  # Matrix B entries (2x2)
-  b11: nonzero(-4, 4)
-  b12: nonzero(-4, 4)
-  b21: nonzero(-4, 4)
-  b22: nonzero(-4, 4)
-
-  # Scaled A entries: p*A
-  pa11: p*a11
-  pa12: p*a12
-  pa21: p*a21
-  pa22: p*a22
-
-  # Scaled B entries: q*B
-  qb11: q*b11
-  qb12: q*b12
-  qb21: q*b21
-  qb22: q*b22
-
-  # Result entries: p*A + q*B
-  r11: p*a11 + q*b11
-  r12: p*a12 + q*b12
-  r21: p*a21 + q*b21
-  r22: p*a22 + q*b22
-
-question: "Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}."
-
-answer: r11, r12, r21, r22
-answer_type: tuple
-
-solution:
-  - "Scale {math(A)} by {p} to get {equation(math(p*A), matrix_of([[pa11, pa12], [pa21, pa22]]))}."
-  - "Scale {math(B)} by {q} to get {equation(math(q*B), matrix_of([[qb11, qb12], [qb21, qb22]]))}."
-  - "Add the two scaled matrices entry-wise."
-  - "The result is {matrix_of([[r11, r12], [r21, r22]])}."
+variants:
+  - name: default
+    variables:
+      p: nonzero(-3, 3)
+      q: nonzero(-3, 3)
+      a11: nonzero(-4, 4)
+      a12: nonzero(-4, 4)
+      a21: nonzero(-4, 4)
+      a22: nonzero(-4, 4)
+      b11: nonzero(-4, 4)
+      b12: nonzero(-4, 4)
+      b21: nonzero(-4, 4)
+      b22: nonzero(-4, 4)
+      pa11: p*a11
+      pa12: p*a12
+      pa21: p*a21
+      pa22: p*a22
+      qb11: q*b11
+      qb12: q*b12
+      qb21: q*b21
+      qb22: q*b22
+      r11: p*a11 + q*b11
+      r12: p*a12 + q*b12
+      r21: p*a21 + q*b21
+      r22: p*a22 + q*b22
+    question: Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}.
+    answer: r11, r12, r21, r22
+    answer_type: tuple
+    solution:
+      - Scale {math(A)} by {p} to get {equation(math(p*A), matrix_of([[pa11, pa12], [pa21, pa22]]))}.
+      - Scale {math(B)} by {q} to get {equation(math(q*B), matrix_of([[qb11, qb12], [qb21, qb22]]))}.
+      - Add the two scaled matrices entry-wise.
+      - The result is {matrix_of([[r11, r12], [r21, r22]])}.

@@ -1,27 +1,25 @@
 topic: linear_algebra/linear_independence
 difficulty: hard
 calculator: scientific
-
-variables:
-  a1: nonzero(-3, 3)
-  a2: nonzero(-3, 3)
-  a3: nonzero(-3, 3)
-  b1: nonzero(-3, 3)
-  b2: nonzero(-3, 3)
-  b3: nonzero(-3, 3)
-  k1: nonzero(-3, 3)
-  k2: nonzero(-3, 3)
-  c1: k1*a1 + k2*b1
-  c2: k1*a2 + k2*b2
-  c3: k1*a3 + k2*b3
-
-question: "Are the three vectors {vec([a1, a2, a3])}, {vec([b1, b2, b3])}, and {vec([c1, c2, c3])} in {math(R^3)} linearly independent? Answer true or false."
-
-answer: "false"
-answer_type: boolean
-
-solution:
-  - "Three vectors are linearly independent if and only if the determinant of the matrix they form is nonzero."
-  - "Notice the third vector is constructed as {math(k_1)} times the first plus {math(k_2)} times the second, with {math(k_1)} = {k1} and {math(k_2)} = {k2}."
-  - "Therefore the three vectors are linearly dependent."
-  - "The answer is false."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-3, 3)
+      a2: nonzero(-3, 3)
+      a3: nonzero(-3, 3)
+      b1: nonzero(-3, 3)
+      b2: nonzero(-3, 3)
+      b3: nonzero(-3, 3)
+      k1: nonzero(-3, 3)
+      k2: nonzero(-3, 3)
+      c1: k1*a1 + k2*b1
+      c2: k1*a2 + k2*b2
+      c3: k1*a3 + k2*b3
+    question: Are the three vectors {vec([a1, a2, a3])}, {vec([b1, b2, b3])}, and {vec([c1, c2, c3])} in {math(R^3)} linearly independent? Answer true or false.
+    answer: 'false'
+    answer_type: boolean
+    solution:
+      - Three vectors are linearly independent if and only if the determinant of the matrix they form is nonzero.
+      - Notice the third vector is constructed as {math(k_1)} times the first plus {math(k_2)} times the second, with {math(k_1)} = {k1} and {math(k_2)} = {k2}.
+      - Therefore the three vectors are linearly dependent.
+      - The answer is false.

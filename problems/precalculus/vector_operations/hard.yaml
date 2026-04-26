@@ -1,29 +1,27 @@
 topic: precalculus/vector_operations
 difficulty: hard
 calculator: scientific
-
-variables:
-  a1: nonzero(-5, 5)
-  a2: nonzero(-5, 5)
-  a3: nonzero(-5, 5)
-  b1: nonzero(-5, 5)
-  b2: nonzero(-5, 5)
-  b3: nonzero(-5, 5)
-  dot_val: a1*b1 + a2*b2 + a3*b3
-  a_mag_sq: a1*a1 + a2*a2 + a3*a3
-  b_mag_sq: b1*b1 + b2*b2 + b3*b3
-  a_mag: sqrt(a_mag_sq)
-  b_mag: sqrt(b_mag_sq)
-  cos_angle: dot_val/(a_mag*b_mag)
-  answer: cos_angle
-
-question: "Find the cosine of the angle between the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Use the dot product formula: {math(cos(theta) = (a . b)/(|a|*|b|))}."
-  - "Compute the dot product: {equation(a1*b1 + a2*b2 + a3*b3, dot_val)}."
-  - "Compute the squared magnitudes: {equation(a_mag_sq, a_mag_sq)} and {equation(b_mag_sq, b_mag_sq)}."
-  - "Therefore the cosine of the angle is {answer}."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-5, 5)
+      a2: nonzero(-5, 5)
+      a3: nonzero(-5, 5)
+      b1: nonzero(-5, 5)
+      b2: nonzero(-5, 5)
+      b3: nonzero(-5, 5)
+      dot_val: a1*b1 + a2*b2 + a3*b3
+      a_mag_sq: a1*a1 + a2*a2 + a3*a3
+      b_mag_sq: b1*b1 + b2*b2 + b3*b3
+      a_mag: sqrt(a_mag_sq)
+      b_mag: sqrt(b_mag_sq)
+      cos_angle: dot_val/(a_mag*b_mag)
+      answer: cos_angle
+    question: Find the cosine of the angle between the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Use the dot product formula: {math(cos(theta) = (a . b)/(|a|*|b|))}.'
+      - 'Compute the dot product: {equation(a1*b1 + a2*b2 + a3*b3, dot_val)}.'
+      - 'Compute the squared magnitudes: {equation(a_mag_sq, a_mag_sq)} and {equation(b_mag_sq, b_mag_sq)}.'
+      - Therefore the cosine of the angle is {answer}.

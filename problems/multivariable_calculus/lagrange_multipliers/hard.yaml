@@ -1,34 +1,30 @@
 topic: multivariable_calculus/lagrange_multipliers
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: integer(2, 5)
-  b: integer(1, 3)
-  t: integer(1, 3)
-  xs: a*t
-  ys: b*t
-  c: a*t + b*b*t
-  f_expr: x^2 + a*y^2
-  g_expr: x + b*y
-  opt_val: a^2*t^2 + a*b^2*t^2
-  fx_partial: 2*x
-  fy_partial: 2*a*y
-  x_rel: a*y/b
-  lhs_sub: a/b*y + b*y
-  bc: b*c
-
-question: >
-  Use Lagrange multipliers to find the minimum value of
-  {math(f(x,y))} = {f_expr} subject to the constraint
-  {equation(g_expr, c)}.
-
-answer: opt_val
-answer_type: numeric
-
-solution:
-  - "Set up the Lagrange system: {partial_of(f_expr, x)} = {math(lambda)} {partial_of(g_expr, x)} and {partial_of(f_expr, y)} = {math(lambda)} {partial_of(g_expr, y)}."
-  - "Computing partial derivatives: {equation(fx_partial, lambda)} and {equation(fy_partial, b*lambda)}."
-  - "From the first equation, {math(lambda = 2x)}. Substituting into the second gives {equation(fy_partial, 2*b*x)}, so {equation(math(x), x_rel)}."
-  - "Substituting {equation(math(x), x_rel)} into the constraint {equation(g_expr, c)} gives {math(y*(a + b^2)/b = c)}, so {equation(math(y), ys)} and {equation(math(x), xs)}."
-  - "The minimum value is {math(f(xs, ys))} = {opt_val}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 5)
+      b: integer(1, 3)
+      t: integer(1, 3)
+      xs: a*t
+      ys: b*t
+      c: a*t + b*b*t
+      f_expr: x^2 + a*y^2
+      g_expr: x + b*y
+      opt_val: a^2*t^2 + a*b^2*t^2
+      fx_partial: 2*x
+      fy_partial: 2*a*y
+      x_rel: a*y/b
+      lhs_sub: a/b*y + b*y
+      bc: b*c
+    question: |
+      Use Lagrange multipliers to find the minimum value of {math(f(x,y))} = {f_expr} subject to the constraint {equation(g_expr, c)}.
+    answer: opt_val
+    answer_type: numeric
+    solution:
+      - 'Set up the Lagrange system: {partial_of(f_expr, x)} = {math(lambda)} {partial_of(g_expr, x)} and {partial_of(f_expr, y)} = {math(lambda)} {partial_of(g_expr, y)}.'
+      - 'Computing partial derivatives: {equation(fx_partial, lambda)} and {equation(fy_partial, b*lambda)}.'
+      - From the first equation, {math(lambda = 2x)}. Substituting into the second gives {equation(fy_partial, 2*b*x)}, so {equation(math(x), x_rel)}.
+      - Substituting {equation(math(x), x_rel)} into the constraint {equation(g_expr, c)} gives {math(y*(a + b^2)/b = c)}, so {equation(math(y), ys)} and {equation(math(x), xs)}.
+      - The minimum value is {math(f(xs, ys))} = {opt_val}.

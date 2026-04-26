@@ -1,22 +1,21 @@
 topic: algebra2/rational_expressions
 difficulty: medium
 calculator: none
-
-variables:
-  r1: integer(2, 6)
-  r2: integer(-6, -1)
-  numer: expand((x - r1)*(x - r2))
-  denom: x - r1
-  factor1: x - r1
-  factor2: x - r2
-  answer: x - r2
-
-question: "Simplify the rational expression {math(numer / denom)} (assume {math(x != r1)})."
-answer: answer
-answer_type: expression
-
-solution:
-  - "Factor the numerator {numer} as {math(factor1 * factor2)}."
-  - "Rewrite: {math(numer / denom)} = {math(factor1 * factor2 / denom)}."
-  - "Cancel the common factor {math(factor1)} from numerator and denominator."
-  - "The simplified result is {answer}."
+variants:
+  - name: default
+    variables:
+      r1: integer(2, 6)
+      r2: integer(-6, -1)
+      numer: expand((x - r1)*(x - r2))
+      denom: x - r1
+      factor1: x - r1
+      factor2: x - r2
+      answer: x - r2
+    question: Simplify the rational expression {math(numer / denom)} (assume {math(x != r1)}).
+    answer: answer
+    answer_type: expression
+    solution:
+      - Factor the numerator {numer} as {math(factor1 * factor2)}.
+      - 'Rewrite: {math(numer / denom)} = {math(factor1 * factor2 / denom)}.'
+      - Cancel the common factor {math(factor1)} from numerator and denominator.
+      - The simplified result is {answer}.

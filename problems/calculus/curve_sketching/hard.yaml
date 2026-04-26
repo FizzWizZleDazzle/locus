@@ -1,29 +1,27 @@
 topic: calculus/curve_sketching
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: nonzero(-4, -1)
-  q: integer(2, 5)
-  b_coeff: -3*(p + q)/2
-  c_coeff: 3*p*q
-  f: x^3 + b_coeff*x^2 + c_coeff*x
-  f_prime: derivative(f, x)
-  f_double_prime: derivative(f_prime, x)
-  fpp_at_p: evaluate(f_double_prime, x, p)
-  fpp_at_q: evaluate(f_double_prime, x, q)
-  inflection_x: -(b_coeff)/3
-  answer: inflection_x
-
-question: "For f(x) = {f}, find the {math(x)}-coordinate of the inflection point."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Compute the first derivative: {equation(derivative_of(f, x), f_prime)}."
-  - "Compute the second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}."
-  - "Set the second derivative equal to zero: {equation(f_double_prime, 0)}."
-  - "Solving gives {equation(x, answer)}."
-  - "Verify the concavity changes by checking values of the second derivative on either side."
-  - "Critical points are at {math(x)} = {p} and {math(x)} = {q}, with second-derivative values {fpp_at_p} and {fpp_at_q}, confirming {math(x)} = {p} is a local maximum and {math(x)} = {q} is a local minimum."
+variants:
+  - name: default
+    variables:
+      p: nonzero(-4, -1)
+      q: integer(2, 5)
+      b_coeff: -3*(p + q)/2
+      c_coeff: 3*p*q
+      f: x^3 + b_coeff*x^2 + c_coeff*x
+      f_prime: derivative(f, x)
+      f_double_prime: derivative(f_prime, x)
+      fpp_at_p: evaluate(f_double_prime, x, p)
+      fpp_at_q: evaluate(f_double_prime, x, q)
+      inflection_x: -(b_coeff)/3
+      answer: inflection_x
+    question: For f(x) = {f}, find the {math(x)}-coordinate of the inflection point.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Compute the first derivative: {equation(derivative_of(f, x), f_prime)}.'
+      - 'Compute the second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}.'
+      - 'Set the second derivative equal to zero: {equation(f_double_prime, 0)}.'
+      - Solving gives {equation(x, answer)}.
+      - Verify the concavity changes by checking values of the second derivative on either side.
+      - Critical points are at {math(x)} = {p} and {math(x)} = {q}, with second-derivative values {fpp_at_p} and {fpp_at_q}, confirming {math(x)} = {p} is a local maximum and {math(x)} = {q} is a local minimum.

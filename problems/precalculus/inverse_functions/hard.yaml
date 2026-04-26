@@ -1,24 +1,22 @@
 topic: precalculus/inverse_functions
 difficulty: hard
 calculator: none
-
-variables:
-  a: choice(2, 3, 4, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(1, 4)
-  numer: a*x + b
-  denom: c
-  func: (a*x + b)/c
-  inv: (c*x - b)/a
-
-question: "A function is defined by f(x) = {func}. Find the inverse function {math(g(x))} such that g(f(x)) = x."
-
-answer: inv
-answer_type: expression
-
-solution:
-  - "Write {equation(y, func)}, then swap {math(x)} and {math(y)}: {equation(x, (a*y + b)/c)}."
-  - "Multiply both sides by {c}: {equation(c*x, a*y + b)}."
-  - "Subtract {b}: {equation(c*x - b, a*y)}."
-  - "Divide by {a}: {equation(y, inv)}."
-  - "The inverse function is {inv}."
+variants:
+  - name: default
+    variables:
+      a: choice(2, 3, 4, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(1, 4)
+      numer: a*x + b
+      denom: c
+      func: (a*x + b)/c
+      inv: (c*x - b)/a
+    question: A function is defined by f(x) = {func}. Find the inverse function {math(g(x))} such that g(f(x)) = x.
+    answer: inv
+    answer_type: expression
+    solution:
+      - 'Write {equation(y, func)}, then swap {math(x)} and {math(y)}: {equation(x, (a*y + b)/c)}.'
+      - 'Multiply both sides by {c}: {equation(c*x, a*y + b)}.'
+      - 'Subtract {b}: {equation(c*x - b, a*y)}.'
+      - 'Divide by {a}: {equation(y, inv)}.'
+      - The inverse function is {inv}.

@@ -1,30 +1,28 @@
 topic: multivariable_calculus/gradient
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  p: nonzero(-3, 3)
-  q: nonzero(-3, 3)
-  f: a*x^2 + b*x*y + c*y^2
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  fx_at_p: evaluate(fx, x, p)
-  grad_x: evaluate(fx_at_p, y, q)
-  fy_at_p: evaluate(fy, x, p)
-  grad_y: evaluate(fy_at_p, y, q)
-
-question: "Find the gradient of {f} at the point {math(x)} = {p}, {math(y)} = {q}."
-
-answer: grad_x, grad_y
-answer_type: tuple
-
-solution:
-  - "The gradient is the vector of partial derivatives."
-  - "Partial derivative with respect to {math(x)}: {equation(partial_of(f, x), fx)}."
-  - "Partial derivative with respect to {math(y)}: {equation(partial_of(f, y), fy)}."
-  - "Substitute {math(x)} = {p} and {math(y)} = {q} into {fx}: the first component is {grad_x}."
-  - "Substitute {math(x)} = {p} and {math(y)} = {q} into {fy}: the second component is {grad_y}."
-  - "The gradient is {vec([grad_x, grad_y])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      p: nonzero(-3, 3)
+      q: nonzero(-3, 3)
+      f: a*x^2 + b*x*y + c*y^2
+      fx: derivative(f, x)
+      fy: derivative(f, y)
+      fx_at_p: evaluate(fx, x, p)
+      grad_x: evaluate(fx_at_p, y, q)
+      fy_at_p: evaluate(fy, x, p)
+      grad_y: evaluate(fy_at_p, y, q)
+    question: Find the gradient of {f} at the point {math(x)} = {p}, {math(y)} = {q}.
+    answer: grad_x, grad_y
+    answer_type: tuple
+    solution:
+      - The gradient is the vector of partial derivatives.
+      - 'Partial derivative with respect to {math(x)}: {equation(partial_of(f, x), fx)}.'
+      - 'Partial derivative with respect to {math(y)}: {equation(partial_of(f, y), fy)}.'
+      - 'Substitute {math(x)} = {p} and {math(y)} = {q} into {fx}: the first component is {grad_x}.'
+      - 'Substitute {math(x)} = {p} and {math(y)} = {q} into {fy}: the second component is {grad_y}.'
+      - The gradient is {vec([grad_x, grad_y])}.

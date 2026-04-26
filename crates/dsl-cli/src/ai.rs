@@ -218,19 +218,24 @@ fn tool_render_samples(input: &serde_json::Value, difficulty: &str) -> serde_jso
         Err(e) => return serde_json::json!({"error": format!("parse error: {e}")}),
     };
 
-    let mut samples = Vec::with_capacity(n);
-    for i in 0..n {
-        match locus_dsl::generate(&spec) {
-            Ok(p) => samples.push(serde_json::json!({
-                "seed": i,
-                "question": p.question_latex,
-                "answer": p.answer_key,
-                "solution": p.solution_latex,
-            })),
-            Err(e) => samples.push(serde_json::json!({
-                "seed": i,
-                "error": format!("generation failed: {e}"),
-            })),
+    // Render n samples per variant so the model sees each variant in action.
+    let mut samples = Vec::with_capacity(n * spec.variants.len());
+    for variant in &spec.variants {
+        for i in 0..n {
+            match locus_dsl::generate(&spec, variant) {
+                Ok(p) => samples.push(serde_json::json!({
+                    "variant": variant.name,
+                    "seed": i,
+                    "question": p.question_latex,
+                    "answer": p.answer_key,
+                    "solution": p.solution_latex,
+                })),
+                Err(e) => samples.push(serde_json::json!({
+                    "variant": variant.name,
+                    "seed": i,
+                    "error": format!("generation failed: {e}"),
+                })),
+            }
         }
     }
 
@@ -515,7 +520,7 @@ fn tool_verify_answer_key(input: &serde_json::Value, difficulty: &str) -> serde_
         Ok(s) => s,
         Err(e) => return serde_json::json!({"ok": false, "mismatches": [format!("parse: {e}")]}),
     };
-    let p = match locus_dsl::generate(&spec) {
+    let p = match locus_dsl::generate_random(&spec) {
         Ok(p) => p,
         Err(e) => return serde_json::json!({"ok": false, "mismatches": [format!("generate: {e}")]}),
     };
@@ -734,46 +739,53 @@ fn audit_yaml_inner(yaml: &str, runs: usize) -> Result<(), Vec<String>> {
     let spec = locus_dsl::parse(yaml).map_err(|e| vec![format!("Parse error: {e}")])?;
 
     let mut errors = Vec::new();
-    for i in 0..runs {
-        match locus_dsl::generate(&spec) {
-            Ok(out) => {
-                let combined = format!("{}\n{}", out.question_latex, out.solution_latex);
-                for (pat, why, fix) in RENDER_BANLIST {
-                    let re = regex::Regex::new(pat).unwrap();
-                    if let Some(m) = re.find(&combined) {
-                        errors.push(format!(
-                            "seed {i}: {why} — matched `{}`. Fix: {fix}",
-                            m.as_str()
-                        ));
-                    }
-                }
-                // Variable-name leak detector: a variable name appearing in
-                // rendered output usually means substitution failed. But math
-                // problem text legitimately uses words like "area", "angle",
-                // "height" that the YAML may also have as variable names. Only
-                // flag names that look distinctively code-y: contain an
-                // underscore, or are ≥ 8 chars (long words like
-                // `cyl_volume_rounded`, `box_volume`, `discriminant` survive;
-                // short English words like `area`, `radius` don't).
-                for var_name in spec.variables.keys() {
-                    let looks_code_like = var_name.contains('_') || var_name.len() >= 8;
-                    if !looks_code_like {
-                        continue;
-                    }
-                    let pat = format!(r"\b{}\b", regex::escape(var_name));
-                    if let Ok(re) = regex::Regex::new(&pat) {
-                        if re.is_match(&combined) {
+    'outer: for variant in &spec.variants {
+        for i in 0..runs {
+            match locus_dsl::generate(&spec, variant) {
+                Ok(out) => {
+                    let combined = format!("{}\n{}", out.question_latex, out.solution_latex);
+                    for (pat, why, fix) in RENDER_BANLIST {
+                        let re = regex::Regex::new(pat).unwrap();
+                        if let Some(m) = re.find(&combined) {
                             errors.push(format!(
-                                "seed {i}: unresolved variable `{var_name}` in output"
+                                "variant `{}` seed {i}: {why} — matched `{}`. Fix: {fix}",
+                                variant.name,
+                                m.as_str()
                             ));
                         }
                     }
+                    // Variable-name leak detector: a variable name appearing in
+                    // rendered output usually means substitution failed. But math
+                    // problem text legitimately uses words like "area", "angle",
+                    // "height" that the YAML may also have as variable names. Only
+                    // flag names that look distinctively code-y: contain an
+                    // underscore, or are ≥ 8 chars (long words like
+                    // `cyl_volume_rounded`, `box_volume`, `discriminant` survive;
+                    // short English words like `area`, `radius` don't).
+                    for var_name in variant.variables.keys() {
+                        let looks_code_like = var_name.contains('_') || var_name.len() >= 8;
+                        if !looks_code_like {
+                            continue;
+                        }
+                        let pat = format!(r"\b{}\b", regex::escape(var_name));
+                        if let Ok(re) = regex::Regex::new(&pat) {
+                            if re.is_match(&combined) {
+                                errors.push(format!(
+                                    "variant `{}` seed {i}: unresolved variable `{var_name}` in output",
+                                    variant.name
+                                ));
+                            }
+                        }
+                    }
                 }
+                Err(e) => errors.push(format!(
+                    "variant `{}` seed {i}: generation error: {e}",
+                    variant.name
+                )),
             }
-            Err(e) => errors.push(format!("seed {i}: generation error: {e}")),
-        }
-        if !errors.is_empty() {
-            break;
+            if !errors.is_empty() {
+                break 'outer;
+            }
         }
     }
     if errors.is_empty() { Ok(()) } else { Err(errors) }

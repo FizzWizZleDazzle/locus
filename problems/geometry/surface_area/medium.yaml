@@ -1,23 +1,25 @@
 topic: geometry/surface_area
 difficulty: medium
 calculator: scientific
-variables:
-  l: integer(2, 9)
-  w: integer(2, 9)
-  h: integer(2, 9)
-  lw: l * w
-  lh: l * h
-  wh: w * h
-  sum_faces: lw + lh + wh
-  answer: 2 * sum_faces
-constraints:
-  - l != w
-  - w != h
-question: "Find the total surface area of a rectangular prism with length {l}, width {w}, and height {h}."
-answer: answer
-answer_type: numeric
-solution:
-  - "Use the formula: total surface area = 2(lw + lh + wh)."
-  - "Length times width = {lw}. Length times height = {lh}. Width times height = {wh}."
-  - "Sum of the three face pairs: {lw} + {lh} + {wh} = {sum_faces}."
-  - "Multiply by 2: the total surface area is {answer} square units."
+variants:
+  - name: default
+    variables:
+      l: integer(2, 9)
+      w: integer(2, 9)
+      h: integer(2, 9)
+      lw: l * w
+      lh: l * h
+      wh: w * h
+      sum_faces: lw + lh + wh
+      answer: 2 * sum_faces
+    constraints:
+      - l != w
+      - w != h
+    question: Find the total surface area of a rectangular prism with length {l}, width {w}, and height {h}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Use the formula: total surface area = 2(lw + lh + wh).'
+      - Length times width = {lw}. Length times height = {lh}. Width times height = {wh}.
+      - 'Sum of the three face pairs: {lw} + {lh} + {wh} = {sum_faces}.'
+      - 'Multiply by 2: the total surface area is {answer} square units.'

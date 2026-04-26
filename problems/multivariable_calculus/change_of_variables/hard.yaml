@@ -1,28 +1,23 @@
 topic: multivariable_calculus/change_of_variables
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: integer(1, 4)
-  q: integer(1, 4)
-  jac_det: 3
-  jac_inv: 1/3
-  int_u: p^2/2
-  int_v: q^2/2
-  answer: p^2 * q^2 / 12
-
-question: >
-  Let {math(R)} be the parallelogram in the {math(xy)}-plane bounded by the lines
-  {math(x + y = 0)}, {math(x + y = p)}, {math(2x - y = 0)}, and {math(2x - y = q)}.
-  Using the substitution {math(u = x + y)}, {math(v = 2x - y)}, evaluate
-  the double integral of {math((x+y)(2x-y))} over {math(R)}.
-
-solution:
-  - "Under the substitution {math(u = x + y)} and {math(v = 2x - y)}, the expression {math((x+y)(2x-y))} becomes {math(u*v)}."
-  - "The Jacobian determinant of the forward map is {det_of([[1, 1], [2, -1]])} = {math(-3)}, so the absolute Jacobian factor is {jac_inv}."
-  - "The region {math(R)} maps to the rectangle {math(0 \\le u \\le)} {p}, {math(0 \\le v \\le)} {q} in the {math(uv)}-plane."
-  - "The transformed integral equals {jac_inv} {math(\\cdot)} {definite_integral_of(u, u, 0, p)} {math(\\cdot)} {definite_integral_of(v, v, 0, q)}."
-  - "Evaluating: {jac_inv} times {int_u} times {int_v} = {answer}."
-
-answer: answer
-answer_type: numeric
+variants:
+  - name: default
+    variables:
+      p: integer(1, 4)
+      q: integer(1, 4)
+      jac_det: 3
+      jac_inv: 1/3
+      int_u: p^2/2
+      int_v: q^2/2
+      answer: p^2 * q^2 / 12
+    question: |
+      Let {math(R)} be the parallelogram in the {math(xy)}-plane bounded by the lines {math(x + y = 0)}, {math(x + y = p)}, {math(2x - y = 0)}, and {math(2x - y = q)}. Using the substitution {math(u = x + y)}, {math(v = 2x - y)}, evaluate the double integral of {math((x+y)(2x-y))} over {math(R)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Under the substitution {math(u = x + y)} and {math(v = 2x - y)}, the expression {math((x+y)(2x-y))} becomes {math(u*v)}.
+      - The Jacobian determinant of the forward map is {det_of([[1, 1], [2, -1]])} = {math(-3)}, so the absolute Jacobian factor is {jac_inv}.
+      - The region {math(R)} maps to the rectangle {math(0 \le u \le)} {p}, {math(0 \le v \le)} {q} in the {math(uv)}-plane.
+      - The transformed integral equals {jac_inv} {math(\cdot)} {definite_integral_of(u, u, 0, p)} {math(\cdot)} {definite_integral_of(v, v, 0, q)}.
+      - 'Evaluating: {jac_inv} times {int_u} times {int_v} = {answer}.'

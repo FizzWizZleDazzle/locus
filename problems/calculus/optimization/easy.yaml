@@ -1,23 +1,21 @@
 topic: calculus/optimization
 difficulty: easy
 calculator: none
-
-variables:
-  h: integer(1, 8)
-  a: integer(2, 5)
-  k: integer(1, 10)
-  f: expand(a*(x - h)^2 + k)
-  f_prime: derivative(f, x)
-  answer: h
-
-question: "A cost function is given by {math(C(x))} = {f}, where {math(x > 0)} is the number of units produced. Find the value of {math(x)} that minimizes {math(C(x))}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Take the derivative: {equation(math(C'(x)), f_prime)}"
-  - "Set the derivative equal to zero and solve: {equation(f_prime, 0)}"
-  - "Solving for {math(x)}: {equation(math(x), answer)}"
-  - "Since the coefficient of {math(x^2)} is {a} > 0, this critical point is a minimum."
-  - "The cost is minimized at {math(x)} = {answer}."
+variants:
+  - name: default
+    variables:
+      h: integer(1, 8)
+      a: integer(2, 5)
+      k: integer(1, 10)
+      f: expand(a*(x - h)^2 + k)
+      f_prime: derivative(f, x)
+      answer: h
+    question: A cost function is given by {math(C(x))} = {f}, where {math(x > 0)} is the number of units produced. Find the value of {math(x)} that minimizes {math(C(x))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Take the derivative: {equation(math(C''(x)), f_prime)}'
+      - 'Set the derivative equal to zero and solve: {equation(f_prime, 0)}'
+      - 'Solving for {math(x)}: {equation(math(x), answer)}'
+      - Since the coefficient of {math(x^2)} is {a} > 0, this critical point is a minimum.
+      - The cost is minimized at {math(x)} = {answer}.

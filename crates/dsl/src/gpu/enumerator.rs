@@ -25,34 +25,31 @@ pub enum Executor {
 
 /// Try to enumerate up to `target` unique problems for a top-level spec.
 ///
-/// Returns `Ok(None)` if the spec contains anything we can't compile (caller
-/// should fall back to legacy rejection sampling).
+/// Iterates each variant and concatenates results.
+/// Returns `Ok(None)` if any variant contains something we can't compile
+/// (caller should fall back to legacy rejection sampling).
 pub fn enumerate(
     spec: &ProblemSpec,
     target: usize,
     executor: Executor,
 ) -> Result<Option<Vec<ProblemOutput>>, DslError> {
-    if let Some(variants) = &spec.variants {
-        let mut all = Vec::new();
-        for variant in variants {
-            let merged = merge_variant(spec, variant);
-            match enumerate_one(&merged, target, executor)? {
-                Some(rows) => all.extend(rows),
-                None => return Ok(None),
-            }
+    let mut all = Vec::new();
+    for variant in &spec.variants {
+        match enumerate_one(spec, variant, target, executor)? {
+            Some(rows) => all.extend(rows),
+            None => return Ok(None),
         }
-        return Ok(Some(all));
     }
-
-    enumerate_one(spec, target, executor)
+    Ok(Some(all))
 }
 
 fn enumerate_one(
     spec: &ProblemSpec,
+    variant: &Variant,
     target: usize,
     executor: Executor,
 ) -> Result<Option<Vec<ProblemOutput>>, DslError> {
-    let plan = match compile(&spec.variables, &spec.constraints) {
+    let plan = match compile(&variant.variables, &variant.constraints) {
         Ok(p) => p,
         Err(CompileError::Unsupported(_)) => return Ok(None),
         Err(e) => return Err(DslError::ExpressionParse(e.to_string())),
@@ -85,7 +82,7 @@ fn enumerate_one(
     let seen: DashSet<u128> = DashSet::new();
     let outs: Vec<ProblemOutput> = rows
         .par_iter()
-        .filter_map(|row| render_row(spec, &plan, row).ok().flatten())
+        .filter_map(|row| render_row(spec, variant, &plan, row).ok().flatten())
         .filter(|p| {
             let key = canonical_key(&p.question_latex, &p.answer_key);
             seen.insert(key)
@@ -138,6 +135,7 @@ fn run_gpu_or_fail(
 
 fn render_row(
     spec: &ProblemSpec,
+    variant: &Variant,
     plan: &Plan,
     row: &[i32],
 ) -> Result<Option<ProblemOutput>, DslError> {
@@ -150,7 +148,7 @@ fn render_row(
         presets.insert(name.clone(), row[s.var_slot as usize].to_string());
     }
 
-    let vars = match resolve_with_preset(&spec.variables, &presets) {
+    let vars = match resolve_with_preset(&variant.variables, &presets) {
         Ok(v) => v,
         Err(_) => return Ok(None),
     };
@@ -166,15 +164,15 @@ fn render_row(
         }
     }
 
-    let question_latex = match template::render(&spec.question, &vars) {
+    let question_latex = match template::render(&variant.question, &vars) {
         Ok(s) => s,
         Err(_) => return Ok(None),
     };
-    let answer_key = match answer::format(&vars, &spec.answer, spec.answer_type.as_deref()) {
+    let answer_key = match answer::format(&vars, &variant.answer, variant.answer_type.as_deref()) {
         Ok(s) => s,
         Err(_) => return Ok(None),
     };
-    let solution_latex = match &spec.solution {
+    let solution_latex = match &variant.solution {
         Some(steps) => match template::render_steps(steps, &vars) {
             Ok(s) => s,
             Err(_) => return Ok(None),
@@ -182,39 +180,21 @@ fn render_row(
         None => String::new(),
     };
 
-    let answer_type = answer::infer_type(&answer_key, spec.answer_type.as_deref());
+    let answer_type = answer::infer_type(&answer_key, variant.answer_type.as_deref());
+    let difficulty = variant.difficulty.as_ref().unwrap_or(&spec.difficulty);
 
     Ok(Some(ProblemOutput {
         question_latex,
         answer_key,
         solution_latex,
-        difficulty: sampler::sample_difficulty(&spec.difficulty)?,
+        difficulty: sampler::sample_difficulty(difficulty)?,
         main_topic: spec.topic.main.clone(),
         subtopic: spec.topic.sub.clone(),
-        grading_mode: spec.mode.clone().unwrap_or_else(|| "equivalent".into()),
+        grading_mode: variant.mode.clone().unwrap_or_else(|| "equivalent".into()),
         answer_type,
         calculator_allowed: spec.calculator.clone().unwrap_or_else(|| "none".into()),
         question_image: String::new(),
         time_limit_seconds: spec.time,
+        variant_name: variant.name.clone(),
     }))
-}
-
-/// Merge a variant onto its parent spec, producing a self-contained spec.
-fn merge_variant(parent: &ProblemSpec, v: &Variant) -> ProblemSpec {
-    ProblemSpec {
-        topic: parent.topic.clone(),
-        difficulty: v.difficulty.clone().unwrap_or_else(|| parent.difficulty.clone()),
-        calculator: parent.calculator.clone(),
-        time: parent.time,
-        variables: v.variables.clone().unwrap_or_else(|| parent.variables.clone()),
-        constraints: v.constraints.clone().unwrap_or_else(|| parent.constraints.clone()),
-        question: v.question.clone().unwrap_or_else(|| parent.question.clone()),
-        answer: v.answer.clone().unwrap_or_else(|| parent.answer.clone()),
-        answer_type: v.answer_type.clone().or_else(|| parent.answer_type.clone()),
-        mode: v.mode.clone().or_else(|| parent.mode.clone()),
-        format: parent.format.clone(),
-        solution: v.solution.clone().or_else(|| parent.solution.clone()),
-        diagram: v.diagram.clone().or_else(|| parent.diagram.clone()),
-        variants: None,
-    }
 }

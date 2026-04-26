@@ -1,17 +1,19 @@
 topic: geometry/perimeter
 difficulty: hard
 calculator: scientific
-variables:
-  w: choice(4, 6, 8, 10, 12)
-  h: integer(5, 14)
-  radius: w / 2
-  arc: pi * radius
-  total: 2*h + w + arc
-question: "A rectangle has width {w} and height {h}. A semicircle is attached to one of the width sides (with diameter {w}). Find the perimeter of the composite shape. Express your answer in terms of {math(pi)}."
-answer: total
-answer_type: expression
-solution:
-  - "The composite shape has two heights, one width side (opposite the semicircle), and a semicircular arc."
-  - "Radius of the semicircle: {equation(math(r), radius)}"
-  - "Arc length of the semicircle: {equation(math(pi * r), arc)}"
-  - "Add all sides: {equation(math(2*h + w + pi*r), total)}"
+variants:
+  - name: default
+    variables:
+      w: choice(4, 6, 8, 10, 12)
+      h: integer(5, 14)
+      radius: w / 2
+      arc: pi * radius
+      total: 2*h + w + arc
+    question: A rectangle has width {w} and height {h}. A semicircle is attached to one of the width sides (with diameter {w}). Find the perimeter of the composite shape. Express your answer in terms of {math(pi)}.
+    answer: total
+    answer_type: expression
+    solution:
+      - The composite shape has two heights, one width side (opposite the semicircle), and a semicircular arc.
+      - 'Radius of the semicircle: {equation(math(r), radius)}'
+      - 'Arc length of the semicircle: {equation(math(pi * r), arc)}'
+      - 'Add all sides: {equation(math(2*h + w + pi*r), total)}'

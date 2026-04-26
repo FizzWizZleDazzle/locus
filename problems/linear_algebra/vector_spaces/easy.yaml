@@ -1,18 +1,20 @@
 topic: linear_algebra/vector_spaces
 difficulty: easy
 calculator: none
-variables:
-  a1: nonzero(-4, 4)
-  a2: nonzero(-4, 4)
-  k: integer(2, 4)
-  b1: k*a1
-  b2: k*a2
-  dim: 1
-question: "Let {math(v_1)} = {vec([a1, a2])} and {math(v_2)} = {vec([b1, b2])} be vectors in {math(R^2)}. What is the dimension of the subspace spanned by {math(v_1)} and {math(v_2)}?"
-answer: dim
-answer_type: numeric
-solution:
-  - "Check whether {math(v_1)} and {math(v_2)} are linearly independent."
-  - "Observe that {math(v_2)} = {k} {math(v_1)}, so {math(v_2)} is a scalar multiple of {math(v_1)}."
-  - "Therefore {math(v_1)} and {math(v_2)} are linearly dependent, and their span is a single line through the origin."
-  - "A line through the origin in {math(R^2)} has dimension {dim}."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-4, 4)
+      a2: nonzero(-4, 4)
+      k: integer(2, 4)
+      b1: k*a1
+      b2: k*a2
+      dim: 1
+    question: Let {math(v_1)} = {vec([a1, a2])} and {math(v_2)} = {vec([b1, b2])} be vectors in {math(R^2)}. What is the dimension of the subspace spanned by {math(v_1)} and {math(v_2)}?
+    answer: dim
+    answer_type: numeric
+    solution:
+      - Check whether {math(v_1)} and {math(v_2)} are linearly independent.
+      - Observe that {math(v_2)} = {k} {math(v_1)}, so {math(v_2)} is a scalar multiple of {math(v_1)}.
+      - Therefore {math(v_1)} and {math(v_2)} are linearly dependent, and their span is a single line through the origin.
+      - A line through the origin in {math(R^2)} has dimension {dim}.

@@ -1,30 +1,26 @@
 topic: algebra2/rational_expressions
 difficulty: hard
 calculator: none
-
-variables:
-  r: integer(2, 6)
-  p: integer(1, 5)
-  q: integer(1, 5)
-  num: expand((x - r)*(x + p))
-  den: expand((x - r)*(x + q))
-  num_factored: (x - r)*(x + p)
-  den_factored: (x - r)*(x + q)
-  answer: (x + p)/(x + q)
-  restr1: r
-  restr2: -q
-
-constraints:
-  - p != q
-
-question: "Simplify the rational expression {math(num / den)}, stating any restrictions on {math(x)}."
-
-answer: answer
-
-answer_type: expression
-
-solution:
-  - "Factor the numerator: {equation(num, num_factored)}"
-  - "Factor the denominator: {equation(den, den_factored)}"
-  - "The common factor is {math(x - r)}. Cancel it from numerator and denominator."
-  - "Simplified form: {answer}, with restrictions {math(x)} cannot equal {restr1} or {restr2}."
+variants:
+  - name: default
+    variables:
+      r: integer(2, 6)
+      p: integer(1, 5)
+      q: integer(1, 5)
+      num: expand((x - r)*(x + p))
+      den: expand((x - r)*(x + q))
+      num_factored: (x - r)*(x + p)
+      den_factored: (x - r)*(x + q)
+      answer: (x + p)/(x + q)
+      restr1: r
+      restr2: -q
+    constraints:
+      - p != q
+    question: Simplify the rational expression {math(num / den)}, stating any restrictions on {math(x)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Factor the numerator: {equation(num, num_factored)}'
+      - 'Factor the denominator: {equation(den, den_factored)}'
+      - The common factor is {math(x - r)}. Cancel it from numerator and denominator.
+      - 'Simplified form: {answer}, with restrictions {math(x)} cannot equal {restr1} or {restr2}.'

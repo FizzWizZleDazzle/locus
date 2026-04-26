@@ -1,25 +1,6 @@
 topic: differential_equations/second_order_constant
 difficulty: medium
 calculator: none
-
-variables:
-  r1: integer(-5, -1)
-  r2: integer(1, 5)
-  p: -(r1 + r2)
-  q: r1 * r2
-  char_lhs: r^2 + p*r + q
-  sol1: exp(r1*x)
-  sol2: exp(r2*x)
-
-question: "The characteristic equation of a second-order linear ODE is {equation(char_lhs, 0)}. Find the two characteristic roots."
-answer: r1, r2
-answer_type: set
-
-solution:
-  - "Factor {equation(char_lhs, 0)} to get {equation((r - r1)*(r - r2), 0)}."
-  - "The roots are {math(r_1)} = {r1} and {math(r_2)} = {r2}."
-  - "Since the roots are real and distinct, the general solution is {math(y(x))} = {math(C_1)}{sol1} + {math(C_2)}{sol2}."
-
 variants:
   - name: real_distinct_roots
     variables:
@@ -32,14 +13,13 @@ variants:
       sol2: exp(r2*x)
     constraints:
       - r1 != r2
-    question: "The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. Find the two characteristic roots and write the general solution {math(y(x))}."
+    question: The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. Find the two characteristic roots and write the general solution {math(y(x))}.
     answer: r1, r2
     answer_type: set
     solution:
-      - "Substitute {math(y = e^(r x))} into the ODE to obtain the characteristic equation {equation(char_lhs, 0)}."
-      - "Factor: {equation((r - r1)*(r - r2), 0)}, so {math(r_1)} = {r1} and {math(r_2)} = {r2}."
-      - "Since the roots are real and distinct, the general solution is {math(y(x))} = {math(C_1)}{sol1} + {math(C_2)}{sol2}."
-
+      - Substitute {math(y = e^(r x))} into the ODE to obtain the characteristic equation {equation(char_lhs, 0)}.
+      - 'Factor: {equation((r - r1)*(r - r2), 0)}, so {math(r_1)} = {r1} and {math(r_2)} = {r2}.'
+      - Since the roots are real and distinct, the general solution is {math(y(x))} = {math(C_1)}{sol1} + {math(C_2)}{sol2}.
   - name: repeated_root
     variables:
       r0: integer(-4, -1)
@@ -47,9 +27,9 @@ variants:
       q: r0^2
       char_lhs: r^2 + p*r + q
       sol_base: exp(r0*x)
-    question: "The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. Find the repeated characteristic root."
+    question: The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. Find the repeated characteristic root.
     answer: r0
     answer_type: numeric
     solution:
-      - "Recognize {equation(char_lhs, (r - r0)^2)}, giving a repeated root {math(r)} = {r0}."
-      - "For a repeated root, the general solution is {math(y(x))} = ({math(C_1)} + {math(C_2)}{math(x)}){sol_base}."
+      - Recognize {equation(char_lhs, (r - r0)^2)}, giving a repeated root {math(r)} = {r0}.
+      - For a repeated root, the general solution is {math(y(x))} = ({math(C_1)} + {math(C_2)}{math(x)}){sol_base}.

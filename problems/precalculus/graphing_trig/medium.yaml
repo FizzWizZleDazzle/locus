@@ -1,21 +1,19 @@
 topic: precalculus/graphing_trig
 difficulty: medium
 calculator: scientific
-
-variables:
-  A: integer(2, 6)
-  B: nonzero(2, 5)
-  C: choice(0, 1, -1, 2, -2)
-  D: integer(-3, 3)
-  f: A*sin(B*x + C) + D
-  period: 2*pi / B
-
-question: "Find the amplitude and period of {f}. Give the period in terms of {math(pi)}."
-
-answer: A, period
-answer_type: tuple
-
-solution:
-  - "For a function of the form {math(A*sin(B*x + C) + D)}, the amplitude is {math(|A|)} and the period is {math(2*pi/B)}."
-  - "The leading coefficient is {A}, so the amplitude is {A}."
-  - "The angular frequency is {B}, so the period is {math(2*pi)} / {B} = {period}."
+variants:
+  - name: default
+    variables:
+      A: integer(2, 6)
+      B: nonzero(2, 5)
+      C: choice(0, 1, -1, 2, -2)
+      D: integer(-3, 3)
+      f: A*sin(B*x + C) + D
+      period: 2*pi / B
+    question: Find the amplitude and period of {f}. Give the period in terms of {math(pi)}.
+    answer: A, period
+    answer_type: tuple
+    solution:
+      - For a function of the form {math(A*sin(B*x + C) + D)}, the amplitude is {math(|A|)} and the period is {math(2*pi/B)}.
+      - The leading coefficient is {A}, so the amplitude is {A}.
+      - The angular frequency is {B}, so the period is {math(2*pi)} / {B} = {period}.

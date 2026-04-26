@@ -1,24 +1,22 @@
 topic: calculus/u_substitution
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(-4, 4)
-  n: integer(2, 5)
-  inner: a*x + b
-  f: x*(inner)^n
-  antideriv: integral(f, x)
-  answer: antideriv
-
-question: "Use u-substitution to evaluate {integral_of(f, x)}. Express your answer without the substitution variable."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Let {math(u = a*x + b)}, so {math(du = a*dx)} and {math(x = (u - b)/a)}."
-  - "Substituting: the integral becomes {math((1/a^2))} times {integral_of((u - b)*u^n, u)}."
-  - "Distribute: {math(integral((u^(n+1) - b*u^n), u))}/{math(a^2)}."
-  - "Integrate term by term, then substitute back {math(u = a*x + b)}."
-  - "Simplifying yields the antiderivative {answer} + C."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(-4, 4)
+      n: integer(2, 5)
+      inner: a*x + b
+      f: x*(inner)^n
+      antideriv: integral(f, x)
+      answer: antideriv
+    question: Use u-substitution to evaluate {integral_of(f, x)}. Express your answer without the substitution variable.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Let {math(u = a*x + b)}, so {math(du = a*dx)} and {math(x = (u - b)/a)}.
+      - 'Substituting: the integral becomes {math((1/a^2))} times {integral_of((u - b)*u^n, u)}.'
+      - 'Distribute: {math(integral((u^(n+1) - b*u^n), u))}/{math(a^2)}.'
+      - Integrate term by term, then substitute back {math(u = a*x + b)}.
+      - Simplifying yields the antiderivative {answer} + C.

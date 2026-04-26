@@ -1,24 +1,22 @@
 topic: calculus/definite_integrals
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(1, 6)
-  b: integer(-4, 4)
-  f: a * x + b
-  lo: integer(0, 2)
-  hi: integer(3, 5)
-  F: integral(f, x)
-  F_hi: evaluate(F, x, hi)
-  F_lo: evaluate(F, x, lo)
-  answer: F_hi - F_lo
-
-question: "Evaluate {definite_integral_of(f, x, lo, hi)}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Find the antiderivative: {integral_of(f, x)} = {F} + C"
-  - "Apply the Fundamental Theorem of Calculus: evaluate {F} from {lo} to {hi}."
-  - "= {F_hi} - {F_lo} = {answer}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 6)
+      b: integer(-4, 4)
+      f: a * x + b
+      lo: integer(0, 2)
+      hi: integer(3, 5)
+      F: integral(f, x)
+      F_hi: evaluate(F, x, hi)
+      F_lo: evaluate(F, x, lo)
+      answer: F_hi - F_lo
+    question: Evaluate {definite_integral_of(f, x, lo, hi)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Find the antiderivative: {integral_of(f, x)} = {F} + C'
+      - 'Apply the Fundamental Theorem of Calculus: evaluate {F} from {lo} to {hi}.'
+      - = {F_hi} - {F_lo} = {answer}

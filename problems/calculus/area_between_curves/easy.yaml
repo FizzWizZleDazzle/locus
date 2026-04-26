@@ -1,24 +1,22 @@
 topic: calculus/area_between_curves
 difficulty: easy
 calculator: none
-
-variables:
-  m: choice(2, 3, 4)
-  top: m*x
-  bot: x^2
-  diff: m*x - x^2
-  antideriv: integral(diff, x)
-  answer: definite_integral(diff, x, 0, m)
-
-question: "Find the area of the region enclosed between {math(y = top)} and {math(y = bot)}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Find where the curves intersect by setting {equation(top, bot)}."
-  - "This gives {equation(m*x - x^2, 0)}, so {equation(x*(m - x), 0)}, meaning {math(x = 0)} or {math(x = m)}."
-  - "On the interval {math(0 <= x)} to {math(x <= m)}, the line {math(y = top)} lies above the parabola {math(y = bot)}."
-  - "Area = {definite_integral_of(diff, x, 0, m)}"
-  - "Antiderivative: {antideriv} + C"
-  - "Area = {answer}"
+variants:
+  - name: default
+    variables:
+      m: choice(2, 3, 4)
+      top: m*x
+      bot: x^2
+      diff: m*x - x^2
+      antideriv: integral(diff, x)
+      answer: definite_integral(diff, x, 0, m)
+    question: Find the area of the region enclosed between {math(y = top)} and {math(y = bot)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Find where the curves intersect by setting {equation(top, bot)}.
+      - This gives {equation(m*x - x^2, 0)}, so {equation(x*(m - x), 0)}, meaning {math(x = 0)} or {math(x = m)}.
+      - On the interval {math(0 <= x)} to {math(x <= m)}, the line {math(y = top)} lies above the parabola {math(y = bot)}.
+      - Area = {definite_integral_of(diff, x, 0, m)}
+      - 'Antiderivative: {antideriv} + C'
+      - Area = {answer}

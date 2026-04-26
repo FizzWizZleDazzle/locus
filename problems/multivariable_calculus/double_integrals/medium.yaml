@@ -1,20 +1,20 @@
 topic: multivariable_calculus/double_integrals
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  p: integer(2, 5)
-  q: integer(2, 5)
-  inner_antideriv: a*x*p + b*p^2/2
-  answer: a*q^2*p/2 + b*p^2*q/2
-
-question: "Evaluate {definite_integral_of(a*x + b*y, y, 0, p)} where {math(x)} ranges from {math(0)} to {q}."
-answer: answer
-answer_type: numeric
-solution:
-  - "Integrate with respect to {math(y)} first, treating {math(x)} as a constant."
-  - "Inner integral: {equation(definite_integral_of(a*x + b*y, y, 0, p), inner_antideriv)}"
-  - "Now integrate with respect to {math(x)} from {math(0)} to {q}."
-  - "Outer integral: {equation(definite_integral_of(inner_antideriv, x, 0, q), answer)}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      p: integer(2, 5)
+      q: integer(2, 5)
+      inner_antideriv: a*x*p + b*p^2/2
+      answer: a*q^2*p/2 + b*p^2*q/2
+    question: Evaluate {definite_integral_of(a*x + b*y, y, 0, p)} where {math(x)} ranges from {math(0)} to {q}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Integrate with respect to {math(y)} first, treating {math(x)} as a constant.
+      - 'Inner integral: {equation(definite_integral_of(a*x + b*y, y, 0, p), inner_antideriv)}'
+      - Now integrate with respect to {math(x)} from {math(0)} to {q}.
+      - 'Outer integral: {equation(definite_integral_of(inner_antideriv, x, 0, q), answer)}'

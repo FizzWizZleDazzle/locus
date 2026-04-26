@@ -1,19 +1,18 @@
 topic: algebra1/exponent_rules
 difficulty: easy
 calculator: none
-
-variables:
-  m: integer(2, 7)
-  n: integer(2, 5)
-  factor1: x^m
-  factor2: x^n
-  answer: m + n
-
-question: "Simplify {factor1} * {factor2}. Write your answer in the form {math(x^k)} and give the value of {math(k)}."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Use the product rule: when multiplying powers with the same base, add the exponents."
-  - "The new exponent is {m} + {n} = {answer}."
-  - "So {factor1} * {factor2} = {math(x^answer)}."
+variants:
+  - name: default
+    variables:
+      m: integer(2, 7)
+      n: integer(2, 5)
+      factor1: x^m
+      factor2: x^n
+      answer: m + n
+    question: Simplify {factor1} * {factor2}. Write your answer in the form {math(x^k)} and give the value of {math(k)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Use the product rule: when multiplying powers with the same base, add the exponents.'
+      - The new exponent is {m} + {n} = {answer}.
+      - So {factor1} * {factor2} = {math(x^answer)}.

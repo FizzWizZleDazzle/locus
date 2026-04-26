@@ -1,25 +1,24 @@
 topic: algebra1/exponent_rules
 difficulty: medium
 calculator: none
-
-variables:
-  m: integer(3, 7)
-  n: integer(2, 5)
-  p: integer(1, 3)
-  sum_mn: m + n
-  exp_fin: m + n - p
-  num1: x^m
-  num2: x^n
-  denom: x^p
-  answer: x^exp_fin
-
-question: "Simplify {num1} times {num2} divided by {denom}. Write your answer as a single power of {math(x)}."
-answer: answer
-answer_type: expression
-
-solution:
-  - "First apply the product rule in the numerator: add the exponents of {num1} and {num2}."
-  - "{m} + {n} = {sum_mn}, so the numerator simplifies to {math(x^sum_mn)}."
-  - "Now apply the quotient rule: subtract the exponent of the denominator."
-  - "{sum_mn} - {p} = {exp_fin}"
-  - "The simplified form is {answer}."
+variants:
+  - name: default
+    variables:
+      m: integer(3, 7)
+      n: integer(2, 5)
+      p: integer(1, 3)
+      sum_mn: m + n
+      exp_fin: m + n - p
+      num1: x^m
+      num2: x^n
+      denom: x^p
+      answer: x^exp_fin
+    question: Simplify {num1} times {num2} divided by {denom}. Write your answer as a single power of {math(x)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'First apply the product rule in the numerator: add the exponents of {num1} and {num2}.'
+      - '{m} + {n} = {sum_mn}, so the numerator simplifies to {math(x^sum_mn)}.'
+      - 'Now apply the quotient rule: subtract the exponent of the denominator.'
+      - '{sum_mn} - {p} = {exp_fin}'
+      - The simplified form is {answer}.

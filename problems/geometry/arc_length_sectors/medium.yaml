@@ -1,25 +1,29 @@
 topic: geometry/arc_length_sectors
 difficulty: medium
 calculator: scientific
-
-variables:
-  r: integer(2, 9)
-  deg: choice(30, 45, 60, 90, 120, 150)
-  deg_over_360: deg / 360
-  arc: 2 * pi * r * (deg / 360)
-  two_pi_r: 2 * pi * r
-
-diagram:
-  type: circle
-  center: O
-  radius: r
-  elements:
-    - central_angle: {vertex: O, sides: [A, B], label: deg}
-
-question: "A circle has radius {r}. Find the arc length of a sector whose central angle measures {deg} degrees. Express your answer in terms of {math(pi)}."
-answer: arc
-answer_type: expression
-solution:
-  - "Arc length of a sector = (central angle / 360) times the full circumference."
-  - "Full circumference = {two_pi_r}."
-  - "Arc length = {deg_over_360} times {two_pi_r} = {arc}."
+variants:
+  - name: default
+    variables:
+      r: integer(2, 9)
+      deg: choice(30, 45, 60, 90, 120, 150)
+      deg_over_360: deg / 360
+      arc: 2 * pi * r * (deg / 360)
+      two_pi_r: 2 * pi * r
+    question: A circle has radius {r}. Find the arc length of a sector whose central angle measures {deg} degrees. Express your answer in terms of {math(pi)}.
+    answer: arc
+    answer_type: expression
+    solution:
+      - Arc length of a sector = (central angle / 360) times the full circumference.
+      - Full circumference = {two_pi_r}.
+      - Arc length = {deg_over_360} times {two_pi_r} = {arc}.
+    diagram:
+      type: circle
+      center: O
+      radius: r
+      elements:
+        - central_angle:
+            vertex: O
+            sides:
+              - A
+              - B
+            label: deg

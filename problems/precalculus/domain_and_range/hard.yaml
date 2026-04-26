@@ -1,16 +1,18 @@
 topic: precalculus/domain_and_range
 difficulty: hard
 calculator: none
-variables:
-  a: integer(0, 4)
-  gap: integer(1, 5)
-  b: a + gap
-  f: sqrt(x - a) / (x - b)
-question: "Find the domain of {f}. Express your answer in interval notation."
-answer: a, b
-answer_type: tuple
-solution:
-  - "Two conditions must hold simultaneously."
-  - "First, the expression under the square root must be non-negative: {math(x - a >= 0)}, which gives {math(x >= a)}."
-  - "Second, the denominator must be non-zero: {math(x - b != 0)}, which gives {math(x != b)}."
-  - "Combining both restrictions, the domain is {math([a, b))} union {math((b, +oo))}."
+variants:
+  - name: default
+    variables:
+      a: integer(0, 4)
+      gap: integer(1, 5)
+      b: a + gap
+      f: sqrt(x - a) / (x - b)
+    question: Find the domain of {f}. Express your answer in interval notation.
+    answer: a, b
+    answer_type: tuple
+    solution:
+      - Two conditions must hold simultaneously.
+      - 'First, the expression under the square root must be non-negative: {math(x - a >= 0)}, which gives {math(x >= a)}.'
+      - 'Second, the denominator must be non-zero: {math(x - b != 0)}, which gives {math(x != b)}.'
+      - Combining both restrictions, the domain is {math([a, b))} union {math((b, +oo))}.

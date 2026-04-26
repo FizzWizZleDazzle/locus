@@ -1,26 +1,24 @@
 topic: algebra2/complex_number_equations
 difficulty: hard
 calculator: none
-
-variables:
-  re_ans: nonzero(-5, 5)
-  im_ans: nonzero(-5, 5)
-  k_re: nonzero(-3, 3)
-  k_im: nonzero(-3, 3)
-  rhs_re: k_re*re_ans - k_im*im_ans
-  rhs_im: k_re*im_ans + k_im*re_ans
-  k_complex: k_re + k_im*I
-  rhs: rhs_re + rhs_im*I
-  answer: re_ans + im_ans*I
-  modulus_sq: k_re^2 + k_im^2
-
-question: "Solve for the complex number {math(z)}: {equation(k_complex*z, rhs)}"
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Divide both sides by {k_complex}: {equation(z, math(rhs / k_complex))}."
-  - "Multiply numerator and denominator by the conjugate {math(k_re - k_im*I)}."
-  - "The denominator becomes {modulus_sq} (the squared modulus)."
-  - "Simplifying yields {equation(z, answer)}."
+variants:
+  - name: default
+    variables:
+      re_ans: nonzero(-5, 5)
+      im_ans: nonzero(-5, 5)
+      k_re: nonzero(-3, 3)
+      k_im: nonzero(-3, 3)
+      rhs_re: k_re*re_ans - k_im*im_ans
+      rhs_im: k_re*im_ans + k_im*re_ans
+      k_complex: k_re + k_im*I
+      rhs: rhs_re + rhs_im*I
+      answer: re_ans + im_ans*I
+      modulus_sq: k_re^2 + k_im^2
+    question: 'Solve for the complex number {math(z)}: {equation(k_complex*z, rhs)}'
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Divide both sides by {k_complex}: {equation(z, math(rhs / k_complex))}.'
+      - Multiply numerator and denominator by the conjugate {math(k_re - k_im*I)}.
+      - The denominator becomes {modulus_sq} (the squared modulus).
+      - Simplifying yields {equation(z, answer)}.

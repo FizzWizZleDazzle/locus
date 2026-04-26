@@ -1,27 +1,26 @@
 topic: arithmetic/ratios_proportions
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: integer(4, 9)
-  q: integer(2, 6)
-  k: integer(4, 15)
-  diff_parts: p - q
-  diff: k*(p - q)
-  part_a: k*p
-  part_b: k*q
-  total: k*(p + q)
-  sum_pq: p + q
-
-constraints:
-  - p > q
-
-question: "Two quantities are in the ratio {p} : {q}. The larger quantity exceeds the smaller by {diff}. Find the sum of the two quantities."
-answer: total
-answer_type: numeric
-solution:
-  - "Let the common multiplier be {math(n)}, so the two quantities are {math(p*n)} and {math(q*n)}."
-  - "Their difference: {math(p*n)} - {math(q*n)} = {math(diff_parts*n)} = {diff}."
-  - "Therefore {math(n)} = {math(diff)} / {math(diff_parts)} = {k}."
-  - "Larger quantity = {math(p)} parts = {part_a}. Smaller quantity = {math(q)} parts = {part_b}."
-  - "Sum = {part_a} + {part_b} = {total}."
+variants:
+  - name: default
+    variables:
+      p: integer(4, 9)
+      q: integer(2, 6)
+      k: integer(4, 15)
+      diff_parts: p - q
+      diff: k*(p - q)
+      part_a: k*p
+      part_b: k*q
+      total: k*(p + q)
+      sum_pq: p + q
+    constraints:
+      - p > q
+    question: 'Two quantities are in the ratio {p} : {q}. The larger quantity exceeds the smaller by {diff}. Find the sum of the two quantities.'
+    answer: total
+    answer_type: numeric
+    solution:
+      - Let the common multiplier be {math(n)}, so the two quantities are {math(p*n)} and {math(q*n)}.
+      - 'Their difference: {math(p*n)} - {math(q*n)} = {math(diff_parts*n)} = {diff}.'
+      - Therefore {math(n)} = {math(diff)} / {math(diff_parts)} = {k}.
+      - Larger quantity = {math(p)} parts = {part_a}. Smaller quantity = {math(q)} parts = {part_b}.
+      - Sum = {part_a} + {part_b} = {total}.

@@ -1,23 +1,20 @@
 topic: precalculus/inverse_functions
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-8, 8)
-  expr: a*x + b
-  inv_expr: (x - b) / a
-
-constraints:
-  - a != 1
-  - a != -1
-
-question: "A function is defined by {equation(math(f(x)), expr)}. Find the inverse function {math(g(x))} such that {math(f(g(x)) = x)}."
-
-answer: inv_expr
-answer_type: expression
-
-solution:
-  - "Set {equation(math(y), expr)} and swap {math(x)} and {math(y)}: {equation(math(x), a*y + b)}."
-  - "Subtract {b} from both sides: {equation(math(x - b), a*y)}."
-  - "Divide both sides by {a}: {equation(math(g(x)), inv_expr)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-8, 8)
+      expr: a*x + b
+      inv_expr: (x - b) / a
+    constraints:
+      - a != 1
+      - a != -1
+    question: A function is defined by {equation(math(f(x)), expr)}. Find the inverse function {math(g(x))} such that {math(f(g(x)) = x)}.
+    answer: inv_expr
+    answer_type: expression
+    solution:
+      - 'Set {equation(math(y), expr)} and swap {math(x)} and {math(y)}: {equation(math(x), a*y + b)}.'
+      - 'Subtract {b} from both sides: {equation(math(x - b), a*y)}.'
+      - 'Divide both sides by {a}: {equation(math(g(x)), inv_expr)}.'

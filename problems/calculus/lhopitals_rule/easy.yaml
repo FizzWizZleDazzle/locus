@@ -1,23 +1,21 @@
 topic: calculus/lhopitals_rule
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  p: nonzero(-4, 4)
-  num_const: a * p * p
-  numer: a*x^2 - num_const
-  denom: x - p
-  num_deriv: derivative(numer, x)
-  denom_deriv: derivative(denom, x)
-  answer: evaluate(num_deriv, x, p)
-
-question: "Evaluate {limit_of(numer/denom, x, p)} using LHopital's rule."
-
-answer: answer
-
-solution:
-  - "Both the numerator and denominator approach 0 as {math(x)} approaches {p}, giving an indeterminate form."
-  - "Differentiate the numerator: {derivative_of(numer, x)} = {num_deriv}"
-  - "Differentiate the denominator: {derivative_of(denom, x)} = {denom_deriv}"
-  - "The limit of the ratio of derivatives as {math(x)} approaches {p} equals {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      p: nonzero(-4, 4)
+      num_const: a * p * p
+      numer: a*x^2 - num_const
+      denom: x - p
+      num_deriv: derivative(numer, x)
+      denom_deriv: derivative(denom, x)
+      answer: evaluate(num_deriv, x, p)
+    question: Evaluate {limit_of(numer/denom, x, p)} using LHopital's rule.
+    answer: answer
+    solution:
+      - Both the numerator and denominator approach 0 as {math(x)} approaches {p}, giving an indeterminate form.
+      - 'Differentiate the numerator: {derivative_of(numer, x)} = {num_deriv}'
+      - 'Differentiate the denominator: {derivative_of(denom, x)} = {denom_deriv}'
+      - The limit of the ratio of derivatives as {math(x)} approaches {p} equals {answer}.

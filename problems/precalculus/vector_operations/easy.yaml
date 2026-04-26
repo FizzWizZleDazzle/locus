@@ -1,18 +1,20 @@
 topic: precalculus/vector_operations
 difficulty: easy
 calculator: scientific
-variables:
-  a1: integer(-6, 6)
-  a2: integer(-6, 6)
-  b1: integer(-6, 6)
-  b2: integer(-6, 6)
-  sum1: a1 + b1
-  sum2: a2 + b2
-question: "Given vectors {vec([a1, a2])} and {vec([b1, b2])}, find their sum."
-answer: sum1, sum2
-answer_type: tuple
-solution:
-  - "Add corresponding components of the two vectors."
-  - "First components: {a1} and {b1} give {sum1}."
-  - "Second components: {a2} and {b2} give {sum2}."
-  - "The sum is {vec([sum1, sum2])}."
+variants:
+  - name: default
+    variables:
+      a1: integer(-6, 6)
+      a2: integer(-6, 6)
+      b1: integer(-6, 6)
+      b2: integer(-6, 6)
+      sum1: a1 + b1
+      sum2: a2 + b2
+    question: Given vectors {vec([a1, a2])} and {vec([b1, b2])}, find their sum.
+    answer: sum1, sum2
+    answer_type: tuple
+    solution:
+      - Add corresponding components of the two vectors.
+      - 'First components: {a1} and {b1} give {sum1}.'
+      - 'Second components: {a2} and {b2} give {sum2}.'
+      - The sum is {vec([sum1, sum2])}.

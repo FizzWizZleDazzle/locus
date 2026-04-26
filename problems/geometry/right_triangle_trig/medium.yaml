@@ -1,28 +1,30 @@
 topic: geometry/right_triangle_trig
 difficulty: medium
 calculator: scientific
-
-variables:
-  angle_deg: choice(30, 45, 60)
-  hyp: choice(2, 4, 6, 8, 10)
-  angle_rad: angle_deg * pi / 180
-  sin_val: sin(angle_rad)
-  answer: hyp * sin_val
-
-question: "In a right triangle, the hypotenuse has length {hyp} and one acute angle measures {angle_deg} degrees. Find the length of the side opposite that angle."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "The sine ratio relates the opposite side to the hypotenuse: {math(sin(theta) = opposite / hypotenuse)}."
-  - "Solving for the opposite side: opposite = hypotenuse {math(\\cdot)} {math(sin(theta))}."
-  - "The sine of {angle_deg} degrees is {sin_val}."
-  - "Opposite side = {hyp} {math(\\cdot)} {sin_val} = {answer}."
-
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  sides: {AB: hyp}
-  angles: {A: angle_deg}
-  right_angle: C
+variants:
+  - name: default
+    variables:
+      angle_deg: choice(30, 45, 60)
+      hyp: choice(2, 4, 6, 8, 10)
+      angle_rad: angle_deg * pi / 180
+      sin_val: sin(angle_rad)
+      answer: hyp * sin_val
+    question: In a right triangle, the hypotenuse has length {hyp} and one acute angle measures {angle_deg} degrees. Find the length of the side opposite that angle.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'The sine ratio relates the opposite side to the hypotenuse: {math(sin(theta) = opposite / hypotenuse)}.'
+      - 'Solving for the opposite side: opposite = hypotenuse {math(\cdot)} {math(sin(theta))}.'
+      - The sine of {angle_deg} degrees is {sin_val}.
+      - Opposite side = {hyp} {math(\cdot)} {sin_val} = {answer}.
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      sides:
+        AB: hyp
+      angles:
+        A: angle_deg
+      right_angle: C

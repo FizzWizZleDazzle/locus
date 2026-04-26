@@ -1,27 +1,25 @@
 topic: differential_equations/separable_equations
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  n: integer(2, 4)
-  b: integer(1, 5)
-  np1: n + 1
-  antideriv_coeff: 2 * a / np1
-  C_val: b^2
-  f_rhs: a * x^n
-  f_expr: a * x^n / y
-  rhs_antideriv: a * x^np1 / np1
-  answer: sqrt(antideriv_coeff * x^np1 + C_val)
-
-question: "Solve the initial value problem {equation(math(dy/dx), f_expr)}, {math(y(0))} = {b}. Express {math(y)} as an explicit function of {math(x)}."
-
-solution:
-  - "Separate variables: multiply both sides by {math(y)} and by {math(dx)} to get {math(y * dy)} = {f_rhs} {math(dx)}."
-  - "Integrate both sides: {equation(y^2 / 2, rhs_antideriv + C)}, where {math(C)} is an arbitrary constant."
-  - "Apply the initial condition {math(y(0))} = {b}: substituting {math(x = 0)} gives {equation(b^2 / 2, C)}, so {math(C)} = {C_val / 2}."
-  - "Substitute back and multiply by 2: {equation(y^2, antideriv_coeff * x^np1 + C_val)}."
-  - "Taking the positive square root (since {math(y(0))} = {b} > 0): {equation(y, answer)}."
-
-answer: answer
-answer_type: expression
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      n: integer(2, 4)
+      b: integer(1, 5)
+      np1: n + 1
+      antideriv_coeff: 2 * a / np1
+      C_val: b^2
+      f_rhs: a * x^n
+      f_expr: a * x^n / y
+      rhs_antideriv: a * x^np1 / np1
+      answer: sqrt(antideriv_coeff * x^np1 + C_val)
+    question: Solve the initial value problem {equation(math(dy/dx), f_expr)}, {math(y(0))} = {b}. Express {math(y)} as an explicit function of {math(x)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Separate variables: multiply both sides by {math(y)} and by {math(dx)} to get {math(y * dy)} = {f_rhs} {math(dx)}.'
+      - 'Integrate both sides: {equation(y^2 / 2, rhs_antideriv + C)}, where {math(C)} is an arbitrary constant.'
+      - 'Apply the initial condition {math(y(0))} = {b}: substituting {math(x = 0)} gives {equation(b^2 / 2, C)}, so {math(C)} = {C_val / 2}.'
+      - 'Substitute back and multiply by 2: {equation(y^2, antideriv_coeff * x^np1 + C_val)}.'
+      - 'Taking the positive square root (since {math(y(0))} = {b} > 0): {equation(y, answer)}.'

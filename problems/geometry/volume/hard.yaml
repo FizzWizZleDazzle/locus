@@ -1,20 +1,20 @@
 topic: geometry/volume
 difficulty: hard
 calculator: scientific
-
-variables:
-  r: choice(2, 3, 4, 5)
-  h_cyl: choice(6, 8, 10, 12)
-  h_cone: choice(3, 4, 6, 9)
-  r2: r^2
-  v_cyl: pi * r2 * h_cyl
-  v_cone: pi * r2 * h_cone / 3
-  answer: v_cyl + v_cone
-
-question: "A composite solid consists of a cylinder topped with a cone, both sharing the same circular base of radius {r} cm. The cylinder has height {h_cyl} cm and the cone has height {h_cone} cm. Find the total volume of the solid. Express your answer in terms of {math(pi)}."
-answer: answer
-answer_type: expression
-solution:
-  - "Cylinder volume formula: {math(V = pi * R^2 * H)}. Substituting {math(R)} = {r} cm and {math(H)} = {h_cyl} cm gives {v_cyl} cubic cm."
-  - "Cone volume formula: {math(V = pi * R^2 * H / 3)}. Substituting {math(R)} = {r} cm and {math(H)} = {h_cone} cm gives {v_cone} cubic cm."
-  - "Total volume = {v_cyl} + {v_cone} = {answer} cubic cm."
+variants:
+  - name: default
+    variables:
+      r: choice(2, 3, 4, 5)
+      h_cyl: choice(6, 8, 10, 12)
+      h_cone: choice(3, 4, 6, 9)
+      r2: r^2
+      v_cyl: pi * r2 * h_cyl
+      v_cone: pi * r2 * h_cone / 3
+      answer: v_cyl + v_cone
+    question: A composite solid consists of a cylinder topped with a cone, both sharing the same circular base of radius {r} cm. The cylinder has height {h_cyl} cm and the cone has height {h_cone} cm. Find the total volume of the solid. Express your answer in terms of {math(pi)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Cylinder volume formula: {math(V = pi * R^2 * H)}. Substituting {math(R)} = {r} cm and {math(H)} = {h_cyl} cm gives {v_cyl} cubic cm.'
+      - 'Cone volume formula: {math(V = pi * R^2 * H / 3)}. Substituting {math(R)} = {r} cm and {math(H)} = {h_cone} cm gives {v_cone} cubic cm.'
+      - Total volume = {v_cyl} + {v_cone} = {answer} cubic cm.

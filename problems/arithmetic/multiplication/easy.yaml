@@ -1,17 +1,15 @@
 topic: arithmetic/multiplication
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(2, 12)
-  b: integer(2, 12)
-  answer: a * b
-
-question: "What is {a} times {b}?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Multiply the two numbers together."
-  - "{equation(math(a \times b), answer)}"
+variants:
+  - name: default
+    variables:
+      a: integer(2, 12)
+      b: integer(2, 12)
+      answer: a * b
+    question: What is {a} times {b}?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Multiply the two numbers together.
+      - "{equation(math(a \times b), answer)}"

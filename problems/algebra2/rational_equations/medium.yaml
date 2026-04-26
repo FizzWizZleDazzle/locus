@@ -1,28 +1,25 @@
 topic: algebra2/rational_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  ans: integer(2, 6)
-  b: nonzero(-4, 4)
-  c: choice(2, 3, -2, -3)
-  a: c*(ans + b) - ans
-  rhs_expanded_const: c*b
-  coeff: c - 1
-  lhs_const: a - c*b
-  answer: ans
-
-constraints:
-  - ans != b
-
-question: "Solve for {math(x)}: {equation(math((x + a) / (x + b)), c)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Multiply both sides by {math(x + b)} to clear the denominator: {equation(x + a, c*(x + b))}"
-  - "Distribute the right side: {equation(x + a, c*x + rhs_expanded_const)}"
-  - "Move all {math(x)} terms to one side: {equation(lhs_const, coeff*x)}"
-  - "Divide both sides by {coeff}: {equation(x, ans)}"
-  - "Check: substituting {math(x)} = {ans} gives {equation(math((ans + a) / (ans + b)), c)}, which is valid since {math(x + b)} = {ans + b} is not zero."
+variants:
+  - name: default
+    variables:
+      ans: integer(2, 6)
+      b: nonzero(-4, 4)
+      c: choice(2, 3, -2, -3)
+      a: c*(ans + b) - ans
+      rhs_expanded_const: c*b
+      coeff: c - 1
+      lhs_const: a - c*b
+      answer: ans
+    constraints:
+      - ans != b
+    question: 'Solve for {math(x)}: {equation(math((x + a) / (x + b)), c)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Multiply both sides by {math(x + b)} to clear the denominator: {equation(x + a, c*(x + b))}'
+      - 'Distribute the right side: {equation(x + a, c*x + rhs_expanded_const)}'
+      - 'Move all {math(x)} terms to one side: {equation(lhs_const, coeff*x)}'
+      - 'Divide both sides by {coeff}: {equation(x, ans)}'
+      - 'Check: substituting {math(x)} = {ans} gives {equation(math((ans + a) / (ans + b)), c)}, which is valid since {math(x + b)} = {ans + b} is not zero.'

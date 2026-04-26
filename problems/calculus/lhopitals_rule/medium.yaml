@@ -1,23 +1,21 @@
 topic: calculus/lhopitals_rule
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  pt: integer(1, 5)
-  d: integer(1, 6)
-  numer_raw: a*(x - pt)*(x + d)
-  numer: expand(numer_raw)
-  denom: x - pt
-  numer_deriv: derivative(numer, x)
-  answer: evaluate(numer_deriv, x, pt)
-
-question: "The limit {limit_of(numer/denom, x, pt)} is an indeterminate form. Apply LHopital's rule to find its value."
-
-answer: answer
-
-solution:
-  - "Direct substitution of {math(x = pt)} gives zero over zero, confirming the indeterminate form."
-  - "Differentiate the numerator: {equation(derivative_of(numer, x), numer_deriv)}"
-  - "Differentiate the denominator: {equation(derivative_of(denom, x), 1)}"
-  - "By LHopital's rule: {limit_of(numer_deriv, x, pt)} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      pt: integer(1, 5)
+      d: integer(1, 6)
+      numer_raw: a*(x - pt)*(x + d)
+      numer: expand(numer_raw)
+      denom: x - pt
+      numer_deriv: derivative(numer, x)
+      answer: evaluate(numer_deriv, x, pt)
+    question: The limit {limit_of(numer/denom, x, pt)} is an indeterminate form. Apply LHopital's rule to find its value.
+    answer: answer
+    solution:
+      - Direct substitution of {math(x = pt)} gives zero over zero, confirming the indeterminate form.
+      - 'Differentiate the numerator: {equation(derivative_of(numer, x), numer_deriv)}'
+      - 'Differentiate the denominator: {equation(derivative_of(denom, x), 1)}'
+      - 'By LHopital''s rule: {limit_of(numer_deriv, x, pt)} = {answer}.'

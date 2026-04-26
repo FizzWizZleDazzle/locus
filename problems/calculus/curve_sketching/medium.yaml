@@ -1,32 +1,6 @@
 topic: calculus/curve_sketching
 difficulty: medium
 calculator: scientific
-variables:
-  p: integer(1, 3)
-  gap: integer(1, 3)
-  q: p + 2*gap
-  b_coeff: -3*(p + q)/2
-  c_coeff: 3*p*q
-  f: x^3 + b_coeff*x^2 + c_coeff*x
-  f_prime: derivative(f, x)
-  f_double_prime: derivative(f_prime, x)
-  fpp_at_p: evaluate(f_double_prime, x, p)
-  fpp_at_q: evaluate(f_double_prime, x, q)
-  answer: q
-
-question: "Find the {math(x)}-coordinate of the local minimum of f(x) = {f}."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Differentiate: {equation(derivative_of(f, x), f_prime)}"
-  - "Set the derivative equal to zero: {equation(f_prime, 0)}"
-  - "Critical points at {math(x)} = {p} and {math(x)} = {q}."
-  - "Second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}"
-  - "At {math(x)} = {p}: the second derivative equals {fpp_at_p} < 0, so {math(x)} = {p} is a local maximum."
-  - "At {math(x)} = {q}: the second derivative equals {fpp_at_q} > 0, so {math(x)} = {q} is a local minimum."
-  - "The {math(x)}-coordinate of the local minimum is {answer}."
-
 variants:
   - name: local_minimum
     variables:
@@ -41,9 +15,17 @@ variants:
       fpp_at_p: evaluate(f_double_prime, x, p)
       fpp_at_q: evaluate(f_double_prime, x, q)
       answer: q
-    question: "Find the {math(x)}-coordinate of the local minimum of f(x) = {f}."
+    question: Find the {math(x)}-coordinate of the local minimum of f(x) = {f}.
     answer: answer
-
+    answer_type: numeric
+    solution:
+      - 'Differentiate: {equation(derivative_of(f, x), f_prime)}'
+      - 'Set the derivative equal to zero: {equation(f_prime, 0)}'
+      - Critical points at {math(x)} = {p} and {math(x)} = {q}.
+      - 'Second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}'
+      - 'At {math(x)} = {p}: the second derivative equals {fpp_at_p} < 0, so {math(x)} = {p} is a local maximum.'
+      - 'At {math(x)} = {q}: the second derivative equals {fpp_at_q} > 0, so {math(x)} = {q} is a local minimum.'
+      - The {math(x)}-coordinate of the local minimum is {answer}.
   - name: local_maximum
     variables:
       p: integer(1, 3)
@@ -57,13 +39,14 @@ variants:
       fpp_at_p: evaluate(f_double_prime, x, p)
       fpp_at_q: evaluate(f_double_prime, x, q)
       answer: p
-    question: "Find the {math(x)}-coordinate of the local maximum of f(x) = {f}."
+    question: Find the {math(x)}-coordinate of the local maximum of f(x) = {f}.
     answer: answer
+    answer_type: numeric
     solution:
-      - "Differentiate: {equation(derivative_of(f, x), f_prime)}"
-      - "Set the derivative equal to zero: {equation(f_prime, 0)}"
-      - "Critical points at {math(x)} = {p} and {math(x)} = {q}."
-      - "Second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}"
-      - "At {math(x)} = {p}: the second derivative equals {fpp_at_p} < 0, so {math(x)} = {p} is a local maximum."
-      - "At {math(x)} = {q}: the second derivative equals {fpp_at_q} > 0, so {math(x)} = {q} is a local minimum."
-      - "The {math(x)}-coordinate of the local maximum is {answer}."
+      - 'Differentiate: {equation(derivative_of(f, x), f_prime)}'
+      - 'Set the derivative equal to zero: {equation(f_prime, 0)}'
+      - Critical points at {math(x)} = {p} and {math(x)} = {q}.
+      - 'Second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}'
+      - 'At {math(x)} = {p}: the second derivative equals {fpp_at_p} < 0, so {math(x)} = {p} is a local maximum.'
+      - 'At {math(x)} = {q}: the second derivative equals {fpp_at_q} > 0, so {math(x)} = {q} is a local minimum.'
+      - The {math(x)}-coordinate of the local maximum is {answer}.

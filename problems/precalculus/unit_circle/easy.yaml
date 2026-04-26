@@ -1,16 +1,16 @@
 topic: precalculus/unit_circle
 difficulty: easy
 calculator: none
-
-variables:
-  angle_deg: choice(30, 45, 60)
-  angle_rad: angle_deg * pi / 180
-  answer: sin(angle_rad)
-
-question: "Using the unit circle, find the exact value of sine at {angle_deg} degrees."
-answer: answer
-answer_type: expression
-solution:
-  - "Convert {angle_deg} degrees to radians by multiplying by {math(pi / 180)}: the angle is {angle_rad} radians."
-  - "On the unit circle, the y-coordinate of the point at {angle_rad} radians gives the sine value."
-  - "Therefore, the sine of {angle_deg} degrees is {answer}."
+variants:
+  - name: default
+    variables:
+      angle_deg: choice(30, 45, 60)
+      angle_rad: angle_deg * pi / 180
+      answer: sin(angle_rad)
+    question: Using the unit circle, find the exact value of sine at {angle_deg} degrees.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Convert {angle_deg} degrees to radians by multiplying by {math(pi / 180)}: the angle is {angle_rad} radians.'
+      - On the unit circle, the y-coordinate of the point at {angle_rad} radians gives the sine value.
+      - Therefore, the sine of {angle_deg} degrees is {answer}.

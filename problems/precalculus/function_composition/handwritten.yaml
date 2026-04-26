@@ -1,22 +1,20 @@
 topic: precalculus/function_composition
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: integer(-8, 8)
-  c: nonzero(-5, 5)
-  d: integer(-8, 8)
-  f: a*x + b
-  g: c*x + d
-  fog: a*(c*x + d) + b
-  answer: expand(fog)
-
-question: "Let f(x) = {f} and g(x) = {g}. Find (f o g)(x) in expanded form."
-
-answer: answer
-
-solution:
-  - "f(g(x)) = f({g})"
-  - "= {a}({g}) + {b}"
-  - "= {answer}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: integer(-8, 8)
+      c: nonzero(-5, 5)
+      d: integer(-8, 8)
+      f: a*x + b
+      g: c*x + d
+      fog: a*(c*x + d) + b
+      answer: expand(fog)
+    question: Let f(x) = {f} and g(x) = {g}. Find (f o g)(x) in expanded form.
+    answer: answer
+    solution:
+      - f(g(x)) = f({g})
+      - = {a}({g}) + {b}
+      - = {answer}

@@ -1,25 +1,22 @@
 topic: arithmetic/long_division
 difficulty: medium
 calculator: none
-
-variables:
-  dvsr: integer(6, 15)
-  quot: integer(12, 30)
-  rem: integer(1, 5)
-  dvnd: dvsr * quot + rem
-  prod: dvsr * quot
-  answer: quot
-
-constraints:
-  - rem < dvsr
-
-question: "Divide {dvnd} by {dvsr} using long division. What is the quotient (ignore any remainder)?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "We want to find how many times {dvsr} goes into {dvnd}."
-  - "Perform long division: {dvsr} goes into {dvnd} exactly {quot} times with a remainder."
-  - "Check: {dvsr} times {quot} = {prod}, and {dvnd} minus {prod} = {rem}."
-  - "Since {rem} is less than {dvsr}, the remainder is {rem} and the quotient is {quot}."
+variants:
+  - name: default
+    variables:
+      dvsr: integer(6, 15)
+      quot: integer(12, 30)
+      rem: integer(1, 5)
+      dvnd: dvsr * quot + rem
+      prod: dvsr * quot
+      answer: quot
+    constraints:
+      - rem < dvsr
+    question: Divide {dvnd} by {dvsr} using long division. What is the quotient (ignore any remainder)?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - We want to find how many times {dvsr} goes into {dvnd}.
+      - 'Perform long division: {dvsr} goes into {dvnd} exactly {quot} times with a remainder.'
+      - 'Check: {dvsr} times {quot} = {prod}, and {dvnd} minus {prod} = {rem}.'
+      - Since {rem} is less than {dvsr}, the remainder is {rem} and the quotient is {quot}.

@@ -1,25 +1,23 @@
 topic: precalculus/function_composition
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-5, 5)
-  c: nonzero(-4, 4)
-  d: integer(-5, 5)
-  func_f: a*x + b
-  func_g: c*x^2 + d
-  fog_raw: a*(c*x^2 + d) + b
-  answer: expand(fog_raw)
-  ac: a*c
-  ad_plus_b: a*d + b
-
-question: "Let {equation(f(x), func_f)} and {equation(g(x), func_g)}. Find {math(f(g(x)))} in expanded form."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {func_f} with {func_g}."
-  - "{math(f(g(x)))} = {a}({func_g}) + {b} = {ac} {math(x^2)} + {ad_plus_b}"
-  - "Therefore {math(f(g(x)))} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-5, 5)
+      c: nonzero(-4, 4)
+      d: integer(-5, 5)
+      func_f: a*x + b
+      func_g: c*x^2 + d
+      fog_raw: a*(c*x^2 + d) + b
+      answer: expand(fog_raw)
+      ac: a*c
+      ad_plus_b: a*d + b
+    question: Let {equation(f(x), func_f)} and {equation(g(x), func_g)}. Find {math(f(g(x)))} in expanded form.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {func_f} with {func_g}.'
+      - '{math(f(g(x)))} = {a}({func_g}) + {b} = {ac} {math(x^2)} + {ad_plus_b}'
+      - Therefore {math(f(g(x)))} = {answer}.

@@ -1,19 +1,17 @@
 topic: calculus/continuity
 difficulty: easy
 calculator: none
-
-variables:
-  m: nonzero(-4, 4)
-  b: integer(-5, 5)
-  c: integer(-3, 3)
-  answer: m*c + b
-  f_left: m*x + b
-
-question: "The function {math(f(x))} is defined piecewise as {math(f(x))} = {f_left} for {math(x < c)}, and {math(f(x))} = {math(k)} for {math(x >= c)}. Find the value of {math(k)} that makes {math(f(x))} continuous at {math(x = c)}."
-
-answer: answer
-
-solution:
-  - "For continuity at {math(x = c)}, we need the left-hand limit to equal {math(f(c))}."
-  - "Compute the left-hand limit: {limit_of(f_left, x, c)} = {answer}."
-  - "Therefore {math(k)} = {answer}."
+variants:
+  - name: default
+    variables:
+      m: nonzero(-4, 4)
+      b: integer(-5, 5)
+      c: integer(-3, 3)
+      answer: m*c + b
+      f_left: m*x + b
+    question: The function {math(f(x))} is defined piecewise as {math(f(x))} = {f_left} for {math(x < c)}, and {math(f(x))} = {math(k)} for {math(x >= c)}. Find the value of {math(k)} that makes {math(f(x))} continuous at {math(x = c)}.
+    answer: answer
+    solution:
+      - For continuity at {math(x = c)}, we need the left-hand limit to equal {math(f(c))}.
+      - 'Compute the left-hand limit: {limit_of(f_left, x, c)} = {answer}.'
+      - Therefore {math(k)} = {answer}.

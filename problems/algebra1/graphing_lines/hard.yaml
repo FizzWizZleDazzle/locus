@@ -1,37 +1,49 @@
 topic: algebra1/graphing_lines
 difficulty: hard
 calculator: none
-
-variables:
-  m: nonzero(-4, 4)
-  b: integer(-6, 6)
-  x1: integer(-4, 4)
-  y1: m*x1 + b
-  x2: x1 + 2
-  y2: m*x2 + b
-  rise: y2 - y1
-  answer: m*x + b
-
-constraints:
-  - m != 1
-  - b != 0
-
-diagram:
-  type: coordinate_plane
-  x_range: [-8, 8]
-  y_range: [-8, 8]
-  grid: true
-  elements:
-    - line: {slope: m, intercept: b, color: blue, label: "l"}
-    - point: {x: x1, y: y1, label: "P_1", style: filled}
-    - point: {x: x2, y: y2, label: "P_2", style: filled}
-
-question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). Find the equation of the line in slope-intercept form."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Slope = rise / run = {rise} / 2 = {m}"
-  - "Apply point-slope form using ({x1}, {y1}): {equation(y - y1, m*(x - x1))}"
-  - "Distribute and simplify: {equation(y, answer)}"
+variants:
+  - name: default
+    variables:
+      m: nonzero(-4, 4)
+      b: integer(-6, 6)
+      x1: integer(-4, 4)
+      y1: m*x1 + b
+      x2: x1 + 2
+      y2: m*x2 + b
+      rise: y2 - y1
+      answer: m*x + b
+    constraints:
+      - m != 1
+      - b != 0
+    question: A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). Find the equation of the line in slope-intercept form.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Slope = rise / run = {rise} / 2 = {m}
+      - 'Apply point-slope form using ({x1}, {y1}): {equation(y - y1, m*(x - x1))}'
+      - 'Distribute and simplify: {equation(y, answer)}'
+    diagram:
+      type: coordinate_plane
+      x_range:
+        - -8
+        - 8
+      y_range:
+        - -8
+        - 8
+      grid: true
+      elements:
+        - line:
+            slope: m
+            intercept: b
+            color: blue
+            label: l
+        - point:
+            x: x1
+            y: y1
+            label: P_1
+            style: filled
+        - point:
+            x: x2
+            y: y2
+            label: P_2
+            style: filled

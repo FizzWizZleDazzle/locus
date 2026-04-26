@@ -1,30 +1,27 @@
 topic: algebra1/quadratic_formula
 difficulty: medium
 calculator: none
-
-variables:
-  r1: nonzero(-7, -1)
-  r2: integer(2, 8)
-  f: (x - r1) * (x - r2)
-  expanded: expand(f)
-  const_term: evaluate(expanded, x, 0)
-  b_coeff: -(r1 + r2)
-  disc: (r1 - r2)^2
-  disc_sqrt: sqrt(disc)
-  neg_b: -b_coeff
-  answer: solve(expanded, x)
-
-constraints:
-  - r1 != r2
-
-question: "Use the quadratic formula to solve {equation(expanded, 0)} for {math(x)}."
-
-answer: answer
-answer_type: set
-
-solution:
-  - "Identify coefficients: {math(a = 1)}, {math(b)} = {b_coeff}, {math(c)} = {const_term}."
-  - "Compute the discriminant: {math(b^2 - 4ac)} = {disc}."
-  - "The square root of the discriminant is {disc_sqrt}."
-  - "Apply the quadratic formula: {math(x)} = {math((-b_coeff + disc_sqrt) / 2)} or {math(x)} = {math((-b_coeff - disc_sqrt) / 2)}."
-  - "The solutions are {math(x)} = {r1} and {math(x)} = {r2}."
+variants:
+  - name: default
+    variables:
+      r1: nonzero(-7, -1)
+      r2: integer(2, 8)
+      f: (x - r1) * (x - r2)
+      expanded: expand(f)
+      const_term: evaluate(expanded, x, 0)
+      b_coeff: -(r1 + r2)
+      disc: (r1 - r2)^2
+      disc_sqrt: sqrt(disc)
+      neg_b: -b_coeff
+      answer: solve(expanded, x)
+    constraints:
+      - r1 != r2
+    question: Use the quadratic formula to solve {equation(expanded, 0)} for {math(x)}.
+    answer: answer
+    answer_type: set
+    solution:
+      - 'Identify coefficients: {math(a = 1)}, {math(b)} = {b_coeff}, {math(c)} = {const_term}.'
+      - 'Compute the discriminant: {math(b^2 - 4ac)} = {disc}.'
+      - The square root of the discriminant is {disc_sqrt}.
+      - 'Apply the quadratic formula: {math(x)} = {math((-b_coeff + disc_sqrt) / 2)} or {math(x)} = {math((-b_coeff - disc_sqrt) / 2)}.'
+      - The solutions are {math(x)} = {r1} and {math(x)} = {r2}.

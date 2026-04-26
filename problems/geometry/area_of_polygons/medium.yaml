@@ -1,33 +1,37 @@
 topic: geometry/area_of_polygons
 difficulty: medium
 calculator: scientific
-
-variables:
-  b1: integer(3, 12)
-  b2: integer(3, 12)
-  ht: integer(2, 9)
-  sum_bases: b1 + b2
-  answer: sum_bases * ht / 2
-
-constraints:
-  - b1 != b2
-
-diagram:
-  type: polygon
-  vertices: [A, B, C, D]
-  sides:
-    AB: {label: b1}
-    CD: {label: b2}
-    BC: {label: ht, style: dashed}
-  angles:
-    B: right_angle
-
-question: "A trapezoid has parallel bases of length {b1} and {b2}, and a perpendicular height of {ht}. Find the area of the trapezoid."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The area formula for a trapezoid is {math(A = (1/2)*(base_1 + base_2)*height)}."
-  - "Add the two bases: {b1} + {b2} = {sum_bases}."
-  - "Compute the area: {math(A = (1/2))} times {sum_bases} times {ht} = {answer}."
+variants:
+  - name: default
+    variables:
+      b1: integer(3, 12)
+      b2: integer(3, 12)
+      ht: integer(2, 9)
+      sum_bases: b1 + b2
+      answer: sum_bases * ht / 2
+    constraints:
+      - b1 != b2
+    question: A trapezoid has parallel bases of length {b1} and {b2}, and a perpendicular height of {ht}. Find the area of the trapezoid.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The area formula for a trapezoid is {math(A = (1/2)*(base_1 + base_2)*height)}.
+      - 'Add the two bases: {b1} + {b2} = {sum_bases}.'
+      - 'Compute the area: {math(A = (1/2))} times {sum_bases} times {ht} = {answer}.'
+    diagram:
+      type: polygon
+      vertices:
+        - A
+        - B
+        - C
+        - D
+      sides:
+        AB:
+          label: b1
+        CD:
+          label: b2
+        BC:
+          label: ht
+          style: dashed
+      angles:
+        B: right_angle

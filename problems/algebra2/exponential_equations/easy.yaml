@@ -1,19 +1,17 @@
 topic: algebra2/exponential_equations
 difficulty: easy
 calculator: none
-
-variables:
-  base: choice(2, 3, 4, 5)
-  answer: integer(1, 4)
-  result: base^answer
-
-question: "Solve for {math(x)}: {equation(math(base^x), result)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Identify the base on the left side: {base}."
-  - "Rewrite the right side as a power of {base}: {result} = {base}^{answer}."
-  - "The equation becomes {equation(math(base^x), math(base^answer))}, so the exponents are equal."
-  - "Therefore {equation(math(x), answer)}."
+variants:
+  - name: default
+    variables:
+      base: choice(2, 3, 4, 5)
+      answer: integer(1, 4)
+      result: base^answer
+    question: 'Solve for {math(x)}: {equation(math(base^x), result)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Identify the base on the left side: {base}.'
+      - 'Rewrite the right side as a power of {base}: {result} = {base}^{answer}.'
+      - The equation becomes {equation(math(base^x), math(base^answer))}, so the exponents are equal.
+      - Therefore {equation(math(x), answer)}.

@@ -1,23 +1,21 @@
 topic: algebra2/exponential_growth_decay
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: choice(80, 100, 160, 200)
-  half_life: choice(2, 3, 4, 5)
-  n: integer(2, 5)
-  t: n*half_life
-  decay_factor: (1/2)^n
-  answer: p*decay_factor
-
-question: "A radioactive substance has a half-life of {half_life} years. A {p} gram sample is observed. How many grams remain after {t} years?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The half-life formula gives {math(N(t) = N_0 * (1/2)^(t/T))} where {math(T)} is the half-life."
-  - "Here {math(N_0)} = {p} grams and {math(T)} = {half_life} years."
-  - "Compute the exponent: {math(t/T)} = {t}/{half_life} = {n}."
-  - "Then {math(N(t))} = {p} times {math((1/2)^n)} = {p} times {decay_factor}."
-  - "The mass remaining is {answer} grams."
+variants:
+  - name: default
+    variables:
+      p: choice(80, 100, 160, 200)
+      half_life: choice(2, 3, 4, 5)
+      n: integer(2, 5)
+      t: n*half_life
+      decay_factor: (1/2)^n
+      answer: p*decay_factor
+    question: A radioactive substance has a half-life of {half_life} years. A {p} gram sample is observed. How many grams remain after {t} years?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The half-life formula gives {math(N(t) = N_0 * (1/2)^(t/T))} where {math(T)} is the half-life.
+      - Here {math(N_0)} = {p} grams and {math(T)} = {half_life} years.
+      - 'Compute the exponent: {math(t/T)} = {t}/{half_life} = {n}.'
+      - Then {math(N(t))} = {p} times {math((1/2)^n)} = {p} times {decay_factor}.
+      - The mass remaining is {answer} grams.

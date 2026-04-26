@@ -1,26 +1,24 @@
 topic: precalculus/graphing_trig
 difficulty: hard
 calculator: scientific
-
-variables:
-  A: integer(2, 6)
-  B: nonzero(2, 5)
-  C: nonzero(-3, 3)
-  D: integer(-4, 4)
-  f: A*sin(B*x + C) + D
-  period: 2*pi/B
-  phase: -C/B
-  amp: A
-  vert: D
-
-question: "For {math(f(x))} = {f}, find the amplitude, period, phase shift, and vertical shift. Give the period in terms of {math(pi)} and the phase shift as a number."
-
-answer: amp, period, phase, vert
-answer_type: tuple
-
-solution:
-  - "For a function {math(A*sin(B*x + C) + D)}, the amplitude is {math(|A|)}, the period is {math(2*pi/B)}, the phase shift is {math(-C/B)}, and the vertical shift is {math(D)}."
-  - "Amplitude is {amp}."
-  - "Period is {math(2*pi)} divided by {B} = {period}."
-  - "Phase shift is {math(-C/B)} = {phase}."
-  - "Vertical shift is {vert}."
+variants:
+  - name: default
+    variables:
+      A: integer(2, 6)
+      B: nonzero(2, 5)
+      C: nonzero(-3, 3)
+      D: integer(-4, 4)
+      f: A*sin(B*x + C) + D
+      period: 2*pi/B
+      phase: -C/B
+      amp: A
+      vert: D
+    question: For {math(f(x))} = {f}, find the amplitude, period, phase shift, and vertical shift. Give the period in terms of {math(pi)} and the phase shift as a number.
+    answer: amp, period, phase, vert
+    answer_type: tuple
+    solution:
+      - For a function {math(A*sin(B*x + C) + D)}, the amplitude is {math(|A|)}, the period is {math(2*pi/B)}, the phase shift is {math(-C/B)}, and the vertical shift is {math(D)}.
+      - Amplitude is {amp}.
+      - Period is {math(2*pi)} divided by {B} = {period}.
+      - Phase shift is {math(-C/B)} = {phase}.
+      - Vertical shift is {vert}.

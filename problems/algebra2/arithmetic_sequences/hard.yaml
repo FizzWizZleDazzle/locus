@@ -1,30 +1,30 @@
 topic: algebra2/arithmetic_sequences
 difficulty: hard
 calculator: scientific
-
-variables:
-  a1: integer(2, 9)
-  d: integer(2, 7)
-  p: integer(3, 5)
-  q: integer(7, 10)
-  n: integer(12, 20)
-  ap: a1 + (p - 1)*d
-  aq: a1 + (q - 1)*d
-  q_minus_p: q - p
-  aq_minus_ap: aq - ap
-  p_minus_1: p - 1
-  a1_times_2: 2*a1
-  sum_n: n * (2*a1 + (n - 1)*d) / 2
-  n_minus_1: n - 1
-
-question: "The {p}th term of an arithmetic sequence is {ap} and the {q}th term is {aq}. Find the sum of the first {n} terms."
-answer: sum_n
-answer_type: numeric
-solution:
-  - "Let {math(a_1)} be the first term and {math(d)} the common difference, with general term {math(a_k = a_1 + (k-1)d)}."
-  - "Equation 1 (term {p}): {math(a_1 + (p-1)d)} = {ap}."
-  - "Equation 2 (term {q}): {math(a_1 + (q-1)d)} = {aq}."
-  - "Subtract Equation 1 from Equation 2: {math((q-p)d)} = {aq} - {ap} = {aq_minus_ap}."
-  - "There are {q_minus_p} steps between terms {p} and {q}, so {math(d)} = {aq_minus_ap} / {q_minus_p} = {d}."
-  - "Back-substitute {math(d)} = {d} into Equation 1: {math(a_1)} = {ap} - {p_minus_1} * {d} = {a1}."
-  - "Apply the sum formula {math(S_n = (n/2)(2a_1 + (n-1)d))} with {math(n)} = {n}: ({n}/2)({a1_times_2} + {n_minus_1} * {d}) = {sum_n}."
+variants:
+  - name: default
+    variables:
+      a1: integer(2, 9)
+      d: integer(2, 7)
+      p: integer(3, 5)
+      q: integer(7, 10)
+      n: integer(12, 20)
+      ap: a1 + (p - 1)*d
+      aq: a1 + (q - 1)*d
+      q_minus_p: q - p
+      aq_minus_ap: aq - ap
+      p_minus_1: p - 1
+      a1_times_2: 2*a1
+      sum_n: n * (2*a1 + (n - 1)*d) / 2
+      n_minus_1: n - 1
+    question: The {p}th term of an arithmetic sequence is {ap} and the {q}th term is {aq}. Find the sum of the first {n} terms.
+    answer: sum_n
+    answer_type: numeric
+    solution:
+      - Let {math(a_1)} be the first term and {math(d)} the common difference, with general term {math(a_k = a_1 + (k-1)d)}.
+      - 'Equation 1 (term {p}): {math(a_1 + (p-1)d)} = {ap}.'
+      - 'Equation 2 (term {q}): {math(a_1 + (q-1)d)} = {aq}.'
+      - 'Subtract Equation 1 from Equation 2: {math((q-p)d)} = {aq} - {ap} = {aq_minus_ap}.'
+      - There are {q_minus_p} steps between terms {p} and {q}, so {math(d)} = {aq_minus_ap} / {q_minus_p} = {d}.
+      - 'Back-substitute {math(d)} = {d} into Equation 1: {math(a_1)} = {ap} - {p_minus_1} * {d} = {a1}.'
+      - 'Apply the sum formula {math(S_n = (n/2)(2a_1 + (n-1)d))} with {math(n)} = {n}: ({n}/2)({a1_times_2} + {n_minus_1} * {d}) = {sum_n}.'

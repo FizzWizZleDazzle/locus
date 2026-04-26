@@ -1,27 +1,32 @@
 topic: geometry/circle_theorems
 difficulty: easy
 calculator: none
-
-variables:
-  central: choice(40, 60, 80, 100, 120, 140, 160)
-  half_central: central / 2
-  answer: half_central
-
-question: >-
-  A central angle in a circle measures {central} degrees. An inscribed angle
-  subtends the same arc. What is the measure of the inscribed angle, in degrees?
-
-answer: answer
-answer_type: numeric
-
-diagram:
-  type: circle
-  center: O
-  radius: r
-  elements:
-    - central_angle: {vertex: O, sides: [A, B], label: central}
-    - inscribed_angle: {vertex: C, sides: [A, B], label: answer}
-
-solution:
-  - "The Inscribed Angle Theorem states that an inscribed angle is half the central angle subtending the same arc."
-  - "Inscribed angle = {central} / 2 = {answer} degrees."
+variants:
+  - name: default
+    variables:
+      central: choice(40, 60, 80, 100, 120, 140, 160)
+      half_central: central / 2
+      answer: half_central
+    question: A central angle in a circle measures {central} degrees. An inscribed angle subtends the same arc. What is the measure of the inscribed angle, in degrees?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The Inscribed Angle Theorem states that an inscribed angle is half the central angle subtending the same arc.
+      - Inscribed angle = {central} / 2 = {answer} degrees.
+    diagram:
+      type: circle
+      center: O
+      radius: r
+      elements:
+        - central_angle:
+            vertex: O
+            sides:
+              - A
+              - B
+            label: central
+        - inscribed_angle:
+            vertex: C
+            sides:
+              - A
+              - B
+            label: answer

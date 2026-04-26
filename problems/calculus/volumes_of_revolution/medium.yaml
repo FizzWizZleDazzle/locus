@@ -1,24 +1,22 @@
 topic: calculus/volumes_of_revolution
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  n: integer(1, 2)
-  lo: integer(0, 1)
-  hi: integer(2, 4)
-  f: a*x^n
-  f_sq: a^2 * x^(2*n)
-  antideriv: integral(f_sq, x)
-  coeff: definite_integral(f_sq, x, lo, hi)
-  answer: pi * coeff
-
-question: "Find the volume of the solid obtained by rotating the region bounded by {math(y)} = {f}, {math(y = 0)}, {math(x)} = {lo}, and {math(x)} = {hi} about the {math(x)}-axis."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Using the disk method, the volume is {math(V)} = {definite_integral_of(pi * f_sq, x, lo, hi)}."
-  - "Antiderivative of {f_sq}: {equation(integral_of(f_sq, x), antideriv)} + C."
-  - "Evaluate: {math(V)} = {math(pi)} ({coeff}) = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      n: integer(1, 2)
+      lo: integer(0, 1)
+      hi: integer(2, 4)
+      f: a*x^n
+      f_sq: a^2 * x^(2*n)
+      antideriv: integral(f_sq, x)
+      coeff: definite_integral(f_sq, x, lo, hi)
+      answer: pi * coeff
+    question: Find the volume of the solid obtained by rotating the region bounded by {math(y)} = {f}, {math(y = 0)}, {math(x)} = {lo}, and {math(x)} = {hi} about the {math(x)}-axis.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Using the disk method, the volume is {math(V)} = {definite_integral_of(pi * f_sq, x, lo, hi)}.
+      - 'Antiderivative of {f_sq}: {equation(integral_of(f_sq, x), antideriv)} + C.'
+      - 'Evaluate: {math(V)} = {math(pi)} ({coeff}) = {answer}.'

@@ -1,24 +1,23 @@
 topic: calculus/area_between_curves
 difficulty: medium
 calculator: scientific
-variables:
-  r1: integer(1, 3)
-  r2: integer(4, 7)
-  line: (r1 + r2)*x - r1*r2
-  diff: (r1 + r2)*x - r1*r2 - x^2
-  antideriv: integral(diff, x)
-  F_hi: evaluate(antideriv, x, r2)
-  F_lo: evaluate(antideriv, x, r1)
-  answer: F_hi - F_lo
-
-question: "Find the area of the region enclosed between {math(f(x))} = {math(x^2)} and {math(g(x))} = {line}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Set {math(f(x))} = {math(g(x))} to find intersections: {equation(x^2, line)}."
-  - "Rearrange: {equation(x^2 - (r1 + r2)*x + r1*r2, 0)}, so the curves meet at {math(x)} = {r1} and {math(x)} = {r2}."
-  - "On [{r1}, {r2}], {math(g(x))} lies above {math(f(x))}, so Area = {definite_integral_of(diff, x, r1, r2)}."
-  - "Antiderivative of {diff} is {antideriv}."
-  - "Area = {F_hi} - ({F_lo}) = {answer}"
+variants:
+  - name: default
+    variables:
+      r1: integer(1, 3)
+      r2: integer(4, 7)
+      line: (r1 + r2)*x - r1*r2
+      diff: (r1 + r2)*x - r1*r2 - x^2
+      antideriv: integral(diff, x)
+      F_hi: evaluate(antideriv, x, r2)
+      F_lo: evaluate(antideriv, x, r1)
+      answer: F_hi - F_lo
+    question: Find the area of the region enclosed between {math(f(x))} = {math(x^2)} and {math(g(x))} = {line}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Set {math(f(x))} = {math(g(x))} to find intersections: {equation(x^2, line)}.'
+      - 'Rearrange: {equation(x^2 - (r1 + r2)*x + r1*r2, 0)}, so the curves meet at {math(x)} = {r1} and {math(x)} = {r2}.'
+      - On [{r1}, {r2}], {math(g(x))} lies above {math(f(x))}, so Area = {definite_integral_of(diff, x, r1, r2)}.
+      - Antiderivative of {diff} is {antideriv}.
+      - Area = {F_hi} - ({F_lo}) = {answer}

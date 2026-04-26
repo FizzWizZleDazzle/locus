@@ -1,37 +1,32 @@
 topic: linear_algebra/row_reduction
 difficulty: medium
 calculator: none
-
-variables:
-  x_sol: nonzero(-4, 4)
-  y_sol: nonzero(-4, 4)
-  a1: choice(1, 2, 3, -1, -2, -3)
-  b1: nonzero(-3, 3)
-  k: choice(2, 3, -2, -3)
-  a2: evaluate(k * a1, x, 0)
-  b2: nonzero(-3, 3)
-  c1_final: evaluate(a1*x_sol + b1*y_sol, x, 0)
-  c2_final: evaluate(a2*x_sol + b2*y_sol, x, 0)
-  new_b2: evaluate(b2 - k*b1, x, 0)
-  new_c2: evaluate(c2_final - k*c1_final, x, 0)
-  y_ans: y_sol
-  x_ans: x_sol
-
-constraints:
-  - b2 != k*b1
-
-question: >
-  Use row reduction on the augmented matrix to solve the system
-  {system(equation(a1*x + b1*y, c1_final), equation(a2*x + b2*y, c2_final))}.
-  Write your answer as {math((x, y))}.
-
-answer: x_ans, y_ans
-answer_type: tuple
-
-solution:
-  - "Form the augmented matrix: {matrix_of([[a1, b1, c1_final], [a2, b2, c2_final]])}."
-  - "Multiply row 1 by {k} and subtract from row 2 to zero out the leading entry of row 2."
-  - "The updated augmented matrix is {matrix_of([[a1, b1, c1_final], [0, new_b2, new_c2]])}."
-  - "Row 2 gives {equation(new_b2*y, new_c2)}, so {math(y)} = {y_ans}."
-  - "Substitute {math(y)} = {y_ans} into row 1: {equation(a1*x + b1*y_ans, c1_final)}, so {math(x)} = {x_ans}."
-  - "The solution is {math(x)} = {x_ans}, {math(y)} = {y_ans}."
+variants:
+  - name: default
+    variables:
+      x_sol: nonzero(-4, 4)
+      y_sol: nonzero(-4, 4)
+      a1: choice(1, 2, 3, -1, -2, -3)
+      b1: nonzero(-3, 3)
+      k: choice(2, 3, -2, -3)
+      a2: evaluate(k * a1, x, 0)
+      b2: nonzero(-3, 3)
+      c1_final: evaluate(a1*x_sol + b1*y_sol, x, 0)
+      c2_final: evaluate(a2*x_sol + b2*y_sol, x, 0)
+      new_b2: evaluate(b2 - k*b1, x, 0)
+      new_c2: evaluate(c2_final - k*c1_final, x, 0)
+      y_ans: y_sol
+      x_ans: x_sol
+    constraints:
+      - b2 != k*b1
+    question: |
+      Use row reduction on the augmented matrix to solve the system {system(equation(a1*x + b1*y, c1_final), equation(a2*x + b2*y, c2_final))}. Write your answer as {math((x, y))}.
+    answer: x_ans, y_ans
+    answer_type: tuple
+    solution:
+      - 'Form the augmented matrix: {matrix_of([[a1, b1, c1_final], [a2, b2, c2_final]])}.'
+      - Multiply row 1 by {k} and subtract from row 2 to zero out the leading entry of row 2.
+      - The updated augmented matrix is {matrix_of([[a1, b1, c1_final], [0, new_b2, new_c2]])}.
+      - Row 2 gives {equation(new_b2*y, new_c2)}, so {math(y)} = {y_ans}.
+      - 'Substitute {math(y)} = {y_ans} into row 1: {equation(a1*x + b1*y_ans, c1_final)}, so {math(x)} = {x_ans}.'
+      - The solution is {math(x)} = {x_ans}, {math(y)} = {y_ans}.

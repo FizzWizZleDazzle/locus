@@ -1,31 +1,28 @@
 topic: linear_algebra/eigenvalues
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: choice(-5, -4, -3, -2, 2, 3, 4, 5)
-  q: choice(-6, -1, 1, 6, 7, 8)
-  tr: p + q
-  dt: p * q
-  neg_tr: -1 * tr
-  char_poly: x^2 + neg_tr*x + dt
-  fac1: x - p
-  fac2: x - q
-  mat_c: -1 * dt
-  mat_d: tr
-
-constraints:
-  - p != q
-
-question: >
-  Find the eigenvalues of the matrix {matrix_of([[0, 1], [mat_c, mat_d]])}.
-
-answer: p, q
-answer_type: set
-
-solution:
-  - "The eigenvalues are the values of {math(x)} satisfying the characteristic equation: subtract {math(x)} from each diagonal entry and set the determinant to zero."
-  - "For {matrix_of([[0, 1], [mat_c, mat_d]])}, this gives {det_of([[-x, 1], [mat_c, mat_d - x]])} = 0."
-  - "Expanding: {equation(char_poly, 0)}."
-  - "Factor: {equation(fac1 * fac2, 0)}."
-  - "The eigenvalues are {p} and {q}."
+variants:
+  - name: default
+    variables:
+      p: choice(-5, -4, -3, -2, 2, 3, 4, 5)
+      q: choice(-6, -1, 1, 6, 7, 8)
+      tr: p + q
+      dt: p * q
+      neg_tr: -1 * tr
+      char_poly: x^2 + neg_tr*x + dt
+      fac1: x - p
+      fac2: x - q
+      mat_c: -1 * dt
+      mat_d: tr
+    constraints:
+      - p != q
+    question: |
+      Find the eigenvalues of the matrix {matrix_of([[0, 1], [mat_c, mat_d]])}.
+    answer: p, q
+    answer_type: set
+    solution:
+      - 'The eigenvalues are the values of {math(x)} satisfying the characteristic equation: subtract {math(x)} from each diagonal entry and set the determinant to zero.'
+      - For {matrix_of([[0, 1], [mat_c, mat_d]])}, this gives {det_of([[-x, 1], [mat_c, mat_d - x]])} = 0.
+      - 'Expanding: {equation(char_poly, 0)}.'
+      - 'Factor: {equation(fac1 * fac2, 0)}.'
+      - The eigenvalues are {p} and {q}.

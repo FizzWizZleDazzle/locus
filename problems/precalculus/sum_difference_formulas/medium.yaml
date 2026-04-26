@@ -1,29 +1,26 @@
 topic: precalculus/sum_difference_formulas
 difficulty: medium
 calculator: none
-
-variables:
-  angle_a_deg: choice(30, 45, 60)
-  angle_b_deg: choice(30, 45, 60)
-  angle_a: angle_a_deg * pi / 180
-  angle_b: angle_b_deg * pi / 180
-  sum_deg: angle_a_deg + angle_b_deg
-  sin_a: sin(angle_a)
-  cos_a: cos(angle_a)
-  sin_b: sin(angle_b)
-  cos_b: cos(angle_b)
-  answer: sin(angle_a + angle_b)
-
-constraints:
-  - angle_a_deg != angle_b_deg
-
-question: "Using the sine addition formula, find the exact value of the sine of {sum_deg} degrees."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The sine addition formula states: {math(sin(u + v) = sin(u)*cos(v) + cos(u)*sin(v))}"
-  - "Write {sum_deg} degrees as {angle_a_deg} degrees + {angle_b_deg} degrees."
-  - "Known values: {math(sin(u))} = {sin_a}, {math(cos(u))} = {cos_a}, {math(sin(v))} = {sin_b}, {math(cos(v))} = {cos_b}."
-  - "Substituting and simplifying gives the exact value {answer}."
+variants:
+  - name: default
+    variables:
+      angle_a_deg: choice(30, 45, 60)
+      angle_b_deg: choice(30, 45, 60)
+      angle_a: angle_a_deg * pi / 180
+      angle_b: angle_b_deg * pi / 180
+      sum_deg: angle_a_deg + angle_b_deg
+      sin_a: sin(angle_a)
+      cos_a: cos(angle_a)
+      sin_b: sin(angle_b)
+      cos_b: cos(angle_b)
+      answer: sin(angle_a + angle_b)
+    constraints:
+      - angle_a_deg != angle_b_deg
+    question: Using the sine addition formula, find the exact value of the sine of {sum_deg} degrees.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'The sine addition formula states: {math(sin(u + v) = sin(u)*cos(v) + cos(u)*sin(v))}'
+      - Write {sum_deg} degrees as {angle_a_deg} degrees + {angle_b_deg} degrees.
+      - 'Known values: {math(sin(u))} = {sin_a}, {math(cos(u))} = {cos_a}, {math(sin(v))} = {sin_b}, {math(cos(v))} = {cos_b}.'
+      - Substituting and simplifying gives the exact value {answer}.

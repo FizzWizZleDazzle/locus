@@ -1,26 +1,24 @@
 topic: calculus/u_substitution
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-5, 5)
-  n: integer(2, 5)
-  f: a * (b*x + c)^n
-  u_expr: b*x + c
-  n_plus_1: n + 1
-  coeff: a / (b * (n + 1))
-  answer: coeff * (b*x + c)^(n_plus_1)
-  a_over_b: a/b
-
-question: "Find {integral_of(f, x)}. Use the substitution {math(u = b*x + c)} and give the antiderivative in terms of {math(x)} (omit the constant of integration)."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Let {equation(math(u), u_expr)}, so {equation(derivative_of(u_expr, x), b)}, meaning {math(du = b*dx)}."
-  - "The integral becomes {a_over_b} {integral_of(u^n, u)}."
-  - "By the power rule, the antiderivative in {math(u)} is {coeff * u^n_plus_1}."
-  - "Back-substitute {equation(math(u), u_expr)} to get {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-5, 5)
+      n: integer(2, 5)
+      f: a * (b*x + c)^n
+      u_expr: b*x + c
+      n_plus_1: n + 1
+      coeff: a / (b * (n + 1))
+      answer: coeff * (b*x + c)^(n_plus_1)
+      a_over_b: a/b
+    question: Find {integral_of(f, x)}. Use the substitution {math(u = b*x + c)} and give the antiderivative in terms of {math(x)} (omit the constant of integration).
+    answer: answer
+    answer_type: expression
+    solution:
+      - Let {equation(math(u), u_expr)}, so {equation(derivative_of(u_expr, x), b)}, meaning {math(du = b*dx)}.
+      - The integral becomes {a_over_b} {integral_of(u^n, u)}.
+      - By the power rule, the antiderivative in {math(u)} is {coeff * u^n_plus_1}.
+      - Back-substitute {equation(math(u), u_expr)} to get {answer}.

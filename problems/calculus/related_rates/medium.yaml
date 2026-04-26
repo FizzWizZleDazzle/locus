@@ -1,25 +1,20 @@
 topic: calculus/related_rates
 difficulty: medium
 calculator: scientific
-
-variables:
-  r: integer(2, 8)
-  dr_dt: integer(1, 5)
-  r2: r^2
-  four_pi_r2: 4 * pi * r2
-  dV_dt: 4 * pi * r2 * dr_dt
-
-question: >
-  A spherical balloon's radius is increasing at a constant rate of {dr_dt} cm/s.
-  At the instant when the radius is {r} cm, find the rate at which
-  the volume of the sphere is increasing. Express your answer in terms
-  of {math(pi)}.
-
-answer: dV_dt
-answer_type: expression
-
-solution:
-  - "The volume of a sphere with radius {math(s)} is {math(V = (4/3)*pi*s^3)}."
-  - "Differentiate both sides with respect to time: {math(dV/dt = 4*pi*s^2)} times {math(ds/dt)}."
-  - "At this instant, {math(s)} = {r} cm and {math(ds/dt)} = {dr_dt} cm/s."
-  - "So {math(dV/dt)} = {four_pi_r2} times {dr_dt} = {dV_dt} cubic cm/s."
+variants:
+  - name: default
+    variables:
+      r: integer(2, 8)
+      dr_dt: integer(1, 5)
+      r2: r^2
+      four_pi_r2: 4 * pi * r2
+      dV_dt: 4 * pi * r2 * dr_dt
+    question: |
+      A spherical balloon's radius is increasing at a constant rate of {dr_dt} cm/s. At the instant when the radius is {r} cm, find the rate at which the volume of the sphere is increasing. Express your answer in terms of {math(pi)}.
+    answer: dV_dt
+    answer_type: expression
+    solution:
+      - The volume of a sphere with radius {math(s)} is {math(V = (4/3)*pi*s^3)}.
+      - 'Differentiate both sides with respect to time: {math(dV/dt = 4*pi*s^2)} times {math(ds/dt)}.'
+      - At this instant, {math(s)} = {r} cm and {math(ds/dt)} = {dr_dt} cm/s.
+      - So {math(dV/dt)} = {four_pi_r2} times {dr_dt} = {dV_dt} cubic cm/s.

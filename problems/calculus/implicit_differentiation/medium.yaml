@@ -1,29 +1,26 @@
 topic: calculus/implicit_differentiation
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  x0: nonzero(1, 4)
-  y0: nonzero(1, 4)
-  k: a*x0^2 + b*y0^2
-  curve: a*x^2 + b*y^2
-  two_a: 2*a
-  two_b: 2*b
-  answer: (-a*x0) / (b*y0)
-
-constraints:
-  - a != b
-
-question: "Given the curve {equation(curve, k)}, find {math(dy/dx)} at the point {math((x0, y0))}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Differentiate both sides of {equation(curve, k)} with respect to {math(x)} implicitly."
-  - "The derivative of {math(a*x^2)} is {two_a}{math(x)}, and the derivative of {math(b*y^2)} is {two_b}{math(y)} {math(dy/dx)} by the chain rule."
-  - "This gives {two_a}{math(x)} + {two_b}{math(y)} {math(dy/dx)} = 0."
-  - "Solve for {math(dy/dx)}: {equation(math(dy/dx), math(-(a*x) / (b*y)))}."
-  - "Substitute {math(x)} = {x0} and {math(y)} = {y0}: {equation(math(dy/dx), answer)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      x0: nonzero(1, 4)
+      y0: nonzero(1, 4)
+      k: a*x0^2 + b*y0^2
+      curve: a*x^2 + b*y^2
+      two_a: 2*a
+      two_b: 2*b
+      answer: (-a*x0) / (b*y0)
+    constraints:
+      - a != b
+    question: Given the curve {equation(curve, k)}, find {math(dy/dx)} at the point {math((x0, y0))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Differentiate both sides of {equation(curve, k)} with respect to {math(x)} implicitly.
+      - The derivative of {math(a*x^2)} is {two_a}{math(x)}, and the derivative of {math(b*y^2)} is {two_b}{math(y)} {math(dy/dx)} by the chain rule.
+      - This gives {two_a}{math(x)} + {two_b}{math(y)} {math(dy/dx)} = 0.
+      - 'Solve for {math(dy/dx)}: {equation(math(dy/dx), math(-(a*x) / (b*y)))}.'
+      - 'Substitute {math(x)} = {x0} and {math(y)} = {y0}: {equation(math(dy/dx), answer)}.'

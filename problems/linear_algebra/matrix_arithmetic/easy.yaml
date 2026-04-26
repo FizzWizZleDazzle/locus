@@ -1,23 +1,25 @@
 topic: linear_algebra/matrix_arithmetic
 difficulty: easy
 calculator: none
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  d: nonzero(-4, 4)
-  k: integer(2, 5)
-  ka: k*a
-  kb: k*b
-  kc: k*c
-  kd: k*d
-question: "Compute {k} times the matrix {matrix_of([[a, b], [c, d]])}. Enter the four entries of the resulting matrix as a tuple (top-left, top-right, bottom-left, bottom-right)."
-answer: ka, kb, kc, kd
-answer_type: tuple
-solution:
-  - "Multiply each entry of the matrix by the scalar {k}."
-  - "Top-left: {k} times {a} = {ka}"
-  - "Top-right: {k} times {b} = {kb}"
-  - "Bottom-left: {k} times {c} = {kc}"
-  - "Bottom-right: {k} times {d} = {kd}"
-  - "The result is {matrix_of([[ka, kb], [kc, kd]])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      d: nonzero(-4, 4)
+      k: integer(2, 5)
+      ka: k*a
+      kb: k*b
+      kc: k*c
+      kd: k*d
+    question: Compute {k} times the matrix {matrix_of([[a, b], [c, d]])}. Enter the four entries of the resulting matrix as a tuple (top-left, top-right, bottom-left, bottom-right).
+    answer: ka, kb, kc, kd
+    answer_type: tuple
+    solution:
+      - Multiply each entry of the matrix by the scalar {k}.
+      - 'Top-left: {k} times {a} = {ka}'
+      - 'Top-right: {k} times {b} = {kb}'
+      - 'Bottom-left: {k} times {c} = {kc}'
+      - 'Bottom-right: {k} times {d} = {kd}'
+      - The result is {matrix_of([[ka, kb], [kc, kd]])}.

@@ -1,27 +1,25 @@
 topic: multivariable_calculus/double_integrals
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(1, 5)
-  b: nonzero(1, 5)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  f: a*x + b*y
-  inner_antideriv: a*x^2/2 + b*y*x
-  inner_val: a*p^2/2 + b*p*y
-  outer_antideriv: a*p^2/2*y + b*p*y^2/2
-  answer: a*p^2*q/2 + b*p*q^2/2
-
-question: "Evaluate the double integral {definite_integral_of(definite_integral_of(f, x, 0, p), y, 0, q)}."
-
-solution:
-  - "Integrate with respect to {math(x)} first, holding {math(y)} constant."
-  - "The antiderivative of {f} with respect to {math(x)} is {inner_antideriv}."
-  - "Evaluating from {math(x = 0)} to {math(x = p)} gives {inner_val}."
-  - "Now integrate {inner_val} with respect to {math(y)} from {math(0)} to {q}."
-  - "The antiderivative is {outer_antideriv}."
-  - "Evaluating from {math(y = 0)} to {math(y = q)} gives the answer {answer}."
-
-answer: answer
-answer_type: numeric
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 5)
+      b: nonzero(1, 5)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      f: a*x + b*y
+      inner_antideriv: a*x^2/2 + b*y*x
+      inner_val: a*p^2/2 + b*p*y
+      outer_antideriv: a*p^2/2*y + b*p*y^2/2
+      answer: a*p^2*q/2 + b*p*q^2/2
+    question: Evaluate the double integral {definite_integral_of(definite_integral_of(f, x, 0, p), y, 0, q)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Integrate with respect to {math(x)} first, holding {math(y)} constant.
+      - The antiderivative of {f} with respect to {math(x)} is {inner_antideriv}.
+      - Evaluating from {math(x = 0)} to {math(x = p)} gives {inner_val}.
+      - Now integrate {inner_val} with respect to {math(y)} from {math(0)} to {q}.
+      - The antiderivative is {outer_antideriv}.
+      - Evaluating from {math(y = 0)} to {math(y = q)} gives the answer {answer}.

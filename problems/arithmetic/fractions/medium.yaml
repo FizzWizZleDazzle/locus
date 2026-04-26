@@ -1,27 +1,25 @@
 topic: arithmetic/fractions
 difficulty: medium
 calculator: none
-
-variables:
-  p: integer(1, 6)
-  q: prime(5, 13)
-  r: integer(1, 6)
-  s: prime(5, 13)
-  prod_num: p*s
-  prod_den: q*r
-  answer: prod_num/prod_den
-
-constraints:
-  - p != r
-  - q != s
-
-question: "Divide and simplify: {math(p/q)} divided by {math(r/s)}."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "To divide by a fraction, multiply by its reciprocal."
-  - "Rewrite as {math(p/q)} times {math(s/r)}."
-  - "Multiply numerators: {p} times {s} = {prod_num}."
-  - "Multiply denominators: {q} times {r} = {prod_den}."
-  - "The result is {math(prod_num/prod_den)}, which simplifies to {answer}."
+variants:
+  - name: default
+    variables:
+      p: integer(1, 6)
+      q: prime(5, 13)
+      r: integer(1, 6)
+      s: prime(5, 13)
+      prod_num: p*s
+      prod_den: q*r
+      answer: prod_num/prod_den
+    constraints:
+      - p != r
+      - q != s
+    question: 'Divide and simplify: {math(p/q)} divided by {math(r/s)}.'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - To divide by a fraction, multiply by its reciprocal.
+      - Rewrite as {math(p/q)} times {math(s/r)}.
+      - 'Multiply numerators: {p} times {s} = {prod_num}.'
+      - 'Multiply denominators: {q} times {r} = {prod_den}.'
+      - The result is {math(prod_num/prod_den)}, which simplifies to {answer}.

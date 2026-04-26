@@ -1,21 +1,19 @@
 topic: algebra2/exponential_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  base: choice(2, 3, 5)
-  a: nonzero(-4, 4)
-  c: integer(-4, 4)
-  d: integer(-2, 6)
-  diff: d - c
-  answer: diff / a
-
-question: "Solve for {math(x)}: {equation(base^(a*x + c), base^d)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Both sides share base {base}, so set the exponents equal: {equation(a*x + c, d)}"
-  - "Isolate the term with {math(x)}: {equation(a*x, diff)}"
-  - "Divide both sides by {a}: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      base: choice(2, 3, 5)
+      a: nonzero(-4, 4)
+      c: integer(-4, 4)
+      d: integer(-2, 6)
+      diff: d - c
+      answer: diff / a
+    question: 'Solve for {math(x)}: {equation(base^(a*x + c), base^d)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Both sides share base {base}, so set the exponents equal: {equation(a*x + c, d)}'
+      - 'Isolate the term with {math(x)}: {equation(a*x, diff)}'
+      - 'Divide both sides by {a}: {equation(x, answer)}'

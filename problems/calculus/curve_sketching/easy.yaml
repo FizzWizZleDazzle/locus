@@ -1,23 +1,21 @@
 topic: calculus/curve_sketching
 difficulty: easy
 calculator: none
-
-variables:
-  a: choice(1, -1, 2, -2)
-  b_mult: nonzero(-4, 4)
-  b: 3 * a * b_mult
-  f: a*x^3 + b*x^2
-  f_prime: derivative(f, x)
-  crit_nonzero: -2*b / (3*a)
-  zero_crit: 0
-
-question: "Find all critical points of {f}."
-
-answer: zero_crit, crit_nonzero
-answer_type: set
-
-solution:
-  - "Differentiate: {equation(derivative_of(f, x), f_prime)}"
-  - "Set the derivative equal to zero: {equation(f_prime, 0)}"
-  - "Factor out {math(x)}: {math(x)} = {zero_crit} or {math(x)} = {crit_nonzero}"
-  - "The critical points are {math(x)} = {zero_crit} and {math(x)} = {crit_nonzero}."
+variants:
+  - name: default
+    variables:
+      a: choice(1, -1, 2, -2)
+      b_mult: nonzero(-4, 4)
+      b: 3 * a * b_mult
+      f: a*x^3 + b*x^2
+      f_prime: derivative(f, x)
+      crit_nonzero: -2*b / (3*a)
+      zero_crit: 0
+    question: Find all critical points of {f}.
+    answer: zero_crit, crit_nonzero
+    answer_type: set
+    solution:
+      - 'Differentiate: {equation(derivative_of(f, x), f_prime)}'
+      - 'Set the derivative equal to zero: {equation(f_prime, 0)}'
+      - 'Factor out {math(x)}: {math(x)} = {zero_crit} or {math(x)} = {crit_nonzero}'
+      - The critical points are {math(x)} = {zero_crit} and {math(x)} = {crit_nonzero}.

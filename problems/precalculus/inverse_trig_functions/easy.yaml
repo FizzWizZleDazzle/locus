@@ -1,16 +1,14 @@
 topic: precalculus/inverse_trig_functions
 difficulty: easy
 calculator: none
-
-variables:
-  input_val: choice(0, 1/2, 1, -1/2, -1)
-  answer: asin(input_val)
-
-question: "Find the value of {math(theta)}, in radians, that satisfies {equation(sin(theta), input_val)} with {math(theta)} in the principal range of arcsin."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "The principal range of arcsin is from negative pi over 2 to pi over 2."
-  - "From the unit circle, the angle whose sine is {input_val} is {answer}."
+variants:
+  - name: default
+    variables:
+      input_val: choice(0, 1/2, 1, -1/2, -1)
+      answer: asin(input_val)
+    question: Find the value of {math(theta)}, in radians, that satisfies {equation(sin(theta), input_val)} with {math(theta)} in the principal range of arcsin.
+    answer: answer
+    answer_type: expression
+    solution:
+      - The principal range of arcsin is from negative pi over 2 to pi over 2.
+      - From the unit circle, the angle whose sine is {input_val} is {answer}.

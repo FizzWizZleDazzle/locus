@@ -1,36 +1,37 @@
 topic: precalculus/dot_cross_product
 difficulty: hard
 calculator: scientific
-variables:
-  a1: nonzero(-4, 4)
-  a2: integer(-4, 4)
-  a3: integer(-4, 4)
-  b1: integer(-4, 4)
-  b2: nonzero(-4, 4)
-  b3: integer(-4, 4)
-  cx: a2*b3 - a3*b2
-  cy: a3*b1 - a1*b3
-  cz: a1*b2 - a2*b1
-  a2b3: a2*b3
-  a3b2: a3*b2
-  a3b1: a3*b1
-  a1b3: a1*b3
-  a1b2: a1*b2
-  a2b1: a2*b1
-  check_u: a1*cx + a2*cy + a3*cz
-  check_v: b1*cx + b2*cy + b3*cz
-
-question: "Let {math(u)} = {vec([a1, a2, a3])} and {math(v)} = {vec([b1, b2, b3])}. Compute the cross product {math(u \\times v)}, then verify your answer is orthogonal to both {math(u)} and {math(v)} by computing the two dot products."
-answer: cx, cy, cz
-answer_type: tuple
-solution:
-  - "Step 1: Compute {math(u \\times v)} using the determinant formula."
-  - "{det_of([[i, j, k], [a1, a2, a3], [b1, b2, b3]])}"
-  - "i-component: ({a2})({b3}) - ({a3})({b2}) = {a2b3} - {a3b2} = {cx}"
-  - "j-component (negated minor): -(({a1})({b3}) - ({a3})({b1})) = -({a1b3} - {a3b1}) = {cy}"
-  - "k-component: ({a1})({b2}) - ({a2})({b1}) = {a1b2} - {a2b1} = {cz}"
-  - "So {math(u \\times v)} = {vec([cx, cy, cz])}."
-  - "Step 2: Verify orthogonality."
-  - "{math(u \\cdot (u \\times v))} = ({a1})({cx}) + ({a2})({cy}) + ({a3})({cz}) = {check_u}"
-  - "{math(v \\cdot (u \\times v))} = ({b1})({cx}) + ({b2})({cy}) + ({b3})({cz}) = {check_v}"
-  - "Both dot products equal {check_u}, confirming {math(u \\times v)} is orthogonal to both {math(u)} and {math(v)}."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-4, 4)
+      a2: integer(-4, 4)
+      a3: integer(-4, 4)
+      b1: integer(-4, 4)
+      b2: nonzero(-4, 4)
+      b3: integer(-4, 4)
+      cx: a2*b3 - a3*b2
+      cy: a3*b1 - a1*b3
+      cz: a1*b2 - a2*b1
+      a2b3: a2*b3
+      a3b2: a3*b2
+      a3b1: a3*b1
+      a1b3: a1*b3
+      a1b2: a1*b2
+      a2b1: a2*b1
+      check_u: a1*cx + a2*cy + a3*cz
+      check_v: b1*cx + b2*cy + b3*cz
+    question: Let {math(u)} = {vec([a1, a2, a3])} and {math(v)} = {vec([b1, b2, b3])}. Compute the cross product {math(u \times v)}, then verify your answer is orthogonal to both {math(u)} and {math(v)} by computing the two dot products.
+    answer: cx, cy, cz
+    answer_type: tuple
+    solution:
+      - 'Step 1: Compute {math(u \times v)} using the determinant formula.'
+      - '{det_of([[i, j, k], [a1, a2, a3], [b1, b2, b3]])}'
+      - 'i-component: ({a2})({b3}) - ({a3})({b2}) = {a2b3} - {a3b2} = {cx}'
+      - 'j-component (negated minor): -(({a1})({b3}) - ({a3})({b1})) = -({a1b3} - {a3b1}) = {cy}'
+      - 'k-component: ({a1})({b2}) - ({a2})({b1}) = {a1b2} - {a2b1} = {cz}'
+      - So {math(u \times v)} = {vec([cx, cy, cz])}.
+      - 'Step 2: Verify orthogonality.'
+      - '{math(u \cdot (u \times v))} = ({a1})({cx}) + ({a2})({cy}) + ({a3})({cz}) = {check_u}'
+      - '{math(v \cdot (u \times v))} = ({b1})({cx}) + ({b2})({cy}) + ({b3})({cz}) = {check_v}'
+      - Both dot products equal {check_u}, confirming {math(u \times v)} is orthogonal to both {math(u)} and {math(v)}.

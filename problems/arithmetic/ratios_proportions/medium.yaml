@@ -1,17 +1,19 @@
 topic: arithmetic/ratios_proportions
 difficulty: medium
 calculator: none
-variables:
-  a: choice(3, 5, 7)
-  b: choice(2, 4, 8)
-  k: integer(2, 6)
-  c: a * k
-  d: b * k
-  bc: b * c
-  answer: d
-question: "Solve the proportion {math(a / b = c / x)} for {math(x)}."
-answer: answer
-answer_type: numeric
-solution:
-  - "Cross-multiply: {a} times {math(x)} equals {b} times {c}, giving {math(a)} {math(x)} = {bc}."
-  - "Divide both sides by {a}: {math(x)} = {bc} divided by {a} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: choice(3, 5, 7)
+      b: choice(2, 4, 8)
+      k: integer(2, 6)
+      c: a * k
+      d: b * k
+      bc: b * c
+      answer: d
+    question: Solve the proportion {math(a / b = c / x)} for {math(x)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Cross-multiply: {a} times {math(x)} equals {b} times {c}, giving {math(a)} {math(x)} = {bc}.'
+      - 'Divide both sides by {a}: {math(x)} = {bc} divided by {a} = {answer}.'

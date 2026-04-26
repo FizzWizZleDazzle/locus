@@ -1,27 +1,23 @@
 topic: multivariable_calculus/line_integrals
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  p: nonzero(1, 5)
-  q: nonzero(1, 5)
-  ap: a*p
-  bq: b*q
-  dot_product: a*p + b*q
-  answer: a*p + b*q
-
-question: >
-  A constant vector field {math(F)} has components {math(F_1 = a)} and {math(F_2 = b)}.
-  Evaluate the line integral of {math(F)} along the straight line segment {math(C)}
-  from {math((0, 0))} to {math((p, q))}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Parametrize {math(C)} by {math(r(t) = (p*t, q*t))} for {math(0 <= t <= 1)}, so the tangent vector is {math(r'(t) = (p, q))}."
-  - "For a constant vector field, the line integral equals the dot product of {math(F)} with the displacement: {math(F_1 * p + F_2 * q)}."
-  - "Substituting the values: {ap} + {bq} = {dot_product}."
-  - "The value of the line integral is {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      p: nonzero(1, 5)
+      q: nonzero(1, 5)
+      ap: a*p
+      bq: b*q
+      dot_product: a*p + b*q
+      answer: a*p + b*q
+    question: |
+      A constant vector field {math(F)} has components {math(F_1 = a)} and {math(F_2 = b)}. Evaluate the line integral of {math(F)} along the straight line segment {math(C)} from {math((0, 0))} to {math((p, q))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Parametrize {math(C)} by {math(r(t) = (p*t, q*t))} for {math(0 <= t <= 1)}, so the tangent vector is {math(r'(t) = (p, q))}.
+      - 'For a constant vector field, the line integral equals the dot product of {math(F)} with the displacement: {math(F_1 * p + F_2 * q)}.'
+      - 'Substituting the values: {ap} + {bq} = {dot_product}.'
+      - The value of the line integral is {answer}.

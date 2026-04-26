@@ -1,23 +1,30 @@
 topic: algebra1/graphing_lines
 difficulty: easy
 calculator: none
-
-variables:
-  m: nonzero(-5, 5)
-  b: integer(-8, 8)
-  f: m*x + b
-
-question: "A line is given by the equation {equation(math(y), f)}. What is the slope of the line?"
-answer: m
-answer_type: numeric
-solution:
-  - "The equation {equation(math(y), f)} is in slope-intercept form, where the coefficient of {math(x)} is the slope."
-  - "The slope is {m}."
-
-diagram:
-  type: coordinate_plane
-  x_range: [-5, 5]
-  y_range: [-8, 8]
-  grid: true
-  elements:
-    - line: {slope: m, intercept: b, color: blue, label: "y"}
+variants:
+  - name: default
+    variables:
+      m: nonzero(-5, 5)
+      b: integer(-8, 8)
+      f: m*x + b
+    question: A line is given by the equation {equation(math(y), f)}. What is the slope of the line?
+    answer: m
+    answer_type: numeric
+    solution:
+      - The equation {equation(math(y), f)} is in slope-intercept form, where the coefficient of {math(x)} is the slope.
+      - The slope is {m}.
+    diagram:
+      type: coordinate_plane
+      x_range:
+        - -5
+        - 5
+      y_range:
+        - -8
+        - 8
+      grid: true
+      elements:
+        - line:
+            slope: m
+            intercept: b
+            color: blue
+            label: y

@@ -1,16 +1,15 @@
 topic: arithmetic/decimals
 difficulty: easy
 calculator: none
-
-variables:
-  a: decimal(1, 9, 1)
-  b: decimal(1, 9, 1)
-  answer: a + b
-
-question: "Add the decimals: {a} + {b}"
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Line up the decimal points and add digit by digit."
-  - "{a} + {b} = {answer}"
+variants:
+  - name: default
+    variables:
+      a: decimal(1, 9, 1)
+      b: decimal(1, 9, 1)
+      answer: a + b
+    question: 'Add the decimals: {a} + {b}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Line up the decimal points and add digit by digit.
+      - '{a} + {b} = {answer}'

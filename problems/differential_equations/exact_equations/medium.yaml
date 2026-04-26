@@ -1,34 +1,31 @@
 topic: differential_equations/exact_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  two_a: 2*a
-  two_c: 2*c
-  M: two_a*x + b*y
-  N: b*x + two_c*y
-  F: a*x^2 + b*x*y + c*y^2
-  dM_dy: b
-  dN_dx: b
-  F_partial_x: a*x^2 + b*x*y
-  g_prime: two_c*y
-  g_y: c*y^2
-  bx: b*x
-
-question: >
-  Determine whether the equation {equation(M*dx + N*dy, 0)} is exact,
-  and if so, find the general solution.
-
-answer: F
-answer_type: expression
-
-solution:
-  - "Test exactness: {equation(derivative_of(M, y), dM_dy)} and {equation(derivative_of(N, x), dN_dx)}."
-  - "Since {equation(dM_dy, dN_dx)}, the equation is exact."
-  - "Seek a potential function {math(F)} with {equation(derivative_of(F, x), M)}. Integrating {math(M)} with respect to {math(x)} gives {F_partial_x} + {math(g(y))}."
-  - "Differentiate with respect to {math(y)} and set equal to {math(N)}: {bx} + {math(g'(y))} = {N}."
-  - "Solving: {math(g'(y))} = {g_prime}, so {math(g(y))} = {g_y}."
-  - "The general solution is {equation(F, C)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      two_a: 2*a
+      two_c: 2*c
+      M: two_a*x + b*y
+      N: b*x + two_c*y
+      F: a*x^2 + b*x*y + c*y^2
+      dM_dy: b
+      dN_dx: b
+      F_partial_x: a*x^2 + b*x*y
+      g_prime: two_c*y
+      g_y: c*y^2
+      bx: b*x
+    question: |
+      Determine whether the equation {equation(M*dx + N*dy, 0)} is exact, and if so, find the general solution.
+    answer: F
+    answer_type: expression
+    solution:
+      - 'Test exactness: {equation(derivative_of(M, y), dM_dy)} and {equation(derivative_of(N, x), dN_dx)}.'
+      - Since {equation(dM_dy, dN_dx)}, the equation is exact.
+      - Seek a potential function {math(F)} with {equation(derivative_of(F, x), M)}. Integrating {math(M)} with respect to {math(x)} gives {F_partial_x} + {math(g(y))}.
+      - 'Differentiate with respect to {math(y)} and set equal to {math(N)}: {bx} + {math(g''(y))} = {N}.'
+      - 'Solving: {math(g''(y))} = {g_prime}, so {math(g(y))} = {g_y}.'
+      - The general solution is {equation(F, C)}.

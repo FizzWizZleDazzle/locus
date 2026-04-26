@@ -1,23 +1,21 @@
 topic: linear_algebra/determinants
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(-6, 6)
-  b: integer(-6, 6)
-  c: integer(-6, 6)
-  d: integer(-6, 6)
-  ad: a*d
-  bc: b*c
-  answer: a*d - b*c
-
-question: "Find the determinant of {det_of([[a, b], [c, d]])}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "For a 2x2 matrix, the determinant equals (top-left)(bottom-right) minus (top-right)(bottom-left)."
-  - "Main diagonal product: {a} times {d} = {ad}."
-  - "Off-diagonal product: {b} times {c} = {bc}."
-  - "Determinant: {ad} - {bc} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(-6, 6)
+      b: integer(-6, 6)
+      c: integer(-6, 6)
+      d: integer(-6, 6)
+      ad: a*d
+      bc: b*c
+      answer: a*d - b*c
+    question: Find the determinant of {det_of([[a, b], [c, d]])}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - For a 2x2 matrix, the determinant equals (top-left)(bottom-right) minus (top-right)(bottom-left).
+      - 'Main diagonal product: {a} times {d} = {ad}.'
+      - 'Off-diagonal product: {b} times {c} = {bc}.'
+      - 'Determinant: {ad} - {bc} = {answer}.'

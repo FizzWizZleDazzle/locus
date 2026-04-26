@@ -1,24 +1,22 @@
 topic: precalculus/polar_coordinates
 difficulty: easy
 calculator: scientific
-
-variables:
-  r: choice(2, 4, 6)
-  angle_choice: choice(1, 2, 3)
-  cos_val: cos(pi * angle_choice / 6)
-  sin_val: sin(pi * angle_choice / 6)
-  x_coord: r * cos(pi * angle_choice / 6)
-  y_coord: r * sin(pi * angle_choice / 6)
-  theta_val: angle_choice * pi / 6
-
-question: "Convert the polar point with radius {r} and angle {theta_val} radians to rectangular coordinates {math((x, y))}."
-
-answer: x_coord, y_coord
-answer_type: tuple
-
-solution:
-  - "Use the conversion formulas {math(x = r * cos(theta))} and {math(y = r * sin(theta))}."
-  - "With radius {r} and {math(theta)} = {theta_val}:"
-  - "{equation(x, r * cos_val)}"
-  - "{equation(y, r * sin_val)}"
-  - "The rectangular coordinates are ({x_coord}, {y_coord})."
+variants:
+  - name: default
+    variables:
+      r: choice(2, 4, 6)
+      angle_choice: choice(1, 2, 3)
+      cos_val: cos(pi * angle_choice / 6)
+      sin_val: sin(pi * angle_choice / 6)
+      x_coord: r * cos(pi * angle_choice / 6)
+      y_coord: r * sin(pi * angle_choice / 6)
+      theta_val: angle_choice * pi / 6
+    question: Convert the polar point with radius {r} and angle {theta_val} radians to rectangular coordinates {math((x, y))}.
+    answer: x_coord, y_coord
+    answer_type: tuple
+    solution:
+      - Use the conversion formulas {math(x = r * cos(theta))} and {math(y = r * sin(theta))}.
+      - 'With radius {r} and {math(theta)} = {theta_val}:'
+      - '{equation(x, r * cos_val)}'
+      - '{equation(y, r * sin_val)}'
+      - The rectangular coordinates are ({x_coord}, {y_coord}).

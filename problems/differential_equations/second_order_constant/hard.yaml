@@ -1,27 +1,24 @@
 topic: differential_equations/second_order_constant
 difficulty: hard
 calculator: scientific
-
-variables:
-  alpha: nonzero(-3, 3)
-  beta: integer(1, 4)
-  p: -2*alpha
-  q: alpha^2 + beta^2
-  char_lhs: r^2 + p*r + q
-  sol_real: exp(alpha*x)
-  cos_part: cos(beta*x)
-  sin_part: sin(beta*x)
-
-constraints:
-  - alpha != beta
-
-question: "The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. The roots are complex. Identify the real and imaginary parts of the roots."
-
-answer: alpha, beta
-answer_type: tuple
-
-solution:
-  - "Use the quadratic formula on {equation(char_lhs, 0)}. The discriminant is {p*p - 4*q}, which is negative, so the roots are complex."
-  - "The roots are {alpha} + {beta}i and {alpha} - {beta}i."
-  - "Real part is {alpha} and imaginary part is {beta}."
-  - "The general solution is {math(y(x))} = {sol_real}({math(C_1)}{cos_part} + {math(C_2)}{sin_part})."
+variants:
+  - name: default
+    variables:
+      alpha: nonzero(-3, 3)
+      beta: integer(1, 4)
+      p: -2*alpha
+      q: alpha^2 + beta^2
+      char_lhs: r^2 + p*r + q
+      sol_real: exp(alpha*x)
+      cos_part: cos(beta*x)
+      sin_part: sin(beta*x)
+    constraints:
+      - alpha != beta
+    question: The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. The roots are complex. Identify the real and imaginary parts of the roots.
+    answer: alpha, beta
+    answer_type: tuple
+    solution:
+      - Use the quadratic formula on {equation(char_lhs, 0)}. The discriminant is {p*p - 4*q}, which is negative, so the roots are complex.
+      - The roots are {alpha} + {beta}i and {alpha} - {beta}i.
+      - Real part is {alpha} and imaginary part is {beta}.
+      - The general solution is {math(y(x))} = {sol_real}({math(C_1)}{cos_part} + {math(C_2)}{sin_part}).

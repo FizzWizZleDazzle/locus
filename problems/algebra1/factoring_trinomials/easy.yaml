@@ -1,26 +1,23 @@
 topic: algebra1/factoring_trinomials
 difficulty: easy
 calculator: none
-
-variables:
-  r1: integer(1, 7)
-  r2: integer(1, 7)
-  root_neg: -r2
-  b_coeff: r1 - r2
-  c_coeff: -r1 * r2
-  f: expand((x - r1)*(x + r2))
-  answer: solve(f, x)
-
-constraints:
-  - r1 != r2
-
-question: "Factor the trinomial {math(x^2 + b_coeff*x + c_coeff)} and find its roots."
-
-answer: answer
-answer_type: set
-
-solution:
-  - "Find two numbers that multiply to {c_coeff} and add to {b_coeff}."
-  - "The numbers {r1} and {root_neg} satisfy this: their product is {c_coeff} and their sum is {b_coeff}."
-  - "So the trinomial factors as {math((x - r1) * (x + r2))} = 0."
-  - "Setting each factor to zero: {math(x)} = {r1} or {math(x)} = {root_neg}."
+variants:
+  - name: default
+    variables:
+      r1: integer(1, 7)
+      r2: integer(1, 7)
+      root_neg: -r2
+      b_coeff: r1 - r2
+      c_coeff: -r1 * r2
+      f: expand((x - r1)*(x + r2))
+      answer: solve(f, x)
+    constraints:
+      - r1 != r2
+    question: Factor the trinomial {math(x^2 + b_coeff*x + c_coeff)} and find its roots.
+    answer: answer
+    answer_type: set
+    solution:
+      - Find two numbers that multiply to {c_coeff} and add to {b_coeff}.
+      - 'The numbers {r1} and {root_neg} satisfy this: their product is {c_coeff} and their sum is {b_coeff}.'
+      - So the trinomial factors as {math((x - r1) * (x + r2))} = 0.
+      - 'Setting each factor to zero: {math(x)} = {r1} or {math(x)} = {root_neg}.'

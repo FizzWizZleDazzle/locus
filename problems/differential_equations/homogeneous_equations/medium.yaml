@@ -1,24 +1,22 @@
 topic: differential_equations/homogeneous_equations
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  c: nonzero(1, 4)
-  rhs_top: a*y + b*x
-  rhs: rhs_top / x
-  general: c*x^a - b*x
-
-question: "Solve the differential equation {equation(derivative_of(y, x), rhs)} using the substitution {math(v = y/x)}. Give the general solution {math(y(x))}."
-
-answer: general
-answer_type: expression
-
-solution:
-  - "The right side depends only on the ratio {math(y/x)}, so the equation is homogeneous."
-  - "Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}."
-  - "Substituting: {math(v + x*(dv/dx) = a*v + b)}, which simplifies to {math(x*(dv/dx) = (a - 1)*v + b)}."
-  - "Separating variables: {math(dv/((a - 1)*v + b) = dx/x)}."
-  - "Integrate both sides to obtain {math(v + b/(a-1))} as a multiple of a power of {math(x)}."
-  - "Back-substituting {math(v = y/x)} yields the general solution {math(y(x))} = {general}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      c: nonzero(1, 4)
+      rhs_top: a*y + b*x
+      rhs: rhs_top / x
+      general: c*x^a - b*x
+    question: Solve the differential equation {equation(derivative_of(y, x), rhs)} using the substitution {math(v = y/x)}. Give the general solution {math(y(x))}.
+    answer: general
+    answer_type: expression
+    solution:
+      - The right side depends only on the ratio {math(y/x)}, so the equation is homogeneous.
+      - Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}.
+      - 'Substituting: {math(v + x*(dv/dx) = a*v + b)}, which simplifies to {math(x*(dv/dx) = (a - 1)*v + b)}.'
+      - 'Separating variables: {math(dv/((a - 1)*v + b) = dx/x)}.'
+      - Integrate both sides to obtain {math(v + b/(a-1))} as a multiple of a power of {math(x)}.
+      - Back-substituting {math(v = y/x)} yields the general solution {math(y(x))} = {general}.

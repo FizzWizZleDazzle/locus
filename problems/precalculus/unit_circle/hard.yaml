@@ -1,21 +1,19 @@
 topic: precalculus/unit_circle
 difficulty: hard
 calculator: none
-
-variables:
-  ang_choice: choice(7, 11, 13, 17, 19, 23)
-  angle: ang_choice * pi / 12
-  sin_val: sin(angle)
-  cos_val: cos(angle)
-  tan_val: tan(angle)
-  answer: sin_val + cos_val
-
-question: "Using the unit circle and angle-sum identities, find the exact value of {math(sin(angle) + cos(angle))}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Decompose the angle as a sum of standard angles, e.g., {math(pi/12 = pi/4 - pi/6)}."
-  - "Apply sum/difference formulas to compute {equation(sin(angle), sin_val)} and {equation(cos(angle), cos_val)}."
-  - "Add the two values: {answer}."
+variants:
+  - name: default
+    variables:
+      ang_choice: choice(7, 11, 13, 17, 19, 23)
+      angle: ang_choice * pi / 12
+      sin_val: sin(angle)
+      cos_val: cos(angle)
+      tan_val: tan(angle)
+      answer: sin_val + cos_val
+    question: Using the unit circle and angle-sum identities, find the exact value of {math(sin(angle) + cos(angle))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Decompose the angle as a sum of standard angles, e.g., {math(pi/12 = pi/4 - pi/6)}.
+      - Apply sum/difference formulas to compute {equation(sin(angle), sin_val)} and {equation(cos(angle), cos_val)}.
+      - 'Add the two values: {answer}.'

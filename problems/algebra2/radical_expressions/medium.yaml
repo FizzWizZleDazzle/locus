@@ -1,16 +1,18 @@
 topic: algebra2/radical_expressions
 difficulty: medium
 calculator: none
-variables:
-  a: integer(2, 7)
-  k: choice(2, 3, 5, 6, 7)
-  radicand: a*a*k
-  a_sq: a*a
-  answer: a*sqrt(k)
-question: "Simplify {math(sqrt(radicand))}."
-answer: answer
-answer_type: expression
-solution:
-  - "Factor {radicand} into a perfect square and a remaining factor: {radicand} = {a_sq} * {k}."
-  - "Apply the product rule for radicals: {math(sqrt(a_sq*k))} = {math(sqrt(a_sq)*sqrt(k))}."
-  - "The perfect square {a_sq} has square root {a}, so the simplified form is {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 7)
+      k: choice(2, 3, 5, 6, 7)
+      radicand: a*a*k
+      a_sq: a*a
+      answer: a*sqrt(k)
+    question: Simplify {math(sqrt(radicand))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Factor {radicand} into a perfect square and a remaining factor: {radicand} = {a_sq} * {k}.'
+      - 'Apply the product rule for radicals: {math(sqrt(a_sq*k))} = {math(sqrt(a_sq)*sqrt(k))}.'
+      - The perfect square {a_sq} has square root {a}, so the simplified form is {answer}.

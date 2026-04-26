@@ -1,28 +1,30 @@
 topic: geometry/triangle_properties
 difficulty: easy
 calculator: none
-
-variables:
-  angle_a: integer(20, 80)
-  angle_b: integer(20, 80)
-  angle_c: 180 - angle_a - angle_b
-  sum_ab: angle_a + angle_b
-  total: 180
-
-constraints:
-  - angle_a < angle_b
-  - angle_c > 0
-
-question: "A triangle has two interior angles measuring {angle_a} degrees and {angle_b} degrees. What is the measure of the third angle, in degrees?"
-
-answer: angle_c
-
-solution:
-  - "The interior angles of any triangle sum to {total} degrees."
-  - "The two known angles sum to {angle_a} + {angle_b} = {sum_ab} degrees."
-  - "Third angle = {total} - {sum_ab} = {angle_c} degrees."
-
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  angles: {A: angle_a, B: angle_b, C: angle_c}
+variants:
+  - name: default
+    variables:
+      angle_a: integer(20, 80)
+      angle_b: integer(20, 80)
+      angle_c: 180 - angle_a - angle_b
+      sum_ab: angle_a + angle_b
+      total: 180
+    constraints:
+      - angle_a < angle_b
+      - angle_c > 0
+    question: A triangle has two interior angles measuring {angle_a} degrees and {angle_b} degrees. What is the measure of the third angle, in degrees?
+    answer: angle_c
+    solution:
+      - The interior angles of any triangle sum to {total} degrees.
+      - The two known angles sum to {angle_a} + {angle_b} = {sum_ab} degrees.
+      - Third angle = {total} - {sum_ab} = {angle_c} degrees.
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      angles:
+        A: angle_a
+        B: angle_b
+        C: angle_c

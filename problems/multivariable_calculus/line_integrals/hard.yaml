@@ -1,29 +1,25 @@
 topic: multivariable_calculus/line_integrals
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(2, 5)
-  b: nonzero(2, 5)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  F1: a*x*y
-  F2: b*x^2
-  integrand: a*p^2*q*t^3 + 2*b*p^2*q*t^3
-  coeff: a*p^2*q + 2*b*p^2*q
-  answer: coeff/4
-
-question: >
-  Let {math(P(x,y) = F1)} and {math(Q(x,y) = F2)}.
-  Evaluate the line integral of {math(P dx + Q dy)} along the parabolic curve
-  {math(C)} given by {math(x = p*t)}, {math(y = q*t^2)} for {math(0 <= t <= 1)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Parametrize {math(C)}: {math(x = p*t)}, {math(y = q*t^2)}, so {math(dx = p*dt)} and {math(dy = 2*q*t*dt)}."
-  - "Substitute: {math(P = a*p*t*q*t^2)} = {math(a*p*q*t^3)} and {math(Q = b*p^2*t^2)}."
-  - "Then {math(P dx + Q dy)} = {math(a*p*q*t^3*p*dt + b*p^2*t^2*2*q*t*dt)} = {math(a*p^2*q*t^3*dt + 2*b*p^2*q*t^3*dt)}."
-  - "Combine: {math((a*p^2*q + 2*b*p^2*q)*t^3*dt)} = {coeff} {math(t^3 dt)}."
-  - "Integrate from 0 to 1: {coeff} times {math(1/4)} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(2, 5)
+      b: nonzero(2, 5)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      F1: a*x*y
+      F2: b*x^2
+      integrand: a*p^2*q*t^3 + 2*b*p^2*q*t^3
+      coeff: a*p^2*q + 2*b*p^2*q
+      answer: coeff/4
+    question: |
+      Let {math(P(x,y) = F1)} and {math(Q(x,y) = F2)}. Evaluate the line integral of {math(P dx + Q dy)} along the parabolic curve {math(C)} given by {math(x = p*t)}, {math(y = q*t^2)} for {math(0 <= t <= 1)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Parametrize {math(C)}: {math(x = p*t)}, {math(y = q*t^2)}, so {math(dx = p*dt)} and {math(dy = 2*q*t*dt)}.'
+      - 'Substitute: {math(P = a*p*t*q*t^2)} = {math(a*p*q*t^3)} and {math(Q = b*p^2*t^2)}.'
+      - Then {math(P dx + Q dy)} = {math(a*p*q*t^3*p*dt + b*p^2*t^2*2*q*t*dt)} = {math(a*p^2*q*t^3*dt + 2*b*p^2*q*t^3*dt)}.
+      - 'Combine: {math((a*p^2*q + 2*b*p^2*q)*t^3*dt)} = {coeff} {math(t^3 dt)}.'
+      - 'Integrate from 0 to 1: {coeff} times {math(1/4)} = {answer}.'

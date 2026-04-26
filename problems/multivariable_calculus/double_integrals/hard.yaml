@@ -1,31 +1,29 @@
 topic: multivariable_calculus/double_integrals
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  p: integer(2, 4)
-  q: integer(2, 4)
-  inner: a*x*y + b*x^2
-  inner_anti: a*x*y^2/2 + b*x^2*y
-  inner_at_q: evaluate(inner_anti, y, q)
-  inner_at_0: evaluate(inner_anti, y, 0)
-  inner_def: inner_at_q - inner_at_0
-  outer_anti: integral(inner_def, x)
-  outer_at_p: evaluate(outer_anti, x, p)
-  outer_at_0: evaluate(outer_anti, x, 0)
-  answer: outer_at_p - outer_at_0
-
-question: "Evaluate the iterated integral {definite_integral_of(definite_integral_of(inner, y, 0, q), x, 0, p)}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Treat the inner integral with respect to {math(y)} first, holding {math(x)} constant."
-  - "Antiderivative in {math(y)}: {equation(integral_of(inner, y), inner_anti)}."
-  - "Evaluate from 0 to {q}: {equation(definite_integral_of(inner, y, 0, q), inner_def)}."
-  - "Now integrate the result with respect to {math(x)} from 0 to {p}."
-  - "Antiderivative in {math(x)}: {outer_anti}."
-  - "Evaluating: {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      p: integer(2, 4)
+      q: integer(2, 4)
+      inner: a*x*y + b*x^2
+      inner_anti: a*x*y^2/2 + b*x^2*y
+      inner_at_q: evaluate(inner_anti, y, q)
+      inner_at_0: evaluate(inner_anti, y, 0)
+      inner_def: inner_at_q - inner_at_0
+      outer_anti: integral(inner_def, x)
+      outer_at_p: evaluate(outer_anti, x, p)
+      outer_at_0: evaluate(outer_anti, x, 0)
+      answer: outer_at_p - outer_at_0
+    question: Evaluate the iterated integral {definite_integral_of(definite_integral_of(inner, y, 0, q), x, 0, p)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Treat the inner integral with respect to {math(y)} first, holding {math(x)} constant.
+      - 'Antiderivative in {math(y)}: {equation(integral_of(inner, y), inner_anti)}.'
+      - 'Evaluate from 0 to {q}: {equation(definite_integral_of(inner, y, 0, q), inner_def)}.'
+      - Now integrate the result with respect to {math(x)} from 0 to {p}.
+      - 'Antiderivative in {math(x)}: {outer_anti}.'
+      - 'Evaluating: {answer}.'

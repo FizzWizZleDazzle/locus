@@ -1,22 +1,6 @@
 topic: arithmetic/order_of_operations
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(2, 9)
-  b: integer(2, 9)
-  c: integer(2, 9)
-  prod: b * c
-  answer: a + prod
-
-question: "Evaluate: {a} + {b} {math(\\times)} {c}"
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Multiply before adding (order of operations): {b} {math(\\times)} {c} = {prod}"
-  - "Then add: {a} + {prod} = {answer}"
-
 variants:
   - name: multiply_before_add
     variables:
@@ -25,13 +9,12 @@ variants:
       c: integer(2, 9)
       prod: b * c
       answer: a + prod
-    question: "Evaluate: {a} + {b} {math(\\times)} {c}"
+    question: 'Evaluate: {a} + {b} {math(\times)} {c}'
     answer: answer
     answer_type: numeric
     solution:
-      - "Multiply before adding (order of operations): {b} {math(\\times)} {c} = {prod}"
-      - "Then add: {a} + {prod} = {answer}"
-
+      - 'Multiply before adding (order of operations): {b} {math(\times)} {c} = {prod}'
+      - 'Then add: {a} + {prod} = {answer}'
   - name: parentheses_first
     variables:
       a: integer(2, 9)
@@ -39,9 +22,9 @@ variants:
       c: integer(2, 9)
       inner: a + b
       answer: inner * c
-    question: "Evaluate: ({a} + {b}) {math(\\times)} {c}"
+    question: 'Evaluate: ({a} + {b}) {math(\times)} {c}'
     answer: answer
     answer_type: numeric
     solution:
-      - "Evaluate inside the parentheses first: {a} + {b} = {inner}"
-      - "Then multiply: {inner} {math(\\times)} {c} = {answer}"
+      - 'Evaluate inside the parentheses first: {a} + {b} = {inner}'
+      - 'Then multiply: {inner} {math(\times)} {c} = {answer}'

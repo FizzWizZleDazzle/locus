@@ -1,16 +1,15 @@
 topic: precalculus/polar_curves
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: integer(2, 8)
-  coeff: 2*a
-  answer: a
-
-question: "The polar curve {math(r = coeff * cos(theta))} is a circle. What is the radius of this circle?"
-answer: answer
-answer_type: numeric
-
-solution:
-  - "A polar equation of the form {math(r = 2a*cos(theta))} represents a circle of radius {math(a)} centered at {math((a, 0))} in rectangular coordinates."
-  - "Here the coefficient of {math(cos(theta))} is {coeff}, so {math(2a = coeff)}, giving radius {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 8)
+      coeff: 2*a
+      answer: a
+    question: The polar curve {math(r = coeff * cos(theta))} is a circle. What is the radius of this circle?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - A polar equation of the form {math(r = 2a*cos(theta))} represents a circle of radius {math(a)} centered at {math((a, 0))} in rectangular coordinates.
+      - Here the coefficient of {math(cos(theta))} is {coeff}, so {math(2a = coeff)}, giving radius {answer}.

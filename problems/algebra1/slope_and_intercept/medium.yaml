@@ -1,28 +1,25 @@
 topic: algebra1/slope_and_intercept
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  p: nonzero(-5, 5)
-  c: nonzero(-8, 8)
-  slope: -a / p
-  y_int: c / p
-  lhs: a*x + p*y
-  rhs_step2: c - a*x
-  slope_intercept: slope*x + y_int
-
-constraints:
-  - p != 1
-  - p != -1
-
-question: "Rewrite the equation {equation(lhs, c)} in slope-intercept form. Identify the slope and y-intercept."
-
-answer: slope, y_int
-answer_type: tuple
-
-solution:
-  - "Start with {equation(lhs, c)}."
-  - "Subtract {a}x from both sides: {equation(p*y, rhs_step2)}."
-  - "Divide both sides by {p}: {equation(y, slope_intercept)}."
-  - "The slope is {slope} and the y-intercept is {y_int}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      p: nonzero(-5, 5)
+      c: nonzero(-8, 8)
+      slope: -a / p
+      y_int: c / p
+      lhs: a*x + p*y
+      rhs_step2: c - a*x
+      slope_intercept: slope*x + y_int
+    constraints:
+      - p != 1
+      - p != -1
+    question: Rewrite the equation {equation(lhs, c)} in slope-intercept form. Identify the slope and y-intercept.
+    answer: slope, y_int
+    answer_type: tuple
+    solution:
+      - Start with {equation(lhs, c)}.
+      - 'Subtract {a}x from both sides: {equation(p*y, rhs_step2)}.'
+      - 'Divide both sides by {p}: {equation(y, slope_intercept)}.'
+      - The slope is {slope} and the y-intercept is {y_int}.

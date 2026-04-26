@@ -1,33 +1,37 @@
 topic: geometry/triangle_properties
 difficulty: medium
 calculator: none
-
-variables:
-  angle_a: integer(25, 75)
-  angle_b: integer(25, 75)
-  angle_c: 180 - angle_a - angle_b
-  ext_angle: angle_a + angle_b
-
-constraints:
-  - angle_c > 10
-
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  angles:
-    A: angle_a
-    B: angle_b
-    C: angle_c
-  elements:
-    - ray: {from: B, through: C, extend_beyond: C, style: dashed, label: "exterior angle"}
-
-question: "In triangle {math(ABC)}, the interior angle at {math(A)} measures {angle_a} degrees and the interior angle at {math(B)} measures {angle_b} degrees. Side {math(BC)} is extended beyond {math(C)} to form an exterior angle at {math(C)}. What is the measure of that exterior angle, in degrees?"
-
-answer: ext_angle
-answer_type: numeric
-
-solution:
-  - "First, find the interior angle at {math(C)} using the Triangle Angle Sum Theorem: the three interior angles of any triangle sum to 180 degrees."
-  - "Angle at {math(C)} = 180 - {angle_a} - {angle_b} = {angle_c} degrees."
-  - "The exterior angle at {math(C)} and the interior angle at {math(C)} are supplementary (they form a straight line), so the exterior angle = 180 - {angle_c} = {ext_angle} degrees."
-  - "Alternatively, by the Exterior Angle Theorem, an exterior angle equals the sum of the two non-adjacent interior angles: {angle_a} + {angle_b} = {ext_angle} degrees."
+variants:
+  - name: default
+    variables:
+      angle_a: integer(25, 75)
+      angle_b: integer(25, 75)
+      angle_c: 180 - angle_a - angle_b
+      ext_angle: angle_a + angle_b
+    constraints:
+      - angle_c > 10
+    question: In triangle {math(ABC)}, the interior angle at {math(A)} measures {angle_a} degrees and the interior angle at {math(B)} measures {angle_b} degrees. Side {math(BC)} is extended beyond {math(C)} to form an exterior angle at {math(C)}. What is the measure of that exterior angle, in degrees?
+    answer: ext_angle
+    answer_type: numeric
+    solution:
+      - 'First, find the interior angle at {math(C)} using the Triangle Angle Sum Theorem: the three interior angles of any triangle sum to 180 degrees.'
+      - Angle at {math(C)} = 180 - {angle_a} - {angle_b} = {angle_c} degrees.
+      - The exterior angle at {math(C)} and the interior angle at {math(C)} are supplementary (they form a straight line), so the exterior angle = 180 - {angle_c} = {ext_angle} degrees.
+      - 'Alternatively, by the Exterior Angle Theorem, an exterior angle equals the sum of the two non-adjacent interior angles: {angle_a} + {angle_b} = {ext_angle} degrees.'
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      angles:
+        A: angle_a
+        B: angle_b
+        C: angle_c
+      elements:
+        - ray:
+            from: B
+            through: C
+            extend_beyond: C
+            style: dashed
+            label: exterior angle

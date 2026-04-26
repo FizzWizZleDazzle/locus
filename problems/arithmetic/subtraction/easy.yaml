@@ -1,15 +1,14 @@
 topic: arithmetic/subtraction
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(10, 99)
-  b: integer(1, 9)
-  answer: a - b
-
-question: "What is {a} minus {b}?"
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Write out the subtraction: {a} - {b} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(10, 99)
+      b: integer(1, 9)
+      answer: a - b
+    question: What is {a} minus {b}?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Write out the subtraction: {a} - {b} = {answer}.'

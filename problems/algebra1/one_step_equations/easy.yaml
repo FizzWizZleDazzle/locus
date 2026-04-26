@@ -1,15 +1,15 @@
 topic: algebra1/one_step_equations
 difficulty: easy
 calculator: none
-
-variables:
-  x_sol: integer(-10, 10)
-  b: nonzero(1, 12)
-  c: x_sol + b
-
-question: "Solve for {math(x)}: {equation(x + b, c)}"
-answer: x_sol
-answer_type: numeric
-solution:
-  - "Subtract {b} from both sides to isolate {math(x)}."
-  - "{equation(x, c - b)}"
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-10, 10)
+      b: nonzero(1, 12)
+      c: x_sol + b
+    question: 'Solve for {math(x)}: {equation(x + b, c)}'
+    answer: x_sol
+    answer_type: numeric
+    solution:
+      - Subtract {b} from both sides to isolate {math(x)}.
+      - '{equation(x, c - b)}'

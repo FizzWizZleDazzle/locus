@@ -1,17 +1,17 @@
 topic: precalculus/domain_and_range
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(-5, 5)
-  func: sqrt(x - a)
-  expr: x - a
-  boundary: a
-
-question: "What is the smallest value of {math(x)} in the domain of {math(y = func)}?"
-answer: boundary
-answer_type: numeric
-solution:
-  - "The expression under the square root must be non-negative: {math(expr >= 0)}."
-  - "Solving for {math(x)}: {math(x >= boundary)}."
-  - "The smallest value of {math(x)} in the domain is {boundary}."
+variants:
+  - name: default
+    variables:
+      a: integer(-5, 5)
+      func: sqrt(x - a)
+      expr: x - a
+      boundary: a
+    question: What is the smallest value of {math(x)} in the domain of {math(y = func)}?
+    answer: boundary
+    answer_type: numeric
+    solution:
+      - 'The expression under the square root must be non-negative: {math(expr >= 0)}.'
+      - 'Solving for {math(x)}: {math(x >= boundary)}.'
+      - The smallest value of {math(x)} in the domain is {boundary}.

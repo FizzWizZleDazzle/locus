@@ -1,30 +1,28 @@
 topic: differential_equations/first_order_linear
 difficulty: medium
 calculator: scientific
-
-variables:
-  p: integer(1, 3)
-  k: integer(1, 3)
-  m: integer(1, 3)
-  y0: integer(2, 6)
-  kp_sum: k + p
-  b: m * kp_sum
-  C: y0 - m
-  rhs: b * exp(k*x)
-  antideriv: m * exp(kp_sum * x)
-  answer_expr: m * exp(k*x) + C * exp(-p*x)
-  mu: exp(p*x)
-  neg_p: -p
-
-question: "Solve the initial value problem {derivative_of(y, x)} + {math(p*y)} = {rhs}, {math(y(0) = y0)}."
-
-answer: answer_expr
-answer_type: expression
-
-solution:
-  - "This is a first-order linear ODE. The integrating factor is {mu}."
-  - "Multiply both sides by {mu}: {equation(derivative_of(exp(p*x)*y, x), b * exp(kp_sum * x))}."
-  - "Integrate both sides: {equation(exp(p*x)*y, antideriv + C)}."
-  - "Divide by {mu} to get the general solution: {equation(y, m * exp(k*x) + C * exp(neg_p*x))}."
-  - "Apply the initial condition {math(y(0) = y0)}: the constant of integration is {C}."
-  - "The particular solution is {equation(y, answer_expr)}."
+variants:
+  - name: default
+    variables:
+      p: integer(1, 3)
+      k: integer(1, 3)
+      m: integer(1, 3)
+      y0: integer(2, 6)
+      kp_sum: k + p
+      b: m * kp_sum
+      C: y0 - m
+      rhs: b * exp(k*x)
+      antideriv: m * exp(kp_sum * x)
+      answer_expr: m * exp(k*x) + C * exp(-p*x)
+      mu: exp(p*x)
+      neg_p: -p
+    question: Solve the initial value problem {derivative_of(y, x)} + {math(p*y)} = {rhs}, {math(y(0) = y0)}.
+    answer: answer_expr
+    answer_type: expression
+    solution:
+      - This is a first-order linear ODE. The integrating factor is {mu}.
+      - 'Multiply both sides by {mu}: {equation(derivative_of(exp(p*x)*y, x), b * exp(kp_sum * x))}.'
+      - 'Integrate both sides: {equation(exp(p*x)*y, antideriv + C)}.'
+      - 'Divide by {mu} to get the general solution: {equation(y, m * exp(k*x) + C * exp(neg_p*x))}.'
+      - 'Apply the initial condition {math(y(0) = y0)}: the constant of integration is {C}.'
+      - The particular solution is {equation(y, answer_expr)}.

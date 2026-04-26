@@ -1,29 +1,25 @@
 topic: precalculus/polar_curves
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: integer(2, 5)
-  a_sq: a^2
-  answer: 3*pi*a^2/2
-  r_expr: a*(1 + cos(theta))
-  r_sq_expr: a^2*(1 + cos(theta))^2
-  expanded: expand(a^2*(1 + 2*cos(theta) + cos(theta)^2))
-  const_contrib: 3*a^2/2
-  half_const: 3*a^2/4
-
-question: >
-  The polar curve {math(r = r_expr)} is a cardioid.
-  Find the total area enclosed by this cardioid using the polar area formula
-  {definite_integral_of(r^2/2, theta, 0, 2*pi)}.
-
-answer: answer
-
-solution:
-  - "Set up the integral: {math(A)} = {definite_integral_of(r_sq_expr/2, theta, 0, 2*pi)}."
-  - "Expand: {equation(r_sq_expr, expanded)}."
-  - "Apply the identity {math(cos(theta)^2 = (1 + cos(2*theta))/2)} to replace {math(cos(theta)^2)}."
-  - "The integrand becomes {math(a^2*(3/2 + 2*cos(theta) + cos(2*theta)/2))}."
-  - "Over a full period from {math(0)} to {math(2*pi)}, the integrals of {math(cos(theta))} and {math(cos(2*theta))} are both zero."
-  - "Only the constant term {math(3*a^2/2)} survives. Multiplying by {math(1/2)} and integrating over {math(2*pi)} gives {math(A = pi*const_contrib)}."
-  - "The total enclosed area is {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 5)
+      a_sq: a^2
+      answer: 3*pi*a^2/2
+      r_expr: a*(1 + cos(theta))
+      r_sq_expr: a^2*(1 + cos(theta))^2
+      expanded: expand(a^2*(1 + 2*cos(theta) + cos(theta)^2))
+      const_contrib: 3*a^2/2
+      half_const: 3*a^2/4
+    question: |
+      The polar curve {math(r = r_expr)} is a cardioid. Find the total area enclosed by this cardioid using the polar area formula {definite_integral_of(r^2/2, theta, 0, 2*pi)}.
+    answer: answer
+    solution:
+      - 'Set up the integral: {math(A)} = {definite_integral_of(r_sq_expr/2, theta, 0, 2*pi)}.'
+      - 'Expand: {equation(r_sq_expr, expanded)}.'
+      - Apply the identity {math(cos(theta)^2 = (1 + cos(2*theta))/2)} to replace {math(cos(theta)^2)}.
+      - The integrand becomes {math(a^2*(3/2 + 2*cos(theta) + cos(2*theta)/2))}.
+      - Over a full period from {math(0)} to {math(2*pi)}, the integrals of {math(cos(theta))} and {math(cos(2*theta))} are both zero.
+      - Only the constant term {math(3*a^2/2)} survives. Multiplying by {math(1/2)} and integrating over {math(2*pi)} gives {math(A = pi*const_contrib)}.
+      - The total enclosed area is {answer}.

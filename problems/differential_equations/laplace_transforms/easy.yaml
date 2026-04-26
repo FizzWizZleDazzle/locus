@@ -1,15 +1,15 @@
 topic: differential_equations/laplace_transforms
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  denom: s - a
-  answer: 1 / (s - a)
-
-question: "Find the Laplace transform of {math(e^(a*t))}."
-answer: answer
-answer_type: expression
-solution:
-  - "Apply the standard formula: the Laplace transform of {math(e^(c*t))} equals {math(1/(s-c))} for constant {math(c)}."
-  - "With {math(c)} = {a} the denominator becomes {denom}, giving the Laplace transform {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      denom: s - a
+      answer: 1 / (s - a)
+    question: Find the Laplace transform of {math(e^(a*t))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Apply the standard formula: the Laplace transform of {math(e^(c*t))} equals {math(1/(s-c))} for constant {math(c)}.'
+      - With {math(c)} = {a} the denominator becomes {denom}, giving the Laplace transform {answer}.

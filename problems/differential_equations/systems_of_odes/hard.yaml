@@ -1,32 +1,29 @@
 topic: differential_equations/systems_of_odes
 difficulty: hard
 calculator: scientific
-
-variables:
-  lam1: nonzero(-4, -1)
-  lam2: integer(1, 4)
-  a11: 0
-  a12: 1
-  a21: -lam1*lam2
-  a22: lam1 + lam2
-  trace_val: a11 + a22
-  det_val: a11*a22 - a12*a21
-  char_poly: expand((x - lam1)*(x - lam2))
-  gen_x: C_1*exp(lam1*t) + C_2*exp(lam2*t)
-  gen_y: lam1*C_1*exp(lam1*t) + lam2*C_2*exp(lam2*t)
-
-constraints:
-  - lam1 != lam2
-
-question: "Consider the linear system {system(equation(derivative_of(x, t), a11*x + a12*y), equation(derivative_of(y, t), a21*x + a22*y))}. Find the eigenvalues of the coefficient matrix {matrix_of([[a11, a12], [a21, a22]])}."
-
-answer: lam1, lam2
-answer_type: set
-
-solution:
-  - "The coefficient matrix is {matrix_of([[a11, a12], [a21, a22]])}."
-  - "Set up the characteristic equation {equation(det_of([[a11 - x, a12], [a21, a22 - x]]), 0)}."
-  - "Expanding gives {equation(char_poly, 0)}."
-  - "Factoring: {equation((x - lam1)*(x - lam2), 0)}."
-  - "The eigenvalues are {lam1} and {lam2}."
-  - "The general solution can be written as {math(x(t))} = {gen_x} and {math(y(t))} = {gen_y}."
+variants:
+  - name: default
+    variables:
+      lam1: nonzero(-4, -1)
+      lam2: integer(1, 4)
+      a11: 0
+      a12: 1
+      a21: -lam1*lam2
+      a22: lam1 + lam2
+      trace_val: a11 + a22
+      det_val: a11*a22 - a12*a21
+      char_poly: expand((x - lam1)*(x - lam2))
+      gen_x: C_1*exp(lam1*t) + C_2*exp(lam2*t)
+      gen_y: lam1*C_1*exp(lam1*t) + lam2*C_2*exp(lam2*t)
+    constraints:
+      - lam1 != lam2
+    question: Consider the linear system {system(equation(derivative_of(x, t), a11*x + a12*y), equation(derivative_of(y, t), a21*x + a22*y))}. Find the eigenvalues of the coefficient matrix {matrix_of([[a11, a12], [a21, a22]])}.
+    answer: lam1, lam2
+    answer_type: set
+    solution:
+      - The coefficient matrix is {matrix_of([[a11, a12], [a21, a22]])}.
+      - Set up the characteristic equation {equation(det_of([[a11 - x, a12], [a21, a22 - x]]), 0)}.
+      - Expanding gives {equation(char_poly, 0)}.
+      - 'Factoring: {equation((x - lam1)*(x - lam2), 0)}.'
+      - The eigenvalues are {lam1} and {lam2}.
+      - The general solution can be written as {math(x(t))} = {gen_x} and {math(y(t))} = {gen_y}.

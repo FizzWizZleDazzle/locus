@@ -1,29 +1,25 @@
 topic: differential_equations/exact_equations
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 5)
-  c: nonzero(1, 4)
-  M: 2*a*x + b*y
-  N: b*x + 2*c*y
-  F: a*x^2 + b*x*y + c*y^2
-  int_M: a*x^2 + b*x*y
-  g_prime_val: 2*c*y
-  g_y: c*y^2
-
-question: >
-  Verify that the differential equation
-  {math(M*dx + N*dy = 0)}
-  is exact, then find the general solution.
-
-answer: F
-answer_type: expression
-
-solution:
-  - "Let M = {M} and N = {N}."
-  - "Compute {partial_of(M, y)} = {b} and {partial_of(N, x)} = {b}. Since these partial derivatives are equal, the equation is exact."
-  - "Integrate M with respect to x: {equation(integral_of(M, x), int_M + g(y))}."
-  - "Differentiate with respect to y and set equal to N: {math(b*x)} + {math(g'(y))} = {N}, so {math(g'(y))} = {g_prime_val}."
-  - "Integrate to get {math(g(y))} = {g_y}. The general solution is {equation(F, C)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 5)
+      c: nonzero(1, 4)
+      M: 2*a*x + b*y
+      N: b*x + 2*c*y
+      F: a*x^2 + b*x*y + c*y^2
+      int_M: a*x^2 + b*x*y
+      g_prime_val: 2*c*y
+      g_y: c*y^2
+    question: |
+      Verify that the differential equation {math(M*dx + N*dy = 0)} is exact, then find the general solution.
+    answer: F
+    answer_type: expression
+    solution:
+      - Let M = {M} and N = {N}.
+      - Compute {partial_of(M, y)} = {b} and {partial_of(N, x)} = {b}. Since these partial derivatives are equal, the equation is exact.
+      - 'Integrate M with respect to x: {equation(integral_of(M, x), int_M + g(y))}.'
+      - 'Differentiate with respect to y and set equal to N: {math(b*x)} + {math(g''(y))} = {N}, so {math(g''(y))} = {g_prime_val}.'
+      - Integrate to get {math(g(y))} = {g_y}. The general solution is {equation(F, C)}.

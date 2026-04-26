@@ -1,27 +1,24 @@
 topic: differential_equations/systems_of_odes
 difficulty: easy
 calculator: scientific
-
-variables:
-  lam1: nonzero(-4, -1)
-  lam2: integer(1, 4)
-  a: 0
-  b: 1
-  c: -lam1*lam2
-  d: lam1 + lam2
-  trace_val: a + d
-  det_val: a*d - b*c
-  char_poly: expand((x - lam1)*(x - lam2))
-
-constraints:
-  - lam1 != lam2
-
-question: "A linear system {equation(derivative_of(vec([x, y]), t), vec([a*x + b*y, c*x + d*y]))} has coefficient matrix {matrix_of([[a, b], [c, d]])}. Find the eigenvalues of this matrix."
-
-answer: lam1, lam2
-answer_type: set
-
-solution:
-  - "Set up the characteristic equation {equation(det_of([[a - x, b], [c, d - x]]), 0)}."
-  - "Expand: {equation(char_poly, 0)}."
-  - "The eigenvalues are {lam1} and {lam2}."
+variants:
+  - name: default
+    variables:
+      lam1: nonzero(-4, -1)
+      lam2: integer(1, 4)
+      a: 0
+      b: 1
+      c: -lam1*lam2
+      d: lam1 + lam2
+      trace_val: a + d
+      det_val: a*d - b*c
+      char_poly: expand((x - lam1)*(x - lam2))
+    constraints:
+      - lam1 != lam2
+    question: A linear system {equation(derivative_of(vec([x, y]), t), vec([a*x + b*y, c*x + d*y]))} has coefficient matrix {matrix_of([[a, b], [c, d]])}. Find the eigenvalues of this matrix.
+    answer: lam1, lam2
+    answer_type: set
+    solution:
+      - Set up the characteristic equation {equation(det_of([[a - x, b], [c, d - x]]), 0)}.
+      - 'Expand: {equation(char_poly, 0)}.'
+      - The eigenvalues are {lam1} and {lam2}.

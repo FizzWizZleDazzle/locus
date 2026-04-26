@@ -1,32 +1,27 @@
 topic: algebra1/systems_substitution
 difficulty: easy
 calculator: none
-
-variables:
-  x_sol: integer(-5, 5)
-  y_sol: integer(-5, 5)
-  m: nonzero(-4, 4)
-  b_val: y_sol - m*x_sol
-  a2: nonzero(-3, 3)
-  c2: nonzero(-3, 3)
-  d2: a2*x_sol + c2*y_sol
-  f_sub: m*x + b_val
-  # Expanded form after substituting y = m*x + b_val into a2*x + c2*y = d2
-  substituted: expand(a2*x + c2*(m*x + b_val))
-  # coefficient of x after expansion: a2 + c2*m
-  coeff_x: a2 + c2*m
-  # constant after expansion: c2*b_val
-  const_val: c2*b_val
-
-answer: x_sol, y_sol
-answer_type: tuple
-
-question: "Solve the system using substitution: {system(equation(y, f_sub), equation(a2*x + c2*y, d2))}"
-
-solution:
-  - "The first equation gives {equation(y, f_sub)}. Substitute into the second equation."
-  - "Replace {math(y)} with {f_sub}: {equation(a2*x + c2*(m*x + b_val), d2)}"
-  - "Expand: {equation(substituted, d2)}"
-  - "Solve for {math(x)}: {equation(x, x_sol)}"
-  - "Substitute {equation(x, x_sol)} back into {equation(y, f_sub)}: {equation(y, y_sol)}"
-  - "The solution is {math(x)} = {x_sol} and {math(y)} = {y_sol}."
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-5, 5)
+      y_sol: integer(-5, 5)
+      m: nonzero(-4, 4)
+      b_val: y_sol - m*x_sol
+      a2: nonzero(-3, 3)
+      c2: nonzero(-3, 3)
+      d2: a2*x_sol + c2*y_sol
+      f_sub: m*x + b_val
+      substituted: expand(a2*x + c2*(m*x + b_val))
+      coeff_x: a2 + c2*m
+      const_val: c2*b_val
+    question: 'Solve the system using substitution: {system(equation(y, f_sub), equation(a2*x + c2*y, d2))}'
+    answer: x_sol, y_sol
+    answer_type: tuple
+    solution:
+      - The first equation gives {equation(y, f_sub)}. Substitute into the second equation.
+      - 'Replace {math(y)} with {f_sub}: {equation(a2*x + c2*(m*x + b_val), d2)}'
+      - 'Expand: {equation(substituted, d2)}'
+      - 'Solve for {math(x)}: {equation(x, x_sol)}'
+      - 'Substitute {equation(x, x_sol)} back into {equation(y, f_sub)}: {equation(y, y_sol)}'
+      - The solution is {math(x)} = {x_sol} and {math(y)} = {y_sol}.
