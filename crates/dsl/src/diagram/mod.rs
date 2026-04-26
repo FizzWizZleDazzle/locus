@@ -34,23 +34,27 @@ use spec::DiagramSpec;
 /// Render a `DiagramSpec` to a compressed SVG string. Each renderer emits
 /// cetz markup; `compile::compile` runs Typst to produce SVG; the result is
 /// dictionary-compressed for storage.
+///
+/// Per-type cetz canvas `length` (cetz unit -> physical size) is chosen so
+/// labels don't crowd shapes. Triangles/circles/polygons work in tight
+/// math units so they need a longer length than e.g. number lines.
 pub fn render(spec: &DiagramSpec, vars: &VarMap) -> Result<String, DslError> {
-    let canvas_body = match spec {
-        DiagramSpec::NumberLine(d) => number_line::render(d, vars)?,
-        DiagramSpec::CoordinatePlane(d) => coordinate_plane::render(d, vars)?,
-        DiagramSpec::Triangle(d) => triangle::render(d, vars)?,
-        DiagramSpec::Circle(d) => circle::render(d, vars)?,
-        DiagramSpec::Polygon(d) => polygon::render(d, vars)?,
-        DiagramSpec::FunctionGraph(d) => function_graph::render(d, vars)?,
-        DiagramSpec::ForceDiagram(d) => force_diagram::render(d, vars)?,
-        DiagramSpec::Field(d) => field::render(d, vars)?,
+    let (canvas_body, length) = match spec {
+        DiagramSpec::NumberLine(d) => (number_line::render(d, vars)?, "0.7cm"),
+        DiagramSpec::CoordinatePlane(d) => (coordinate_plane::render(d, vars)?, "0.5cm"),
+        DiagramSpec::Triangle(d) => (triangle::render(d, vars)?, "0.7cm"),
+        DiagramSpec::Circle(d) => (circle::render(d, vars)?, "2.4cm"),
+        DiagramSpec::Polygon(d) => (polygon::render(d, vars)?, "0.8cm"),
+        DiagramSpec::FunctionGraph(d) => (function_graph::render(d, vars)?, "0.5cm"),
+        DiagramSpec::ForceDiagram(d) => (force_diagram::render(d, vars)?, "0.9cm"),
+        DiagramSpec::Field(d) => (field::render(d, vars)?, "0.5cm"),
         DiagramSpec::Circuit(_) => {
             return Err(DslError::Evaluation(
                 "circuit diagrams not yet implemented (circuitikz pipeline pending)".into(),
             ));
         }
     };
-    let typst_src = compile::wrap_cetz(&canvas_body);
+    let typst_src = compile::wrap_cetz_with_length(&canvas_body, length);
     let raw = compile::compile(typst_src)?;
     Ok(compress_svg(&raw))
 }

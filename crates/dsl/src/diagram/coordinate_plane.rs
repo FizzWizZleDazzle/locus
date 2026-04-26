@@ -80,7 +80,18 @@ pub fn render(spec: &CoordinatePlane, vars: &VarMap) -> Result<String, DslError>
                 let y = eval_num(&p.y, vars)?;
                 cetz::point(&mut s, (x, y), p.color);
                 if let Some(label) = &p.label {
-                    cetz::content_anchor(&mut s, (x, y), label, "north-west");
+                    // Pick a quadrant for the label that's away from any
+                    // axis the point sits on, so the label doesn't crash
+                    // into axis tick numbers.
+                    // cetz anchor names refer to the label's side touching
+                    // the coordinate. So `north` => label sits SOUTH of point.
+                    let anchor = match (x.abs() < 1e-3, y.abs() < 1e-3) {
+                        (true, true) => "north-west", // origin -> SE quadrant
+                        (true, _)    => "north",      // on y-axis -> south
+                        (_, true)    => "north",      // on x-axis -> south
+                        _            => "south-west", // upper-right of point
+                    };
+                    cetz::content_anchor(&mut s, (x, y), label, anchor);
                 }
             }
             CpElement::Shade(sh) => {

@@ -7,15 +7,25 @@ use crate::error::DslError;
 use super::world::InMemoryWorld;
 
 /// Wrap a cetz `canvas` body in a self-contained Typst document with the cetz
-/// import already pulled in. Page size is auto from content (no margins).
+/// import already pulled in. Page size is auto from content.
 pub fn wrap_cetz(canvas_body: &str) -> String {
+    wrap_cetz_with_length(canvas_body, "1cm")
+}
+
+/// Wrap with explicit canvas length (one cetz unit = `length`). Use for
+/// renderers whose math-unit content is small (triangles, circles, small
+/// polygons) so labels don't crowd shapes.
+pub fn wrap_cetz_with_length(canvas_body: &str, length: &str) -> String {
     format!(
         "#import \"@preview/cetz:0.5.0\"\n\
-         #set page(width: auto, height: auto, margin: 4pt)\n\
-         #cetz.canvas({{\n\
+         #set page(width: auto, height: auto, margin: 8pt)\n\
+         #set text(size: 9pt)\n\
+         #cetz.canvas(length: {length}, {{\n\
            import cetz.draw: *\n\
+           import cetz.angle\n\
            {body}\n\
          }})\n",
+        length = length,
         body = canvas_body,
     )
 }

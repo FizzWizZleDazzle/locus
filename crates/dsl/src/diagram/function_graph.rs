@@ -73,8 +73,12 @@ pub fn render(spec: &FunctionGraph, vars: &VarMap) -> Result<String, DslError> {
             if !(xlo..=xhi).contains(&x) || !(ylo..=yhi).contains(&y) { continue; }
             cetz::point(&mut s, (x, y), Color::Red);
             if fb.label {
-                let lab = format!("({:.2}, {:.2})", x, y);
-                cetz::content_anchor(&mut s, (x, y), &lab, "south");
+                let lab = format!("({:.0}, {:.0})", x, y);
+                // Put label above the point with extra clearance so it
+                // doesn't collide with the curve or x-axis.
+                let dy_off = (yhi - ylo) * 0.08;
+                let label_y = (y + dy_off).min(yhi - dy_off * 0.5);
+                cetz::content_anchor(&mut s, (x, label_y), &lab, "south");
             }
         }
     }

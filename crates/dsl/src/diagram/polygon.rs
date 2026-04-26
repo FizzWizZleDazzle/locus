@@ -6,7 +6,7 @@ use crate::error::DslError;
 use crate::resolver::VarMap;
 
 use super::cetz;
-use super::eval::eval_num;
+use super::eval::{eval_num, format_label};
 use super::spec::{AngleValue, Polygon, SideValue, Vertex};
 use super::style::{Color, LineStyle};
 
@@ -26,9 +26,14 @@ pub fn render(spec: &Polygon, vars: &VarMap) -> Result<String, DslError> {
         Vertex::Named(_) => None,
     }).collect();
 
-    let pts: Vec<(f64, f64)> = if let Some(p) = explicit_coords { p } else {
+    let pts_raw: Vec<(f64, f64)> = if let Some(p) = explicit_coords { p } else {
         compute_layout(spec, &names, vars)?
     };
+    // Normalize to a fixed extent so a single canvas length works for all
+    // input scales (e.g. polygons with sides 6 vs sides 0.5 render the same
+    // physical size).
+    const TARGET_EXTENT: f64 = 7.0;
+    let pts = normalize_extent(&pts_raw, TARGET_EXTENT);
 
     let mut s = String::new();
     cetz::polygon(&mut s, &pts, Color::Black, None);
@@ -44,23 +49,28 @@ pub fn render(spec: &Polygon, vars: &VarMap) -> Result<String, DslError> {
             }
             if let Some(label) = side.label() {
                 let mid = ((p1.0 + p2.0) / 2.0, (p1.1 + p2.1) / 2.0);
-                let centroid = centroid(&pts);
-                let dx = centroid.0 - mid.0; let dy = centroid.1 - mid.1;
+                let cen = centroid(&pts);
+                // Push label OUTWARD perpendicular to the edge, scaled to a
+                // fraction of the polygon's bounding extent so labels never
+                // overlap edges regardless of math-unit scale.
+                let dx = mid.0 - cen.0; let dy = mid.1 - cen.1;
                 let len = (dx * dx + dy * dy).sqrt().max(1e-6);
-                let off = 0.25;
-                let lp = (mid.0 - dx / len * off, mid.1 - dy / len * off);
-                cetz::content(&mut s, lp, label);
+                let extent = polygon_extent(&pts);
+                let off = (extent * 0.08).max(0.4);
+                let lp = (mid.0 + dx / len * off, mid.1 + dy / len * off);
+                cetz::content(&mut s, lp, &format_label(label, vars, ""));
             }
         }
     }
 
-    // Vertex labels.
+    // Vertex labels — push outward beyond the side label band.
     let cen = centroid(&pts);
+    let extent = polygon_extent(&pts);
+    let v_off = (extent * 0.12).max(0.5);
     for (name, p) in names.iter().zip(pts.iter()) {
         let dx = p.0 - cen.0; let dy = p.1 - cen.1;
         let len = (dx * dx + dy * dy).sqrt().max(1e-6);
-        let off = 0.3;
-        let lp = (p.0 + dx / len * off, p.1 + dy / len * off);
+        let lp = (p.0 + dx / len * v_off, p.1 + dy / len * v_off);
         cetz::content(&mut s, lp, name);
     }
 
@@ -134,6 +144,30 @@ fn centroid(pts: &[(f64, f64)]) -> (f64, f64) {
     let sx: f64 = pts.iter().map(|p| p.0).sum();
     let sy: f64 = pts.iter().map(|p| p.1).sum();
     (sx / n, sy / n)
+}
+
+fn polygon_extent(pts: &[(f64, f64)]) -> f64 {
+    let xs: Vec<f64> = pts.iter().map(|p| p.0).collect();
+    let ys: Vec<f64> = pts.iter().map(|p| p.1).collect();
+    let dx = xs.iter().cloned().fold(f64::NEG_INFINITY, f64::max)
+        - xs.iter().cloned().fold(f64::INFINITY, f64::min);
+    let dy = ys.iter().cloned().fold(f64::NEG_INFINITY, f64::max)
+        - ys.iter().cloned().fold(f64::INFINITY, f64::min);
+    dx.max(dy).max(1.0)
+}
+
+fn normalize_extent(pts: &[(f64, f64)], target: f64) -> Vec<(f64, f64)> {
+    let xs: Vec<f64> = pts.iter().map(|p| p.0).collect();
+    let ys: Vec<f64> = pts.iter().map(|p| p.1).collect();
+    let xmin = xs.iter().cloned().fold(f64::INFINITY, f64::min);
+    let xmax = xs.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let ymin = ys.iter().cloned().fold(f64::INFINITY, f64::min);
+    let ymax = ys.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let extent = (xmax - xmin).max(ymax - ymin).max(1e-6);
+    let scale = target / extent;
+    let cx = (xmin + xmax) / 2.0;
+    let cy = (ymin + ymax) / 2.0;
+    pts.iter().map(|p| ((p.0 - cx) * scale, (p.1 - cy) * scale)).collect()
 }
 
 fn draw_right_angle(buf: &mut String, pts: &[(f64, f64)], idx: usize) {

@@ -68,6 +68,51 @@ pub fn line(buf: &mut String, p1: (f64, f64), p2: (f64, f64), c: Color, s: LineS
     buf.push_str(")\n");
 }
 
+/// Draw a line with a `name:` so callers can anchor labels to it via
+/// path interpolation `("name.start", 50%, "name.end")`.
+pub fn line_named(buf: &mut String, name: &str, p1: (f64, f64), p2: (f64, f64), c: Color, s: LineStyle) {
+    let _ = write!(buf, "line({}, {}, name: \"{name}\", stroke: ", pt(p1.0, p1.1), pt(p2.0, p2.1));
+    stroke(buf, c, s);
+    buf.push_str(")\n");
+}
+
+/// Place a label at the midpoint of a previously-named line, rotated to
+/// follow the line direction, offset perpendicular to the side specified by
+/// `anchor` ("north" sits above, "south" sits below). Uses cetz's path
+/// interpolation so the label is automatically perpendicular regardless of
+/// line orientation, with a white frame to mask gridlines/curves underneath.
+pub fn label_on_line(buf: &mut String, name: &str, text: &str, anchor: &str) {
+    let _ = write!(
+        buf,
+        "content((\"{name}.start\", 50%, \"{name}.end\"), {}, anchor: \"{anchor}\", padding: 1pt, frame: \"rect\", stroke: none, fill: white)\n",
+        label(text),
+    );
+}
+
+/// Use cetz's `angle.angle` helper to draw an interior angle arc at vertex
+/// `o` between rays to `a` and `b`, with `text` placed past the arc on the
+/// angular bisector. `direction: "near"` picks the smaller (interior) angle.
+pub fn angle_arc(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), text: &str, radius: f64) {
+    let _ = write!(
+        buf,
+        "angle.angle({o}, {a}, {b}, direction: \"cw\", radius: {r}, label-radius: {r2}, label: text(8pt)[{lab_inner}])\n",
+        o = pt(o.0, o.1), a = pt(a.0, a.1), b = pt(b.0, b.1),
+        r = n(radius),
+        r2 = n(radius * 1.7),
+        lab_inner = text,
+    );
+}
+
+/// Right-angle square marker at vertex `o` (between rays to `a` and `b`).
+pub fn right_angle_mark(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), radius: f64) {
+    let _ = write!(
+        buf,
+        "angle.right-angle({o}, {a}, {b}, radius: {r})\n",
+        o = pt(o.0, o.1), a = pt(a.0, a.1), b = pt(b.0, b.1),
+        r = n(radius),
+    );
+}
+
 /// Draw a circle at center with radius (math units).
 pub fn circle(buf: &mut String, center: (f64, f64), r: f64, c: Color, fill: Option<Color>) {
     let fill_arg = match fill {
@@ -100,16 +145,25 @@ pub fn polygon(buf: &mut String, pts: &[(f64, f64)], c: Color, fill: Option<Colo
     buf.push_str(&s);
 }
 
-/// Place a text label at a point.
+/// Place a text label at a point with physical padding so it sits clear of
+/// nearby strokes regardless of canvas length.
 pub fn content(buf: &mut String, at: (f64, f64), text: &str) {
-    let _ = write!(buf, "content({}, {})\n", pt(at.0, at.1), label(text));
+    let _ = write!(
+        buf,
+        "content({}, {}, padding: 1pt, frame: \"rect\", stroke: none, fill: white)\n",
+        pt(at.0, at.1),
+        label(text),
+    );
 }
 
 /// Place text with directional anchor relative to the point (north/south/etc).
+/// `padding: 1pt` keeps text off the anchor coordinate's stroke; `frame: rect`
+/// + white fill gives a tiny background plate so labels are readable when
+/// they cross gridlines / edges.
 pub fn content_anchor(buf: &mut String, at: (f64, f64), text: &str, anchor: &str) {
     let _ = write!(
         buf,
-        "content({}, {}, anchor: \"{}\")\n",
+        "content({}, {}, anchor: \"{}\", padding: 1pt, frame: \"rect\", stroke: none, fill: white)\n",
         pt(at.0, at.1),
         label(text),
         anchor,

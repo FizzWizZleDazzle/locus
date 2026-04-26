@@ -9,7 +9,7 @@ use crate::error::DslError;
 use crate::resolver::VarMap;
 
 use super::cetz;
-use super::eval::eval_num;
+use super::eval::{eval_num, format_label};
 use super::spec::{Circle, CircleElement};
 use super::style::{Color, LineStyle};
 
@@ -85,7 +85,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                 cetz::line(&mut s, p, q, c.color, LineStyle::Solid);
                 if let Some(label) = &c.label {
                     let mid = ((p.0 + q.0) / 2.0, (p.1 + q.1) / 2.0);
-                    cetz::content(&mut s, mid, label);
+                    cetz::content(&mut s, mid, &format_label(label, _vars, ""));
                 }
                 put_pt(&mut s, &c.from, &positions);
                 put_pt(&mut s, &c.to, &positions);
@@ -98,7 +98,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                 cetz_arc(&mut s, (0.0, 0.0), r_arc, theta1.to_degrees(), theta2.to_degrees());
                 if let Some(label) = &a.label {
                     let mid = (theta1 + theta2) / 2.0;
-                    cetz::content(&mut s, (r * 0.7 * mid.cos(), r * 0.7 * mid.sin()), label);
+                    cetz::content(&mut s, (r * 0.7 * mid.cos(), r * 0.7 * mid.sin()), &format_label(label, _vars, ""));
                 }
             }
             CircleElement::Radius(rd) => {
@@ -106,7 +106,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                 cetz::line(&mut s, (0.0, 0.0), p, Color::Black, LineStyle::Solid);
                 if let Some(label) = &rd.label {
                     let mid = (p.0 / 2.0, p.1 / 2.0);
-                    cetz::content(&mut s, mid, label);
+                    cetz::content(&mut s, mid, &format_label(label, _vars, ""));
                 }
                 put_pt(&mut s, &rd.to, &positions);
             }
@@ -123,7 +123,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                     Color::Gray, LineStyle::Solid,
                 );
                 if let Some(label) = &t.label {
-                    cetz::content(&mut s, (p.0 + tx * len, p.1 + ty * len), label);
+                    cetz::content(&mut s, (p.0 + tx * len, p.1 + ty * len), &format_label(label, _vars, ""));
                 }
                 put_pt(&mut s, &t.at, &positions);
             }
@@ -133,13 +133,9 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                 let b = positions[&c.sides[1]];
                 cetz::line(&mut s, v, a, Color::Black, LineStyle::Solid);
                 cetz::line(&mut s, v, b, Color::Black, LineStyle::Solid);
-                let theta_a = (a.1 - v.1).atan2(a.0 - v.0);
-                let theta_b = (b.1 - v.1).atan2(b.0 - v.0);
-                cetz_arc(&mut s, v, 0.18, theta_a.to_degrees(), theta_b.to_degrees());
-                if let Some(label) = &c.label {
-                    let mid = mid_angle(theta_a, theta_b);
-                    cetz::content(&mut s, (v.0 + 0.32 * mid.cos(), v.1 + 0.32 * mid.sin()), label);
-                }
+                let lbl = c.label.as_deref().map(|l| format_label(l, _vars, "°"))
+                    .unwrap_or_default();
+                cetz::angle_arc(&mut s, v, a, b, &lbl, 0.2);
                 put_pt(&mut s, &c.sides[0], &positions);
                 put_pt(&mut s, &c.sides[1], &positions);
             }
@@ -149,13 +145,9 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
                 let b = positions[&i.sides[1]];
                 cetz::line(&mut s, v, a, Color::Blue, LineStyle::Solid);
                 cetz::line(&mut s, v, b, Color::Blue, LineStyle::Solid);
-                let theta_a = (a.1 - v.1).atan2(a.0 - v.0);
-                let theta_b = (b.1 - v.1).atan2(b.0 - v.0);
-                cetz_arc(&mut s, v, 0.15, theta_a.to_degrees(), theta_b.to_degrees());
-                if let Some(label) = &i.label {
-                    let mid = mid_angle(theta_a, theta_b);
-                    cetz::content(&mut s, (v.0 + 0.28 * mid.cos(), v.1 + 0.28 * mid.sin()), label);
-                }
+                let lbl = i.label.as_deref().map(|l| format_label(l, _vars, "°"))
+                    .unwrap_or_default();
+                cetz::angle_arc(&mut s, v, a, b, &lbl, 0.18);
                 put_pt(&mut s, &i.vertex, &positions);
                 put_pt(&mut s, &i.sides[0], &positions);
                 put_pt(&mut s, &i.sides[1], &positions);
