@@ -1,20 +1,18 @@
 topic: precalculus/law_of_sines_cosines
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: integer(3, 8)
-  b: 2*a
-  sin_A: 1/2
-  sin_B: 1
-
-question: "In triangle {math(ABC)}, {math(angle A = 30)} degrees and {math(angle B = 90)} degrees. The side opposite {math(angle A)} has length {a}. Use the Law of Sines to find the length of the side opposite {math(angle B)}."
-
-answer: b
-answer_type: numeric
-
-solution:
-  - "The Law of Sines states {math(p / sin(A) = q / sin(B))}, where {math(p)} and {math(q)} are the sides opposite angles {math(A)} and {math(B)}."
-  - "Solving for the unknown side {math(q)}: {math(q = p * sin(B) / sin(A))}."
-  - "Here {math(p)} = {a}, {math(sin(A) = sin_A)}, and {math(sin(B) = sin_B)}."
-  - "So {math(q)} = {a} / {sin_A} = {b}."
+variants:
+  - name: default
+    variables:
+      a: integer(3, 8)
+      b: 2*a
+      sin_A: 1/2
+      sin_B: 1
+    question: In triangle {math(ABC)}, {math(angle A = 30)} degrees and {math(angle B = 90)} degrees. The side opposite {math(angle A)} has length {a}. Use the Law of Sines to find the length of the side opposite {math(angle B)}.
+    answer: b
+    answer_type: numeric
+    solution:
+      - The Law of Sines states {math(p / sin(A) = q / sin(B))}, where {math(p)} and {math(q)} are the sides opposite angles {math(A)} and {math(B)}.
+      - 'Solving for the unknown side {math(q)}: {math(q = p * sin(B) / sin(A))}.'
+      - Here {math(p)} = {a}, {math(sin(A) = sin_A)}, and {math(sin(B) = sin_B)}.
+      - So {math(q)} = {a} / {sin_A} = {b}.

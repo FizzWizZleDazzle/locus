@@ -1,44 +1,31 @@
 topic: arithmetic/multiplication
 difficulty: medium
 calculator: none
-
-variables:
-  rows: integer(12, 25)
-  cols: integer(6, 15)
-  answer: rows * cols
-
-question: "A rectangular auditorium has {rows} rows of seats, with {cols} seats in each row. How many seats are there in total?"
-answer: answer
-solution:
-  - "Multiply the number of rows by the number of seats per row: {rows} * {cols} = {answer}."
-
 variants:
   - name: auditorium_seats
     variables:
       rows: integer(12, 25)
       cols: integer(6, 15)
       answer: rows * cols
-    question: "A rectangular auditorium has {rows} rows of seats, with {cols} seats in each row. How many seats are there in total?"
+    question: A rectangular auditorium has {rows} rows of seats, with {cols} seats in each row. How many seats are there in total?
     answer: answer
     solution:
-      - "Multiply the number of rows by the number of seats per row: {rows} * {cols} = {answer}."
-
+      - 'Multiply the number of rows by the number of seats per row: {rows} * {cols} = {answer}.'
   - name: boxes_of_items
     variables:
       boxes: integer(14, 30)
       items: integer(8, 20)
       answer: boxes * items
-    question: "A warehouse receives {boxes} boxes, each containing {items} items. How many items are there in total?"
+    question: A warehouse receives {boxes} boxes, each containing {items} items. How many items are there in total?
     answer: answer
     solution:
-      - "Multiply the number of boxes by the number of items per box: {boxes} * {items} = {answer}."
-
+      - 'Multiply the number of boxes by the number of items per box: {boxes} * {items} = {answer}.'
   - name: weekly_hours
     variables:
       weeks: integer(8, 24)
       hours: integer(6, 15)
       answer: weeks * hours
-    question: "A student studies {hours} hours per week for {weeks} weeks. How many total hours does the student study?"
+    question: A student studies {hours} hours per week for {weeks} weeks. How many total hours does the student study?
     answer: answer
     solution:
-      - "Multiply the number of hours per week by the number of weeks: {hours} * {weeks} = {answer}."
+      - 'Multiply the number of hours per week by the number of weeks: {hours} * {weeks} = {answer}.'

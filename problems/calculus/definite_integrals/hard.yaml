@@ -1,28 +1,27 @@
 topic: calculus/definite_integrals
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  lo: integer(0, 2)
-  hi: integer(3, 5)
-  f: a*(4*x^3 + 2*x) + 3*b*x^2
-  f_expanded: expand(f)
-  F: integral(f_expanded, x)
-  F_hi: evaluate(F, x, hi)
-  F_lo: evaluate(F, x, lo)
-  answer: F_hi - F_lo
-
-constraints:
-  - lo < hi
-
-question: "Evaluate {definite_integral_of(f_expanded, x, lo, hi)}."
-answer: answer
-answer_type: numeric
-solution:
-  - "Find the antiderivative using the power rule: {integral_of(f_expanded, x)} = {F} + C."
-  - "Apply the Fundamental Theorem of Calculus: evaluate {F} from {lo} to {hi}."
-  - "Substitute the upper bound {hi}: {F_hi}."
-  - "Substitute the lower bound {lo}: {F_lo}."
-  - "Subtract: {F_hi} - {F_lo} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      lo: integer(0, 2)
+      hi: integer(3, 5)
+      f: a*(4*x^3 + 2*x) + 3*b*x^2
+      f_expanded: expand(f)
+      F: integral(f_expanded, x)
+      F_hi: evaluate(F, x, hi)
+      F_lo: evaluate(F, x, lo)
+      answer: F_hi - F_lo
+    constraints:
+      - lo < hi
+    question: Evaluate {definite_integral_of(f_expanded, x, lo, hi)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Find the antiderivative using the power rule: {integral_of(f_expanded, x)} = {F} + C.'
+      - 'Apply the Fundamental Theorem of Calculus: evaluate {F} from {lo} to {hi}.'
+      - 'Substitute the upper bound {hi}: {F_hi}.'
+      - 'Substitute the lower bound {lo}: {F_lo}.'
+      - 'Subtract: {F_hi} - {F_lo} = {answer}.'

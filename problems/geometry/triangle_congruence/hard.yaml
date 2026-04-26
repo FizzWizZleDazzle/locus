@@ -1,34 +1,27 @@
 topic: geometry/triangle_congruence
 difficulty: hard
 calculator: none
-
-variables:
-  x_val: integer(2, 8)
-  m: nonzero(2, 5)
-  k: integer(1, 6)
-  p: m*x_val + k
-  ang_m: nonzero(3, 7)
-  ang_k: integer(5, 20)
-  ang_p: ang_m*x_val + ang_k
-  q: integer(4, 12)
-  step_rhs: p - k
-  answer: x_val
-
-question: >
-  Triangles ABC and DEF are congruent by ASA.
-  In triangle ABC, the two sides forming the included angle at B have lengths {p} and {q},
-  and the measure of angle B is {ang_p} degrees.
-  In triangle DEF, the corresponding sides forming the included angle at E have lengths
-  {math(m*x + k)} and {q}, and the measure of angle E is {math(ang_m*x + ang_k)} degrees.
-  Find the value of {math(x)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "By ASA (Angle-Side-Angle) congruence, corresponding included angles and their adjacent sides must be equal."
-  - "The adjacent sides give the equation: {equation(m*x + k, p)}"
-  - "The included angles give the equation: {equation(ang_m*x + ang_k, ang_p)}"
-  - "Solving the side equation: subtract {k} from both sides to get {equation(m*x, step_rhs)}."
-  - "Divide both sides by {m}: {equation(x, answer)}."
-  - "Check with the angle equation: {ang_m} times {answer} + {ang_k} = {ang_p}. Consistent."
+variants:
+  - name: default
+    variables:
+      x_val: integer(2, 8)
+      m: nonzero(2, 5)
+      k: integer(1, 6)
+      p: m*x_val + k
+      ang_m: nonzero(3, 7)
+      ang_k: integer(5, 20)
+      ang_p: ang_m*x_val + ang_k
+      q: integer(4, 12)
+      step_rhs: p - k
+      answer: x_val
+    question: |
+      Triangles ABC and DEF are congruent by ASA. In triangle ABC, the two sides forming the included angle at B have lengths {p} and {q}, and the measure of angle B is {ang_p} degrees. In triangle DEF, the corresponding sides forming the included angle at E have lengths {math(m*x + k)} and {q}, and the measure of angle E is {math(ang_m*x + ang_k)} degrees. Find the value of {math(x)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - By ASA (Angle-Side-Angle) congruence, corresponding included angles and their adjacent sides must be equal.
+      - 'The adjacent sides give the equation: {equation(m*x + k, p)}'
+      - 'The included angles give the equation: {equation(ang_m*x + ang_k, ang_p)}'
+      - 'Solving the side equation: subtract {k} from both sides to get {equation(m*x, step_rhs)}.'
+      - 'Divide both sides by {m}: {equation(x, answer)}.'
+      - 'Check with the angle equation: {ang_m} times {answer} + {ang_k} = {ang_p}. Consistent.'

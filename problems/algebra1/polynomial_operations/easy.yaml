@@ -1,22 +1,24 @@
 topic: algebra1/polynomial_operations
 difficulty: easy
 calculator: none
-variables:
-  a: nonzero(-6, 6)
-  b: nonzero(-6, 6)
-  c: nonzero(-6, 6)
-  d: nonzero(-6, 6)
-  p: a*x^2 + b*x
-  q: c*x^2 + d
-  sum_coeff_x2: a + c
-  answer: expand(p + q)
-constraints:
-  - a != c
-question: "Add the polynomials {p} and {q}."
-answer: answer
-answer_type: expression
-solution:
-  - "Align like terms: {math(x^2)} terms have coefficients {a} and {c}; the {math(x)} term has coefficient {b}; the constant is {d}."
-  - "Add the {math(x^2)} coefficients: {a} + {c} = {sum_coeff_x2}."
-  - "The {math(x)} and constant terms have no like terms to combine."
-  - "The sum is {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-6, 6)
+      b: nonzero(-6, 6)
+      c: nonzero(-6, 6)
+      d: nonzero(-6, 6)
+      p: a*x^2 + b*x
+      q: c*x^2 + d
+      sum_coeff_x2: a + c
+      answer: expand(p + q)
+    constraints:
+      - a != c
+    question: Add the polynomials {p} and {q}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Align like terms: {math(x^2)} terms have coefficients {a} and {c}; the {math(x)} term has coefficient {b}; the constant is {d}.'
+      - 'Add the {math(x^2)} coefficients: {a} + {c} = {sum_coeff_x2}.'
+      - The {math(x)} and constant terms have no like terms to combine.
+      - The sum is {answer}.

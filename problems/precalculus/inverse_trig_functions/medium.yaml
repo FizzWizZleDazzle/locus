@@ -1,53 +1,37 @@
 topic: precalculus/inverse_trig_functions
 difficulty: medium
 calculator: none
-
-variables:
-  input_val: choice(1/2, sqrt(2)/2, sqrt(3)/2)
-  answer: asin(input_val)
-
-question: "What angle {math(theta)}, in radians, satisfies {math(sin(theta) = input_val)} with {math(theta)} in the principal range of arcsin?"
-answer: answer
-answer_type: expression
-
-solution:
-  - "The principal range of arcsin is the closed interval from negative pi over 2 to pi over 2."
-  - "We need {math(sin(theta) = input_val)}."
-  - "From the unit circle, {math(theta)} = {answer}."
-
 variants:
   - name: arcsin_variant
     variables:
       input_val: choice(1/2, sqrt(2)/2, sqrt(3)/2)
       answer: asin(input_val)
-    question: "What angle {math(theta)}, in radians, satisfies {math(sin(theta) = input_val)} with {math(theta)} in the principal range of arcsin?"
+    question: What angle {math(theta)}, in radians, satisfies {math(sin(theta) = input_val)} with {math(theta)} in the principal range of arcsin?
     answer: answer
     answer_type: expression
     solution:
-      - "The principal range of arcsin is the closed interval from negative pi over 2 to pi over 2."
-      - "We need {math(sin(theta) = input_val)}."
-      - "From the unit circle, {math(theta)} = {answer}."
-
+      - The principal range of arcsin is the closed interval from negative pi over 2 to pi over 2.
+      - We need {math(sin(theta) = input_val)}.
+      - From the unit circle, {math(theta)} = {answer}.
   - name: arccos_variant
     variables:
       input_val: choice(1/2, sqrt(2)/2, sqrt(3)/2)
       answer: acos(input_val)
-    question: "What angle {math(theta)}, in radians, satisfies {math(cos(theta) = input_val)} with {math(theta)} in the principal range of arccos?"
+    question: What angle {math(theta)}, in radians, satisfies {math(cos(theta) = input_val)} with {math(theta)} in the principal range of arccos?
     answer: answer
     answer_type: expression
     solution:
-      - "The principal range of arccos is the closed interval from 0 to pi."
-      - "We need {math(cos(theta) = input_val)}."
-      - "From the unit circle, {math(theta)} = {answer}."
-
+      - The principal range of arccos is the closed interval from 0 to pi.
+      - We need {math(cos(theta) = input_val)}.
+      - From the unit circle, {math(theta)} = {answer}.
   - name: arctan_variant
     variables:
       input_val: choice(1, sqrt(3), 1/sqrt(3))
       answer: atan(input_val)
-    question: "What angle {math(theta)}, in radians, satisfies {math(tan(theta) = input_val)} with {math(theta)} in the principal range of arctan?"
+    question: What angle {math(theta)}, in radians, satisfies {math(tan(theta) = input_val)} with {math(theta)} in the principal range of arctan?
     answer: answer
     answer_type: expression
     solution:
-      - "The principal range of arctan is the open interval from negative pi over 2 to pi over 2."
-      - "We need {math(tan(theta) = input_val)}."
-      - "From the unit circle, {math(theta)} = {answer}."
+      - The principal range of arctan is the open interval from negative pi over 2 to pi over 2.
+      - We need {math(tan(theta) = input_val)}.
+      - From the unit circle, {math(theta)} = {answer}.

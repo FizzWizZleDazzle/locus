@@ -1,28 +1,26 @@
 topic: multivariable_calculus/directional_derivatives
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  p: nonzero(-3, 3)
-  q: nonzero(-3, 3)
-  f: a*x^2 + b*y^2
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  grad_x: evaluate(fx, x, p)
-  grad_y: evaluate(fy, y, q)
-  term1: 3*grad_x / 5
-  term2: 4*grad_y / 5
-  answer: term1 + term2
-
-question: "Find the directional derivative of the function {f} at the point {math(x = p)}, {math(y = q)} in the direction of the vector {math((3, 4))}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The direction vector {math((3, 4))} has magnitude 5, so the unit vector is {math((3/5, 4/5))}."
-  - "The partial derivatives are {math(f_x)} = {fx} and {math(f_y)} = {fy}."
-  - "At {math(x = p)}, {math(y = q)}: {math(f_x)} = {grad_x} and {math(f_y)} = {grad_y}."
-  - "The directional derivative is {math(3/5)} times {grad_x} plus {math(4/5)} times {grad_y} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      p: nonzero(-3, 3)
+      q: nonzero(-3, 3)
+      f: a*x^2 + b*y^2
+      fx: derivative(f, x)
+      fy: derivative(f, y)
+      grad_x: evaluate(fx, x, p)
+      grad_y: evaluate(fy, y, q)
+      term1: 3*grad_x / 5
+      term2: 4*grad_y / 5
+      answer: term1 + term2
+    question: Find the directional derivative of the function {f} at the point {math(x = p)}, {math(y = q)} in the direction of the vector {math((3, 4))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The direction vector {math((3, 4))} has magnitude 5, so the unit vector is {math((3/5, 4/5))}.
+      - The partial derivatives are {math(f_x)} = {fx} and {math(f_y)} = {fy}.
+      - 'At {math(x = p)}, {math(y = q)}: {math(f_x)} = {grad_x} and {math(f_y)} = {grad_y}.'
+      - The directional derivative is {math(3/5)} times {grad_x} plus {math(4/5)} times {grad_y} = {answer}.

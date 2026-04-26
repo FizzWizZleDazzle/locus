@@ -1,28 +1,27 @@
 topic: algebra1/factoring_trinomials
 difficulty: hard
 calculator: none
-
-variables:
-  lc: choice(2, 3)
-  p: nonzero(-5, 5)
-  q: nonzero(-5, 5)
-  f: expand((lc*x - p)*(x - q))
-  ans: (lc*x - p)*(x - q)
-  coeff_a: lc
-  coeff_b: lc*(-q) + (-p)
-  coeff_c: p*q
-  ac_product: lc*p*q
-  num1: lc*(-q)
-  num2: -p
-
-constraints:
-  - p != q
-
-question: "Factor the trinomial completely: {f}"
-answer: ans
-answer_type: expression
-solution:
-  - "Identify the coefficients: {math(a)} = {coeff_a}, {math(b)} = {coeff_b}, {math(c)} = {coeff_c}."
-  - "Use the AC method: multiply {math(a)} and {math(c)}: {coeff_a} times {coeff_c} = {ac_product}."
-  - "Find two numbers that multiply to {ac_product} and add to {coeff_b}: those are {num1} and {num2}."
-  - "Rewrite the middle term and factor by grouping to obtain {ans}."
+variants:
+  - name: default
+    variables:
+      lc: choice(2, 3)
+      p: nonzero(-5, 5)
+      q: nonzero(-5, 5)
+      f: expand((lc*x - p)*(x - q))
+      ans: (lc*x - p)*(x - q)
+      coeff_a: lc
+      coeff_b: lc*(-q) + (-p)
+      coeff_c: p*q
+      ac_product: lc*p*q
+      num1: lc*(-q)
+      num2: -p
+    constraints:
+      - p != q
+    question: 'Factor the trinomial completely: {f}'
+    answer: ans
+    answer_type: expression
+    solution:
+      - 'Identify the coefficients: {math(a)} = {coeff_a}, {math(b)} = {coeff_b}, {math(c)} = {coeff_c}.'
+      - 'Use the AC method: multiply {math(a)} and {math(c)}: {coeff_a} times {coeff_c} = {ac_product}.'
+      - 'Find two numbers that multiply to {ac_product} and add to {coeff_b}: those are {num1} and {num2}.'
+      - Rewrite the middle term and factor by grouping to obtain {ans}.

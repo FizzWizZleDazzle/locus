@@ -1,31 +1,27 @@
 topic: multivariable_calculus/partial_derivatives
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-3, 3)
-  func: a*x^3*y^2 + b*x*y^3 + c*x^2
-  fx: derivative(func, x)
-  fxy: derivative(fx, y)
-  px: 2
-  py: 1
-  fxy_at_x: evaluate(fxy, x, px)
-  answer: evaluate(fxy_at_x, y, py)
-
-question: >
-  For the function {equation(math(f(x,y)), func)}, compute the mixed partial
-  derivative {partial_of(partial_of(func, x), y)}, then evaluate it at
-  {math((x,y) = (2,1))}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Step 1: Differentiate with respect to {math(x)}:"
-  - "{equation(partial_of(func, x), fx)}"
-  - "Step 2: Differentiate the result with respect to {math(y)}:"
-  - "{equation(partial_of(partial_of(func, x), y), fxy)}"
-  - "Step 3: Substitute {math(x = 2)}, {math(y = 1)} into {fxy}:"
-  - "The mixed partial evaluated at {math((2,1))} is {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-3, 3)
+      func: a*x^3*y^2 + b*x*y^3 + c*x^2
+      fx: derivative(func, x)
+      fxy: derivative(fx, y)
+      px: 2
+      py: 1
+      fxy_at_x: evaluate(fxy, x, px)
+      answer: evaluate(fxy_at_x, y, py)
+    question: |
+      For the function {equation(math(f(x,y)), func)}, compute the mixed partial derivative {partial_of(partial_of(func, x), y)}, then evaluate it at {math((x,y) = (2,1))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Step 1: Differentiate with respect to {math(x)}:'
+      - '{equation(partial_of(func, x), fx)}'
+      - 'Step 2: Differentiate the result with respect to {math(y)}:'
+      - '{equation(partial_of(partial_of(func, x), y), fxy)}'
+      - 'Step 3: Substitute {math(x = 2)}, {math(y = 1)} into {fxy}:'
+      - The mixed partial evaluated at {math((2,1))} is {answer}.

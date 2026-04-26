@@ -1,32 +1,27 @@
 topic: multivariable_calculus/greens_theorem
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: integer(1, 5)
-  b: integer(1, 5)
-  w: integer(1, 4)
-  h: integer(1, 4)
-  P: -a*y
-  Q: b*x
-  dQ_dx: b
-  dP_dy: -a
-  curl: a + b
-  area: w * h
-  answer: curl * area
-
-question: >
-  Let {math(C)} be the positively oriented rectangle with vertices
-  {math((0,0))}, {math((w,0))}, {math((w,h))}, and {math((0,h))}.
-  Use Green's Theorem to evaluate the line integral
-  {math(\oint_C)} {P} {math(dx +)} {Q} {math(dy)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "By Green's Theorem, the line integral over the closed curve {math(C)} equals the double integral of {math(Q_x - P_y)} over the enclosed region {math(D)}."
-  - "Compute the partial derivatives: {equation(partial_of(Q, x), dQ_dx)} and {equation(partial_of(P, y), dP_dy)}."
-  - "So {math(Q_x - P_y)} = {dQ_dx} - ({dP_dy}) = {curl}."
-  - "The region {math(D)} is the rectangle with width {w} and height {h}, giving area {area}."
-  - "The line integral equals {curl} times {area} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(1, 5)
+      b: integer(1, 5)
+      w: integer(1, 4)
+      h: integer(1, 4)
+      P: -a*y
+      Q: b*x
+      dQ_dx: b
+      dP_dy: -a
+      curl: a + b
+      area: w * h
+      answer: curl * area
+    question: |
+      Let {math(C)} be the positively oriented rectangle with vertices {math((0,0))}, {math((w,0))}, {math((w,h))}, and {math((0,h))}. Use Green's Theorem to evaluate the line integral {math(\oint_C)} {P} {math(dx +)} {Q} {math(dy)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - By Green's Theorem, the line integral over the closed curve {math(C)} equals the double integral of {math(Q_x - P_y)} over the enclosed region {math(D)}.
+      - 'Compute the partial derivatives: {equation(partial_of(Q, x), dQ_dx)} and {equation(partial_of(P, y), dP_dy)}.'
+      - So {math(Q_x - P_y)} = {dQ_dx} - ({dP_dy}) = {curl}.
+      - The region {math(D)} is the rectangle with width {w} and height {h}, giving area {area}.
+      - The line integral equals {curl} times {area} = {answer}.

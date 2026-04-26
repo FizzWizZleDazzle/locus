@@ -1,30 +1,28 @@
 topic: linear_algebra/matrix_arithmetic
 difficulty: medium
 calculator: none
-
-variables:
-  p: nonzero(-3, 3)
-  q: nonzero(-3, 3)
-  a11: integer(-4, 4)
-  a12: integer(-4, 4)
-  a21: integer(-4, 4)
-  a22: integer(-4, 4)
-  b11: integer(-4, 4)
-  b12: integer(-4, 4)
-  b21: integer(-4, 4)
-  b22: integer(-4, 4)
-  c11: p*a11 + q*b11
-  c12: p*a12 + q*b12
-  c21: p*a21 + q*b21
-  c22: p*a22 + q*b22
-
-question: "Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}. Enter the resulting matrix as four values: top-left, top-right, bottom-left, bottom-right."
-
-answer_type: tuple
-answer: c11, c12, c21, c22
-
-solution:
-  - "Scale each matrix by its scalar, then add entry by entry."
-  - "{math(p)} times {math(A)} gives {matrix_of([[p*a11, p*a12], [p*a21, p*a22]])}."
-  - "{math(q)} times {math(B)} gives {matrix_of([[q*b11, q*b12], [q*b21, q*b22]])}."
-  - "Adding entry by entry: {equation(math(p*A + q*B), matrix_of([[c11, c12], [c21, c22]]))}."
+variants:
+  - name: default
+    variables:
+      p: nonzero(-3, 3)
+      q: nonzero(-3, 3)
+      a11: integer(-4, 4)
+      a12: integer(-4, 4)
+      a21: integer(-4, 4)
+      a22: integer(-4, 4)
+      b11: integer(-4, 4)
+      b12: integer(-4, 4)
+      b21: integer(-4, 4)
+      b22: integer(-4, 4)
+      c11: p*a11 + q*b11
+      c12: p*a12 + q*b12
+      c21: p*a21 + q*b21
+      c22: p*a22 + q*b22
+    question: 'Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}. Enter the resulting matrix as four values: top-left, top-right, bottom-left, bottom-right.'
+    answer: c11, c12, c21, c22
+    answer_type: tuple
+    solution:
+      - Scale each matrix by its scalar, then add entry by entry.
+      - '{math(p)} times {math(A)} gives {matrix_of([[p*a11, p*a12], [p*a21, p*a22]])}.'
+      - '{math(q)} times {math(B)} gives {matrix_of([[q*b11, q*b12], [q*b21, q*b22]])}.'
+      - 'Adding entry by entry: {equation(math(p*A + q*B), matrix_of([[c11, c12], [c21, c22]]))}.'

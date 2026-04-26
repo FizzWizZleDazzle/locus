@@ -1,31 +1,27 @@
 topic: multivariable_calculus/stokes_divergence
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  c: nonzero(1, 4)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  r: integer(1, 4)
-  f1: a*x
-  f2: b*y
-  f3: c*z
-  div_f: a + b + c
-  vol: p * q * r
-  answer: div_f * vol
-
-question: >
-  Let {math(F)} = {math(f1)} {math(i)} + {math(f2)} {math(j)} + {math(f3)} {math(k)}.
-  Use the Divergence Theorem to find the outward flux of {math(F)} through the closed
-  surface of the box {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "By the Divergence Theorem, the outward flux equals the triple integral of the divergence of {math(F)} over the enclosed volume."
-  - "Compute the divergence: {partial_of(f1, x)} + {partial_of(f2, y)} + {partial_of(f3, z)} = {div_f}."
-  - "The volume of the box is {math(p)} times {math(q)} times {math(r)} = {vol}."
-  - "Flux = {div_f} times {vol} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      c: nonzero(1, 4)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      r: integer(1, 4)
+      f1: a*x
+      f2: b*y
+      f3: c*z
+      div_f: a + b + c
+      vol: p * q * r
+      answer: div_f * vol
+    question: |
+      Let {math(F)} = {math(f1)} {math(i)} + {math(f2)} {math(j)} + {math(f3)} {math(k)}. Use the Divergence Theorem to find the outward flux of {math(F)} through the closed surface of the box {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - By the Divergence Theorem, the outward flux equals the triple integral of the divergence of {math(F)} over the enclosed volume.
+      - 'Compute the divergence: {partial_of(f1, x)} + {partial_of(f2, y)} + {partial_of(f3, z)} = {div_f}.'
+      - The volume of the box is {math(p)} times {math(q)} times {math(r)} = {vol}.
+      - Flux = {div_f} times {vol} = {answer}.

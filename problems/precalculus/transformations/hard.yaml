@@ -1,30 +1,6 @@
 topic: precalculus/transformations
 difficulty: hard
 calculator: none
-
-variables:
-  a: nonzero(-3, 3)
-  h: integer(1, 5)
-  v: nonzero(-6, 6)
-  k: nonzero(-3, 3)
-  base_func: a*x^2
-  ka: k*a
-  g_expanded: expand(k*a*(x - h)^2 + v)
-
-constraints:
-  - k != 1
-
-question: "A function {math(f(x))} = {base_func} is transformed to produce {math(g(x))} by: vertically scaling by a factor of {k}, shifting horizontally {h} units to the right, and then shifting vertically {v} units. Write {math(g(x))} in expanded form."
-answer: g_expanded
-answer_type: expression
-
-solution:
-  - "Begin with {math(f(x))} = {base_func}."
-  - "Apply a vertical scale by {k}: the function becomes {ka} {math(x^2)}."
-  - "Apply a horizontal shift right by {h}: replace {math(x)} with {math(x - h)}, giving {ka} {math((x - h)^2)}."
-  - "Apply a vertical shift of {v} units: {math(g(x))} = {ka} {math((x - h)^2)} + {v}."
-  - "Expanding: {equation(math(g(x)), g_expanded)}."
-
 variants:
   - name: transformed_expression
     variables:
@@ -37,16 +13,15 @@ variants:
       g_expanded: expand(k*a*(x - h)^2 + v)
     constraints:
       - k != 1
-    question: "A function {math(f(x))} = {base_func} is transformed to produce {math(g(x))} by: vertically scaling by a factor of {k}, shifting horizontally {h} units to the right, and then shifting vertically {v} units. Write {math(g(x))} in expanded form."
+    question: 'A function {math(f(x))} = {base_func} is transformed to produce {math(g(x))} by: vertically scaling by a factor of {k}, shifting horizontally {h} units to the right, and then shifting vertically {v} units. Write {math(g(x))} in expanded form.'
     answer: g_expanded
     answer_type: expression
     solution:
-      - "Begin with {math(f(x))} = {base_func}."
-      - "Apply a vertical scale by {k}: the function becomes {ka} {math(x^2)}."
-      - "Apply a horizontal shift right by {h}: replace {math(x)} with {math(x - h)}, giving {ka} {math((x - h)^2)}."
-      - "Apply a vertical shift of {v} units: {math(g(x))} = {ka} {math((x - h)^2)} + {v}."
-      - "Expanding: {equation(math(g(x)), g_expanded)}."
-
+      - Begin with {math(f(x))} = {base_func}.
+      - 'Apply a vertical scale by {k}: the function becomes {ka} {math(x^2)}.'
+      - 'Apply a horizontal shift right by {h}: replace {math(x)} with {math(x - h)}, giving {ka} {math((x - h)^2)}.'
+      - 'Apply a vertical shift of {v} units: {math(g(x))} = {ka} {math((x - h)^2)} + {v}.'
+      - 'Expanding: {equation(math(g(x)), g_expanded)}.'
   - name: find_transformed_point
     variables:
       px: integer(-4, 4)
@@ -58,12 +33,12 @@ variants:
       new_y: k*py + v
     constraints:
       - k != 1
-    question: "The point {math((px, py))} lies on the graph of {math(f(x))}. The function {math(g(x))} is obtained from {math(f(x))} by: vertically scaling by a factor of {k}, shifting horizontally {h} units to the right, and shifting vertically {v} units. What is the {math(y)}-coordinate of the corresponding point on {math(g(x))}?"
+    question: 'The point {math((px, py))} lies on the graph of {math(f(x))}. The function {math(g(x))} is obtained from {math(f(x))} by: vertically scaling by a factor of {k}, shifting horizontally {h} units to the right, and shifting vertically {v} units. What is the {math(y)}-coordinate of the corresponding point on {math(g(x))}?'
     answer: new_y
     answer_type: numeric
     solution:
-      - "Each transformation maps a point {math((x, y))} on {math(f)} to a corresponding point on {math(g)}."
-      - "Horizontal shift right by {h}: the {math(x)}-coordinate increases by {h}, so {math(x)} becomes {math(x + h)}."
-      - "Vertical scale by {k} then shift by {v}: the {math(y)}-coordinate becomes {math(k*y + v)}."
-      - "Applying these to {math((px, py))}: the new point is {math((px + h, k*py + v))} = {math((new_x, new_y))}."
-      - "The {math(y)}-coordinate is {new_y}."
+      - Each transformation maps a point {math((x, y))} on {math(f)} to a corresponding point on {math(g)}.
+      - 'Horizontal shift right by {h}: the {math(x)}-coordinate increases by {h}, so {math(x)} becomes {math(x + h)}.'
+      - 'Vertical scale by {k} then shift by {v}: the {math(y)}-coordinate becomes {math(k*y + v)}.'
+      - 'Applying these to {math((px, py))}: the new point is {math((px + h, k*py + v))} = {math((new_x, new_y))}.'
+      - The {math(y)}-coordinate is {new_y}.

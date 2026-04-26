@@ -1,24 +1,21 @@
 topic: algebra1/factoring_gcf
 difficulty: easy
 calculator: none
-
-variables:
-  gcf: choice(2, 3, 4, 5)
-  c1: integer(1, 4)
-  c2: integer(1, 4)
-  a: gcf * c1
-  b: gcf * c2
-  f: a*x + b
-  answer: gcf * (c1*x + c2)
-
-constraints:
-  - c1 != c2
-
-question: "Factor out the GCF: {f}"
-
-answer: answer
-format: factored
-
-solution:
-  - "The GCF of {a} and {b} is {gcf}"
-  - "Factor: {answer}"
+variants:
+  - name: default
+    variables:
+      gcf: choice(2, 3, 4, 5)
+      c1: integer(1, 4)
+      c2: integer(1, 4)
+      a: gcf * c1
+      b: gcf * c2
+      f: a*x + b
+      answer: gcf * (c1*x + c2)
+    constraints:
+      - c1 != c2
+    question: 'Factor out the GCF: {f}'
+    answer: answer
+    format: factored
+    solution:
+      - The GCF of {a} and {b} is {gcf}
+      - 'Factor: {answer}'

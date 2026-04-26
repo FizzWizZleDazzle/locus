@@ -1,19 +1,17 @@
 topic: precalculus/polar_curves
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: integer(2, 6)
-  a_sq: a*a
-  answer: pi*a_sq
-
-question: "Find the area enclosed by the polar circle {math(r = a)} of radius {a}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "The polar area formula is {math(A = (1/2)*integral(r^2, theta, 0, 2*pi))}."
-  - "With {math(r = a)} a constant, {math(r^2 = a^2)} = {a_sq}."
-  - "Integrating {a_sq} over {math(theta)} from 0 to {math(2*pi)} gives {math(2*pi*a_sq)}."
-  - "Multiply by {math(1/2)}: area = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 6)
+      a_sq: a*a
+      answer: pi*a_sq
+    question: Find the area enclosed by the polar circle {math(r = a)} of radius {a}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - The polar area formula is {math(A = (1/2)*integral(r^2, theta, 0, 2*pi))}.
+      - With {math(r = a)} a constant, {math(r^2 = a^2)} = {a_sq}.
+      - Integrating {a_sq} over {math(theta)} from 0 to {math(2*pi)} gives {math(2*pi*a_sq)}.
+      - 'Multiply by {math(1/2)}: area = {answer}.'

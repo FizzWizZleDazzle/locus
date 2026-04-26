@@ -1,21 +1,19 @@
 topic: calculus/derivative_rules
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(1, 6)
-  n: integer(2, 5)
-  b: nonzero(1, 8)
-  f: a*x^n + b*x
-  coeff: a*n
-  power_term_deriv: coeff*x^(n-1)
-  f_prime: derivative(f, x)
-
-question: "Find {derivative_of(f, x)}."
-
-answer: f_prime
-
-solution:
-  - "Apply the power rule to each term of {f}."
-  - "The derivative of {math(a*x^n)} is {power_term_deriv}, and the derivative of {math(b*x)} is {b}."
-  - "Therefore, {derivative_of(f, x)} = {f_prime}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 6)
+      n: integer(2, 5)
+      b: nonzero(1, 8)
+      f: a*x^n + b*x
+      coeff: a*n
+      power_term_deriv: coeff*x^(n-1)
+      f_prime: derivative(f, x)
+    question: Find {derivative_of(f, x)}.
+    answer: f_prime
+    solution:
+      - Apply the power rule to each term of {f}.
+      - The derivative of {math(a*x^n)} is {power_term_deriv}, and the derivative of {math(b*x)} is {b}.
+      - Therefore, {derivative_of(f, x)} = {f_prime}.

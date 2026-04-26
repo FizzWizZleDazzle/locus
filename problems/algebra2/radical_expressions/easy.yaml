@@ -1,17 +1,17 @@
 topic: algebra2/radical_expressions
 difficulty: easy
 calculator: none
-
-variables:
-  coeff: choice(2, 3, 4, 5)
-  radicand_base: choice(2, 3, 5, 6, 7, 10, 11)
-  coeff_sq: coeff^2
-  inner: coeff^2 * radicand_base
-  answer: coeff * sqrt(radicand_base)
-
-question: "Simplify {math(sqrt(inner))}."
-answer: answer
-answer_type: expression
-solution:
-  - "Identify the largest perfect-square factor of {inner}: it is {coeff_sq} (since {coeff_sq} = {coeff} squared)."
-  - "Split the radical using the product rule and simplify: {math(sqrt(inner))} = {math(sqrt(coeff_sq))} * {math(sqrt(radicand_base))} = {answer}."
+variants:
+  - name: default
+    variables:
+      coeff: choice(2, 3, 4, 5)
+      radicand_base: choice(2, 3, 5, 6, 7, 10, 11)
+      coeff_sq: coeff^2
+      inner: coeff^2 * radicand_base
+      answer: coeff * sqrt(radicand_base)
+    question: Simplify {math(sqrt(inner))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Identify the largest perfect-square factor of {inner}: it is {coeff_sq} (since {coeff_sq} = {coeff} squared).'
+      - 'Split the radical using the product rule and simplify: {math(sqrt(inner))} = {math(sqrt(coeff_sq))} * {math(sqrt(radicand_base))} = {answer}.'

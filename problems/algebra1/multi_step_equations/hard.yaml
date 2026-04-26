@@ -1,31 +1,28 @@
 topic: algebra1/multi_step_equations
 difficulty: hard
 calculator: none
-
-variables:
-  x_sol: integer(-5, 5)
-  a: choice(-4, -3, -2, 2, 3, 4)
-  b: choice(-3, -2, 2, 3)
-  c: nonzero(-6, 6)
-  d: choice(-4, -3, -2, 2, 3, 4)
-  lhs_coeff: a*b
-  net_coeff: a*b - d
-  ac: a*c
-  rhs_const: net_coeff*x_sol + ac
-  step3_rhs: rhs_const - ac
-  answer: x_sol
-
-constraints:
-  - net_coeff != 0
-  - a != d
-
-question: "Solve for {math(x)}: {equation(a*(b*x + c), d*x + rhs_const)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Distribute {a} on the left side: {equation(lhs_coeff*x + ac, d*x + rhs_const)}"
-  - "Subtract {math(d*x)} from both sides to collect {math(x)}-terms on the left: {equation(net_coeff*x + ac, rhs_const)}"
-  - "Subtract {ac} from both sides: {equation(net_coeff*x, step3_rhs)}"
-  - "Divide both sides by {net_coeff}: {equation(math(x), x_sol)}"
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-5, 5)
+      a: choice(-4, -3, -2, 2, 3, 4)
+      b: choice(-3, -2, 2, 3)
+      c: nonzero(-6, 6)
+      d: choice(-4, -3, -2, 2, 3, 4)
+      lhs_coeff: a*b
+      net_coeff: a*b - d
+      ac: a*c
+      rhs_const: net_coeff*x_sol + ac
+      step3_rhs: rhs_const - ac
+      answer: x_sol
+    constraints:
+      - net_coeff != 0
+      - a != d
+    question: 'Solve for {math(x)}: {equation(a*(b*x + c), d*x + rhs_const)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Distribute {a} on the left side: {equation(lhs_coeff*x + ac, d*x + rhs_const)}'
+      - 'Subtract {math(d*x)} from both sides to collect {math(x)}-terms on the left: {equation(net_coeff*x + ac, rhs_const)}'
+      - 'Subtract {ac} from both sides: {equation(net_coeff*x, step3_rhs)}'
+      - 'Divide both sides by {net_coeff}: {equation(math(x), x_sol)}'

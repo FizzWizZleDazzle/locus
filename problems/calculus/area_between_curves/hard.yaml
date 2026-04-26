@@ -1,32 +1,29 @@
 topic: calculus/area_between_curves
 difficulty: hard
 calculator: scientific
-
-variables:
-  r1: integer(0, 2)
-  r2: integer(3, 5)
-  k: integer(1, 3)
-  diff: -k*(x - r1)*(x - r2)
-  diff_expanded: expand(diff)
-  antideriv: integral(diff_expanded, x)
-  F_hi: evaluate(antideriv, x, r2)
-  F_lo: evaluate(antideriv, x, r1)
-  upper: k*(r1 + r2)*x - k*r1*r2
-  lower: k*x^2
-  answer: F_hi - F_lo
-
-constraints:
-  - r1 < r2
-
-question: "Find the area of the region enclosed between {math(f(x))} = {lower} and {math(g(x))} = {upper}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Set {math(f(x))} = {math(g(x))} to find intersections: {equation(lower, upper)}."
-  - "Rearrange: {equation(diff_expanded, 0)}, so the curves meet at {math(x)} = {r1} and {math(x)} = {r2}."
-  - "On the interval [{r1}, {r2}], {math(g(x))} lies above {math(f(x))}, so the area is {definite_integral_of(diff_expanded, x, r1, r2)}."
-  - "An antiderivative of {diff_expanded} is {antideriv}."
-  - "Evaluate at the upper bound: {F_hi}. Evaluate at the lower bound: {F_lo}."
-  - "Area = {F_hi} - ({F_lo}) = {answer}."
+variants:
+  - name: default
+    variables:
+      r1: integer(0, 2)
+      r2: integer(3, 5)
+      k: integer(1, 3)
+      diff: -k*(x - r1)*(x - r2)
+      diff_expanded: expand(diff)
+      antideriv: integral(diff_expanded, x)
+      F_hi: evaluate(antideriv, x, r2)
+      F_lo: evaluate(antideriv, x, r1)
+      upper: k*(r1 + r2)*x - k*r1*r2
+      lower: k*x^2
+      answer: F_hi - F_lo
+    constraints:
+      - r1 < r2
+    question: Find the area of the region enclosed between {math(f(x))} = {lower} and {math(g(x))} = {upper}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Set {math(f(x))} = {math(g(x))} to find intersections: {equation(lower, upper)}.'
+      - 'Rearrange: {equation(diff_expanded, 0)}, so the curves meet at {math(x)} = {r1} and {math(x)} = {r2}.'
+      - On the interval [{r1}, {r2}], {math(g(x))} lies above {math(f(x))}, so the area is {definite_integral_of(diff_expanded, x, r1, r2)}.
+      - An antiderivative of {diff_expanded} is {antideriv}.
+      - 'Evaluate at the upper bound: {F_hi}. Evaluate at the lower bound: {F_lo}.'
+      - Area = {F_hi} - ({F_lo}) = {answer}.

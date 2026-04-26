@@ -1,25 +1,22 @@
 topic: differential_equations/second_order_constant
 difficulty: easy
 calculator: none
-
-variables:
-  r1: integer(-5, -1)
-  r2: integer(-5, -1)
-  p_coeff: expand(-(r1 + r2))
-  q_coeff: r1 * r2
-  sol_r1: exp(r1*x)
-  sol_r2: exp(r2*x)
-
-constraints:
-  - r1 != r2
-
-question: "Find the general solution of the second-order ODE with characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}. Give the two linearly independent solutions that form the fundamental set."
-
-answer: sol_r1, sol_r2
-answer_type: set
-
-solution:
-  - "Solve the characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}."
-  - "Factor: {equation((r - r1)*(r - r2), 0)}, giving real distinct roots {math(r_1 = r1)} and {math(r_2 = r2)}."
-  - "The two linearly independent solutions are {sol_r1} and {sol_r2}."
-  - "The general solution is {math(y = C_1 * e^(r1*x) + C_2 * e^(r2*x))}."
+variants:
+  - name: default
+    variables:
+      r1: integer(-5, -1)
+      r2: integer(-5, -1)
+      p_coeff: expand(-(r1 + r2))
+      q_coeff: r1 * r2
+      sol_r1: exp(r1*x)
+      sol_r2: exp(r2*x)
+    constraints:
+      - r1 != r2
+    question: Find the general solution of the second-order ODE with characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}. Give the two linearly independent solutions that form the fundamental set.
+    answer: sol_r1, sol_r2
+    answer_type: set
+    solution:
+      - Solve the characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}.
+      - 'Factor: {equation((r - r1)*(r - r2), 0)}, giving real distinct roots {math(r_1 = r1)} and {math(r_2 = r2)}.'
+      - The two linearly independent solutions are {sol_r1} and {sol_r2}.
+      - The general solution is {math(y = C_1 * e^(r1*x) + C_2 * e^(r2*x))}.

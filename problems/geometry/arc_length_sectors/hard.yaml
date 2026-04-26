@@ -1,24 +1,20 @@
 topic: geometry/arc_length_sectors
 difficulty: hard
 calculator: scientific
-
-variables:
-  theta: choice(60, 90, 120, 150, 240, 270)
-  r: choice(3, 4, 6, 8, 9, 10, 12)
-  theta_frac: theta / 360
-  arc_len: theta_frac * 2 * pi * r
-  sector_area: theta_frac * pi * r^2
-
-question: >
-  A sector of a circle has radius {r} and central angle {theta} degrees.
-  Find the arc length and the area of the sector.
-  Express both answers in terms of {math(pi)}, separated by a comma.
-
-answer: arc_len, sector_area
-answer_type: tuple
-
-solution:
-  - "Arc length formula: {math(L = (theta_deg / 360) * 2 * pi * r_val)}, where {math(theta_deg)} is the central angle in degrees."
-  - "Substitute {math(theta_deg = theta)} and {math(r_val = r)}: arc length {math(L)} = {arc_len}."
-  - "Sector area formula: {math(A = (theta_deg / 360) * pi * r_val^2)}."
-  - "Substitute {math(theta_deg = theta)} and {math(r_val = r)}: sector area {math(A)} = {sector_area}."
+variants:
+  - name: default
+    variables:
+      theta: choice(60, 90, 120, 150, 240, 270)
+      r: choice(3, 4, 6, 8, 9, 10, 12)
+      theta_frac: theta / 360
+      arc_len: theta_frac * 2 * pi * r
+      sector_area: theta_frac * pi * r^2
+    question: |
+      A sector of a circle has radius {r} and central angle {theta} degrees. Find the arc length and the area of the sector. Express both answers in terms of {math(pi)}, separated by a comma.
+    answer: arc_len, sector_area
+    answer_type: tuple
+    solution:
+      - 'Arc length formula: {math(L = (theta_deg / 360) * 2 * pi * r_val)}, where {math(theta_deg)} is the central angle in degrees.'
+      - 'Substitute {math(theta_deg = theta)} and {math(r_val = r)}: arc length {math(L)} = {arc_len}.'
+      - 'Sector area formula: {math(A = (theta_deg / 360) * pi * r_val^2)}.'
+      - 'Substitute {math(theta_deg = theta)} and {math(r_val = r)}: sector area {math(A)} = {sector_area}.'

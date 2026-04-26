@@ -1,24 +1,33 @@
 topic: geometry/right_triangle_trig
 difficulty: hard
 calculator: scientific
-variables:
-  angle_deg: choice(30, 45, 60)
-  hyp: choice(6, 8, 10, 12, 14)
-  sin_val: sin(angle_deg * pi / 180)
-  cos_val: cos(angle_deg * pi / 180)
-  opp: hyp * sin(angle_deg * pi / 180)
-  adj: hyp * cos(angle_deg * pi / 180)
-question: "In a right triangle, one acute angle measures {angle_deg} degrees and the hypotenuse has length {hyp}. Find the exact lengths of both legs."
-answer: opp, adj
-answer_type: set
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  sides: {AB: hyp, BC: opp, AC: adj}
-  angles: {A: angle_deg}
-  right_angle: C
-solution:
-  - "Let {math(theta)} = {angle_deg} degrees and hypotenuse = {hyp}."
-  - "Opposite leg uses sine: {equation(math(sin(theta)), math(opposite / hypotenuse))}, so {math(opposite)} = {hyp} times {sin_val} = {opp}."
-  - "Adjacent leg uses cosine: {equation(math(cos(theta)), math(adjacent / hypotenuse))}, so {math(adjacent)} = {hyp} times {cos_val} = {adj}."
-  - "The two legs have exact lengths {opp} and {adj}."
+variants:
+  - name: default
+    variables:
+      angle_deg: choice(30, 45, 60)
+      hyp: choice(6, 8, 10, 12, 14)
+      sin_val: sin(angle_deg * pi / 180)
+      cos_val: cos(angle_deg * pi / 180)
+      opp: hyp * sin(angle_deg * pi / 180)
+      adj: hyp * cos(angle_deg * pi / 180)
+    question: In a right triangle, one acute angle measures {angle_deg} degrees and the hypotenuse has length {hyp}. Find the exact lengths of both legs.
+    answer: opp, adj
+    answer_type: set
+    solution:
+      - Let {math(theta)} = {angle_deg} degrees and hypotenuse = {hyp}.
+      - 'Opposite leg uses sine: {equation(math(sin(theta)), math(opposite / hypotenuse))}, so {math(opposite)} = {hyp} times {sin_val} = {opp}.'
+      - 'Adjacent leg uses cosine: {equation(math(cos(theta)), math(adjacent / hypotenuse))}, so {math(adjacent)} = {hyp} times {cos_val} = {adj}.'
+      - The two legs have exact lengths {opp} and {adj}.
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      sides:
+        AB: hyp
+        BC: opp
+        AC: adj
+      angles:
+        A: angle_deg
+      right_angle: C

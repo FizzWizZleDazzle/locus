@@ -1,32 +1,29 @@
 topic: arithmetic/mixed_numbers
 difficulty: hard
 calculator: none
-
-variables:
-  w1: integer(2, 5)
-  b: choice(3, 5)
-  n1: integer(1, 2)
-  w2: integer(1, 3)
-  d: choice(3, 5)
-  n2: integer(1, 2)
-  imp1: w1*b + n1
-  imp2: w2*d + n2
-  num_prod: imp1*imp2
-  den_prod: b*d
-  answer: num_prod/den_prod
-
-constraints:
-  - b != d
-  - n1 < b
-
-question: "Multiply the mixed numbers {w1}{math(n1/b)} and {w2}{math(n2/d)}. Express your answer as a simplified fraction or whole number."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Convert each mixed number to an improper fraction by multiplying the whole part by the denominator and adding the numerator."
-  - "{w1}{math(n1/b)}: {w1} times {b} plus {n1} equals {imp1}, so the improper fraction is {math(imp1/b)}."
-  - "{w2}{math(n2/d)}: {w2} times {d} plus {n2} equals {imp2}, so the improper fraction is {math(imp2/d)}."
-  - "Multiply the fractions: {math(imp1/b)} times {math(imp2/d)} = {math(num_prod/den_prod)}."
-  - "Simplified answer: {answer}."
+variants:
+  - name: default
+    variables:
+      w1: integer(2, 5)
+      b: choice(3, 5)
+      n1: integer(1, 2)
+      w2: integer(1, 3)
+      d: choice(3, 5)
+      n2: integer(1, 2)
+      imp1: w1*b + n1
+      imp2: w2*d + n2
+      num_prod: imp1*imp2
+      den_prod: b*d
+      answer: num_prod/den_prod
+    constraints:
+      - b != d
+      - n1 < b
+    question: Multiply the mixed numbers {w1}{math(n1/b)} and {w2}{math(n2/d)}. Express your answer as a simplified fraction or whole number.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Convert each mixed number to an improper fraction by multiplying the whole part by the denominator and adding the numerator.
+      - '{w1}{math(n1/b)}: {w1} times {b} plus {n1} equals {imp1}, so the improper fraction is {math(imp1/b)}.'
+      - '{w2}{math(n2/d)}: {w2} times {d} plus {n2} equals {imp2}, so the improper fraction is {math(imp2/d)}.'
+      - 'Multiply the fractions: {math(imp1/b)} times {math(imp2/d)} = {math(num_prod/den_prod)}.'
+      - 'Simplified answer: {answer}.'

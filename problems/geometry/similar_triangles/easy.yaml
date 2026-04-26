@@ -1,23 +1,20 @@
 topic: geometry/similar_triangles
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(2, 8)
-  b: integer(2, 8)
-  k: integer(2, 4)
-  large_a: k * a
-  large_b: k * b
-
-constraints:
-  - a != b
-
-question: "Triangle {math(PQR)} is similar to triangle {math(XYZ)}. In triangle {math(PQR)}, side {math(PQ)} = {a} and side {math(QR)} = {b}. In triangle {math(XYZ)}, the side {math(XY)} corresponding to {math(PQ)} has length {large_a}. Find the length of side {math(YZ)}, which corresponds to {math(QR)}."
-
-answer: large_b
-
-solution:
-  - "Since the triangles are similar, corresponding sides are proportional."
-  - "Find the scale factor: {large_a} divided by {a} = {k}."
-  - "Apply the scale factor to the corresponding side: {b} times {k} = {large_b}."
-  - "The length of {math(YZ)} is {large_b}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 8)
+      b: integer(2, 8)
+      k: integer(2, 4)
+      large_a: k * a
+      large_b: k * b
+    constraints:
+      - a != b
+    question: Triangle {math(PQR)} is similar to triangle {math(XYZ)}. In triangle {math(PQR)}, side {math(PQ)} = {a} and side {math(QR)} = {b}. In triangle {math(XYZ)}, the side {math(XY)} corresponding to {math(PQ)} has length {large_a}. Find the length of side {math(YZ)}, which corresponds to {math(QR)}.
+    answer: large_b
+    solution:
+      - Since the triangles are similar, corresponding sides are proportional.
+      - 'Find the scale factor: {large_a} divided by {a} = {k}.'
+      - 'Apply the scale factor to the corresponding side: {b} times {k} = {large_b}.'
+      - The length of {math(YZ)} is {large_b}.

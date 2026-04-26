@@ -1,23 +1,21 @@
 topic: precalculus/vector_operations
 difficulty: medium
 calculator: scientific
-
-variables:
-  a1: integer(-5, 5)
-  a2: integer(-5, 5)
-  b1: integer(-5, 5)
-  b2: integer(-5, 5)
-  prod1: a1*b1
-  prod2: a2*b2
-  answer: a1*b1 + a2*b2
-
-question: "Compute the dot product of {vec([a1, a2])} and {vec([b1, b2])}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Apply the dot product formula: multiply corresponding components, then add."
-  - "First pair: {a1} times {b1} = {prod1}."
-  - "Second pair: {a2} times {b2} = {prod2}."
-  - "Dot product = {prod1} + {prod2} = {answer}."
+variants:
+  - name: default
+    variables:
+      a1: integer(-5, 5)
+      a2: integer(-5, 5)
+      b1: integer(-5, 5)
+      b2: integer(-5, 5)
+      prod1: a1*b1
+      prod2: a2*b2
+      answer: a1*b1 + a2*b2
+    question: Compute the dot product of {vec([a1, a2])} and {vec([b1, b2])}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Apply the dot product formula: multiply corresponding components, then add.'
+      - 'First pair: {a1} times {b1} = {prod1}.'
+      - 'Second pair: {a2} times {b2} = {prod2}.'
+      - Dot product = {prod1} + {prod2} = {answer}.

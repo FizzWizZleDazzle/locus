@@ -1,37 +1,32 @@
 topic: multivariable_calculus/lagrange_multipliers
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: choice(3, 4)
-  b: choice(4, 3)
-  r: choice(2, 3, 5)
-  r_sq: r^2
-  ab_sq_sum: a^2 + b^2
-  grad_mag: sqrt(a^2 + b^2)
-  lam: sqrt(a^2 + b^2) / (2*r)
-  answer: r * sqrt(a^2 + b^2)
-  obj: a*x + b*y
-  constraint_lhs: x^2 + y^2
-  x_opt: a*r / sqrt(a^2 + b^2)
-  y_opt: b*r / sqrt(a^2 + b^2)
-  term1: a * x_opt
-  term2: b * y_opt
-
-constraints:
-  - a != b
-
-question: >
-  Use Lagrange multipliers to find the maximum value of
-  {math(f(x,y))} = {obj} subject to the constraint
-  {equation(constraint_lhs, r_sq)}.
-
-solution:
-  - "Let {math(g(x,y))} = {constraint_lhs} - {r_sq}. Setting the gradient of {math(f)} proportional to the gradient of {math(g)} gives: {equation(a, 2*lambda*x)} and {equation(b, 2*lambda*y)}."
-  - "Solving for {math(x)} and {math(y)}: {equation(x, a/(2*lambda))} and {equation(y, b/(2*lambda))}."
-  - "Substituting into the constraint and simplifying: {equation((a^2 + b^2)/(4*lambda^2), r^2)}, so {equation(lambda, lam)}."
-  - "The optimal point is {equation(x, x_opt)} and {equation(y, y_opt)}."
-  - "The maximum value is {term1} + {term2} = {answer}."
-
-answer: answer
-answer_type: numeric
+variants:
+  - name: default
+    variables:
+      a: choice(3, 4)
+      b: choice(4, 3)
+      r: choice(2, 3, 5)
+      r_sq: r^2
+      ab_sq_sum: a^2 + b^2
+      grad_mag: sqrt(a^2 + b^2)
+      lam: sqrt(a^2 + b^2) / (2*r)
+      answer: r * sqrt(a^2 + b^2)
+      obj: a*x + b*y
+      constraint_lhs: x^2 + y^2
+      x_opt: a*r / sqrt(a^2 + b^2)
+      y_opt: b*r / sqrt(a^2 + b^2)
+      term1: a * x_opt
+      term2: b * y_opt
+    constraints:
+      - a != b
+    question: |
+      Use Lagrange multipliers to find the maximum value of {math(f(x,y))} = {obj} subject to the constraint {equation(constraint_lhs, r_sq)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Let {math(g(x,y))} = {constraint_lhs} - {r_sq}. Setting the gradient of {math(f)} proportional to the gradient of {math(g)} gives: {equation(a, 2*lambda*x)} and {equation(b, 2*lambda*y)}.'
+      - 'Solving for {math(x)} and {math(y)}: {equation(x, a/(2*lambda))} and {equation(y, b/(2*lambda))}.'
+      - 'Substituting into the constraint and simplifying: {equation((a^2 + b^2)/(4*lambda^2), r^2)}, so {equation(lambda, lam)}.'
+      - The optimal point is {equation(x, x_opt)} and {equation(y, y_opt)}.
+      - The maximum value is {term1} + {term2} = {answer}.

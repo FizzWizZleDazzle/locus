@@ -1,29 +1,26 @@
 topic: linear_algebra/linear_independence
 difficulty: medium
 calculator: none
-
-variables:
-  a1: nonzero(-5, 5)
-  a2: nonzero(-5, 5)
-  a3: nonzero(-5, 5)
-  b1: nonzero(-5, 5)
-  b2: nonzero(-5, 5)
-  b3: nonzero(-5, 5)
-  cross_x: a2*b3 - a3*b2
-  cross_y: a3*b1 - a1*b3
-  cross_z: a1*b2 - a2*b1
-
-constraints:
-  - cross_x != 0
-  - cross_y != 0
-
-question: "Are the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])} linearly independent in {math(R^3)}? Answer true or false."
-
-answer: "true"
-answer_type: boolean
-
-solution:
-  - "Two vectors in {math(R^3)} are linearly independent if and only if neither is a scalar multiple of the other."
-  - "Compute the cross product to detect proportionality: if the cross product is zero, the vectors are parallel."
-  - "Cross product = {vec([cross_x, cross_y, cross_z])}, which is nonzero."
-  - "The vectors are linearly independent, so the answer is true."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-5, 5)
+      a2: nonzero(-5, 5)
+      a3: nonzero(-5, 5)
+      b1: nonzero(-5, 5)
+      b2: nonzero(-5, 5)
+      b3: nonzero(-5, 5)
+      cross_x: a2*b3 - a3*b2
+      cross_y: a3*b1 - a1*b3
+      cross_z: a1*b2 - a2*b1
+    constraints:
+      - cross_x != 0
+      - cross_y != 0
+    question: Are the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])} linearly independent in {math(R^3)}? Answer true or false.
+    answer: 'true'
+    answer_type: boolean
+    solution:
+      - Two vectors in {math(R^3)} are linearly independent if and only if neither is a scalar multiple of the other.
+      - 'Compute the cross product to detect proportionality: if the cross product is zero, the vectors are parallel.'
+      - Cross product = {vec([cross_x, cross_y, cross_z])}, which is nonzero.
+      - The vectors are linearly independent, so the answer is true.

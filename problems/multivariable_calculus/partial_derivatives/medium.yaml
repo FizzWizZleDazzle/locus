@@ -1,23 +1,21 @@
 topic: multivariable_calculus/partial_derivatives
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  d: nonzero(-5, 5)
-  f: a*x^2*y + b*x*y^2 + c*x + d*y
-  f_x: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, x)
-  f_y: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, y)
-
-question: "Find both first-order partial derivatives of {f}."
-
-answer: f_x, f_y
-answer_type: tuple
-
-solution:
-  - "Differentiate with respect to {math(x)}, treating {math(y)} as a constant:"
-  - "{equation(partial_of(f, x), f_x)}"
-  - "Differentiate with respect to {math(y)}, treating {math(x)} as a constant:"
-  - "{equation(partial_of(f, y), f_y)}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(-5, 5)
+      d: nonzero(-5, 5)
+      f: a*x^2*y + b*x*y^2 + c*x + d*y
+      f_x: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, x)
+      f_y: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, y)
+    question: Find both first-order partial derivatives of {f}.
+    answer: f_x, f_y
+    answer_type: tuple
+    solution:
+      - 'Differentiate with respect to {math(x)}, treating {math(y)} as a constant:'
+      - '{equation(partial_of(f, x), f_x)}'
+      - 'Differentiate with respect to {math(y)}, treating {math(x)} as a constant:'
+      - '{equation(partial_of(f, y), f_y)}'

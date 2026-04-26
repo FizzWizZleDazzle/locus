@@ -1,27 +1,21 @@
 topic: differential_equations/separable_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(-3, 3)
-  x0: integer(1, 3)
-  y0: integer(2, 5)
-  # ODE: dy/dx = a*x^2 / y
-  # Separate: y dy = a*x^2 dx
-  # Integrate: y^2/2 = (a/3)*x^3 + C
-  # IC y(x0) = y0: C = y0^2/2 - (a/3)*x0^3
-  lhs_ic: y0^2/2
-  rhs_ic: a*x0^3/3
-  C_val: y0^2/2 - a*x0^3/3
-  antideriv_x: a*x^3/3
-
-question: "Solve the separable differential equation {equation(derivative_of(y, x), a*x^2/y)} with initial condition {math(y(x0) = y0)}. Find the value of the constant {math(C)} in the particular solution {math(y^2/2 = a*x^3/3 + C)}."
-
-answer: C_val
-answer_type: numeric
-
-solution:
-  - "Separate variables by multiplying both sides by {math(y)} and {math(dx)}: {math(y*dy = a*x^2*dx)}."
-  - "Integrate both sides to obtain the general solution {equation(y^2/2, antideriv_x + C)}, where {math(C)} is an arbitrary constant."
-  - "Apply the initial condition {math(y(x0) = y0)}: plug in {math(x = x0)} and {math(y = y0)}."
-  - "This gives {lhs_ic} = {rhs_ic} + {math(C)}, so {math(C)} = {lhs_ic} - {rhs_ic} = {C_val}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-3, 3)
+      x0: integer(1, 3)
+      y0: integer(2, 5)
+      lhs_ic: y0^2/2
+      rhs_ic: a*x0^3/3
+      C_val: y0^2/2 - a*x0^3/3
+      antideriv_x: a*x^3/3
+    question: Solve the separable differential equation {equation(derivative_of(y, x), a*x^2/y)} with initial condition {math(y(x0) = y0)}. Find the value of the constant {math(C)} in the particular solution {math(y^2/2 = a*x^3/3 + C)}.
+    answer: C_val
+    answer_type: numeric
+    solution:
+      - 'Separate variables by multiplying both sides by {math(y)} and {math(dx)}: {math(y*dy = a*x^2*dx)}.'
+      - Integrate both sides to obtain the general solution {equation(y^2/2, antideriv_x + C)}, where {math(C)} is an arbitrary constant.
+      - 'Apply the initial condition {math(y(x0) = y0)}: plug in {math(x = x0)} and {math(y = y0)}.'
+      - This gives {lhs_ic} = {rhs_ic} + {math(C)}, so {math(C)} = {lhs_ic} - {rhs_ic} = {C_val}.

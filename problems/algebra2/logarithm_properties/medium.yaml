@@ -1,18 +1,17 @@
 topic: algebra2/logarithm_properties
 difficulty: medium
 calculator: scientific
-
-variables:
-  p: integer(2, 5)
-  q: integer(2, 5)
-  expr_expanded: p*log(x) + q*log(y)
-
-question: "Use logarithm properties to fully expand {math(log(x^p * y^q))} into a sum of logarithms."
-answer: expr_expanded
-answer_type: expression
-
-solution:
-  - "Apply the product rule: {math(log(A*B) = log(A) + log(B))}"
-  - "{equation(log(x^p * y^q), log(x^p) + log(y^q))}"
-  - "Apply the power rule: {math(log(A^n) = n*log(A))}"
-  - "{equation(log(x^p * y^q), expr_expanded)}"
+variants:
+  - name: default
+    variables:
+      p: integer(2, 5)
+      q: integer(2, 5)
+      expr_expanded: p*log(x) + q*log(y)
+    question: Use logarithm properties to fully expand {math(log(x^p * y^q))} into a sum of logarithms.
+    answer: expr_expanded
+    answer_type: expression
+    solution:
+      - 'Apply the product rule: {math(log(A*B) = log(A) + log(B))}'
+      - '{equation(log(x^p * y^q), log(x^p) + log(y^q))}'
+      - 'Apply the power rule: {math(log(A^n) = n*log(A))}'
+      - '{equation(log(x^p * y^q), expr_expanded)}'

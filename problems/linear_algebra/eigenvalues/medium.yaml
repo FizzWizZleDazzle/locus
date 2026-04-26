@@ -1,26 +1,28 @@
 topic: linear_algebra/eigenvalues
 difficulty: medium
 calculator: scientific
-variables:
-  lam1: choice(3, 4, 5, 2)
-  lam2: choice(-2, 1, -1, -3)
-  tr: lam1 + lam2
-  det_val: lam1 * lam2
-  mat_b: 1
-  mat_c: -1 * det_val
-  mat_a: 0
-  mat_d: tr
-  char_poly: lambda^2 - tr*lambda + det_val
-  disc: tr^2 - 4*det_val
-  disc_sqrt: sqrt(disc)
-  lam_plus: (tr + disc_sqrt) / 2
-  lam_minus: (tr - disc_sqrt) / 2
-question: "Find the eigenvalues of {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}."
-answer: lam1, lam2
-answer_type: set
-solution:
-  - "Compute the trace and determinant: trace = {mat_a} + {mat_d} = {tr}, and det = ({mat_a})({mat_d}) - ({mat_b})({mat_c}) = {det_val}."
-  - "The characteristic equation is {equation(char_poly, 0)}."
-  - "The discriminant is {disc}."
-  - "By the quadratic formula: {math(lambda_1)} = {lam_plus} and {math(lambda_2)} = {lam_minus}."
-  - "The eigenvalues are {lam1} and {lam2}."
+variants:
+  - name: default
+    variables:
+      lam1: choice(3, 4, 5, 2)
+      lam2: choice(-2, 1, -1, -3)
+      tr: lam1 + lam2
+      det_val: lam1 * lam2
+      mat_b: 1
+      mat_c: -1 * det_val
+      mat_a: 0
+      mat_d: tr
+      char_poly: lambda^2 - tr*lambda + det_val
+      disc: tr^2 - 4*det_val
+      disc_sqrt: sqrt(disc)
+      lam_plus: (tr + disc_sqrt) / 2
+      lam_minus: (tr - disc_sqrt) / 2
+    question: Find the eigenvalues of {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}.
+    answer: lam1, lam2
+    answer_type: set
+    solution:
+      - 'Compute the trace and determinant: trace = {mat_a} + {mat_d} = {tr}, and det = ({mat_a})({mat_d}) - ({mat_b})({mat_c}) = {det_val}.'
+      - The characteristic equation is {equation(char_poly, 0)}.
+      - The discriminant is {disc}.
+      - 'By the quadratic formula: {math(lambda_1)} = {lam_plus} and {math(lambda_2)} = {lam_minus}.'
+      - The eigenvalues are {lam1} and {lam2}.

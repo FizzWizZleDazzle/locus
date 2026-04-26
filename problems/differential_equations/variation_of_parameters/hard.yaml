@@ -1,25 +1,23 @@
 topic: differential_equations/variation_of_parameters
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: choice(1, 2, 3)
-  a2: a^2
-  forcing: x*exp(a*x)
-  y1: exp(a*x)
-  y2: exp(-a*x)
-  W: -2*a
-  yp: x^2*exp(a*x)/(4*a) - x*exp(a*x)/(4*a*a)
-
-question: "Use variation of parameters to find a particular solution {math(y_p)} to {nth_derivative_of(y, x, 2)} - {a2}{math(y)} = {forcing}, given that the homogeneous solutions are {y1} and {y2}."
-
-answer: yp
-answer_type: expression
-
-solution:
-  - "The homogeneous solutions are {math(y_1)} = {y1} and {math(y_2)} = {y2}."
-  - "Compute the Wronskian: {math(W = y_1 y_2' - y_2 y_1')} = {W}."
-  - "With {math(g(x))} = {forcing}, set {math(u_1' = -y_2 g / W)} and {math(u_2' = y_1 g / W)}."
-  - "Then {math(u_1' = x/(2*a))}, so {math(u_1 = x^2/(4*a))}."
-  - "Similarly {math(u_2' = -x*exp(2*a*x)/(2*a))}, integrate by parts to get {math(u_2)}."
-  - "Combine: {math(y_p = u_1 y_1 + u_2 y_2)} = {yp} (after absorbing homogeneous terms)."
+variants:
+  - name: default
+    variables:
+      a: choice(1, 2, 3)
+      a2: a^2
+      forcing: x*exp(a*x)
+      y1: exp(a*x)
+      y2: exp(-a*x)
+      W: -2*a
+      yp: x^2*exp(a*x)/(4*a) - x*exp(a*x)/(4*a*a)
+    question: Use variation of parameters to find a particular solution {math(y_p)} to {nth_derivative_of(y, x, 2)} - {a2}{math(y)} = {forcing}, given that the homogeneous solutions are {y1} and {y2}.
+    answer: yp
+    answer_type: expression
+    solution:
+      - The homogeneous solutions are {math(y_1)} = {y1} and {math(y_2)} = {y2}.
+      - 'Compute the Wronskian: {math(W = y_1 y_2'' - y_2 y_1'')} = {W}.'
+      - With {math(g(x))} = {forcing}, set {math(u_1' = -y_2 g / W)} and {math(u_2' = y_1 g / W)}.
+      - Then {math(u_1' = x/(2*a))}, so {math(u_1 = x^2/(4*a))}.
+      - Similarly {math(u_2' = -x*exp(2*a*x)/(2*a))}, integrate by parts to get {math(u_2)}.
+      - 'Combine: {math(y_p = u_1 y_1 + u_2 y_2)} = {yp} (after absorbing homogeneous terms).'

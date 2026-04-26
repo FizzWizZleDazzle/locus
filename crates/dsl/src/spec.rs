@@ -1,6 +1,11 @@
 //! YAML problem spec — deserialization and top-level validation
+//!
+//! Schema is variants-only: top-level holds metadata (`topic`, `difficulty`,
+//! `calculator`, `time`) plus a non-empty `variants` list. Each variant is
+//! self-contained — no inheritance, no top-level body fields. A single-variant
+//! YAML is fine; the wrapper is the canonical form regardless of count.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Deserialize;
 
@@ -8,12 +13,13 @@ use crate::error::DslError;
 
 /// Top-level problem definition
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ProblemSpec {
     /// Topic in "main/sub" format
     #[serde(deserialize_with = "deserialize_topic")]
     pub topic: Topic,
 
-    /// Difficulty label or range
+    /// Difficulty label or range (variants may override)
     pub difficulty: Difficulty,
 
     /// Calculator policy
@@ -22,37 +28,8 @@ pub struct ProblemSpec {
     /// Expected solve time in seconds
     pub time: Option<i32>,
 
-    /// Variable definitions (ordered map preserves declaration order)
-    pub variables: BTreeMap<String, String>,
-
-    /// Constraints that must hold
-    #[serde(default)]
-    pub constraints: Vec<String>,
-
-    /// Question text with {var} and {display()} refs
-    pub question: String,
-
-    /// Variable name pointing to the answer
-    pub answer: String,
-
-    /// Override answer type (auto-inferred if omitted)
-    pub answer_type: Option<String>,
-
-    /// Grading mode (default: equivalent)
-    pub mode: Option<String>,
-
-    /// Format check — tag name or predicate expression.
-    /// Applied after equivalence check. Both must pass.
-    pub format: Option<String>,
-
-    /// Solution steps
-    pub solution: Option<Vec<String>>,
-
-    /// Diagram specification
-    pub diagram: Option<serde_yaml::Value>,
-
-    /// Problem variants (if present, overrides variables/question/answer per variant)
-    pub variants: Option<Vec<Variant>>,
+    /// Problem variants — must contain at least one entry.
+    pub variants: Vec<Variant>,
 }
 
 /// Parsed topic
@@ -74,19 +51,42 @@ pub enum Difficulty {
     Value(i32),
 }
 
-/// A variant within a problem definition
+/// A single problem variant — fully self-contained.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Variant {
     pub name: String,
-    pub variables: Option<BTreeMap<String, String>>,
-    pub constraints: Option<Vec<String>>,
-    pub question: Option<String>,
-    pub answer: Option<String>,
+
+    /// Variable definitions (ordered map preserves declaration order)
+    pub variables: BTreeMap<String, String>,
+
+    /// Constraints that must hold
+    #[serde(default)]
+    pub constraints: Vec<String>,
+
+    /// Question text with {var} and {display()} refs
+    pub question: String,
+
+    /// Variable name pointing to the answer
+    pub answer: String,
+
+    /// Override answer type (auto-inferred if omitted)
     pub answer_type: Option<String>,
+
+    /// Grading mode (default: equivalent)
     pub mode: Option<String>,
-    pub difficulty: Option<Difficulty>,
+
+    /// Format check — tag name or predicate expression.
+    pub format: Option<String>,
+
+    /// Solution steps
     pub solution: Option<Vec<String>>,
+
+    /// Diagram specification (declarative; renderer is a planned follow-up)
     pub diagram: Option<serde_yaml::Value>,
+
+    /// Variant-level difficulty override
+    pub difficulty: Option<Difficulty>,
 }
 
 /// Parse YAML string into a ProblemSpec
@@ -98,7 +98,6 @@ pub fn parse_yaml(yaml: &str) -> Result<ProblemSpec, DslError> {
 
 /// Validate top-level spec fields
 fn validate_spec(spec: &ProblemSpec) -> Result<(), DslError> {
-    // Validate calculator
     if let Some(ref calc) = spec.calculator {
         match calc.as_str() {
             "none" | "scientific" | "graphing" => {}
@@ -110,25 +109,36 @@ fn validate_spec(spec: &ProblemSpec) -> Result<(), DslError> {
         }
     }
 
-    // Validate mode
-    if let Some(ref mode) = spec.mode {
-        match mode.as_str() {
-            "equivalent" => {}
-            other => {
-                return Err(DslError::InvalidSampler(format!(
-                    "Unknown grading mode: '{other}'"
-                )))
-            }
-        }
+    if spec.variants.is_empty() {
+        return Err(DslError::InvalidSampler(
+            "Problem must declare at least one variant in `variants:`".into(),
+        ));
     }
 
-    // Validate answer references a variable
-    if !spec.variables.contains_key(&spec.answer)
-        && spec.answer != "answer"
-        && !spec.answer.contains(',')
-    {
-        // Could be a comma-separated tuple like "sol_x, sol_y"
-        // or a literal — let the resolver handle it
+    let mut seen = BTreeSet::new();
+    for v in &spec.variants {
+        if v.name.is_empty() {
+            return Err(DslError::InvalidSampler(
+                "Variant `name` must be non-empty".into(),
+            ));
+        }
+        if !seen.insert(v.name.clone()) {
+            return Err(DslError::InvalidSampler(format!(
+                "Duplicate variant name: '{}'",
+                v.name
+            )));
+        }
+        if let Some(ref mode) = v.mode {
+            match mode.as_str() {
+                "equivalent" => {}
+                other => {
+                    return Err(DslError::InvalidSampler(format!(
+                        "Unknown grading mode in variant '{}': '{other}'",
+                        v.name
+                    )))
+                }
+            }
+        }
     }
 
     Ok(())

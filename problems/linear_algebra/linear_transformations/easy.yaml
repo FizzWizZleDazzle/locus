@@ -1,27 +1,23 @@
 topic: linear_algebra/linear_transformations
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: nonzero(-4, 4)
-  vx: nonzero(-5, 5)
-  vy: nonzero(-5, 5)
-  out1: a*vx + b*vy
-  out2: c*vx + d*vy
-
-question: >
-  Let {math(T)} be the linear transformation defined by the matrix
-  {matrix_of([[a, b], [c, d]])}. Compute {math(T(v))} where
-  {math(v)} = {vec([vx, vy])}.
-
-answer: out1, out2
-answer_type: tuple
-
-solution:
-  - "Apply the matrix to the vector by computing each component."
-  - "First component: {a} times {vx} plus {b} times {vy} = {out1}."
-  - "Second component: {c} times {vx} plus {d} times {vy} = {out2}."
-  - "Therefore {equation(math(T(v)), vec([out1, out2]))}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: integer(-4, 4)
+      c: integer(-4, 4)
+      d: nonzero(-4, 4)
+      vx: nonzero(-5, 5)
+      vy: nonzero(-5, 5)
+      out1: a*vx + b*vy
+      out2: c*vx + d*vy
+    question: |
+      Let {math(T)} be the linear transformation defined by the matrix {matrix_of([[a, b], [c, d]])}. Compute {math(T(v))} where {math(v)} = {vec([vx, vy])}.
+    answer: out1, out2
+    answer_type: tuple
+    solution:
+      - Apply the matrix to the vector by computing each component.
+      - 'First component: {a} times {vx} plus {b} times {vy} = {out1}.'
+      - 'Second component: {c} times {vx} plus {d} times {vy} = {out2}.'
+      - Therefore {equation(math(T(v)), vec([out1, out2]))}.

@@ -1,26 +1,23 @@
 topic: algebra2/logarithmic_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  base: choice(2, 3, 5)
-  k: integer(2, 3)
-  bk: base^k
-  a: integer(2, 4)
-  x_sol: integer(1, 4)
-  c: bk - a*x_sol
-  lhs_arg: a*x + c
-  answer: x_sol
-
-constraints:
-  - c > 0
-
-question: "Solve for {math(x)}: {equation(log(lhs_arg, base), k)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Rewrite in exponential form: {equation(lhs_arg, bk)}"
-  - "Subtract {c} from both sides: {equation(a*x, bk - c)}"
-  - "Divide both sides by {a}: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      base: choice(2, 3, 5)
+      k: integer(2, 3)
+      bk: base^k
+      a: integer(2, 4)
+      x_sol: integer(1, 4)
+      c: bk - a*x_sol
+      lhs_arg: a*x + c
+      answer: x_sol
+    constraints:
+      - c > 0
+    question: 'Solve for {math(x)}: {equation(log(lhs_arg, base), k)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Rewrite in exponential form: {equation(lhs_arg, bk)}'
+      - 'Subtract {c} from both sides: {equation(a*x, bk - c)}'
+      - 'Divide both sides by {a}: {equation(x, answer)}'

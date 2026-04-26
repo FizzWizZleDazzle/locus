@@ -1,26 +1,25 @@
 topic: linear_algebra/eigenvalues
 difficulty: easy
 calculator: none
-
-variables:
-  lam1: integer(-5, 5)
-  lam2: integer(-5, 5)
-  p: lam1 + lam2
-  q: lam1 * lam2
-  a: 0
-  b: 1
-  c: -q
-  d: p
-  char_poly: expand((x - lam1)*(x - lam2))
-  factor_form: (x - lam1)*(x - lam2)
-
-constraints:
-  - lam1 != lam2
-
-question: "Find the eigenvalues of {matrix_of([[a, b], [c, d]])}."
-answer: lam1, lam2
-answer_type: set
-solution:
-  - "The characteristic equation is obtained by setting the characteristic polynomial equal to zero. For this matrix, the trace is {p} and the determinant is {q}."
-  - "The characteristic polynomial is {math(x^2 - p*x + q)}, giving the equation {equation(char_poly, 0)}."
-  - "Factoring: {equation(factor_form, 0)}, so the eigenvalues are {lam1} and {lam2}."
+variants:
+  - name: default
+    variables:
+      lam1: integer(-5, 5)
+      lam2: integer(-5, 5)
+      p: lam1 + lam2
+      q: lam1 * lam2
+      a: 0
+      b: 1
+      c: -q
+      d: p
+      char_poly: expand((x - lam1)*(x - lam2))
+      factor_form: (x - lam1)*(x - lam2)
+    constraints:
+      - lam1 != lam2
+    question: Find the eigenvalues of {matrix_of([[a, b], [c, d]])}.
+    answer: lam1, lam2
+    answer_type: set
+    solution:
+      - The characteristic equation is obtained by setting the characteristic polynomial equal to zero. For this matrix, the trace is {p} and the determinant is {q}.
+      - The characteristic polynomial is {math(x^2 - p*x + q)}, giving the equation {equation(char_poly, 0)}.
+      - 'Factoring: {equation(factor_form, 0)}, so the eigenvalues are {lam1} and {lam2}.'

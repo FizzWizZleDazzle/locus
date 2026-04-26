@@ -1,22 +1,24 @@
 topic: calculus/chain_rule
 difficulty: hard
 calculator: none
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  n: integer(2, 5)
-  inner: b*x^2 + c*x
-  f: a*(b*x^2 + c*x)^n
-  f_prime: derivative(f, x)
-  inner_prime: derivative(inner, x)
-  coeff: a*n
-  n_minus_1: n - 1
-question: "Find {derivative_of(f, x)}."
-answer: f_prime
-answer_type: expression
-solution:
-  - "Let {math(u)} = {inner}."
-  - "Inner derivative: {equation(derivative(inner, x), inner_prime)}."
-  - "Outer derivative with respect to {math(u)}: {coeff} {math(u^n_minus_1)}."
-  - "Chain rule gives: {equation(derivative_of(f, x), f_prime)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      n: integer(2, 5)
+      inner: b*x^2 + c*x
+      f: a*(b*x^2 + c*x)^n
+      f_prime: derivative(f, x)
+      inner_prime: derivative(inner, x)
+      coeff: a*n
+      n_minus_1: n - 1
+    question: Find {derivative_of(f, x)}.
+    answer: f_prime
+    answer_type: expression
+    solution:
+      - Let {math(u)} = {inner}.
+      - 'Inner derivative: {equation(derivative(inner, x), inner_prime)}.'
+      - 'Outer derivative with respect to {math(u)}: {coeff} {math(u^n_minus_1)}.'
+      - 'Chain rule gives: {equation(derivative_of(f, x), f_prime)}.'

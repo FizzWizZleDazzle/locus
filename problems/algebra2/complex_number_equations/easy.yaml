@@ -1,22 +1,20 @@
 topic: algebra2/complex_number_equations
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(-5, 5)
-  b: nonzero(-5, 5)
-  x_ans: integer(-5, 5)
-  y_ans: nonzero(-5, 5)
-  c: a + x_ans
-  d: b + y_ans
-  lhs: x + y*i + a + b*i
-  rhs: c + d*i
-
-question: "Find real numbers {math(x)} and {math(y)} satisfying {equation(lhs, rhs)}."
-
-answer: x_ans, y_ans
-answer_type: tuple
-
-solution:
-  - "Group real and imaginary parts: real part gives {equation(x + a, c)}, imaginary part gives {equation(y + b, d)}."
-  - "Solving: {equation(x, x_ans)} and {equation(y, y_ans)}."
+variants:
+  - name: default
+    variables:
+      a: integer(-5, 5)
+      b: nonzero(-5, 5)
+      x_ans: integer(-5, 5)
+      y_ans: nonzero(-5, 5)
+      c: a + x_ans
+      d: b + y_ans
+      lhs: x + y*i + a + b*i
+      rhs: c + d*i
+    question: Find real numbers {math(x)} and {math(y)} satisfying {equation(lhs, rhs)}.
+    answer: x_ans, y_ans
+    answer_type: tuple
+    solution:
+      - 'Group real and imaginary parts: real part gives {equation(x + a, c)}, imaginary part gives {equation(y + b, d)}.'
+      - 'Solving: {equation(x, x_ans)} and {equation(y, y_ans)}.'

@@ -1,23 +1,22 @@
 topic: algebra2/complex_number_operations
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(-6, 6)
-  b: nonzero(-6, 6)
-  c: integer(-6, 6)
-  d: nonzero(-6, 6)
-  real_part: a + c
-  imag_part: b + d
-  answer_expr: real_part + imag_part*i
-
-constraints:
-  - imag_part != 0
-
-question: "Add the complex numbers {math(a + b*i)} and {math(c + d*i)}. Express your answer in standard form {math(x + y*i)}."
-answer: real_part, imag_part
-answer_type: tuple
-solution:
-  - "Identify and combine the real parts: {a} and {c} sum to {real_part}."
-  - "Identify and combine the imaginary parts: {b} and {d} sum to {imag_part}."
-  - "The result in standard form is {answer_expr}."
+variants:
+  - name: default
+    variables:
+      a: integer(-6, 6)
+      b: nonzero(-6, 6)
+      c: integer(-6, 6)
+      d: nonzero(-6, 6)
+      real_part: a + c
+      imag_part: b + d
+      answer_expr: real_part + imag_part*i
+    constraints:
+      - imag_part != 0
+    question: Add the complex numbers {math(a + b*i)} and {math(c + d*i)}. Express your answer in standard form {math(x + y*i)}.
+    answer: real_part, imag_part
+    answer_type: tuple
+    solution:
+      - 'Identify and combine the real parts: {a} and {c} sum to {real_part}.'
+      - 'Identify and combine the imaginary parts: {b} and {d} sum to {imag_part}.'
+      - The result in standard form is {answer_expr}.

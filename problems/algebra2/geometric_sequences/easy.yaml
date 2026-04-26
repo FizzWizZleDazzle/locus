@@ -1,21 +1,19 @@
 topic: algebra2/geometric_sequences
 difficulty: easy
 calculator: none
-
-variables:
-  a1: choice(2, 3, 4, 5, 6)
-  r: choice(2, 3, 4)
-  n: integer(4, 6)
-  exp: n - 1
-  r_pow: evaluate(r^k, k, exp)
-  answer: a1 * r_pow
-
-question: "A geometric sequence has first term {a1} and common ratio {r}. Find the {n}th term."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The nth term of a geometric sequence equals the first term times the common ratio raised to the power (n - 1)."
-  - "Here the first term is {a1}, the common ratio is {r}, and n = {n}, so the exponent is {exp}."
-  - "The {n}th term = {a1} * {r}^{exp} = {answer}."
+variants:
+  - name: default
+    variables:
+      a1: choice(2, 3, 4, 5, 6)
+      r: choice(2, 3, 4)
+      n: integer(4, 6)
+      exp: n - 1
+      r_pow: evaluate(r^k, k, exp)
+      answer: a1 * r_pow
+    question: A geometric sequence has first term {a1} and common ratio {r}. Find the {n}th term.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The nth term of a geometric sequence equals the first term times the common ratio raised to the power (n - 1).
+      - Here the first term is {a1}, the common ratio is {r}, and n = {n}, so the exponent is {exp}.
+      - The {n}th term = {a1} * {r}^{exp} = {answer}.

@@ -1,28 +1,25 @@
 topic: precalculus/polar_coordinates
 difficulty: hard
 calculator: scientific
-
-variables:
-  r1: integer(2, 6)
-  r2: integer(2, 6)
-  ang1_choice: choice(1, 2, 3, 4, 5)
-  ang2_choice: choice(1, 2, 3, 4, 5)
-  theta1: ang1_choice * pi / 6
-  theta2: ang2_choice * pi / 6
-  cos_diff: cos(theta1 - theta2)
-  d_sq: r1^2 + r2^2 - 2*r1*r2*cos_diff
-  answer: sqrt(d_sq)
-
-constraints:
-  - ang1_choice != ang2_choice
-
-question: "Find the distance between the polar points {math((r1, theta1))} and {math((r2, theta2))}, given by the formula {math(d = sqrt(r1^2 + r2^2 - 2*r1*r2*cos(theta1 - theta2)))}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Apply the polar distance formula directly."
-  - "{equation(cos(theta1 - theta2), cos_diff)}."
-  - "Compute {equation(d^2, d_sq)}."
-  - "Take the positive square root: {equation(d, answer)}."
+variants:
+  - name: default
+    variables:
+      r1: integer(2, 6)
+      r2: integer(2, 6)
+      ang1_choice: choice(1, 2, 3, 4, 5)
+      ang2_choice: choice(1, 2, 3, 4, 5)
+      theta1: ang1_choice * pi / 6
+      theta2: ang2_choice * pi / 6
+      cos_diff: cos(theta1 - theta2)
+      d_sq: r1^2 + r2^2 - 2*r1*r2*cos_diff
+      answer: sqrt(d_sq)
+    constraints:
+      - ang1_choice != ang2_choice
+    question: Find the distance between the polar points {math((r1, theta1))} and {math((r2, theta2))}, given by the formula {math(d = sqrt(r1^2 + r2^2 - 2*r1*r2*cos(theta1 - theta2)))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Apply the polar distance formula directly.
+      - '{equation(cos(theta1 - theta2), cos_diff)}.'
+      - Compute {equation(d^2, d_sq)}.
+      - 'Take the positive square root: {equation(d, answer)}.'

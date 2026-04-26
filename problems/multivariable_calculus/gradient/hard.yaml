@@ -1,27 +1,27 @@
 topic: multivariable_calculus/gradient
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  f: a*x^2 + b*x*y + c*y^3
-  fx: derivative(a*x^2 + b*x*y + c*y^3, x)
-  fy: derivative(a*x^2 + b*x*y + c*y^3, y)
-  x0: integer(-3, 3)
-  y0: integer(-3, 3)
-  fx_val: evaluate(fx, x, x0)
-  fx_at: evaluate(fx_val, y, y0)
-  fy_val: evaluate(fy, x, x0)
-  fy_at: evaluate(fy_val, y, y0)
-
-question: "Find the gradient of the function {f} at the point {math(x =)} {x0}, {math(y =)} {y0}. Give your answer as an ordered pair {math((f_x, f_y))}."
-answer: fx_at, fy_at
-answer_type: tuple
-solution:
-  - "Compute the partial derivative with respect to {math(x)}: {partial_of(f, x)} = {fx}."
-  - "Compute the partial derivative with respect to {math(y)}: {partial_of(f, y)} = {fy}."
-  - "Evaluate at {math(x =)} {x0} and {math(y =)} {y0}: the first component is {fx_at}."
-  - "The second component is {fy_at}."
-  - "The gradient at the given point is {vec([fx_at, fy_at])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      f: a*x^2 + b*x*y + c*y^3
+      fx: derivative(a*x^2 + b*x*y + c*y^3, x)
+      fy: derivative(a*x^2 + b*x*y + c*y^3, y)
+      x0: integer(-3, 3)
+      y0: integer(-3, 3)
+      fx_val: evaluate(fx, x, x0)
+      fx_at: evaluate(fx_val, y, y0)
+      fy_val: evaluate(fy, x, x0)
+      fy_at: evaluate(fy_val, y, y0)
+    question: Find the gradient of the function {f} at the point {math(x =)} {x0}, {math(y =)} {y0}. Give your answer as an ordered pair {math((f_x, f_y))}.
+    answer: fx_at, fy_at
+    answer_type: tuple
+    solution:
+      - 'Compute the partial derivative with respect to {math(x)}: {partial_of(f, x)} = {fx}.'
+      - 'Compute the partial derivative with respect to {math(y)}: {partial_of(f, y)} = {fy}.'
+      - 'Evaluate at {math(x =)} {x0} and {math(y =)} {y0}: the first component is {fx_at}.'
+      - The second component is {fy_at}.
+      - The gradient at the given point is {vec([fx_at, fy_at])}.

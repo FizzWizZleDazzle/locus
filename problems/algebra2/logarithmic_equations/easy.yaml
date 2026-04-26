@@ -1,17 +1,15 @@
 topic: algebra2/logarithmic_equations
 difficulty: easy
 calculator: scientific
-
-variables:
-  base: choice(2, 3, 5, 10)
-  answer: integer(1, 4)
-  argument: base^answer
-
-question: "Solve for {math(x)}: {equation(log(argument, base), x)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Rewrite the logarithmic equation in exponential form: {equation(log(argument, base), x)} becomes {equation(base^x, argument)}."
-  - "Recognize that {argument} = {base}^{answer}, so {equation(x, answer)}."
+variants:
+  - name: default
+    variables:
+      base: choice(2, 3, 5, 10)
+      answer: integer(1, 4)
+      argument: base^answer
+    question: 'Solve for {math(x)}: {equation(log(argument, base), x)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Rewrite the logarithmic equation in exponential form: {equation(log(argument, base), x)} becomes {equation(base^x, argument)}.'
+      - Recognize that {argument} = {base}^{answer}, so {equation(x, answer)}.

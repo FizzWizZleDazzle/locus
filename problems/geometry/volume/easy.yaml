@@ -1,19 +1,19 @@
 topic: geometry/volume
 difficulty: easy
 calculator: none
-
-variables:
-  l: integer(2, 10)
-  w: integer(2, 10)
-  h: integer(2, 10)
-  lw: l * w
-  answer: l * w * h
-
-question: "A rectangular prism has length {l} cm, width {w} cm, and height {h} cm. What is its volume in cubic centimeters?"
-answer: answer
-answer_type: numeric
-solution:
-  - "The volume of a rectangular prism is length times width times height."
-  - "Multiply length by width: {l} times {w} = {lw}."
-  - "Multiply by height: {lw} times {h} = {answer}."
-  - "The volume is {answer} cubic centimeters."
+variants:
+  - name: default
+    variables:
+      l: integer(2, 10)
+      w: integer(2, 10)
+      h: integer(2, 10)
+      lw: l * w
+      answer: l * w * h
+    question: A rectangular prism has length {l} cm, width {w} cm, and height {h} cm. What is its volume in cubic centimeters?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The volume of a rectangular prism is length times width times height.
+      - 'Multiply length by width: {l} times {w} = {lw}.'
+      - 'Multiply by height: {lw} times {h} = {answer}.'
+      - The volume is {answer} cubic centimeters.

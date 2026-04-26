@@ -1,22 +1,20 @@
 topic: algebra2/logarithm_properties
 difficulty: hard
 calculator: scientific
-
-variables:
-  p: integer(2, 5)
-  q: integer(2, 5)
-  r: integer(2, 5)
-  expr_expanded: p*log(x) + q*log(y) - r*log(z)
-
-question: "Use logarithm properties to fully expand {math(log(x^p * y^q / z^r))} into a sum and difference of logarithms."
-
-answer: expr_expanded
-answer_type: expression
-
-solution:
-  - "Apply the quotient rule first: {math(log(A/B) = log(A) - log(B))}."
-  - "{equation(log(x^p * y^q / z^r), log(x^p * y^q) - log(z^r))}."
-  - "Apply the product rule: {math(log(A*B) = log(A) + log(B))}."
-  - "{equation(log(x^p * y^q) - log(z^r), log(x^p) + log(y^q) - log(z^r))}."
-  - "Apply the power rule: {math(log(A^n) = n*log(A))}."
-  - "{equation(log(x^p * y^q / z^r), expr_expanded)}."
+variants:
+  - name: default
+    variables:
+      p: integer(2, 5)
+      q: integer(2, 5)
+      r: integer(2, 5)
+      expr_expanded: p*log(x) + q*log(y) - r*log(z)
+    question: Use logarithm properties to fully expand {math(log(x^p * y^q / z^r))} into a sum and difference of logarithms.
+    answer: expr_expanded
+    answer_type: expression
+    solution:
+      - 'Apply the quotient rule first: {math(log(A/B) = log(A) - log(B))}.'
+      - '{equation(log(x^p * y^q / z^r), log(x^p * y^q) - log(z^r))}.'
+      - 'Apply the product rule: {math(log(A*B) = log(A) + log(B))}.'
+      - '{equation(log(x^p * y^q) - log(z^r), log(x^p) + log(y^q) - log(z^r))}.'
+      - 'Apply the power rule: {math(log(A^n) = n*log(A))}.'
+      - '{equation(log(x^p * y^q / z^r), expr_expanded)}.'

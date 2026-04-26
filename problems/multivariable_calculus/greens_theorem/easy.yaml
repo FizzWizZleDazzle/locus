@@ -1,34 +1,28 @@
 topic: multivariable_calculus/greens_theorem
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: integer(1, 4)
-  b: integer(1, 4)
-  p: integer(2, 5)
-  q: integer(2, 5)
-  curl: b - a
-  answer: curl * p * q
-  integrand_P: a*y
-  integrand_Q: b*x
-  area: p * q
-
-constraints:
-  - b > a
-
-question: >
-  Use Green's Theorem to evaluate
-  {math(integrand_P dx + integrand_Q dy)}
-  along the positively oriented boundary {math(C)} of the rectangle
-  with vertices {math((0,0))}, {math((p,0))}, {math((p,q))}, {math((0,q))}.
-
-solution:
-  - "Identify {math(P = integrand_P)} and {math(Q = integrand_Q)}."
-  - "Green's Theorem states the line integral equals the double integral of {math(partial Q / partial x - partial P / partial y)} over the enclosed region {math(D)}."
-  - "Partial derivatives: {math(partial Q / partial x)} = {b} and {math(partial P / partial y)} = {a}."
-  - "So the integrand of the double integral is {b} - {a} = {curl}."
-  - "The region {math(D)} is the rectangle {math(0 <= x <= p)}, {math(0 <= y <= q)}, with area {p} * {q} = {area}."
-  - "Therefore the line integral = {curl} * {area} = {answer}."
-
-answer: answer
-answer_type: numeric
+variants:
+  - name: default
+    variables:
+      a: integer(1, 4)
+      b: integer(1, 4)
+      p: integer(2, 5)
+      q: integer(2, 5)
+      curl: b - a
+      answer: curl * p * q
+      integrand_P: a*y
+      integrand_Q: b*x
+      area: p * q
+    constraints:
+      - b > a
+    question: |
+      Use Green's Theorem to evaluate {math(integrand_P dx + integrand_Q dy)} along the positively oriented boundary {math(C)} of the rectangle with vertices {math((0,0))}, {math((p,0))}, {math((p,q))}, {math((0,q))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Identify {math(P = integrand_P)} and {math(Q = integrand_Q)}.
+      - Green's Theorem states the line integral equals the double integral of {math(partial Q / partial x - partial P / partial y)} over the enclosed region {math(D)}.
+      - 'Partial derivatives: {math(partial Q / partial x)} = {b} and {math(partial P / partial y)} = {a}.'
+      - So the integrand of the double integral is {b} - {a} = {curl}.
+      - The region {math(D)} is the rectangle {math(0 <= x <= p)}, {math(0 <= y <= q)}, with area {p} * {q} = {area}.
+      - Therefore the line integral = {curl} * {area} = {answer}.

@@ -1,25 +1,22 @@
 topic: precalculus/sum_difference_formulas
 difficulty: easy
 calculator: none
-
-variables:
-  a_deg: choice(30, 45, 60)
-  b_deg: choice(30, 45, 60)
-  a_rad: a_deg * pi / 180
-  b_rad: b_deg * pi / 180
-  sum_deg: a_deg + b_deg
-  answer: sin(a_rad + b_rad)
-
-constraints:
-  - a_deg != b_deg
-
-question: "Use the sine addition formula to find the exact value of the sine of {sum_deg} degrees."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The sine addition formula: {math(sin(u + v) = sin(u)*cos(v) + cos(u)*sin(v))}."
-  - "Write {sum_deg} degrees as {a_deg} degrees + {b_deg} degrees."
-  - "Compute the four trig values and combine."
-  - "The exact value is {answer}."
+variants:
+  - name: default
+    variables:
+      a_deg: choice(30, 45, 60)
+      b_deg: choice(30, 45, 60)
+      a_rad: a_deg * pi / 180
+      b_rad: b_deg * pi / 180
+      sum_deg: a_deg + b_deg
+      answer: sin(a_rad + b_rad)
+    constraints:
+      - a_deg != b_deg
+    question: Use the sine addition formula to find the exact value of the sine of {sum_deg} degrees.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'The sine addition formula: {math(sin(u + v) = sin(u)*cos(v) + cos(u)*sin(v))}.'
+      - Write {sum_deg} degrees as {a_deg} degrees + {b_deg} degrees.
+      - Compute the four trig values and combine.
+      - The exact value is {answer}.

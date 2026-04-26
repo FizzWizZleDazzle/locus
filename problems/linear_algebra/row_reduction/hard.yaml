@@ -1,38 +1,35 @@
 topic: linear_algebra/row_reduction
 difficulty: hard
 calculator: scientific
-
-variables:
-  x_sol: nonzero(-4, 4)
-  y_sol: nonzero(-4, 4)
-  z_sol: nonzero(-4, 4)
-  a11: nonzero(-3, 3)
-  a12: nonzero(-3, 3)
-  a13: nonzero(-3, 3)
-  a21: nonzero(-3, 3)
-  a22: nonzero(-3, 3)
-  a23: nonzero(-3, 3)
-  a31: nonzero(-3, 3)
-  a32: nonzero(-3, 3)
-  a33: nonzero(-3, 3)
-  b1: a11*x_sol + a12*y_sol + a13*z_sol
-  b2: a21*x_sol + a22*y_sol + a23*z_sol
-  b3: a31*x_sol + a32*y_sol + a33*z_sol
-  lhs1: a11*x + a12*y + a13*z
-  lhs2: a21*x + a22*y + a23*z
-  lhs3: a31*x + a32*y + a33*z
-
-constraints:
-  - x_sol != y_sol
-  - y_sol != z_sol
-
-question: "Use row reduction on the augmented matrix {matrix_of([[a11, a12, a13, b1], [a21, a22, a23, b2], [a31, a32, a33, b3]])} to solve the system {system(equation(lhs1, b1), equation(lhs2, b2), equation(lhs3, b3))}. Give your answer as {math((x, y, z))}."
-
-answer: x_sol, y_sol, z_sol
-answer_type: tuple
-
-solution:
-  - "Write the augmented matrix: {matrix_of([[a11, a12, a13, b1], [a21, a22, a23, b2], [a31, a32, a33, b3]])}."
-  - "Apply Gaussian elimination: scale and subtract rows to introduce zeros below each pivot."
-  - "Continue with back-substitution: from the last row solve for {math(z)}, substitute into the second row to find {math(y)}, then into the first row to find {math(x)}."
-  - "The unique solution is {equation(x, x_sol)}, {equation(y, y_sol)}, {equation(z, z_sol)}."
+variants:
+  - name: default
+    variables:
+      x_sol: nonzero(-4, 4)
+      y_sol: nonzero(-4, 4)
+      z_sol: nonzero(-4, 4)
+      a11: nonzero(-3, 3)
+      a12: nonzero(-3, 3)
+      a13: nonzero(-3, 3)
+      a21: nonzero(-3, 3)
+      a22: nonzero(-3, 3)
+      a23: nonzero(-3, 3)
+      a31: nonzero(-3, 3)
+      a32: nonzero(-3, 3)
+      a33: nonzero(-3, 3)
+      b1: a11*x_sol + a12*y_sol + a13*z_sol
+      b2: a21*x_sol + a22*y_sol + a23*z_sol
+      b3: a31*x_sol + a32*y_sol + a33*z_sol
+      lhs1: a11*x + a12*y + a13*z
+      lhs2: a21*x + a22*y + a23*z
+      lhs3: a31*x + a32*y + a33*z
+    constraints:
+      - x_sol != y_sol
+      - y_sol != z_sol
+    question: Use row reduction on the augmented matrix {matrix_of([[a11, a12, a13, b1], [a21, a22, a23, b2], [a31, a32, a33, b3]])} to solve the system {system(equation(lhs1, b1), equation(lhs2, b2), equation(lhs3, b3))}. Give your answer as {math((x, y, z))}.
+    answer: x_sol, y_sol, z_sol
+    answer_type: tuple
+    solution:
+      - 'Write the augmented matrix: {matrix_of([[a11, a12, a13, b1], [a21, a22, a23, b2], [a31, a32, a33, b3]])}.'
+      - 'Apply Gaussian elimination: scale and subtract rows to introduce zeros below each pivot.'
+      - 'Continue with back-substitution: from the last row solve for {math(z)}, substitute into the second row to find {math(y)}, then into the first row to find {math(x)}.'
+      - The unique solution is {equation(x, x_sol)}, {equation(y, y_sol)}, {equation(z, z_sol)}.

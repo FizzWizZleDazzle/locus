@@ -1,26 +1,24 @@
 topic: linear_algebra/matrix_inverses
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  b: integer(-3, 3)
-  d: nonzero(1, 4)
-  det: a*d
-  neg_b: -b
-  inv11: 1 / a
-  inv12: -b / det
-  inv22: 1 / d
-  one_over_det: 1 / det
-
-question: "Find the inverse of the upper triangular matrix {matrix_of([[a, b], [0, d]])}. What is the (1,1) entry of the inverse?"
-
-answer_type: numeric
-answer: inv11
-
-solution:
-  - "For an upper triangular 2x2 matrix {matrix_of([[a, b], [0, d]])}, the determinant is the product of the diagonal entries."
-  - "Step 1: Compute the determinant: {a} times {d} = {det}."
-  - "Step 2: Form the adjugate: {matrix_of([[d, neg_b], [0, a]])}."
-  - "Step 3: Multiply by {one_over_det} to get the inverse: {matrix_of([[inv11, inv12], [0, inv22]])}."
-  - "The (1,1) entry of the inverse is {inv11}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: integer(-3, 3)
+      d: nonzero(1, 4)
+      det: a*d
+      neg_b: -b
+      inv11: 1 / a
+      inv12: -b / det
+      inv22: 1 / d
+      one_over_det: 1 / det
+    question: Find the inverse of the upper triangular matrix {matrix_of([[a, b], [0, d]])}. What is the (1,1) entry of the inverse?
+    answer: inv11
+    answer_type: numeric
+    solution:
+      - For an upper triangular 2x2 matrix {matrix_of([[a, b], [0, d]])}, the determinant is the product of the diagonal entries.
+      - 'Step 1: Compute the determinant: {a} times {d} = {det}.'
+      - 'Step 2: Form the adjugate: {matrix_of([[d, neg_b], [0, a]])}.'
+      - 'Step 3: Multiply by {one_over_det} to get the inverse: {matrix_of([[inv11, inv12], [0, inv22]])}.'
+      - The (1,1) entry of the inverse is {inv11}.

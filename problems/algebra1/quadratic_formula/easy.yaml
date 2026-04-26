@@ -1,31 +1,28 @@
 topic: algebra1/quadratic_formula
 difficulty: easy
 calculator: scientific
-
-variables:
-  r1: integer(-5, 5)
-  r2: integer(-5, 5)
-  f: (x - r1) * (x - r2)
-  expanded: expand(f)
-  b_coeff: -(r1 + r2)
-  c_coeff: r1 * r2
-  disc: (r1 - r2)^2
-  disc_sqrt: sqrt(disc)
-  x1: (-b_coeff + disc_sqrt) / 2
-  x2: (-b_coeff - disc_sqrt) / 2
-  answer: solve(expanded, x)
-
-constraints:
-  - r1 != r2
-  - r1 < r2
-
-question: "Use the quadratic formula to solve {equation(expanded, 0)} for {math(x)}."
-
-answer: answer
-answer_type: set
-
-solution:
-  - "Identify coefficients: {math(a = 1)}, {equation(math(b), b_coeff)}, {equation(math(c), c_coeff)}."
-  - "Compute the discriminant: {equation(math(b^2 - 4ac), disc)}."
-  - "Apply the quadratic formula: {equation(math(x), x1)} or {equation(math(x), x2)}."
-  - "The solutions are {equation(math(x), r1)} and {equation(math(x), r2)}."
+variants:
+  - name: default
+    variables:
+      r1: integer(-5, 5)
+      r2: integer(-5, 5)
+      f: (x - r1) * (x - r2)
+      expanded: expand(f)
+      b_coeff: -(r1 + r2)
+      c_coeff: r1 * r2
+      disc: (r1 - r2)^2
+      disc_sqrt: sqrt(disc)
+      x1: (-b_coeff + disc_sqrt) / 2
+      x2: (-b_coeff - disc_sqrt) / 2
+      answer: solve(expanded, x)
+    constraints:
+      - r1 != r2
+      - r1 < r2
+    question: Use the quadratic formula to solve {equation(expanded, 0)} for {math(x)}.
+    answer: answer
+    answer_type: set
+    solution:
+      - 'Identify coefficients: {math(a = 1)}, {equation(math(b), b_coeff)}, {equation(math(c), c_coeff)}.'
+      - 'Compute the discriminant: {equation(math(b^2 - 4ac), disc)}.'
+      - 'Apply the quadratic formula: {equation(math(x), x1)} or {equation(math(x), x2)}.'
+      - The solutions are {equation(math(x), r1)} and {equation(math(x), r2)}.

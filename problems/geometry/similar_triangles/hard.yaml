@@ -1,33 +1,35 @@
 topic: geometry/similar_triangles
 difficulty: hard
 calculator: scientific
-
-variables:
-  ad: choice(2, 3, 4, 5, 6)
-  k: choice(2, 3, 4, 5)
-  db: ad * k
-  m: choice(2, 3, 4, 5)
-  ae: ad * m
-  ec: ae * db / ad
-  ab: ad + db
-  ac: ae + ec
-  rhs_product: ae * db
-
-constraints:
-  - k != m
-
-diagram:
-  type: triangle
-  vertices: [A, B, C]
-  sides: {AB: ab, BC: base, AC: ac}
-
-question: "In triangle ABC, point D lies on segment AB and point E lies on segment AC such that DE is parallel to BC. Given AD = {ad}, DB = {db}, and AE = {ae}, find the length of EC."
-
-answer: ec
-
-solution:
-  - "Since DE is parallel to BC, the Side-Splitter Theorem states that DE divides the two sides proportionally."
-  - "This gives the proportion: {equation(math(AD/DB), math(AE/EC))}."
-  - "Substitute the known values: {equation(math(ad/db), math(ae/EC))}."
-  - "Cross-multiplying: {ad} times EC = {ae} times {db} = {rhs_product}."
-  - "Divide both sides by {ad}: EC = {ec}."
+variants:
+  - name: default
+    variables:
+      ad: choice(2, 3, 4, 5, 6)
+      k: choice(2, 3, 4, 5)
+      db: ad * k
+      m: choice(2, 3, 4, 5)
+      ae: ad * m
+      ec: ae * db / ad
+      ab: ad + db
+      ac: ae + ec
+      rhs_product: ae * db
+    constraints:
+      - k != m
+    question: In triangle ABC, point D lies on segment AB and point E lies on segment AC such that DE is parallel to BC. Given AD = {ad}, DB = {db}, and AE = {ae}, find the length of EC.
+    answer: ec
+    solution:
+      - Since DE is parallel to BC, the Side-Splitter Theorem states that DE divides the two sides proportionally.
+      - 'This gives the proportion: {equation(math(AD/DB), math(AE/EC))}.'
+      - 'Substitute the known values: {equation(math(ad/db), math(ae/EC))}.'
+      - 'Cross-multiplying: {ad} times EC = {ae} times {db} = {rhs_product}.'
+      - 'Divide both sides by {ad}: EC = {ec}.'
+    diagram:
+      type: triangle
+      vertices:
+        - A
+        - B
+        - C
+      sides:
+        AB: ab
+        BC: base
+        AC: ac

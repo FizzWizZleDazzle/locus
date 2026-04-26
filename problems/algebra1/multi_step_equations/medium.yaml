@@ -1,33 +1,30 @@
 topic: algebra1/multi_step_equations
 difficulty: medium
 calculator: none
-
-variables:
-  x_sol: integer(-5, 5)
-  a: nonzero(2, 5)
-  b: nonzero(-3, 3)
-  c: nonzero(-6, 6)
-  d: nonzero(-4, 4)
-  inner: b*x + c
-  ab: a*b
-  ac: a*c
-  lhs_expanded: expand(a*(b*x + c) + d*x)
-  rhs: evaluate(lhs_expanded, x, x_sol)
-  combined_coeff: a*b + d
-  rhs_minus_ac: rhs - ac
-  answer: x_sol
-
-constraints:
-  - x_sol != 0
-  - b != d
-
-question: "Solve for {math(x)}: {equation(a*(inner) + d*x, rhs)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Distribute {a} through the parentheses: {equation(a*(b*x + c), ab*x + ac)}."
-  - "Rewrite the equation, combining {math(x)}-terms: {equation(combined_coeff*x + ac, rhs)}."
-  - "Subtract {ac} from both sides: {equation(combined_coeff*x, rhs_minus_ac)}."
-  - "Divide both sides by {combined_coeff}: {equation(x, x_sol)}."
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-5, 5)
+      a: nonzero(2, 5)
+      b: nonzero(-3, 3)
+      c: nonzero(-6, 6)
+      d: nonzero(-4, 4)
+      inner: b*x + c
+      ab: a*b
+      ac: a*c
+      lhs_expanded: expand(a*(b*x + c) + d*x)
+      rhs: evaluate(lhs_expanded, x, x_sol)
+      combined_coeff: a*b + d
+      rhs_minus_ac: rhs - ac
+      answer: x_sol
+    constraints:
+      - x_sol != 0
+      - b != d
+    question: 'Solve for {math(x)}: {equation(a*(inner) + d*x, rhs)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Distribute {a} through the parentheses: {equation(a*(b*x + c), ab*x + ac)}.'
+      - 'Rewrite the equation, combining {math(x)}-terms: {equation(combined_coeff*x + ac, rhs)}.'
+      - 'Subtract {ac} from both sides: {equation(combined_coeff*x, rhs_minus_ac)}.'
+      - 'Divide both sides by {combined_coeff}: {equation(x, x_sol)}.'

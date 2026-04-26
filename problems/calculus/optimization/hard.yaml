@@ -1,25 +1,22 @@
 topic: calculus/optimization
 difficulty: hard
 calculator: scientific
-
-variables:
-  F: choice(24, 32, 40, 48)
-  area_expr: (F - 2*w)*w
-  dA: derivative(area_expr, w)
-  w_opt: F/4
-  L_opt: F/2
-  answer: evaluate(area_expr, w, w_opt)
-
-question: >
-  A farmer has {F} meters of fencing to enclose a rectangular plot along a straight barn wall.
-  No fencing is needed along the wall. What is the maximum area, in square meters, that can be enclosed?
-
-answer: answer
-
-solution:
-  - "Let {math(w)} be the width (perpendicular to the wall) and {math(L)} be the length (parallel to the wall)."
-  - "The fencing constraint is {equation(L + 2*w, F)}, so {equation(math(L), F - 2*w)}."
-  - "Area: {equation(math(A(w)), area_expr)}."
-  - "Differentiate and set equal to zero: {equation(dA, 0)}."
-  - "Solving gives the optimal width {equation(math(w), w_opt)} m, and length {equation(math(L), L_opt)} m."
-  - "Maximum area: {equation(math(A), answer)} square meters."
+variants:
+  - name: default
+    variables:
+      F: choice(24, 32, 40, 48)
+      area_expr: (F - 2*w)*w
+      dA: derivative(area_expr, w)
+      w_opt: F/4
+      L_opt: F/2
+      answer: evaluate(area_expr, w, w_opt)
+    question: |
+      A farmer has {F} meters of fencing to enclose a rectangular plot along a straight barn wall. No fencing is needed along the wall. What is the maximum area, in square meters, that can be enclosed?
+    answer: answer
+    solution:
+      - Let {math(w)} be the width (perpendicular to the wall) and {math(L)} be the length (parallel to the wall).
+      - The fencing constraint is {equation(L + 2*w, F)}, so {equation(math(L), F - 2*w)}.
+      - 'Area: {equation(math(A(w)), area_expr)}.'
+      - 'Differentiate and set equal to zero: {equation(dA, 0)}.'
+      - Solving gives the optimal width {equation(math(w), w_opt)} m, and length {equation(math(L), L_opt)} m.
+      - 'Maximum area: {equation(math(A), answer)} square meters.'

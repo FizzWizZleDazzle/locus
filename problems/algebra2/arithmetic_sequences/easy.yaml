@@ -1,20 +1,18 @@
 topic: algebra2/arithmetic_sequences
 difficulty: easy
 calculator: none
-
-variables:
-  a1: integer(2, 15)
-  d: nonzero(-5, 5)
-  n: integer(5, 12)
-  n_minus_1: n - 1
-  step1: (n - 1)*d
-  answer: a1 + (n - 1)*d
-
-question: "An arithmetic sequence has first term {a1} and common difference {d}. Find the {n}th term."
-
-answer: answer
-
-solution:
-  - "The nth term formula gives: nth term = first term + (n - 1) times the common difference."
-  - "Substituting first term = {a1}, common difference = {d}, and n = {n}:"
-  - "{math(a_n)} = {a1} + ({n_minus_1})({d}) = {answer}."
+variants:
+  - name: default
+    variables:
+      a1: integer(2, 15)
+      d: nonzero(-5, 5)
+      n: integer(5, 12)
+      n_minus_1: n - 1
+      step1: (n - 1)*d
+      answer: a1 + (n - 1)*d
+    question: An arithmetic sequence has first term {a1} and common difference {d}. Find the {n}th term.
+    answer: answer
+    solution:
+      - 'The nth term formula gives: nth term = first term + (n - 1) times the common difference.'
+      - 'Substituting first term = {a1}, common difference = {d}, and n = {n}:'
+      - '{math(a_n)} = {a1} + ({n_minus_1})({d}) = {answer}.'

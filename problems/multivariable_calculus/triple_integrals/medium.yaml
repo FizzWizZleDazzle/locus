@@ -1,25 +1,24 @@
 topic: multivariable_calculus/triple_integrals
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(1, 4)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  r: integer(1, 4)
-  f: a*x*y*z
-  val_z: definite_integral(z, z, 0, p)
-  val_y: definite_integral(y, y, 0, q)
-  val_x: definite_integral(x, x, 0, r)
-  answer: a * val_z * val_y * val_x
-
-question: "Evaluate {definite_integral_of(definite_integral_of(definite_integral_of(f, z, 0, p), y, 0, q), x, 0, r)}."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The integrand {f} is separable in {math(x)}, {math(y)}, and {math(z)}, so the triple integral factors into a product of three single-variable integrals."
-  - "Integrate over {math(z)}: {definite_integral_of(z, z, 0, p)} = {val_z}."
-  - "Integrate over {math(y)}: {definite_integral_of(y, y, 0, q)} = {val_y}."
-  - "Integrate over {math(x)}: {definite_integral_of(x, x, 0, r)} = {val_x}."
-  - "Multiply: {a} times {val_z} times {val_y} times {val_x} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      r: integer(1, 4)
+      f: a*x*y*z
+      val_z: definite_integral(z, z, 0, p)
+      val_y: definite_integral(y, y, 0, q)
+      val_x: definite_integral(x, x, 0, r)
+      answer: a * val_z * val_y * val_x
+    question: Evaluate {definite_integral_of(definite_integral_of(definite_integral_of(f, z, 0, p), y, 0, q), x, 0, r)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The integrand {f} is separable in {math(x)}, {math(y)}, and {math(z)}, so the triple integral factors into a product of three single-variable integrals.
+      - 'Integrate over {math(z)}: {definite_integral_of(z, z, 0, p)} = {val_z}.'
+      - 'Integrate over {math(y)}: {definite_integral_of(y, y, 0, q)} = {val_y}.'
+      - 'Integrate over {math(x)}: {definite_integral_of(x, x, 0, r)} = {val_x}.'
+      - 'Multiply: {a} times {val_z} times {val_y} times {val_x} = {answer}.'

@@ -1,23 +1,21 @@
 topic: precalculus/function_composition
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-5, 5)
-  c: nonzero(-4, 4)
-  d: integer(-5, 5)
-  func_f: a*x + b
-  func_g: c*x + d
-  fog_step: a*(c*x + d) + b
-  answer: expand(fog_step)
-
-question: "Given {math(f(x))} = {func_f} and {math(g(x))} = {func_g}, find and simplify {math(f(g(x)))}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {math(f(x))} with {func_g}."
-  - "{math(f(g(x)))} = {fog_step}"
-  - "Expand and simplify: {answer}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: integer(-5, 5)
+      c: nonzero(-4, 4)
+      d: integer(-5, 5)
+      func_f: a*x + b
+      func_g: c*x + d
+      fog_step: a*(c*x + d) + b
+      answer: expand(fog_step)
+    question: Given {math(f(x))} = {func_f} and {math(g(x))} = {func_g}, find and simplify {math(f(g(x)))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {math(f(x))} with {func_g}.'
+      - '{math(f(g(x)))} = {fog_step}'
+      - 'Expand and simplify: {answer}'

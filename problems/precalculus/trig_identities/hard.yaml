@@ -1,21 +1,19 @@
 topic: precalculus/trig_identities
 difficulty: hard
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  expr: a*sin(theta)^2 + a*cos(theta)^2 + b*tan(theta)*cos(theta)/sin(theta) + c
-  answer: a + b + c
-
-question: "Simplify the expression {expr}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Apply the Pythagorean identity {equation(sin(theta)^2 + cos(theta)^2, 1)} to combine the first two terms: they reduce to {a}."
-  - "Use {math(tan(theta) = sin(theta)/cos(theta))}, so {math(tan(theta)*cos(theta)/sin(theta))} = 1."
-  - "The third term simplifies to {b}."
-  - "Adding the constant: total = {a} + {b} + {c} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(-5, 5)
+      expr: a*sin(theta)^2 + a*cos(theta)^2 + b*tan(theta)*cos(theta)/sin(theta) + c
+      answer: a + b + c
+    question: Simplify the expression {expr}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Apply the Pythagorean identity {equation(sin(theta)^2 + cos(theta)^2, 1)} to combine the first two terms: they reduce to {a}.'
+      - Use {math(tan(theta) = sin(theta)/cos(theta))}, so {math(tan(theta)*cos(theta)/sin(theta))} = 1.
+      - The third term simplifies to {b}.
+      - 'Adding the constant: total = {a} + {b} + {c} = {answer}.'

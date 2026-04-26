@@ -1,20 +1,19 @@
 topic: arithmetic/decimals
 difficulty: medium
 calculator: none
-
-variables:
-  a: decimal(1, 7, 1)
-  b: decimal(1, 7, 1)
-  a_int: floor(a * 10)
-  b_int: floor(b * 10)
-  product_int: a_int * b_int
-  answer: a * b
-
-question: "Multiply {a} by {b}. Give your answer as a decimal."
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Temporarily ignore the decimal points and multiply as whole numbers: {a_int} times {b_int} = {product_int}."
-  - "Each factor has 1 decimal place, so insert the decimal point 2 places from the right."
-  - "{a} times {b} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: decimal(1, 7, 1)
+      b: decimal(1, 7, 1)
+      a_int: floor(a * 10)
+      b_int: floor(b * 10)
+      product_int: a_int * b_int
+      answer: a * b
+    question: Multiply {a} by {b}. Give your answer as a decimal.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Temporarily ignore the decimal points and multiply as whole numbers: {a_int} times {b_int} = {product_int}.'
+      - Each factor has 1 decimal place, so insert the decimal point 2 places from the right.
+      - '{a} times {b} = {answer}.'

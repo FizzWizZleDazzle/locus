@@ -1,24 +1,22 @@
 topic: algebra1/factoring_trinomials
 difficulty: medium
 calculator: none
-
-variables:
-  r1: nonzero(-7, 7)
-  r2: nonzero(-7, 7)
-  poly: expand((x - r1)*(x - r2))
-  b_coeff: -(r1 + r2)
-  c_coeff: r1 * r2
-  answer: (x - r1)*(x - r2)
-
-constraints:
-  - r1 != r2
-  - r1 != -r2
-
-question: "Factor the trinomial {poly}."
-answer: answer
-answer_type: expression
-
-solution:
-  - "Find two numbers that multiply to {c_coeff} and add to {b_coeff}."
-  - "Those numbers are {math(-r1)} and {math(-r2)}."
-  - "Write the factored form: {answer}."
+variants:
+  - name: default
+    variables:
+      r1: nonzero(-7, 7)
+      r2: nonzero(-7, 7)
+      poly: expand((x - r1)*(x - r2))
+      b_coeff: -(r1 + r2)
+      c_coeff: r1 * r2
+      answer: (x - r1)*(x - r2)
+    constraints:
+      - r1 != r2
+      - r1 != -r2
+    question: Factor the trinomial {poly}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Find two numbers that multiply to {c_coeff} and add to {b_coeff}.
+      - Those numbers are {math(-r1)} and {math(-r2)}.
+      - 'Write the factored form: {answer}.'

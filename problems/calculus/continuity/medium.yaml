@@ -1,24 +1,20 @@
 topic: calculus/continuity
 difficulty: medium
 calculator: none
-
-variables:
-  m: nonzero(-4, 4)
-  b: integer(-5, 5)
-  c: nonzero(-3, 3)
-  f_left: m*x + b
-  f_at_c: evaluate(f_left, x, c)
-  answer: f_at_c
-
-question: >
-  Let {math(f(x))} be defined piecewise as {math(f(x))} = {f_left} for {math(x < c)},
-  and {math(f(x))} = {math(k)} for {math(x >= c)}.
-  Find the value of the constant {math(k)} that makes {math(f(x))} continuous at {math(x = c)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "For {math(f(x))} to be continuous at {math(x = c)}, the left-hand limit as {math(x)} approaches {c} must equal {math(f(c))}."
-  - "Evaluate the left piece at {math(x = c)}: {equation(f_left, f_at_c)} when {math(x = c)}."
-  - "The right piece gives {math(f(c) = k)}, so we need {math(k)} = {answer}."
+variants:
+  - name: default
+    variables:
+      m: nonzero(-4, 4)
+      b: integer(-5, 5)
+      c: nonzero(-3, 3)
+      f_left: m*x + b
+      f_at_c: evaluate(f_left, x, c)
+      answer: f_at_c
+    question: |
+      Let {math(f(x))} be defined piecewise as {math(f(x))} = {f_left} for {math(x < c)}, and {math(f(x))} = {math(k)} for {math(x >= c)}. Find the value of the constant {math(k)} that makes {math(f(x))} continuous at {math(x = c)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - For {math(f(x))} to be continuous at {math(x = c)}, the left-hand limit as {math(x)} approaches {c} must equal {math(f(c))}.
+      - 'Evaluate the left piece at {math(x = c)}: {equation(f_left, f_at_c)} when {math(x = c)}.'
+      - The right piece gives {math(f(c) = k)}, so we need {math(k)} = {answer}.

@@ -1,20 +1,22 @@
 topic: linear_algebra/subspaces
 difficulty: hard
 calculator: none
-variables:
-  a: nonzero(-3, 3)
-  b: nonzero(-3, 3)
-  lhs1: a*x + b*y
-  lhs2: a*x - b*z
-  rhs1: integer(0, 0)
-  rhs2: integer(0, 0)
-question: "Let {math(W)} be the set of all vectors {math((x, y, z))} in {math(R^3)} satisfying both {equation(lhs1, 0)} and {equation(lhs2, 0)}. Is {math(W)} a subspace of {math(R^3)}? Answer Yes or No."
-answer: Yes
-answer_type: word
-solution:
-  - "We check all three subspace conditions."
-  - "Zero vector: substituting x = y = z = 0 into {lhs1} gives 0, and into {lhs2} gives 0. So {math((0,0,0))} is in {math(W)}."
-  - "Closure under addition: suppose {math((x_1, y_1, z_1))} and {math((x_2, y_2, z_2))} are both in {math(W)}."
-  - "Then {equation(a*x1 + b*y1, 0)} and {equation(a*x2 + b*y2, 0)}, so adding gives {equation(a*(x1+x2) + b*(y1+y2), 0)}. Similarly for the second condition. The sum is in {math(W)}."
-  - "Closure under scalar multiplication: if {math((x, y, z))} is in {math(W)} and k is any scalar, then {equation(a*(k*x) + b*(k*y), k*(a*x + b*y))} = 0, and similarly for the second condition. So k times the vector is in {math(W)}."
-  - "All three conditions hold. {math(W)} is a subspace of {math(R^3)}. Answer: Yes."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-3, 3)
+      b: nonzero(-3, 3)
+      lhs1: a*x + b*y
+      lhs2: a*x - b*z
+      rhs1: integer(0, 0)
+      rhs2: integer(0, 0)
+    question: Let {math(W)} be the set of all vectors {math((x, y, z))} in {math(R^3)} satisfying both {equation(lhs1, 0)} and {equation(lhs2, 0)}. Is {math(W)} a subspace of {math(R^3)}? Answer Yes or No.
+    answer: true
+    answer_type: word
+    solution:
+      - We check all three subspace conditions.
+      - 'Zero vector: substituting x = y = z = 0 into {lhs1} gives 0, and into {lhs2} gives 0. So {math((0,0,0))} is in {math(W)}.'
+      - 'Closure under addition: suppose {math((x_1, y_1, z_1))} and {math((x_2, y_2, z_2))} are both in {math(W)}.'
+      - Then {equation(a*x1 + b*y1, 0)} and {equation(a*x2 + b*y2, 0)}, so adding gives {equation(a*(x1+x2) + b*(y1+y2), 0)}. Similarly for the second condition. The sum is in {math(W)}.
+      - 'Closure under scalar multiplication: if {math((x, y, z))} is in {math(W)} and k is any scalar, then {equation(a*(k*x) + b*(k*y), k*(a*x + b*y))} = 0, and similarly for the second condition. So k times the vector is in {math(W)}.'
+      - 'All three conditions hold. {math(W)} is a subspace of {math(R^3)}. Answer: Yes.'

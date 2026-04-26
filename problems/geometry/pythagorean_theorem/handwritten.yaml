@@ -1,24 +1,21 @@
 topic: geometry/pythagorean_theorem
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: choice(3, 5, 6, 7, 8, 9)
-  b: choice(4, 8, 9, 12, 15, 12)
-  a2: a^2
-  b2: b^2
-  sum: a2 + b2
-  answer: sqrt(sum)
-
-constraints:
-  - a < b
-  - is_integer(answer)
-
-question: "Find the hypotenuse of a right triangle with legs {a} and {b}."
-
-answer: answer
-
-solution:
-  - "Pythagorean theorem: a^2 + b^2 = c^2"
-  - "{a}^2 + {b}^2 = {sum}"
-  - "c = {answer}"
+variants:
+  - name: default
+    variables:
+      a: choice(3, 5, 6, 7, 8, 9)
+      b: choice(4, 8, 9, 12, 15, 12)
+      a2: a^2
+      b2: b^2
+      sum: a2 + b2
+      answer: sqrt(sum)
+    constraints:
+      - a < b
+      - is_integer(answer)
+    question: Find the hypotenuse of a right triangle with legs {a} and {b}.
+    answer: answer
+    solution:
+      - 'Pythagorean theorem: a^2 + b^2 = c^2'
+      - '{a}^2 + {b}^2 = {sum}'
+      - c = {answer}

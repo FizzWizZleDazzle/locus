@@ -1,31 +1,27 @@
 topic: multivariable_calculus/stokes_divergence
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: integer(1, 4)
-  b: integer(1, 4)
-  c: integer(1, 4)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  r: integer(1, 4)
-  F1: a*x
-  F2: b*y
-  F3: c*z
-  div_F: a + b + c
-  vol: p * q * r
-  answer: div_F * vol
-
-question: >
-  Let {math(F)} = {vec([F1, F2, F3])}. Use the Divergence Theorem to compute
-  the outward flux of {math(F)} through the surface of the rectangular box
-  {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "By the Divergence Theorem, the outward flux equals the triple integral of {math(div(F))} over the enclosed volume."
-  - "The divergence is {math(div(F))} = {a} + {b} + {c} = {div_F}."
-  - "The volume of the box is {p} by {q} by {r}, which equals {vol}."
-  - "Outward flux = {div_F} times {vol} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(1, 4)
+      b: integer(1, 4)
+      c: integer(1, 4)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      r: integer(1, 4)
+      F1: a*x
+      F2: b*y
+      F3: c*z
+      div_F: a + b + c
+      vol: p * q * r
+      answer: div_F * vol
+    question: |
+      Let {math(F)} = {vec([F1, F2, F3])}. Use the Divergence Theorem to compute the outward flux of {math(F)} through the surface of the rectangular box {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - By the Divergence Theorem, the outward flux equals the triple integral of {math(div(F))} over the enclosed volume.
+      - The divergence is {math(div(F))} = {a} + {b} + {c} = {div_F}.
+      - The volume of the box is {p} by {q} by {r}, which equals {vol}.
+      - Outward flux = {div_F} times {vol} = {answer}.

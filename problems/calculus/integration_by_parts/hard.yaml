@@ -1,26 +1,24 @@
 topic: calculus/integration_by_parts
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: choice(1, 2, 3)
-  f: x^2 * exp(a*x)
-  antideriv: integral(f, x)
-  lo: 0
-  hi: 1
-  F_hi: evaluate(antideriv, x, hi)
-  F_lo: evaluate(antideriv, x, lo)
-  answer: F_hi - F_lo
-
-question: "Use integration by parts twice to evaluate {definite_integral_of(f, x, lo, hi)}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Let {math(u = x^2)} and {math(dv = exp(a*x)*dx)}, so {math(du = 2*x*dx)} and {math(v = exp(a*x)/a)}."
-  - "First IBP: {definite_integral_of(f, x, lo, hi)} = {math([x^2 * exp(a*x)/a])} - {definite_integral_of(2*x*exp(a*x)/a, x, lo, hi)}."
-  - "Apply integration by parts a second time on the remaining integral with {math(u = 2*x/a)}, {math(dv = exp(a*x)*dx)}."
-  - "Combining all terms and substituting the bounds {lo} and {hi} yields the antiderivative {antideriv}."
-  - "Evaluating at the bounds: F({hi}) = {F_hi}, F({lo}) = {F_lo}."
-  - "The definite integral equals {answer}."
+variants:
+  - name: default
+    variables:
+      a: choice(1, 2, 3)
+      f: x^2 * exp(a*x)
+      antideriv: integral(f, x)
+      lo: 0
+      hi: 1
+      F_hi: evaluate(antideriv, x, hi)
+      F_lo: evaluate(antideriv, x, lo)
+      answer: F_hi - F_lo
+    question: Use integration by parts twice to evaluate {definite_integral_of(f, x, lo, hi)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Let {math(u = x^2)} and {math(dv = exp(a*x)*dx)}, so {math(du = 2*x*dx)} and {math(v = exp(a*x)/a)}.
+      - 'First IBP: {definite_integral_of(f, x, lo, hi)} = {math([x^2 * exp(a*x)/a])} - {definite_integral_of(2*x*exp(a*x)/a, x, lo, hi)}.'
+      - Apply integration by parts a second time on the remaining integral with {math(u = 2*x/a)}, {math(dv = exp(a*x)*dx)}.
+      - Combining all terms and substituting the bounds {lo} and {hi} yields the antiderivative {antideriv}.
+      - 'Evaluating at the bounds: F({hi}) = {F_hi}, F({lo}) = {F_lo}.'
+      - The definite integral equals {answer}.

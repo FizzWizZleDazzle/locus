@@ -1,23 +1,19 @@
 topic: algebra2/radical_equations
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(2, 7)
-  b: integer(1, 9)
-  a_sq: a^2
-  answer: a^2 - b
-  lhs: sqrt(x + b)
-
-constraints:
-  - answer > 0
-
-question: "Solve for {math(x)}: {equation(lhs, a)}"
-
-answer: answer
-
-answer_type: numeric
-
-solution:
-  - "Square both sides: {equation(x + b, a_sq)}"
-  - "Subtract {b} from both sides: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      a: integer(2, 7)
+      b: integer(1, 9)
+      a_sq: a^2
+      answer: a^2 - b
+      lhs: sqrt(x + b)
+    constraints:
+      - answer > 0
+    question: 'Solve for {math(x)}: {equation(lhs, a)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Square both sides: {equation(x + b, a_sq)}'
+      - 'Subtract {b} from both sides: {equation(x, answer)}'

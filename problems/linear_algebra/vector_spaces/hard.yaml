@@ -1,32 +1,30 @@
 topic: linear_algebra/vector_spaces
 difficulty: hard
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  d: nonzero(-4, 4)
-  k1: nonzero(-3, 3)
-  k2: nonzero(-3, 3)
-  e: k1*a + k2*c
-  f: k1*b + k2*d
-  v1_1: a
-  v1_2: b
-  v2_1: c
-  v2_2: d
-  v3_1: e
-  v3_2: f
-  answer: 2
-
-question: "What is the dimension of the span of the vectors {vec([v1_1, v1_2])}, {vec([v2_1, v2_2])}, and {vec([v3_1, v3_2])} in {math(R^2)}, given that the third vector is a linear combination of the first two with coefficients {k1} and {k2}?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The span lives in {math(R^2)}, so its dimension is at most 2."
-  - "The third vector equals {k1} times the first plus {k2} times the second, so it adds nothing new."
-  - "Check whether the first two vectors are linearly independent by computing the determinant of {matrix_of([[v1_1, v2_1], [v1_2, v2_2]])}."
-  - "If the determinant is nonzero, the first two vectors span all of {math(R^2)}, giving dimension 2."
-  - "Generically, this determinant is nonzero, so the dimension of the span is {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      d: nonzero(-4, 4)
+      k1: nonzero(-3, 3)
+      k2: nonzero(-3, 3)
+      e: k1*a + k2*c
+      f: k1*b + k2*d
+      v1_1: a
+      v1_2: b
+      v2_1: c
+      v2_2: d
+      v3_1: e
+      v3_2: f
+      answer: 2
+    question: What is the dimension of the span of the vectors {vec([v1_1, v1_2])}, {vec([v2_1, v2_2])}, and {vec([v3_1, v3_2])} in {math(R^2)}, given that the third vector is a linear combination of the first two with coefficients {k1} and {k2}?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The span lives in {math(R^2)}, so its dimension is at most 2.
+      - The third vector equals {k1} times the first plus {k2} times the second, so it adds nothing new.
+      - Check whether the first two vectors are linearly independent by computing the determinant of {matrix_of([[v1_1, v2_1], [v1_2, v2_2]])}.
+      - If the determinant is nonzero, the first two vectors span all of {math(R^2)}, giving dimension 2.
+      - Generically, this determinant is nonzero, so the dimension of the span is {answer}.

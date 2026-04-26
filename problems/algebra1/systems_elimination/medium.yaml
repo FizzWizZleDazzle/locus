@@ -1,33 +1,30 @@
 topic: algebra1/systems_elimination
 difficulty: medium
 calculator: none
-
-variables:
-  x_sol: integer(-5, 5)
-  y_sol: integer(-5, 5)
-  a1: nonzero(-4, 4)
-  b1: nonzero(-4, 4)
-  c1: a1*x_sol + b1*y_sol
-  a2: nonzero(-4, 4)
-  b2: nonzero(-4, 4)
-  c2: a2*x_sol + b2*y_sol
-  elim_b: a1*b2 - a2*b1
-  elim_c: a1*c2 - a2*c1
-  y_ans: y_sol
-  x_ans: x_sol
-
-constraints:
-  - a1*b2 != a2*b1
-  - x_sol != y_sol
-
-question: "Solve the system using elimination: {system(equation(a1*x + b1*y, c1), equation(a2*x + b2*y, c2))}"
-
-answer: x_ans, y_ans
-answer_type: tuple
-
-solution:
-  - "Multiply the first equation by {a2} and the second by {a1}, then subtract to eliminate {math(x)}."
-  - "This gives {equation(elim_b*y, elim_c)}, so {equation(y, y_sol)}."
-  - "Substitute {equation(y, y_sol)} into the first equation: {equation(a1*x + b1*y_sol, c1)}."
-  - "Solve for {math(x)}: {equation(x, x_sol)}."
-  - "The solution is {math(x)} = {x_sol}, {math(y)} = {y_sol}."
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-5, 5)
+      y_sol: integer(-5, 5)
+      a1: nonzero(-4, 4)
+      b1: nonzero(-4, 4)
+      c1: a1*x_sol + b1*y_sol
+      a2: nonzero(-4, 4)
+      b2: nonzero(-4, 4)
+      c2: a2*x_sol + b2*y_sol
+      elim_b: a1*b2 - a2*b1
+      elim_c: a1*c2 - a2*c1
+      y_ans: y_sol
+      x_ans: x_sol
+    constraints:
+      - a1*b2 != a2*b1
+      - x_sol != y_sol
+    question: 'Solve the system using elimination: {system(equation(a1*x + b1*y, c1), equation(a2*x + b2*y, c2))}'
+    answer: x_ans, y_ans
+    answer_type: tuple
+    solution:
+      - Multiply the first equation by {a2} and the second by {a1}, then subtract to eliminate {math(x)}.
+      - This gives {equation(elim_b*y, elim_c)}, so {equation(y, y_sol)}.
+      - 'Substitute {equation(y, y_sol)} into the first equation: {equation(a1*x + b1*y_sol, c1)}.'
+      - 'Solve for {math(x)}: {equation(x, x_sol)}.'
+      - The solution is {math(x)} = {x_sol}, {math(y)} = {y_sol}.

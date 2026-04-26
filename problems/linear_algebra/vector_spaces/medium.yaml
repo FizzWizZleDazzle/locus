@@ -1,24 +1,21 @@
 topic: linear_algebra/vector_spaces
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  scale: nonzero(-3, 3)
-  c: a * scale
-  d: b * scale
-  det_expr: a * k - b * c
-  answer: d
-
-question: >
-  Let {math(u)} = {vec([a, b])} and {math(v)} = {vec([c, k])}.
-  Find the value of {math(k)} such that {math(u)} and {math(v)} are linearly dependent.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Two vectors are linearly dependent if and only if their determinant is zero: {equation(a * k - b * c, 0)}."
-  - "Expanding: {equation(a * k, b * c)}."
-  - "Therefore {equation(k, d)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      scale: nonzero(-3, 3)
+      c: a * scale
+      d: b * scale
+      det_expr: a * k - b * c
+      answer: d
+    question: |
+      Let {math(u)} = {vec([a, b])} and {math(v)} = {vec([c, k])}. Find the value of {math(k)} such that {math(u)} and {math(v)} are linearly dependent.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Two vectors are linearly dependent if and only if their determinant is zero: {equation(a * k - b * c, 0)}.'
+      - 'Expanding: {equation(a * k, b * c)}.'
+      - Therefore {equation(k, d)}.

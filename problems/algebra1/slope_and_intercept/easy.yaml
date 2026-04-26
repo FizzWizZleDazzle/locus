@@ -1,18 +1,16 @@
 topic: algebra1/slope_and_intercept
 difficulty: easy
 calculator: none
-
-variables:
-  m: nonzero(-6, 6)
-  b: nonzero(-10, 10)
-  f: m*x + b
-
-question: "A line has equation {equation(math(y), f)}. What is the slope of the line?"
-
-answer: m
-answer_type: numeric
-
-solution:
-  - "The equation is in slope-intercept form, where the coefficient of {math(x)} is the slope."
-  - "From {equation(math(y), f)}, the coefficient of {math(x)} is {m}."
-  - "The slope is {m}."
+variants:
+  - name: default
+    variables:
+      m: nonzero(-6, 6)
+      b: nonzero(-10, 10)
+      f: m*x + b
+    question: A line has equation {equation(math(y), f)}. What is the slope of the line?
+    answer: m
+    answer_type: numeric
+    solution:
+      - The equation is in slope-intercept form, where the coefficient of {math(x)} is the slope.
+      - From {equation(math(y), f)}, the coefficient of {math(x)} is {m}.
+      - The slope is {m}.

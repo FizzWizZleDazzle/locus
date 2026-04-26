@@ -1,22 +1,19 @@
 topic: algebra1/two_step_equations
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-8, 8)
-  b: integer(-10, 10)
-  answer: integer(-10, 10)
-  rhs: a * answer + b
-
-constraints:
-  - a != 1
-  - a != -1
-
-question: "Solve for x: {equation(a*x + b, rhs)}"
-
-answer: answer
-
-solution:
-  - "Start with {a}x + {b} = {rhs}"
-  - "Subtract {b}: {a}x = {rhs} - {b}"
-  - "Divide by {a}: x = {answer}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-8, 8)
+      b: integer(-10, 10)
+      answer: integer(-10, 10)
+      rhs: a * answer + b
+    constraints:
+      - a != 1
+      - a != -1
+    question: 'Solve for x: {equation(a*x + b, rhs)}'
+    answer: answer
+    solution:
+      - Start with {a}x + {b} = {rhs}
+      - 'Subtract {b}: {a}x = {rhs} - {b}'
+      - 'Divide by {a}: x = {answer}'

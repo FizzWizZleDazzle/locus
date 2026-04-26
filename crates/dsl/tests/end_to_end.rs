@@ -9,22 +9,81 @@
 //! - Answer type is correctly inferred
 //! - Generated values are within expected ranges
 
-use locus_dsl::{generate, parse, ProblemOutput};
+use locus_dsl::{generate_random, parse, ProblemOutput};
+
+/// Wrap a legacy flat-body YAML into the new variants-only form. Splits the
+/// top-level keys into header (topic/difficulty/calculator/time) and body
+/// (everything else, which becomes the single variant). Leaves text indented
+/// under continuation keys intact.
+fn wrap_legacy(yaml: &str) -> String {
+    const HEADER_KEYS: &[&str] = &["topic:", "difficulty:", "calculator:", "time:"];
+    let mut header_lines: Vec<&str> = Vec::new();
+    let mut body_lines: Vec<&str> = Vec::new();
+    let mut in_header = false;
+    let mut started_body = false;
+
+    for line in yaml.lines() {
+        if line.trim().is_empty() {
+            if started_body {
+                body_lines.push("");
+            }
+            continue;
+        }
+        let starts_top_level =
+            !line.starts_with(' ') && !line.starts_with('\t') && line.contains(':');
+        if starts_top_level {
+            in_header = HEADER_KEYS.iter().any(|k| line.trim_start().starts_with(k));
+            if !in_header {
+                started_body = true;
+            }
+        }
+        if in_header {
+            header_lines.push(line);
+        } else {
+            body_lines.push(line);
+        }
+    }
+
+    let mut out = String::new();
+    for h in header_lines {
+        out.push_str(h);
+        out.push('\n');
+    }
+    out.push_str("variants:\n");
+    out.push_str("  - name: t\n");
+    for b in body_lines {
+        if b.is_empty() {
+            out.push('\n');
+        } else {
+            out.push_str("    ");
+            out.push_str(b);
+            out.push('\n');
+        }
+    }
+    out
+}
 
 /// Helper: parse + generate N, assert all succeed, return results
 fn gen_problems(yaml: &str, n: usize) -> Vec<ProblemOutput> {
-    let spec = parse(yaml).unwrap_or_else(|e| panic!("Parse failed: {e}\nYAML:\n{yaml}"));
+    let wrapped = wrap_legacy(yaml);
+    let spec =
+        parse(&wrapped).unwrap_or_else(|e| panic!("Parse failed: {e}\nYAML:\n{wrapped}"));
     (0..n)
         .map(|i| {
-            generate(&spec)
-                .unwrap_or_else(|e| panic!("Generation {i} failed: {e}\nYAML:\n{yaml}"))
+            generate_random(&spec)
+                .unwrap_or_else(|e| panic!("Generation {i} failed: {e}\nYAML:\n{wrapped}"))
         })
         .collect()
 }
 
-/// Helper: parse should fail
+/// Helper: parse should fail. Wraps the YAML the same way real specs are
+/// wrapped, so missing-field tests exercise the variant-level requirement.
 fn parse_fails(yaml: &str) {
-    assert!(parse(yaml).is_err(), "Expected parse failure for:\n{yaml}");
+    let wrapped = wrap_legacy(yaml);
+    assert!(
+        parse(&wrapped).is_err(),
+        "Expected parse failure for:\n{wrapped}"
+    );
 }
 
 // ============================================================================
@@ -693,7 +752,7 @@ mode: invalid_mode
 #[test]
 fn gen_error_undefined_variable() {
     // Template references undefined var → should fail
-    let spec = parse(
+    let spec = parse(&wrap_legacy(
         r#"
 topic: arithmetic/addition
 difficulty: easy
@@ -702,14 +761,14 @@ variables:
 question: "What is {a} + {b}?"
 answer: a
 "#,
-    )
+    ))
     .unwrap();
-    assert!(generate(&spec).is_err(), "Should fail: {{b}} is undefined in template");
+    assert!(generate_random(&spec).is_err(), "Should fail: {{b}} is undefined in template");
 }
 
 #[test]
 fn gen_error_unsatisfiable_constraint() {
-    let spec = parse(
+    let spec = parse(&wrap_legacy(
         r#"
 topic: arithmetic/addition
 difficulty: easy
@@ -720,14 +779,14 @@ constraints:
 question: What is {a}?
 answer: a
 "#,
-    )
+    ))
     .unwrap();
-    assert!(generate(&spec).is_err());
+    assert!(generate_random(&spec).is_err());
 }
 
 #[test]
 fn gen_error_circular_dependency() {
-    let spec = parse(
+    let spec = parse(&wrap_legacy(
         r#"
 topic: arithmetic/addition
 difficulty: easy
@@ -737,9 +796,9 @@ variables:
 question: What is {a}?
 answer: a
 "#,
-    )
+    ))
     .unwrap();
-    assert!(generate(&spec).is_err());
+    assert!(generate_random(&spec).is_err());
 }
 
 // ============================================================================
@@ -799,7 +858,7 @@ fn e2e_handwritten_problem_files_generate() {
         let spec = parse(&yaml)
             .unwrap_or_else(|e| panic!("Parse failed for {}: {e}", file.display()));
         for i in 0..5 {
-            generate(&spec).unwrap_or_else(|e| {
+            generate_random(&spec).unwrap_or_else(|e| {
                 panic!("Generation {i} failed for {}: {e}", file.display())
             });
         }

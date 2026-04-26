@@ -1,35 +1,31 @@
 topic: calculus/implicit_differentiation
 difficulty: hard
 calculator: scientific
-variables:
-  a: nonzero(1, 4)
-  b: nonzero(1, 4)
-  c: nonzero(1, 4)
-  x0: nonzero(-3, 3)
-  y0: nonzero(-3, 3)
-  k: a*x0^2 + b*x0*y0 + c*y0^2
-  curve: a*x^2 + b*x*y + c*y^2
-  numer: 2*a*x0 + b*y0
-  denom: b*x0 + 2*c*y0
-  numer_neg: -(2*a*x0 + b*y0)
-  coeff_x: 2*a
-  coeff_y: 2*c
-  answer: -numer/denom
-
-constraints:
-  - denom != 0
-
-question: >
-  The curve {equation(curve, k)} passes through the point
-  ({x0}, {y0}). Using implicit differentiation, find
-  {math(dy/dx)} at this point.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Differentiate both sides of {equation(curve, k)} implicitly with respect to {math(x)}."
-  - "The {math(a*x^2)} term differentiates to {math(coeff_x*x)}. The {math(c*y^2)} term differentiates to {math(coeff_y*y)} times {math(dy/dx)}. The {math(b*x*y)} term (product rule) differentiates to {math(b*y)} plus {math(b*x)} times {math(dy/dx)}."
-  - "Setting the sum equal to zero and collecting the {math(dy/dx)} terms on one side gives {math(dy/dx)} = {math(-(coeff_x*x + b*y)/(b*x + coeff_y*y))}."
-  - "Substituting {math(x)} = {x0} and {math(y)} = {y0}: the numerator equals {numer_neg} and the denominator equals {denom}."
-  - "Therefore {math(dy/dx)} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 4)
+      b: nonzero(1, 4)
+      c: nonzero(1, 4)
+      x0: nonzero(-3, 3)
+      y0: nonzero(-3, 3)
+      k: a*x0^2 + b*x0*y0 + c*y0^2
+      curve: a*x^2 + b*x*y + c*y^2
+      numer: 2*a*x0 + b*y0
+      denom: b*x0 + 2*c*y0
+      numer_neg: -(2*a*x0 + b*y0)
+      coeff_x: 2*a
+      coeff_y: 2*c
+      answer: -numer/denom
+    constraints:
+      - denom != 0
+    question: |
+      The curve {equation(curve, k)} passes through the point ({x0}, {y0}). Using implicit differentiation, find {math(dy/dx)} at this point.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Differentiate both sides of {equation(curve, k)} implicitly with respect to {math(x)}.
+      - The {math(a*x^2)} term differentiates to {math(coeff_x*x)}. The {math(c*y^2)} term differentiates to {math(coeff_y*y)} times {math(dy/dx)}. The {math(b*x*y)} term (product rule) differentiates to {math(b*y)} plus {math(b*x)} times {math(dy/dx)}.
+      - Setting the sum equal to zero and collecting the {math(dy/dx)} terms on one side gives {math(dy/dx)} = {math(-(coeff_x*x + b*y)/(b*x + coeff_y*y))}.
+      - 'Substituting {math(x)} = {x0} and {math(y)} = {y0}: the numerator equals {numer_neg} and the denominator equals {denom}.'
+      - Therefore {math(dy/dx)} = {answer}.

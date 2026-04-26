@@ -1,26 +1,21 @@
 topic: differential_equations/separable_equations
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  n: integer(2, 3)
-  b: integer(1, 8)
-  np1: n + 1
-  rhs: a*x^n
-  antideriv: a*x^np1/np1
-  answer: a*x^np1/np1 + b
-
-question: >-
-  Solve the separable differential equation
-  {equation(derivative(y, x), rhs)} with initial condition
-  {math(y(0) = b)}. Find the particular solution {math(y(x))}.
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Separate variables to get {math(dy)} = {rhs} {math(dx)}."
-  - "Integrate both sides: {equation(math(y), antideriv + C)}, where {math(C)} is an arbitrary constant."
-  - "Apply the initial condition {math(y(0))} = {b}: setting {math(x = 0)} gives {math(C)} = {b}."
-  - "The particular solution is {equation(math(y(x)), answer)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      n: integer(2, 3)
+      b: integer(1, 8)
+      np1: n + 1
+      rhs: a*x^n
+      antideriv: a*x^np1/np1
+      answer: a*x^np1/np1 + b
+    question: Solve the separable differential equation {equation(derivative(y, x), rhs)} with initial condition {math(y(0) = b)}. Find the particular solution {math(y(x))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Separate variables to get {math(dy)} = {rhs} {math(dx)}.
+      - 'Integrate both sides: {equation(math(y), antideriv + C)}, where {math(C)} is an arbitrary constant.'
+      - 'Apply the initial condition {math(y(0))} = {b}: setting {math(x = 0)} gives {math(C)} = {b}.'
+      - The particular solution is {equation(math(y(x)), answer)}.

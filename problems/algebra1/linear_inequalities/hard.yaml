@@ -1,36 +1,38 @@
 topic: algebra1/linear_inequalities
 difficulty: hard
 calculator: none
-
-variables:
-  a_coef: integer(1, 3)
-  c_coef: integer(4, 7)
-  b_const: nonzero(-8, 8)
-  k: integer(-5, 5)
-  d_const: b_const + (a_coef - c_coef)*k
-  diff_coef: a_coef - c_coef
-  diff_rhs: d_const - b_const
-
-constraints:
-  - b_const != d_const
-  - k != 0
-
-diagram:
-  type: number_line
-  range: [-8, 8]
-  elements:
-    - point: {at: k, style: filled}
-    - arrow: {from: k, direction: left, color: blue}
-
-question: "Solve the inequality {math(a_coef*x + b_const >= c_coef*x + d_const)} for {math(x)}. What is the largest value of {math(x)} that satisfies the inequality?"
-
-answer: k
-
-answer_type: numeric
-
-solution:
-  - "Begin with {math(a_coef*x + b_const >= c_coef*x + d_const)}."
-  - "Collect the {math(x)} terms on the left by subtracting {c_coef*x} from both sides: {math(diff_coef*x + b_const >= d_const)}."
-  - "Isolate the {math(x)} term by subtracting {b_const} from both sides: {math(diff_coef*x >= diff_rhs)}."
-  - "Divide both sides by {diff_coef}. Since {diff_coef} is negative, the inequality sign reverses: {math(x <= k)}."
-  - "The solution set is {math(x <= k)}, so the largest value of {math(x)} satisfying the inequality is {k}."
+variants:
+  - name: default
+    variables:
+      a_coef: integer(1, 3)
+      c_coef: integer(4, 7)
+      b_const: nonzero(-8, 8)
+      k: integer(-5, 5)
+      d_const: b_const + (a_coef - c_coef)*k
+      diff_coef: a_coef - c_coef
+      diff_rhs: d_const - b_const
+    constraints:
+      - b_const != d_const
+      - k != 0
+    question: Solve the inequality {math(a_coef*x + b_const >= c_coef*x + d_const)} for {math(x)}. What is the largest value of {math(x)} that satisfies the inequality?
+    answer: k
+    answer_type: numeric
+    solution:
+      - Begin with {math(a_coef*x + b_const >= c_coef*x + d_const)}.
+      - 'Collect the {math(x)} terms on the left by subtracting {c_coef*x} from both sides: {math(diff_coef*x + b_const >= d_const)}.'
+      - 'Isolate the {math(x)} term by subtracting {b_const} from both sides: {math(diff_coef*x >= diff_rhs)}.'
+      - 'Divide both sides by {diff_coef}. Since {diff_coef} is negative, the inequality sign reverses: {math(x <= k)}.'
+      - The solution set is {math(x <= k)}, so the largest value of {math(x)} satisfying the inequality is {k}.
+    diagram:
+      type: number_line
+      range:
+        - -8
+        - 8
+      elements:
+        - point:
+            at: k
+            style: filled
+        - arrow:
+            from: k
+            direction: left
+            color: blue

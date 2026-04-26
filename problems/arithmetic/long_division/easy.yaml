@@ -1,25 +1,22 @@
 topic: arithmetic/long_division
 difficulty: easy
 calculator: none
-
-variables:
-  divisor: integer(3, 12)
-  q: integer(10, 30)
-  r: integer(1, 9)
-  dividend: divisor * q + r
-  product: divisor * q
-  answer: q
-
-constraints:
-  - r < divisor
-
-question: "Divide {dividend} by {divisor} using long division. What is the whole-number quotient?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "We want to find how many times {divisor} goes into {dividend}."
-  - "Try {q}: {divisor} times {q} = {product}."
-  - "Subtract: {dividend} - {product} = {r}."
-  - "Since {r} is less than {divisor}, we stop. The whole-number quotient is {q}."
+variants:
+  - name: default
+    variables:
+      divisor: integer(3, 12)
+      q: integer(10, 30)
+      r: integer(1, 9)
+      dividend: divisor * q + r
+      product: divisor * q
+      answer: q
+    constraints:
+      - r < divisor
+    question: Divide {dividend} by {divisor} using long division. What is the whole-number quotient?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - We want to find how many times {divisor} goes into {dividend}.
+      - 'Try {q}: {divisor} times {q} = {product}.'
+      - 'Subtract: {dividend} - {product} = {r}.'
+      - Since {r} is less than {divisor}, we stop. The whole-number quotient is {q}.

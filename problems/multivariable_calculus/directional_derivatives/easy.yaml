@@ -1,31 +1,28 @@
 topic: multivariable_calculus/directional_derivatives
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  x0: nonzero(-3, 3)
-  y0: nonzero(-3, 3)
-  f: a*x^2 + b*y^2
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  fx_at: evaluate(fx, x, x0)
-  fy_at: evaluate(fy, y, y0)
-  u1: 3/5
-  u2: 4/5
-  term1: fx_at * u1
-  term2: fy_at * u2
-  answer: term1 + term2
-
-question: >
-  Find the directional derivative of {f} at the point ({x0}, {y0})
-  in the direction of the unit vector {math(u)} = {math((3/5, 4/5))}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Compute the partial derivatives: {math(f_x)} = {fx} and {math(f_y)} = {fy}."
-  - "Evaluate at ({x0}, {y0}): {math(f_x)} = {fx_at} and {math(f_y)} = {fy_at}."
-  - "Dot the gradient with the unit vector: {term1} + {term2} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      x0: nonzero(-3, 3)
+      y0: nonzero(-3, 3)
+      f: a*x^2 + b*y^2
+      fx: derivative(f, x)
+      fy: derivative(f, y)
+      fx_at: evaluate(fx, x, x0)
+      fy_at: evaluate(fy, y, y0)
+      u1: 3/5
+      u2: 4/5
+      term1: fx_at * u1
+      term2: fy_at * u2
+      answer: term1 + term2
+    question: |
+      Find the directional derivative of {f} at the point ({x0}, {y0}) in the direction of the unit vector {math(u)} = {math((3/5, 4/5))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Compute the partial derivatives: {math(f_x)} = {fx} and {math(f_y)} = {fy}.'
+      - 'Evaluate at ({x0}, {y0}): {math(f_x)} = {fx_at} and {math(f_y)} = {fy_at}.'
+      - 'Dot the gradient with the unit vector: {term1} + {term2} = {answer}.'

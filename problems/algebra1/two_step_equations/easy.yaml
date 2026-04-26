@@ -1,22 +1,19 @@
 topic: algebra1/two_step_equations
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-8, 8)
-  b: nonzero(-10, 10)
-  answer: integer(-10, 10)
-  rhs: a * answer + b
-  rhs_step2: rhs - b
-
-constraints:
-  - a != 1
-  - a != -1
-
-question: "Solve for {math(x)}: {equation(a*x + b, rhs)}"
-
-answer: answer
-
-solution:
-  - "Subtract {b} from both sides: {equation(a*x, rhs_step2)}"
-  - "Divide both sides by {a}: {equation(math(x), answer)}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-8, 8)
+      b: nonzero(-10, 10)
+      answer: integer(-10, 10)
+      rhs: a * answer + b
+      rhs_step2: rhs - b
+    constraints:
+      - a != 1
+      - a != -1
+    question: 'Solve for {math(x)}: {equation(a*x + b, rhs)}'
+    answer: answer
+    solution:
+      - 'Subtract {b} from both sides: {equation(a*x, rhs_step2)}'
+      - 'Divide both sides by {a}: {equation(math(x), answer)}'

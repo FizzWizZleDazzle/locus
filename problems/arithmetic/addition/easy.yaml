@@ -1,17 +1,15 @@
 topic: arithmetic/addition
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(10, 99)
-  b: integer(10, 99)
-  answer: a + b
-
-question: "What is {a} + {b}?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Add the ones digits, then the tens digits (carrying if needed)."
-  - "The sum is {a} + {b} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(10, 99)
+      b: integer(10, 99)
+      answer: a + b
+    question: What is {a} + {b}?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Add the ones digits, then the tens digits (carrying if needed).
+      - The sum is {a} + {b} = {answer}.

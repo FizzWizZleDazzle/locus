@@ -1,29 +1,27 @@
 topic: algebra1/exponent_rules
 difficulty: hard
 calculator: none
-
-variables:
-  m: integer(2, 4)
-  n: integer(1, 3)
-  p: integer(2, 4)
-  q: integer(1, 3)
-  r: integer(1, 3)
-  mp: m*p
-  np: n*p
-  exp_a: m*p + q
-  exp_b: n*p - r
-  answer: a^(m*p + q) * b^(n*p - r)
-
-constraints:
-  - n*p > r
-
-question: "Simplify {math(a^m * b^n)} raised to the power {p}, then multiplied by {math(a^q / b^r)}. Write your answer using positive exponents only."
-answer: answer
-answer_type: expression
-
-solution:
-  - "Step 1 — Apply the power of a product rule, distributing the exponent {p} to each factor: {math(a^m)} raised to the {p} is {math(a^mp)}, and {math(b^n)} raised to the {p} is {math(b^np)}."
-  - "Step 2 — The expression becomes {math(a^mp * b^np)} times {math(a^q / b^r)}."
-  - "Step 3 — For {math(a)}: apply the product rule and add exponents: {mp} + {q} = {exp_a}. Result: {math(a^exp_a)}."
-  - "Step 4 — For {math(b)}: apply the quotient rule and subtract exponents: {np} - {r} = {exp_b}. Result: {math(b^exp_b)}."
-  - "Final answer: {answer}."
+variants:
+  - name: default
+    variables:
+      m: integer(2, 4)
+      n: integer(1, 3)
+      p: integer(2, 4)
+      q: integer(1, 3)
+      r: integer(1, 3)
+      mp: m*p
+      np: n*p
+      exp_a: m*p + q
+      exp_b: n*p - r
+      answer: a^(m*p + q) * b^(n*p - r)
+    constraints:
+      - n*p > r
+    question: Simplify {math(a^m * b^n)} raised to the power {p}, then multiplied by {math(a^q / b^r)}. Write your answer using positive exponents only.
+    answer: answer
+    answer_type: expression
+    solution:
+      - 'Step 1 — Apply the power of a product rule, distributing the exponent {p} to each factor: {math(a^m)} raised to the {p} is {math(a^mp)}, and {math(b^n)} raised to the {p} is {math(b^np)}.'
+      - Step 2 — The expression becomes {math(a^mp * b^np)} times {math(a^q / b^r)}.
+      - 'Step 3 — For {math(a)}: apply the product rule and add exponents: {mp} + {q} = {exp_a}. Result: {math(a^exp_a)}.'
+      - 'Step 4 — For {math(b)}: apply the quotient rule and subtract exponents: {np} - {r} = {exp_b}. Result: {math(b^exp_b)}.'
+      - 'Final answer: {answer}.'

@@ -1,19 +1,21 @@
 topic: linear_algebra/determinants
 difficulty: medium
 calculator: none
-variables:
-  a: nonzero(-6, 6)
-  b: nonzero(-6, 6)
-  c: nonzero(-6, 6)
-  d: nonzero(-6, 6)
-  ad: a*d
-  bc: b*c
-  answer: a*d - b*c
-question: "Compute the determinant of the matrix {det_of([[a, b], [c, d]])}."
-answer: answer
-answer_type: numeric
-solution:
-  - "For a 2x2 matrix, the determinant is the main diagonal product minus the anti-diagonal product."
-  - "Main diagonal: {a} and {d}, product = {ad}."
-  - "Anti-diagonal: {b} and {c}, product = {bc}."
-  - "Determinant = {ad} - ({bc}) = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-6, 6)
+      b: nonzero(-6, 6)
+      c: nonzero(-6, 6)
+      d: nonzero(-6, 6)
+      ad: a*d
+      bc: b*c
+      answer: a*d - b*c
+    question: Compute the determinant of the matrix {det_of([[a, b], [c, d]])}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - For a 2x2 matrix, the determinant is the main diagonal product minus the anti-diagonal product.
+      - 'Main diagonal: {a} and {d}, product = {ad}.'
+      - 'Anti-diagonal: {b} and {c}, product = {bc}.'
+      - Determinant = {ad} - ({bc}) = {answer}.

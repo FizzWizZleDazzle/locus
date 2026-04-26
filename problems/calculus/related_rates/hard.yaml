@@ -1,28 +1,24 @@
 topic: calculus/related_rates
 difficulty: hard
 calculator: scientific
-
-variables:
-  H: integer(8, 16)
-  R: integer(3, 6)
-  h: integer(2, 5)
-  r_at_h: R*h/H
-  dV_dt: integer(2, 8)
-  ratio_sq: (R/H)^2
-  factor: pi*h^2*(R/H)^2
-  dh_dt: dV_dt/factor
-
-question: >
-  Water flows into a conical tank (vertex down) at a rate of {dV_dt} cubic meters per minute.
-  The tank has height {H} m and top radius {R} m. At the instant when the water depth is {h} m,
-  find the rate at which the water level is rising. Express your answer in terms of {math(pi)}.
-
-answer: dh_dt
-answer_type: expression
-
-solution:
-  - "By similar triangles, the water radius at depth {math(s)} is {math(s*R/H)}."
-  - "The water volume at depth {math(s)} is {math(V = (1/3)*pi*(s*R/H)^2*s)} = {math(pi*R^2*s^3/(3*H^2))}."
-  - "Differentiate with respect to time: {math(dV/dt = pi*R^2*s^2*(ds/dt)/H^2)}."
-  - "At {math(s)} = {h} m, the radius is {r_at_h} m and the coefficient {math(pi*s^2*(R/H)^2)} = {factor}."
-  - "Solve for {math(ds/dt)}: {math(ds/dt)} = {dV_dt}/{factor} = {dh_dt} m/min."
+variants:
+  - name: default
+    variables:
+      H: integer(8, 16)
+      R: integer(3, 6)
+      h: integer(2, 5)
+      r_at_h: R*h/H
+      dV_dt: integer(2, 8)
+      ratio_sq: (R/H)^2
+      factor: pi*h^2*(R/H)^2
+      dh_dt: dV_dt/factor
+    question: |
+      Water flows into a conical tank (vertex down) at a rate of {dV_dt} cubic meters per minute. The tank has height {H} m and top radius {R} m. At the instant when the water depth is {h} m, find the rate at which the water level is rising. Express your answer in terms of {math(pi)}.
+    answer: dh_dt
+    answer_type: expression
+    solution:
+      - By similar triangles, the water radius at depth {math(s)} is {math(s*R/H)}.
+      - The water volume at depth {math(s)} is {math(V = (1/3)*pi*(s*R/H)^2*s)} = {math(pi*R^2*s^3/(3*H^2))}.
+      - 'Differentiate with respect to time: {math(dV/dt = pi*R^2*s^2*(ds/dt)/H^2)}.'
+      - At {math(s)} = {h} m, the radius is {r_at_h} m and the coefficient {math(pi*s^2*(R/H)^2)} = {factor}.
+      - 'Solve for {math(ds/dt)}: {math(ds/dt)} = {dV_dt}/{factor} = {dh_dt} m/min.'

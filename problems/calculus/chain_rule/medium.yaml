@@ -1,24 +1,6 @@
 topic: calculus/chain_rule
 difficulty: medium
 calculator: none
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  n: integer(2, 5)
-  p: integer(2, 4)
-  inner: a*x^n + b
-  f: (a*x^n + b)^p
-  inner_deriv: derivative(inner, x)
-  answer: derivative(f, x)
-question: "Find {derivative_of(f, x)}."
-answer: answer
-answer_type: expression
-solution:
-  - "Let {math(u)} = {inner} (the inner function)."
-  - "The outer function is {math(u^p)}, so its derivative with respect to {math(u)} is {math(p * u^(p-1))}."
-  - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
-  - "By the chain rule: {derivative_of(f, x)} = {answer}."
-
 variants:
   - name: power_outer
     variables:
@@ -30,15 +12,14 @@ variants:
       f: (a*x^n + b)^p
       inner_deriv: derivative(inner, x)
       answer: derivative(f, x)
-    question: "Find {derivative_of(f, x)}."
+    question: Find {derivative_of(f, x)}.
     answer: answer
     answer_type: expression
     solution:
-      - "Let {math(u)} = {inner} (the inner function)."
-      - "The outer function is {math(u^p)}, so its derivative with respect to {math(u)} is {math(p * u^(p-1))}."
-      - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
-      - "By the chain rule: {derivative_of(f, x)} = {answer}."
-
+      - Let {math(u)} = {inner} (the inner function).
+      - The outer function is {math(u^p)}, so its derivative with respect to {math(u)} is {math(p * u^(p-1))}.
+      - The inner derivative is {derivative_of(inner, x)} = {inner_deriv}.
+      - 'By the chain rule: {derivative_of(f, x)} = {answer}.'
   - name: trig_outer
     variables:
       a: nonzero(-4, 4)
@@ -47,11 +28,11 @@ variants:
       f: sin(a*x^n)
       inner_deriv: derivative(inner, x)
       answer: derivative(f, x)
-    question: "Find {derivative_of(f, x)}."
+    question: Find {derivative_of(f, x)}.
     answer: answer
     answer_type: expression
     solution:
-      - "Let {math(u)} = {inner} (the inner function)."
-      - "The outer function is {math(sin(u))}, so its derivative with respect to {math(u)} is {math(cos(u))}."
-      - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
-      - "By the chain rule: {derivative_of(f, x)} = {answer}."
+      - Let {math(u)} = {inner} (the inner function).
+      - The outer function is {math(sin(u))}, so its derivative with respect to {math(u)} is {math(cos(u))}.
+      - The inner derivative is {derivative_of(inner, x)} = {inner_deriv}.
+      - 'By the chain rule: {derivative_of(f, x)} = {answer}.'

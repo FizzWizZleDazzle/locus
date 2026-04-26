@@ -3,6 +3,11 @@
 use crate::error::DslError;
 use crate::spec::Difficulty;
 
+/// Pick a uniform random index in `[0, len)`. Caller guarantees `len > 0`.
+pub fn random_index(len: usize) -> usize {
+    rand::random_range(0..len)
+}
+
 /// Sample a difficulty value from a Difficulty spec
 pub fn sample_difficulty(diff: &Difficulty) -> Result<i32, DslError> {
     match diff {

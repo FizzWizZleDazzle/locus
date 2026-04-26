@@ -1,23 +1,22 @@
 topic: calculus/optimization
 difficulty: medium
 calculator: scientific
-variables:
-  k: integer(5, 10)
-  P: 4*k
-  half_P: P/2
-  w_opt: P/4
-  area_expr: half_P*w - w^2
-  deriv_expr: half_P - 2*w
-  answer: w_opt * w_opt
-
-question: "A farmer has {P} meters of fencing to enclose a rectangular garden. What is the maximum area, in square meters, that can be enclosed?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Let {math(w)} be the width and {math(l)} be the length. The perimeter constraint gives {equation(2*w + 2*l, P)}, so {equation(l, half_P - w)}."
-  - "The area function is {equation(A(w), area_expr)}."
-  - "Differentiate and set equal to zero: {equation(deriv_expr, 0)}, giving {equation(w, w_opt)}."
-  - "Since the coefficient of {math(w^2)} is negative, this critical point is a maximum."
-  - "The maximum area is {answer} square meters."
+variants:
+  - name: default
+    variables:
+      k: integer(5, 10)
+      P: 4*k
+      half_P: P/2
+      w_opt: P/4
+      area_expr: half_P*w - w^2
+      deriv_expr: half_P - 2*w
+      answer: w_opt * w_opt
+    question: A farmer has {P} meters of fencing to enclose a rectangular garden. What is the maximum area, in square meters, that can be enclosed?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Let {math(w)} be the width and {math(l)} be the length. The perimeter constraint gives {equation(2*w + 2*l, P)}, so {equation(l, half_P - w)}.
+      - The area function is {equation(A(w), area_expr)}.
+      - 'Differentiate and set equal to zero: {equation(deriv_expr, 0)}, giving {equation(w, w_opt)}.'
+      - Since the coefficient of {math(w^2)} is negative, this critical point is a maximum.
+      - The maximum area is {answer} square meters.

@@ -1,52 +1,60 @@
 topic: geometry/triangle_congruence
 difficulty: medium
 calculator: none
-
-variables:
-  s1: integer(3, 12)
-  s2: integer(3, 12)
-  s3: integer(3, 12)
-  ang: choice(30, 45, 60, 90, 120)
-  ang1: choice(30, 40, 45, 50, 60)
-  ang2: choice(35, 55, 65, 70, 80)
-
-question: "Two triangles each have sides of length {s1}, {s2}, and {s3}. Which congruence postulate or theorem directly proves the triangles are congruent?"
-answer: SSS
-answer_type: word
-
-solution:
-  - "All three pairs of corresponding sides are equal: {s1}, {s2}, and {s3}."
-  - "By the Side-Side-Side (SSS) postulate, the triangles are congruent."
-
 variants:
   - name: sss
-    question: "Two triangles each have sides of length {s1}, {s2}, and {s3}. Which congruence postulate or theorem directly proves the triangles are congruent?"
+    variables:
+      s1: integer(3, 12)
+      s2: integer(3, 12)
+      s3: integer(3, 12)
+      ang: choice(30, 45, 60, 90, 120)
+      ang1: choice(30, 40, 45, 50, 60)
+      ang2: choice(35, 55, 65, 70, 80)
+    question: Two triangles each have sides of length {s1}, {s2}, and {s3}. Which congruence postulate or theorem directly proves the triangles are congruent?
     answer: SSS
     answer_type: word
     solution:
-      - "All three pairs of corresponding sides are equal: {s1}, {s2}, and {s3}."
-      - "By the Side-Side-Side (SSS) postulate, the triangles are congruent."
-
+      - 'All three pairs of corresponding sides are equal: {s1}, {s2}, and {s3}.'
+      - By the Side-Side-Side (SSS) postulate, the triangles are congruent.
   - name: sas
-    question: "In two triangles, two pairs of corresponding sides measure {s1} and {s2}, and the included angle between those sides measures {ang} degrees in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?"
+    variables:
+      s1: integer(3, 12)
+      s2: integer(3, 12)
+      s3: integer(3, 12)
+      ang: choice(30, 45, 60, 90, 120)
+      ang1: choice(30, 40, 45, 50, 60)
+      ang2: choice(35, 55, 65, 70, 80)
+    question: In two triangles, two pairs of corresponding sides measure {s1} and {s2}, and the included angle between those sides measures {ang} degrees in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?
     answer: SAS
     answer_type: word
     solution:
-      - "Two pairs of sides are equal ({s1} and {s2}) and the included angle is {ang} degrees in both triangles."
-      - "By the Side-Angle-Side (SAS) postulate, the triangles are congruent."
-
+      - Two pairs of sides are equal ({s1} and {s2}) and the included angle is {ang} degrees in both triangles.
+      - By the Side-Angle-Side (SAS) postulate, the triangles are congruent.
   - name: asa
-    question: "In two triangles, two pairs of corresponding angles measure {ang1} degrees and {ang2} degrees, and the included side between those angles measures {s1} in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?"
+    variables:
+      s1: integer(3, 12)
+      s2: integer(3, 12)
+      s3: integer(3, 12)
+      ang: choice(30, 45, 60, 90, 120)
+      ang1: choice(30, 40, 45, 50, 60)
+      ang2: choice(35, 55, 65, 70, 80)
+    question: In two triangles, two pairs of corresponding angles measure {ang1} degrees and {ang2} degrees, and the included side between those angles measures {s1} in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?
     answer: ASA
     answer_type: word
     solution:
-      - "Two pairs of angles are equal ({ang1} degrees and {ang2} degrees) and the included side is {s1} in both triangles."
-      - "By the Angle-Side-Angle (ASA) postulate, the triangles are congruent."
-
+      - Two pairs of angles are equal ({ang1} degrees and {ang2} degrees) and the included side is {s1} in both triangles.
+      - By the Angle-Side-Angle (ASA) postulate, the triangles are congruent.
   - name: aas
-    question: "In two triangles, two pairs of corresponding angles measure {ang1} degrees and {ang2} degrees, and a non-included side opposite one of those angles measures {s1} in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?"
+    variables:
+      s1: integer(3, 12)
+      s2: integer(3, 12)
+      s3: integer(3, 12)
+      ang: choice(30, 45, 60, 90, 120)
+      ang1: choice(30, 40, 45, 50, 60)
+      ang2: choice(35, 55, 65, 70, 80)
+    question: In two triangles, two pairs of corresponding angles measure {ang1} degrees and {ang2} degrees, and a non-included side opposite one of those angles measures {s1} in both triangles. Which congruence postulate or theorem directly proves the triangles are congruent?
     answer: AAS
     answer_type: word
     solution:
-      - "Two pairs of angles are equal ({ang1} degrees and {ang2} degrees) and a non-included side is {s1} in both triangles."
-      - "By the Angle-Angle-Side (AAS) theorem, the triangles are congruent."
+      - Two pairs of angles are equal ({ang1} degrees and {ang2} degrees) and a non-included side is {s1} in both triangles.
+      - By the Angle-Angle-Side (AAS) theorem, the triangles are congruent.

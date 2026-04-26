@@ -1,27 +1,24 @@
 topic: algebra2/rational_equations
 difficulty: hard
 calculator: scientific
-
-variables:
-  ans: integer(2, 8)
-  b: nonzero(-5, 5)
-  k: nonzero(2, 5)
-  a: (k - 1)*ans + k*b
-  expanded_rhs: k*(x + b)
-  answer: ans
-
-constraints:
-  - ans != -b
-
-question: "Solve for {math(x)}: {equation(math((x + a) / (x + b)), k)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Multiply both sides by {math(x + b)} to clear the denominator: {equation(x + a, expanded_rhs)}."
-  - "Distribute: {equation(x + a, k*x + k*b)}."
-  - "Move {math(x)} terms to one side and constants to the other: {equation(a - k*b, k*x - x)}."
-  - "Factor {math(x)}: {equation(a - k*b, (k - 1)*x)}."
-  - "Divide by {math(k - 1)}: {equation(x, ans)}."
-  - "Verify {math(x + b)} is nonzero: {math(x + b)} = {ans + b}."
+variants:
+  - name: default
+    variables:
+      ans: integer(2, 8)
+      b: nonzero(-5, 5)
+      k: nonzero(2, 5)
+      a: (k - 1)*ans + k*b
+      expanded_rhs: k*(x + b)
+      answer: ans
+    constraints:
+      - ans != -b
+    question: 'Solve for {math(x)}: {equation(math((x + a) / (x + b)), k)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Multiply both sides by {math(x + b)} to clear the denominator: {equation(x + a, expanded_rhs)}.'
+      - 'Distribute: {equation(x + a, k*x + k*b)}.'
+      - 'Move {math(x)} terms to one side and constants to the other: {equation(a - k*b, k*x - x)}.'
+      - 'Factor {math(x)}: {equation(a - k*b, (k - 1)*x)}.'
+      - 'Divide by {math(k - 1)}: {equation(x, ans)}.'
+      - 'Verify {math(x + b)} is nonzero: {math(x + b)} = {ans + b}.'

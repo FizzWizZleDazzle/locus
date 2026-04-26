@@ -1,19 +1,17 @@
 topic: precalculus/transformations
 difficulty: easy
 calculator: none
-
-variables:
-  h: nonzero(-4, 4)
-  k: nonzero(-4, 4)
-  f: (x - h)^2 + k
-  expanded: expand(f)
-
-question: "The graph of {math(y = x^2)} is shifted {h} units horizontally and {k} units vertically to produce a new function {math(g(x))} = {f}. Find the vertex of {math(g(x))}."
-
-answer: h, k
-answer_type: tuple
-
-solution:
-  - "A function in vertex form {math((x - h)^2 + k)} has vertex at {math((h, k))}."
-  - "Comparing to {f}, we read off {math(h)} = {h} and {math(k)} = {k}."
-  - "The vertex is {math((h, k))}."
+variants:
+  - name: default
+    variables:
+      h: nonzero(-4, 4)
+      k: nonzero(-4, 4)
+      f: (x - h)^2 + k
+      expanded: expand(f)
+    question: The graph of {math(y = x^2)} is shifted {h} units horizontally and {k} units vertically to produce a new function {math(g(x))} = {f}. Find the vertex of {math(g(x))}.
+    answer: h, k
+    answer_type: tuple
+    solution:
+      - A function in vertex form {math((x - h)^2 + k)} has vertex at {math((h, k))}.
+      - Comparing to {f}, we read off {math(h)} = {h} and {math(k)} = {k}.
+      - The vertex is {math((h, k))}.

@@ -1,21 +1,19 @@
 topic: linear_algebra/subspaces
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  lhs: a*x + b*y
-  answer: "yes"
-
-question: "Let {math(S)} be the set of all vectors {math((x, y))} in {math(R^2)} satisfying {equation(lhs, 0)}. Is {math(S)} a subspace of {math(R^2)}? Answer yes or no."
-
-answer: answer
-answer_type: word
-
-solution:
-  - "We verify the three subspace conditions."
-  - "Condition 1 (zero vector): Substituting {math((x, y) = (0, 0))} into {equation(lhs, 0)} gives {math(a*0 + b*0 = 0)}, which is true. So {math((0, 0))} is in {math(S)}."
-  - "Condition 2 (closed under addition): Let {math((x_1, y_1))} and {math((x_2, y_2))} be in {math(S)}, so {math(a*x_1 + b*y_1 = 0)} and {math(a*x_2 + b*y_2 = 0)}. Adding these equations gives {math(a*(x_1+x_2) + b*(y_1+y_2) = 0)}, so the sum is in {math(S)}."
-  - "Condition 3 (closed under scalar multiplication): Let {math((x, y))} be in {math(S)} and let {math(t)} be any scalar. Multiplying {equation(lhs, 0)} by {math(t)} gives {equation(t*lhs, 0)}, so the scalar multiple is in {math(S)}."
-  - "All three conditions hold, so {math(S)} is a subspace of {math(R^2)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      lhs: a*x + b*y
+      answer: 'yes'
+    question: Let {math(S)} be the set of all vectors {math((x, y))} in {math(R^2)} satisfying {equation(lhs, 0)}. Is {math(S)} a subspace of {math(R^2)}? Answer yes or no.
+    answer: answer
+    answer_type: word
+    solution:
+      - We verify the three subspace conditions.
+      - 'Condition 1 (zero vector): Substituting {math((x, y) = (0, 0))} into {equation(lhs, 0)} gives {math(a*0 + b*0 = 0)}, which is true. So {math((0, 0))} is in {math(S)}.'
+      - 'Condition 2 (closed under addition): Let {math((x_1, y_1))} and {math((x_2, y_2))} be in {math(S)}, so {math(a*x_1 + b*y_1 = 0)} and {math(a*x_2 + b*y_2 = 0)}. Adding these equations gives {math(a*(x_1+x_2) + b*(y_1+y_2) = 0)}, so the sum is in {math(S)}.'
+      - 'Condition 3 (closed under scalar multiplication): Let {math((x, y))} be in {math(S)} and let {math(t)} be any scalar. Multiplying {equation(lhs, 0)} by {math(t)} gives {equation(t*lhs, 0)}, so the scalar multiple is in {math(S)}.'
+      - All three conditions hold, so {math(S)} is a subspace of {math(R^2)}.

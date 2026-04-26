@@ -1,33 +1,6 @@
 topic: arithmetic/order_of_operations
 difficulty: hard
 calculator: none
-
-variables:
-  a: integer(2, 5)
-  b: integer(3, 8)
-  c: integer(1, 4)
-  d: integer(2, 6)
-  e: integer(2, 7)
-  f: integer(1, 9)
-  inner: b - c
-  sq: inner^2
-  term1: a * sq
-  term2: d * e
-  answer: a * (b - c)^2 - d * e + f
-
-constraints:
-  - b > c
-
-question: "Evaluate {a}({b} - {c})^2 - {d} * {e} + {f}."
-answer: answer
-
-solution:
-  - "Parentheses first: {b} - {c} = {inner}."
-  - "Exponent: {inner}^2 = {sq}."
-  - "Left multiplication: {a} * {sq} = {term1}."
-  - "Right multiplication: {d} * {e} = {term2}."
-  - "Final: {term1} - {term2} + {f} = {answer}."
-
 variants:
   - name: exponent_multiply_add_subtract
     variables:
@@ -44,15 +17,14 @@ variants:
       answer: a * (b - c)^2 - d * e + f
     constraints:
       - b > c
-    question: "Evaluate {a}({b} - {c})^2 - {d} * {e} + {f}."
+    question: Evaluate {a}({b} - {c})^2 - {d} * {e} + {f}.
     answer: answer
     solution:
-      - "Parentheses first: {b} - {c} = {inner}."
-      - "Exponent: {inner}^2 = {sq}."
-      - "Left multiplication: {a} * {sq} = {term1}."
-      - "Right multiplication: {d} * {e} = {term2}."
-      - "Final: {term1} - {term2} + {f} = {answer}."
-
+      - 'Parentheses first: {b} - {c} = {inner}.'
+      - 'Exponent: {inner}^2 = {sq}.'
+      - 'Left multiplication: {a} * {sq} = {term1}.'
+      - 'Right multiplication: {d} * {e} = {term2}.'
+      - 'Final: {term1} - {term2} + {f} = {answer}.'
   - name: exponent_divide_subtract
     variables:
       a: integer(2, 4)
@@ -68,10 +40,10 @@ variants:
       answer: (a^2 + b) / c - d * e
     constraints:
       - b > 0
-    question: "Evaluate ({a}^2 + {b}) / {c} - {d} * {e}."
+    question: Evaluate ({a}^2 + {b}) / {c} - {d} * {e}.
     answer: answer
     solution:
-      - "Parentheses first: {a}^2 + {b} = {a_sq} + {b} = {inner}."
-      - "Division: {inner} / {c} = {quotient}."
-      - "Multiplication: {d} * {e} = {term2}."
-      - "Final: {quotient} - {term2} = {answer}."
+      - 'Parentheses first: {a}^2 + {b} = {a_sq} + {b} = {inner}.'
+      - 'Division: {inner} / {c} = {quotient}.'
+      - 'Multiplication: {d} * {e} = {term2}.'
+      - 'Final: {quotient} - {term2} = {answer}.'

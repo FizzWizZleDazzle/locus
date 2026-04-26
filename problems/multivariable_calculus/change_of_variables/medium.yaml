@@ -1,28 +1,23 @@
 topic: multivariable_calculus/change_of_variables
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  ab: a + b
-  answer: a^3 * b / 3
-  inner_integral: definite_integral(u^2, u, 0, a)
-  outer_integral: definite_integral(1, v, 0, b)
-
-question: >
-  Let {math(R)} be the parallelogram with vertices
-  {math((0, 0))}, {math((a, 0))}, {math((ab, b))}, and {math((b, b))}.
-  Using the substitution {math(u = x - y)} and {math(v = y)},
-  evaluate the double integral of {math((x - y)^2)} over {math(R)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Apply the substitution {math(u = x - y)}, {math(v = y)}, so {math(x = u + v)} and {math(y = v)}."
-  - "The Jacobian of the inverse transformation satisfies {math(|J| = 1)}, so {math(dA = du dv)}."
-  - "The parallelogram {math(R)} maps to the rectangle {math(0 <= u <= a)}, {math(0 <= v <= b)}."
-  - "The integrand becomes {math((x - y)^2 = u^2)}."
-  - "The double integral separates: {definite_integral_of(u^2, u, 0, a)} times {definite_integral_of(1, v, 0, b)}."
-  - "Evaluating: {inner_integral} times {b} equals {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 5)
+      b: integer(2, 5)
+      ab: a + b
+      answer: a^3 * b / 3
+      inner_integral: definite_integral(u^2, u, 0, a)
+      outer_integral: definite_integral(1, v, 0, b)
+    question: |
+      Let {math(R)} be the parallelogram with vertices {math((0, 0))}, {math((a, 0))}, {math((ab, b))}, and {math((b, b))}. Using the substitution {math(u = x - y)} and {math(v = y)}, evaluate the double integral of {math((x - y)^2)} over {math(R)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Apply the substitution {math(u = x - y)}, {math(v = y)}, so {math(x = u + v)} and {math(y = v)}.
+      - The Jacobian of the inverse transformation satisfies {math(|J| = 1)}, so {math(dA = du dv)}.
+      - The parallelogram {math(R)} maps to the rectangle {math(0 <= u <= a)}, {math(0 <= v <= b)}.
+      - The integrand becomes {math((x - y)^2 = u^2)}.
+      - 'The double integral separates: {definite_integral_of(u^2, u, 0, a)} times {definite_integral_of(1, v, 0, b)}.'
+      - 'Evaluating: {inner_integral} times {b} equals {answer}.'

@@ -1,20 +1,18 @@
 topic: precalculus/trig_identities
 difficulty: easy
 calculator: none
-
-variables:
-  a: choice(2, 3, 4, 5, 6, 7, 8, -2, -3, -4, -5, -6, -7, -8)
-  b: nonzero(-6, 6)
-  expr: b + a*sin(theta)^2 + a*cos(theta)^2
-  after_identity: b + a
-  answer: a + b
-
-question: "Simplify {expr} using a trigonometric identity."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Group the trigonometric terms and factor out {a}: {math(b + a*(sin(theta)^2 + cos(theta)^2))}."
-  - "Apply the Pythagorean identity {math(sin(theta)^2 + cos(theta)^2 = 1)} to get {math(b + a*1)}."
-  - "The expression simplifies to {answer}."
+variants:
+  - name: default
+    variables:
+      a: choice(2, 3, 4, 5, 6, 7, 8, -2, -3, -4, -5, -6, -7, -8)
+      b: nonzero(-6, 6)
+      expr: b + a*sin(theta)^2 + a*cos(theta)^2
+      after_identity: b + a
+      answer: a + b
+    question: Simplify {expr} using a trigonometric identity.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Group the trigonometric terms and factor out {a}: {math(b + a*(sin(theta)^2 + cos(theta)^2))}.'
+      - Apply the Pythagorean identity {math(sin(theta)^2 + cos(theta)^2 = 1)} to get {math(b + a*1)}.
+      - The expression simplifies to {answer}.

@@ -1,24 +1,19 @@
 topic: precalculus/law_of_sines_cosines
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: integer(2, 8)
-  sin_30: 1/2
-  sin_60: sqrt(3)/2
-  ratio: sqrt(3)
-  answer: a * sqrt(3)
-
-question: >
-  In triangle {math(ABC)}, angle {math(A = 30)} degrees, angle {math(B = 60)} degrees,
-  and the side opposite angle {math(A)} has length {a}.
-  Using the Law of Sines, find the length of the side opposite angle {math(B)}.
-  Leave your answer in simplified radical form.
-
-answer: answer
-
-solution:
-  - "The Law of Sines states {math(a / sin(A) = b / sin(B))}, so {math(b = a * sin(B) / sin(A))}."
-  - "Substitute {math(sin(A) = 1/2)} and {math(sin(B) = sqrt(3)/2)}."
-  - "The ratio {math(sin(B)/sin(A))} simplifies to {ratio}."
-  - "Therefore {math(b)} = {a} times {ratio} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(2, 8)
+      sin_30: 1/2
+      sin_60: sqrt(3)/2
+      ratio: sqrt(3)
+      answer: a * sqrt(3)
+    question: |
+      In triangle {math(ABC)}, angle {math(A = 30)} degrees, angle {math(B = 60)} degrees, and the side opposite angle {math(A)} has length {a}. Using the Law of Sines, find the length of the side opposite angle {math(B)}. Leave your answer in simplified radical form.
+    answer: answer
+    solution:
+      - The Law of Sines states {math(a / sin(A) = b / sin(B))}, so {math(b = a * sin(B) / sin(A))}.
+      - Substitute {math(sin(A) = 1/2)} and {math(sin(B) = sqrt(3)/2)}.
+      - The ratio {math(sin(B)/sin(A))} simplifies to {ratio}.
+      - Therefore {math(b)} = {a} times {ratio} = {answer}.

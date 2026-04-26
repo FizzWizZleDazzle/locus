@@ -1,25 +1,22 @@
 topic: precalculus/sum_difference_formulas
 difficulty: hard
 calculator: none
-
-variables:
-  sinA: choice(3/5, 5/13, 8/17, 7/25)
-  cosA: sqrt(1 - sinA^2)
-  sinB: choice(3/5, 5/13, 8/17, 7/25)
-  cosB: sqrt(1 - sinB^2)
-  prod1: sinA * cosB
-  prod2: cosA * sinB
-  answer: prod1 + prod2
-
-constraints:
-  - sinA != sinB
-
-question: "Suppose {math(A)} and {math(B)} are both angles in the first quadrant with {math(sin(A))} = {sinA} and {math(sin(B))} = {sinB}. Using the sine addition formula, find the exact value of {math(sin(A + B))}."
-
-answer: answer
-
-solution:
-  - "The sine addition formula gives {math(sin(A + B) = sin(A)*cos(B) + cos(A)*sin(B))}."
-  - "Since {math(A)} is in the first quadrant and {math(sin(A))} = {sinA}, the Pythagorean identity gives {math(cos(A))} = {cosA}."
-  - "Since {math(B)} is in the first quadrant and {math(sin(B))} = {sinB}, the Pythagorean identity gives {math(cos(B))} = {cosB}."
-  - "Substituting: {math(sin(A + B))} = {prod1} + {prod2} = {answer}."
+variants:
+  - name: default
+    variables:
+      sinA: choice(3/5, 5/13, 8/17, 7/25)
+      cosA: sqrt(1 - sinA^2)
+      sinB: choice(3/5, 5/13, 8/17, 7/25)
+      cosB: sqrt(1 - sinB^2)
+      prod1: sinA * cosB
+      prod2: cosA * sinB
+      answer: prod1 + prod2
+    constraints:
+      - sinA != sinB
+    question: Suppose {math(A)} and {math(B)} are both angles in the first quadrant with {math(sin(A))} = {sinA} and {math(sin(B))} = {sinB}. Using the sine addition formula, find the exact value of {math(sin(A + B))}.
+    answer: answer
+    solution:
+      - The sine addition formula gives {math(sin(A + B) = sin(A)*cos(B) + cos(A)*sin(B))}.
+      - Since {math(A)} is in the first quadrant and {math(sin(A))} = {sinA}, the Pythagorean identity gives {math(cos(A))} = {cosA}.
+      - Since {math(B)} is in the first quadrant and {math(sin(B))} = {sinB}, the Pythagorean identity gives {math(cos(B))} = {cosB}.
+      - 'Substituting: {math(sin(A + B))} = {prod1} + {prod2} = {answer}.'

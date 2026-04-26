@@ -1,18 +1,17 @@
 topic: precalculus/graphing_trig
 difficulty: easy
 calculator: none
-
-variables:
-  A: nonzero(1, 5)
-  B: choice(1, 2, 3, 4)
-  f: A*sin(B*x)
-  answer: 2*pi/B
-
-question: "What is the period of {math(y = f)}?"
-answer: answer
-answer_type: expression
-
-solution:
-  - "The period of {math(y = A*sin(B*x))} is {math(2*pi)} divided by the coefficient of {math(x)}."
-  - "In {math(y = f)}, the coefficient of {math(x)} is {B}."
-  - "Period = {math(2*pi)} / {B} = {answer}."
+variants:
+  - name: default
+    variables:
+      A: nonzero(1, 5)
+      B: choice(1, 2, 3, 4)
+      f: A*sin(B*x)
+      answer: 2*pi/B
+    question: What is the period of {math(y = f)}?
+    answer: answer
+    answer_type: expression
+    solution:
+      - The period of {math(y = A*sin(B*x))} is {math(2*pi)} divided by the coefficient of {math(x)}.
+      - In {math(y = f)}, the coefficient of {math(x)} is {B}.
+      - Period = {math(2*pi)} / {B} = {answer}.

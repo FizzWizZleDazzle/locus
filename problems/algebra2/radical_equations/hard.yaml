@@ -1,34 +1,31 @@
 topic: algebra2/radical_equations
 difficulty: hard
 calculator: scientific
-
-variables:
-  q: integer(1, 4)
-  x_sol: integer(5, 12)
-  p: (x_sol - q)^2 - x_sol
-  lhs_expr: x + p
-  rhs_expr: x - q
-  x_extr: 2*q + 1 - x_sol
-  x_extr_rhs: x_extr - q
-  quad_b: -(2*q + 1)
-  quad_c: q^2 - p
-  lhs_check: sqrt(x_sol + p)
-  rhs_check: x_sol - q
-  answer: x_sol
-
-constraints:
-  - x_sol > 2*q + 1
-
-question: "Solve for {math(x)}: {equation(sqrt(lhs_expr), rhs_expr)}. Check for extraneous solutions."
-
-answer: answer
-
-solution:
-  - "The radical is already isolated: {equation(sqrt(lhs_expr), rhs_expr)}."
-  - "Square both sides: {equation(lhs_expr, (x - q)^2)}."
-  - "Expand the right side: {equation(x + p, x^2 - 2*q*x + q^2)}."
-  - "Rearrange into standard form: {equation(x^2 + quad_b*x + quad_c, 0)}."
-  - "Solve the quadratic to get {math(x = x_sol)} or {math(x = x_extr)}."
-  - "Check {math(x = x_sol)}: {equation(lhs_check, rhs_check)} — valid."
-  - "Check {math(x = x_extr)}: the right side equals {x_extr_rhs}, which is negative. Extraneous — reject."
-  - "The solution is {math(x)} = {answer}."
+variants:
+  - name: default
+    variables:
+      q: integer(1, 4)
+      x_sol: integer(5, 12)
+      p: (x_sol - q)^2 - x_sol
+      lhs_expr: x + p
+      rhs_expr: x - q
+      x_extr: 2*q + 1 - x_sol
+      x_extr_rhs: x_extr - q
+      quad_b: -(2*q + 1)
+      quad_c: q^2 - p
+      lhs_check: sqrt(x_sol + p)
+      rhs_check: x_sol - q
+      answer: x_sol
+    constraints:
+      - x_sol > 2*q + 1
+    question: 'Solve for {math(x)}: {equation(sqrt(lhs_expr), rhs_expr)}. Check for extraneous solutions.'
+    answer: answer
+    solution:
+      - 'The radical is already isolated: {equation(sqrt(lhs_expr), rhs_expr)}.'
+      - 'Square both sides: {equation(lhs_expr, (x - q)^2)}.'
+      - 'Expand the right side: {equation(x + p, x^2 - 2*q*x + q^2)}.'
+      - 'Rearrange into standard form: {equation(x^2 + quad_b*x + quad_c, 0)}.'
+      - Solve the quadratic to get {math(x = x_sol)} or {math(x = x_extr)}.
+      - 'Check {math(x = x_sol)}: {equation(lhs_check, rhs_check)} — valid.'
+      - 'Check {math(x = x_extr)}: the right side equals {x_extr_rhs}, which is negative. Extraneous — reject.'
+      - The solution is {math(x)} = {answer}.

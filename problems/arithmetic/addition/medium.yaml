@@ -1,18 +1,16 @@
 topic: arithmetic/addition
 difficulty: medium
 calculator: none
-
-variables:
-  a: integer(200, 999)
-  b: integer(200, 999)
-  c: integer(100, 499)
-  ab: a + b
-  answer: a + b + c
-
-question: "What is {a} + {b} + {c}?"
-
-answer: answer
-
-solution:
-  - "Add the first two numbers: {a} + {b} = {ab}."
-  - "Add the third number: {ab} + {c} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(200, 999)
+      b: integer(200, 999)
+      c: integer(100, 499)
+      ab: a + b
+      answer: a + b + c
+    question: What is {a} + {b} + {c}?
+    answer: answer
+    solution:
+      - 'Add the first two numbers: {a} + {b} = {ab}.'
+      - 'Add the third number: {ab} + {c} = {answer}.'

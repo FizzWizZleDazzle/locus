@@ -1,24 +1,6 @@
 topic: precalculus/function_composition
 difficulty: hard
 calculator: none
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-6, 6)
-  c: nonzero(-4, 4)
-  d: integer(-6, 6)
-  f: a*x^2 + b
-  g: c*x + d
-  g_sq: expand((c*x + d)^2)
-  fog_step: a*(c*x + d)^2 + b
-  answer: expand(fog_step)
-question: "Let f(x) = {f} and g(x) = {g}. Find (f o g)(x) in fully expanded form."
-answer: answer
-answer_type: expression
-solution:
-  - "By definition, (f o g)(x) = f(g(x)). Substitute g(x) = {g} in place of x in f(x) = {f}."
-  - "f(g(x)) = {fog_step}"
-  - "Squaring the binomial gives {g_sq}, so after distributing {a} and adding {b}: {answer}."
-
 variants:
   - name: fog_symbolic
     variables:
@@ -31,14 +13,13 @@ variants:
       g_sq: expand((c*x + d)^2)
       fog_step: a*(c*x + d)^2 + b
       answer: expand(fog_step)
-    question: "Let f(x) = {f} and g(x) = {g}. Find (f o g)(x) in fully expanded form."
+    question: Let f(x) = {f} and g(x) = {g}. Find (f o g)(x) in fully expanded form.
     answer: answer
     answer_type: expression
     solution:
-      - "By definition, (f o g)(x) = f(g(x)). Substitute g(x) = {g} in place of x in f(x) = {f}."
-      - "f(g(x)) = {fog_step}"
-      - "Squaring the binomial gives {g_sq}, so after distributing {a} and adding {b}: {answer}."
-
+      - By definition, (f o g)(x) = f(g(x)). Substitute g(x) = {g} in place of x in f(x) = {f}.
+      - f(g(x)) = {fog_step}
+      - 'Squaring the binomial gives {g_sq}, so after distributing {a} and adding {b}: {answer}.'
   - name: gof_evaluate
     variables:
       a: nonzero(-4, 4)
@@ -50,11 +31,11 @@ variants:
       g: c*x + d
       f_at_p: evaluate(f, x, p)
       answer: evaluate(g, x, f_at_p)
-    question: "Let f(x) = {f} and g(x) = {g}. Evaluate (g o f)({p})."
+    question: Let f(x) = {f} and g(x) = {g}. Evaluate (g o f)({p}).
     answer: answer
     answer_type: numeric
     solution:
-      - "Step 1: Find f({p}) by substituting x = {p} into f(x) = {f}."
-      - "f({p}) = {f_at_p}"
-      - "Step 2: Find g(f({p})) = g({f_at_p}) by substituting x = {f_at_p} into g(x) = {g}."
-      - "g({f_at_p}) = {answer}"
+      - 'Step 1: Find f({p}) by substituting x = {p} into f(x) = {f}.'
+      - f({p}) = {f_at_p}
+      - 'Step 2: Find g(f({p})) = g({f_at_p}) by substituting x = {f_at_p} into g(x) = {g}.'
+      - g({f_at_p}) = {answer}

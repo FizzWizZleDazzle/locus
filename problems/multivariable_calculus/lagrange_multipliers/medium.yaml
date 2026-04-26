@@ -1,23 +1,20 @@
 topic: multivariable_calculus/lagrange_multipliers
 difficulty: medium
 calculator: scientific
-
-variables:
-  c: choice(6, 8, 10, 12)
-  half_c: c / 2
-  answer: half_c * half_c
-
-question: >
-  Use Lagrange multipliers to find the maximum value of {math(f(x,y) = x*y)}
-  subject to the constraint {math(x + y)} = {c}, where {math(x > 0)} and {math(y > 0)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "The Lagrange conditions require the gradient of the objective to be proportional to the gradient of the constraint."
-  - "Partial derivatives of {math(f(x,y) = x*y)}: {math(f_x = y)} and {math(f_y = x)}."
-  - "Partial derivatives of the constraint {math(x + y)}: both equal 1."
-  - "Setting {math(f_x = lambda * 1)} and {math(f_y = lambda * 1)} gives {math(y = lambda)} and {math(x = lambda)}, so {math(x = y)}."
-  - "Substituting {math(x = y)} into {math(x + y)} = {c}: {math(2*x)} = {c}, giving {math(x = y)} = {half_c}."
-  - "The maximum value is {equation(f(half_c, half_c), answer)}."
+variants:
+  - name: default
+    variables:
+      c: choice(6, 8, 10, 12)
+      half_c: c / 2
+      answer: half_c * half_c
+    question: |
+      Use Lagrange multipliers to find the maximum value of {math(f(x,y) = x*y)} subject to the constraint {math(x + y)} = {c}, where {math(x > 0)} and {math(y > 0)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The Lagrange conditions require the gradient of the objective to be proportional to the gradient of the constraint.
+      - 'Partial derivatives of {math(f(x,y) = x*y)}: {math(f_x = y)} and {math(f_y = x)}.'
+      - 'Partial derivatives of the constraint {math(x + y)}: both equal 1.'
+      - Setting {math(f_x = lambda * 1)} and {math(f_y = lambda * 1)} gives {math(y = lambda)} and {math(x = lambda)}, so {math(x = y)}.
+      - 'Substituting {math(x = y)} into {math(x + y)} = {c}: {math(2*x)} = {c}, giving {math(x = y)} = {half_c}.'
+      - The maximum value is {equation(f(half_c, half_c), answer)}.

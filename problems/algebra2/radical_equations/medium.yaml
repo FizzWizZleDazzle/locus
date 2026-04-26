@@ -1,23 +1,21 @@
 topic: algebra2/radical_equations
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(2, 5)
-  x_sol: integer(1, 8)
-  c: integer(2, 6)
-  c_sq: c^2
-  b: c_sq - a*x_sol
-  lhs: a*x + b
-  a_x_val: a*x_sol
-  answer: x_sol
-
-question: "Solve for {math(x)}: {equation(sqrt(lhs), c)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Square both sides to eliminate the radical: {equation(lhs, c_sq)}"
-  - "Isolate the variable term: {equation(a*x, a_x_val)}"
-  - "Divide both sides by {a}: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(2, 5)
+      x_sol: integer(1, 8)
+      c: integer(2, 6)
+      c_sq: c^2
+      b: c_sq - a*x_sol
+      lhs: a*x + b
+      a_x_val: a*x_sol
+      answer: x_sol
+    question: 'Solve for {math(x)}: {equation(sqrt(lhs), c)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Square both sides to eliminate the radical: {equation(lhs, c_sq)}'
+      - 'Isolate the variable term: {equation(a*x, a_x_val)}'
+      - 'Divide both sides by {a}: {equation(x, answer)}'

@@ -1,22 +1,21 @@
 topic: algebra1/one_step_equations
 difficulty: hard
 calculator: none
-
-variables:
-  p: integer(2, 7)
-  q: choice(2, 3, 4, 5)
-  x_sol: nonzero(-8, 8)
-  rhs: p * x_sol / q
-  lhs_coeff: p / q
-  recip: q / p
-
-constraints:
-  - p != q
-
-question: "Solve for {math(x)}: {equation(lhs_coeff * x, rhs)}"
-answer: x_sol
-answer_type: numeric
-solution:
-  - "We have {equation(lhs_coeff * x, rhs)}."
-  - "The coefficient of {math(x)} is {lhs_coeff}. Multiply both sides by its reciprocal, {recip}."
-  - "So {equation(x, x_sol)}."
+variants:
+  - name: default
+    variables:
+      p: integer(2, 7)
+      q: choice(2, 3, 4, 5)
+      x_sol: nonzero(-8, 8)
+      rhs: p * x_sol / q
+      lhs_coeff: p / q
+      recip: q / p
+    constraints:
+      - p != q
+    question: 'Solve for {math(x)}: {equation(lhs_coeff * x, rhs)}'
+    answer: x_sol
+    answer_type: numeric
+    solution:
+      - We have {equation(lhs_coeff * x, rhs)}.
+      - The coefficient of {math(x)} is {lhs_coeff}. Multiply both sides by its reciprocal, {recip}.
+      - So {equation(x, x_sol)}.

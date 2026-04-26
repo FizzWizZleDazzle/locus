@@ -1,21 +1,19 @@
 topic: precalculus/polar_coordinates
 difficulty: medium
 calculator: scientific
-
-variables:
-  x_val: nonzero(-5, 5)
-  y_val: nonzero(-5, 5)
-  r_sq: x_val^2 + y_val^2
-  r_val: sqrt(r_sq)
-  theta_val: atan(y_val/x_val)
-
-question: "Convert the rectangular point {math((x_val, y_val))} to polar coordinates {math((r, theta))} with {math(r > 0)} and {math(theta)} the principal angle of arctan from the positive {math(x)}-axis."
-
-answer: r_val, theta_val
-answer_type: tuple
-
-solution:
-  - "Use the formulas {math(r = sqrt(x^2 + y^2))} and {math(theta = atan(y/x))}."
-  - "Compute {math(x^2 + y^2)}: {equation(x_val^2 + y_val^2, r_sq)}."
-  - "So {equation(r, r_val)}."
-  - "Compute {equation(theta, theta_val)}."
+variants:
+  - name: default
+    variables:
+      x_val: nonzero(-5, 5)
+      y_val: nonzero(-5, 5)
+      r_sq: x_val^2 + y_val^2
+      r_val: sqrt(r_sq)
+      theta_val: atan(y_val/x_val)
+    question: Convert the rectangular point {math((x_val, y_val))} to polar coordinates {math((r, theta))} with {math(r > 0)} and {math(theta)} the principal angle of arctan from the positive {math(x)}-axis.
+    answer: r_val, theta_val
+    answer_type: tuple
+    solution:
+      - Use the formulas {math(r = sqrt(x^2 + y^2))} and {math(theta = atan(y/x))}.
+      - 'Compute {math(x^2 + y^2)}: {equation(x_val^2 + y_val^2, r_sq)}.'
+      - So {equation(r, r_val)}.
+      - Compute {equation(theta, theta_val)}.

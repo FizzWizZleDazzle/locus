@@ -1,26 +1,24 @@
 topic: calculus/chain_rule
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: integer(-6, 6)
-  n: integer(2, 5)
-  inner: b*x + c
-  f: a*(b*x + c)^n
-  f_prime: derivative(f, x)
-  coeff: a*n*b
-  nm1: n - 1
-  answer: f_prime
-
-question: "Find {derivative_of(f, x)}."
-
-answer: answer
-
-solution:
-  - "Let {math(u)} = {inner} (the inner function)."
-  - "The outer function is {math(a)} times {math(u^n)}, so its derivative with respect to {math(u)} is {math(a*n)} times {math(u^(nm1))}."
-  - "The derivative of the inner function is {math(u')} = {b}."
-  - "By the chain rule, multiply: {coeff} times {math((b*x + c)^(nm1))}."
-  - "Therefore {equation(derivative_of(f, x), answer)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: integer(-6, 6)
+      n: integer(2, 5)
+      inner: b*x + c
+      f: a*(b*x + c)^n
+      f_prime: derivative(f, x)
+      coeff: a*n*b
+      nm1: n - 1
+      answer: f_prime
+    question: Find {derivative_of(f, x)}.
+    answer: answer
+    solution:
+      - Let {math(u)} = {inner} (the inner function).
+      - The outer function is {math(a)} times {math(u^n)}, so its derivative with respect to {math(u)} is {math(a*n)} times {math(u^(nm1))}.
+      - The derivative of the inner function is {math(u')} = {b}.
+      - 'By the chain rule, multiply: {coeff} times {math((b*x + c)^(nm1))}.'
+      - Therefore {equation(derivative_of(f, x), answer)}.

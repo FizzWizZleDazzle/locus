@@ -1,32 +1,29 @@
 topic: geometry/angle_relationships
 difficulty: medium
 calculator: none
-
-variables:
-  x_sol: integer(5, 15)
-  a: integer(2, 4)
-  b: integer(5, 20)
-  c: integer(2, 4)
-  d: 180 - a*x_sol - b - c*x_sol
-  expr1: a*x + b
-  expr2: c*x + d
-  lhs_coeff: a + c
-  lhs_const: b + d
-  angle1: a*x_sol + b
-  angle2: c*x_sol + d
-
-constraints:
-  - a != c
-
-question: "Two parallel lines are cut by a transversal. Two co-interior (same-side interior) angles measure {math(expr1)} degrees and {math(expr2)} degrees. Find the value of {math(x)}."
-
-answer: x_sol
-answer_type: numeric
-
-solution:
-  - "Co-interior angles between parallel lines are supplementary, so they sum to 180 degrees."
-  - "Write the equation: {math(expr1)} + {math(expr2)} = 180"
-  - "Combine like terms: {math(lhs_coeff*x + lhs_const)} = 180"
-  - "Subtract {lhs_const} from both sides: {math(lhs_coeff*x)} = {math(180 - lhs_const)}"
-  - "Divide by {lhs_coeff}: {math(x)} = {x_sol}"
-  - "Check: {angle1} + {angle2} = {math(angle1 + angle2)} degrees."
+variants:
+  - name: default
+    variables:
+      x_sol: integer(5, 15)
+      a: integer(2, 4)
+      b: integer(5, 20)
+      c: integer(2, 4)
+      d: 180 - a*x_sol - b - c*x_sol
+      expr1: a*x + b
+      expr2: c*x + d
+      lhs_coeff: a + c
+      lhs_const: b + d
+      angle1: a*x_sol + b
+      angle2: c*x_sol + d
+    constraints:
+      - a != c
+    question: Two parallel lines are cut by a transversal. Two co-interior (same-side interior) angles measure {math(expr1)} degrees and {math(expr2)} degrees. Find the value of {math(x)}.
+    answer: x_sol
+    answer_type: numeric
+    solution:
+      - Co-interior angles between parallel lines are supplementary, so they sum to 180 degrees.
+      - 'Write the equation: {math(expr1)} + {math(expr2)} = 180'
+      - 'Combine like terms: {math(lhs_coeff*x + lhs_const)} = 180'
+      - 'Subtract {lhs_const} from both sides: {math(lhs_coeff*x)} = {math(180 - lhs_const)}'
+      - 'Divide by {lhs_coeff}: {math(x)} = {x_sol}'
+      - 'Check: {angle1} + {angle2} = {math(angle1 + angle2)} degrees.'

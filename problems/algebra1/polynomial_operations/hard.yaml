@@ -1,25 +1,22 @@
 topic: algebra1/polynomial_operations
 difficulty: hard
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-5, 5)
-  c: nonzero(-4, 4)
-  d: nonzero(-5, 5)
-  answer: expand((a*x + b)*(x^2 + c*x + d))
-
-constraints:
-  - a != b
-  - c != d
-
-question: "Expand and simplify {math((a*x + b)*(x^2 + c*x + d))}."
-
-answer: answer
-answer_type: expression
-
-solution:
-  - "Distribute {math(a*x + b)} across each term of {math(x^2 + c*x + d)}."
-  - "Multiply {math(a*x)} by each term: {math(a*x^3)}, {math(a*c*x^2)}, {math(a*d*x)}."
-  - "Multiply {b} by each term: {math(b*x^2)}, {math(b*c*x)}, {math(b*d)}."
-  - "Combine like terms to get {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-5, 5)
+      c: nonzero(-4, 4)
+      d: nonzero(-5, 5)
+      answer: expand((a*x + b)*(x^2 + c*x + d))
+    constraints:
+      - a != b
+      - c != d
+    question: Expand and simplify {math((a*x + b)*(x^2 + c*x + d))}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Distribute {math(a*x + b)} across each term of {math(x^2 + c*x + d)}.
+      - 'Multiply {math(a*x)} by each term: {math(a*x^3)}, {math(a*c*x^2)}, {math(a*d*x)}.'
+      - 'Multiply {b} by each term: {math(b*x^2)}, {math(b*c*x)}, {math(b*d)}.'
+      - Combine like terms to get {answer}.

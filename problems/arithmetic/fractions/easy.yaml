@@ -1,30 +1,27 @@
 topic: arithmetic/fractions
 difficulty: easy
 calculator: none
-
-variables:
-  a: integer(1, 6)
-  b: prime(3, 11)
-  c: integer(1, 6)
-  d: prime(3, 11)
-  lcd: b*d
-  num_a: a*d
-  num_c: c*b
-  num_sum: a*d + c*b
-  answer: num_sum/lcd
-
-constraints:
-  - b != d
-  - a < b
-  - c < d
-
-question: "Add {math(a/b)} and {math(c/d)}. Write your answer as a single fraction in lowest terms."
-
-answer: answer
-
-solution:
-  - "Find a common denominator: {b} times {d} = {lcd}."
-  - "Scale {math(a/b)} by {d}: new numerator = {a} times {d} = {num_a}."
-  - "Scale {math(c/d)} by {b}: new numerator = {c} times {b} = {num_c}."
-  - "Add the numerators: {num_a} + {num_c} = {num_sum}."
-  - "The answer in lowest terms is {answer}."
+variants:
+  - name: default
+    variables:
+      a: integer(1, 6)
+      b: prime(3, 11)
+      c: integer(1, 6)
+      d: prime(3, 11)
+      lcd: b*d
+      num_a: a*d
+      num_c: c*b
+      num_sum: a*d + c*b
+      answer: num_sum/lcd
+    constraints:
+      - b != d
+      - a < b
+      - c < d
+    question: Add {math(a/b)} and {math(c/d)}. Write your answer as a single fraction in lowest terms.
+    answer: answer
+    solution:
+      - 'Find a common denominator: {b} times {d} = {lcd}.'
+      - 'Scale {math(a/b)} by {d}: new numerator = {a} times {d} = {num_a}.'
+      - 'Scale {math(c/d)} by {b}: new numerator = {c} times {b} = {num_c}.'
+      - 'Add the numerators: {num_a} + {num_c} = {num_sum}.'
+      - The answer in lowest terms is {answer}.

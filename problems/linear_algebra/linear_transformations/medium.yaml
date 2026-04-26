@@ -1,24 +1,26 @@
 topic: linear_algebra/linear_transformations
 difficulty: medium
 calculator: none
-variables:
-  a: nonzero(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: nonzero(-4, 4)
-  v1: integer(-3, 3)
-  v2: integer(-3, 3)
-  w1: a*v1 + b*v2
-  w2: c*v1 + d*v2
-  av1: a*v1
-  bv2: b*v2
-  cv1: c*v1
-  dv2: d*v2
-question: "A linear transformation {math(T)} from {math(R^2)} to {math(R^2)} is defined by the matrix {matrix_of([[a, b], [c, d]])}. Find {math(T(v))}, where {math(v)} = {vec([v1, v2])}."
-answer: w1, w2
-answer_type: tuple
-solution:
-  - "Multiply the matrix by the vector {math(v)} = {vec([v1, v2])}."
-  - "First component: {a}({v1}) + {b}({v2}) = {av1} + {bv2} = {w1}."
-  - "Second component: {c}({v1}) + {d}({v2}) = {cv1} + {dv2} = {w2}."
-  - "Therefore {math(T(v))} = {vec([w1, w2])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: integer(-4, 4)
+      c: integer(-4, 4)
+      d: nonzero(-4, 4)
+      v1: integer(-3, 3)
+      v2: integer(-3, 3)
+      w1: a*v1 + b*v2
+      w2: c*v1 + d*v2
+      av1: a*v1
+      bv2: b*v2
+      cv1: c*v1
+      dv2: d*v2
+    question: A linear transformation {math(T)} from {math(R^2)} to {math(R^2)} is defined by the matrix {matrix_of([[a, b], [c, d]])}. Find {math(T(v))}, where {math(v)} = {vec([v1, v2])}.
+    answer: w1, w2
+    answer_type: tuple
+    solution:
+      - Multiply the matrix by the vector {math(v)} = {vec([v1, v2])}.
+      - 'First component: {a}({v1}) + {b}({v2}) = {av1} + {bv2} = {w1}.'
+      - 'Second component: {c}({v1}) + {d}({v2}) = {cv1} + {dv2} = {w2}.'
+      - Therefore {math(T(v))} = {vec([w1, w2])}.

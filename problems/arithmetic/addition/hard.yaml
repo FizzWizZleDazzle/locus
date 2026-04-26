@@ -1,22 +1,20 @@
 topic: arithmetic/addition
 difficulty: hard
 calculator: none
-
-variables:
-  a: integer(1000, 4999)
-  b: integer(1000, 4999)
-  c: integer(100, 999)
-  d: integer(100, 999)
-  ab: a + b
-  abc: a + b + c
-  answer: a + b + c + d
-
-question: "A warehouse receives four shipments of boxes. The first shipment contains {a} boxes, the second contains {b} boxes, the third contains {c} boxes, and the fourth contains {d} boxes. How many boxes does the warehouse receive in total?"
-
-answer: answer
-
-solution:
-  - "Add the first two shipments: {a} + {b} = {ab}."
-  - "Add the third shipment: {ab} + {c} = {abc}."
-  - "Add the fourth shipment: {abc} + {d} = {answer}."
-  - "The warehouse receives {answer} boxes in total."
+variants:
+  - name: default
+    variables:
+      a: integer(1000, 4999)
+      b: integer(1000, 4999)
+      c: integer(100, 999)
+      d: integer(100, 999)
+      ab: a + b
+      abc: a + b + c
+      answer: a + b + c + d
+    question: A warehouse receives four shipments of boxes. The first shipment contains {a} boxes, the second contains {b} boxes, the third contains {c} boxes, and the fourth contains {d} boxes. How many boxes does the warehouse receive in total?
+    answer: answer
+    solution:
+      - 'Add the first two shipments: {a} + {b} = {ab}.'
+      - 'Add the third shipment: {ab} + {c} = {abc}.'
+      - 'Add the fourth shipment: {abc} + {d} = {answer}.'
+      - The warehouse receives {answer} boxes in total.

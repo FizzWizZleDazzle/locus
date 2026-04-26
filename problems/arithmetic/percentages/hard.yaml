@@ -1,24 +1,22 @@
 topic: arithmetic/percentages
 difficulty: hard
 calculator: scientific
-
-variables:
-  base: choice(100, 200, 400, 500)
-  p1: choice(10, 20, 25, 30, 40, 50)
-  p2: choice(10, 20, 25, 30, 40, 50)
-  factor_up: (100 + p1) / 100
-  factor_down: (100 - p2) / 100
-  after_increase: base * factor_up
-  answer: base * factor_up * factor_down
-
-question: "An employee earns {base} dollars per month. Their salary is first raised by {p1}%, and then six months later cut by {p2}%. What is their final monthly salary in dollars?"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Raising by {p1}% means multiplying by the factor {factor_up}."
-  - "Salary after the raise: {base} times {factor_up} = {after_increase} dollars."
-  - "Cutting by {p2}% means multiplying by the factor {factor_down}."
-  - "Salary after the cut: {after_increase} times {factor_down} = {answer} dollars."
-  - "The final monthly salary is {answer} dollars."
+variants:
+  - name: default
+    variables:
+      base: choice(100, 200, 400, 500)
+      p1: choice(10, 20, 25, 30, 40, 50)
+      p2: choice(10, 20, 25, 30, 40, 50)
+      factor_up: (100 + p1) / 100
+      factor_down: (100 - p2) / 100
+      after_increase: base * factor_up
+      answer: base * factor_up * factor_down
+    question: An employee earns {base} dollars per month. Their salary is first raised by {p1}%, and then six months later cut by {p2}%. What is their final monthly salary in dollars?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Raising by {p1}% means multiplying by the factor {factor_up}.
+      - 'Salary after the raise: {base} times {factor_up} = {after_increase} dollars.'
+      - Cutting by {p2}% means multiplying by the factor {factor_down}.
+      - 'Salary after the cut: {after_increase} times {factor_down} = {answer} dollars.'
+      - The final monthly salary is {answer} dollars.

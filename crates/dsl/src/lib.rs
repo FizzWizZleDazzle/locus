@@ -22,7 +22,7 @@ pub mod validate;
 // pub mod diagram;  // TODO: Typst + circuitikz integration
 
 use error::DslError;
-use spec::ProblemSpec;
+use spec::{ProblemSpec, Variant};
 
 pub use gpu::{enumerate as enumerate_problems, Executor};
 
@@ -31,41 +31,43 @@ pub fn parse(yaml: &str) -> Result<ProblemSpec, DslError> {
     spec::parse_yaml(yaml)
 }
 
-/// Generate without validation. For batch generation of pre-validated YAMLs.
-pub fn generate_fast(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
-    let vars = resolver::resolve(&spec.variables, &spec.constraints)?;
-    let question_latex = template::render(&spec.question, &vars)?;
-    let answer_key = answer::format(&vars, &spec.answer, spec.answer_type.as_deref())?;
-    let solution_latex = spec
+/// Generate one problem from an explicit variant. No validation pass.
+pub fn generate_fast(spec: &ProblemSpec, variant: &Variant) -> Result<ProblemOutput, DslError> {
+    let vars = resolver::resolve(&variant.variables, &variant.constraints)?;
+    let question_latex = template::render(&variant.question, &vars)?;
+    let answer_key = answer::format(&vars, &variant.answer, variant.answer_type.as_deref())?;
+    let solution_latex = variant
         .solution
         .as_ref()
         .map(|steps| template::render_steps(steps, &vars))
         .transpose()?;
 
-    let answer_type = answer::infer_type(&answer_key, spec.answer_type.as_deref());
+    let answer_type = answer::infer_type(&answer_key, variant.answer_type.as_deref());
+    let difficulty = variant.difficulty.as_ref().unwrap_or(&spec.difficulty);
 
     Ok(ProblemOutput {
         question_latex,
         answer_key,
         solution_latex: solution_latex.unwrap_or_default(),
-        difficulty: sampler::sample_difficulty(&spec.difficulty)?,
+        difficulty: sampler::sample_difficulty(difficulty)?,
         main_topic: spec.topic.main.clone(),
         subtopic: spec.topic.sub.clone(),
-        grading_mode: spec.mode.clone().unwrap_or_else(|| "equivalent".into()),
+        grading_mode: variant.mode.clone().unwrap_or_else(|| "equivalent".into()),
         answer_type,
         calculator_allowed: spec.calculator.clone().unwrap_or_else(|| "none".into()),
         question_image: String::new(),
         time_limit_seconds: spec.time,
+        variant_name: variant.name.clone(),
     })
 }
 
 /// Generate a problem with full validation (self-grade + KaTeX check).
-pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
-    let output = generate_fast(spec)?;
+pub fn generate(spec: &ProblemSpec, variant: &Variant) -> Result<ProblemOutput, DslError> {
+    let output = generate_fast(spec, variant)?;
 
     validate::self_grade(&output)?;
 
-    if let Some(ref fmt) = spec.format {
+    if let Some(ref fmt) = variant.format {
         if !format::check_format(fmt, &output.answer_key)? {
             return Err(error::DslError::Evaluation(format!(
                 "Answer '{}' does not satisfy format '{}'",
@@ -77,6 +79,29 @@ pub fn generate(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
     validate::check_latex(&output.question_latex)?;
 
     Ok(output)
+}
+
+/// Pick a random variant and generate one problem (with validation). Used by
+/// callers that don't care which variant — the renderer samples uniformly.
+pub fn generate_random(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
+    let variant = pick_variant(spec)?;
+    generate(spec, variant)
+}
+
+/// Pick a random variant and generate one problem without validation.
+pub fn generate_random_fast(spec: &ProblemSpec) -> Result<ProblemOutput, DslError> {
+    let variant = pick_variant(spec)?;
+    generate_fast(spec, variant)
+}
+
+fn pick_variant(spec: &ProblemSpec) -> Result<&Variant, DslError> {
+    if spec.variants.is_empty() {
+        return Err(DslError::InvalidSampler(
+            "ProblemSpec has no variants".into(),
+        ));
+    }
+    let idx = sampler::random_index(spec.variants.len());
+    Ok(&spec.variants[idx])
 }
 
 /// Ready-to-insert problem data matching the DB schema
@@ -93,4 +118,6 @@ pub struct ProblemOutput {
     pub calculator_allowed: String,
     pub question_image: String,
     pub time_limit_seconds: Option<i32>,
+    /// Name of the variant this output was rendered from.
+    pub variant_name: String,
 }

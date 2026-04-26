@@ -1,23 +1,21 @@
 topic: algebra2/logarithmic_equations
 difficulty: hard
 calculator: scientific
-
-variables:
-  base: choice(2, 3, 5, 7, 10)
-  d: integer(1, 4)
-  x_sol: integer(3, 8)
-  rhs_arg: x_sol*x_sol - d*d
-  k_log: log(rhs_arg, base)
-  answer: x_sol
-
-question: "Solve for {math(x)}: {equation(log(x + d, base) + log(x - d, base), k_log)}. Take the positive solution."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Use the product rule of logarithms: {equation(log((x + d)*(x - d), base), k_log)}."
-  - "Simplify the product on the left: {equation(log(x^2 - d^2, base), k_log)}."
-  - "Rewrite in exponential form: {equation(x^2 - d^2, rhs_arg)}."
-  - "Add {math(d^2)} to both sides: {equation(x^2, rhs_arg + d*d)}."
-  - "Take the positive square root (since the original logs require {math(x > d)}): {equation(x, x_sol)}."
+variants:
+  - name: default
+    variables:
+      base: choice(2, 3, 5, 7, 10)
+      d: integer(1, 4)
+      x_sol: integer(3, 8)
+      rhs_arg: x_sol*x_sol - d*d
+      k_log: log(rhs_arg, base)
+      answer: x_sol
+    question: 'Solve for {math(x)}: {equation(log(x + d, base) + log(x - d, base), k_log)}. Take the positive solution.'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Use the product rule of logarithms: {equation(log((x + d)*(x - d), base), k_log)}.'
+      - 'Simplify the product on the left: {equation(log(x^2 - d^2, base), k_log)}.'
+      - 'Rewrite in exponential form: {equation(x^2 - d^2, rhs_arg)}.'
+      - 'Add {math(d^2)} to both sides: {equation(x^2, rhs_arg + d*d)}.'
+      - 'Take the positive square root (since the original logs require {math(x > d)}): {equation(x, x_sol)}.'

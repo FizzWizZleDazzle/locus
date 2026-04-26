@@ -1,24 +1,22 @@
 topic: algebra1/factoring_gcf
 difficulty: easy
 calculator: none
-
-variables:
-  gcf: choice(2, 3, 4, 5, 6)
-  c1: integer(1, 5)
-  c2: integer(1, 5)
-  a: gcf * c1
-  b: gcf * c2
-  f: a*x + b
-  answer: gcf*(c1*x + c2)
-
-constraints:
-  - c1 != c2
-
-question: "Factor out the greatest common factor (GCF) from {f}."
-answer: answer
-answer_type: expression
-
-solution:
-  - "Identify the GCF of {a} and {b}. Both are divisible by {gcf}, so the GCF is {gcf}."
-  - "Divide each term by {gcf}: {math(a*x)} divided by {gcf} gives {math(c1*x)}, and {b} divided by {gcf} gives {c2}."
-  - "Write the factored form: {equation(f, answer)}."
+variants:
+  - name: default
+    variables:
+      gcf: choice(2, 3, 4, 5, 6)
+      c1: integer(1, 5)
+      c2: integer(1, 5)
+      a: gcf * c1
+      b: gcf * c2
+      f: a*x + b
+      answer: gcf*(c1*x + c2)
+    constraints:
+      - c1 != c2
+    question: Factor out the greatest common factor (GCF) from {f}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Identify the GCF of {a} and {b}. Both are divisible by {gcf}, so the GCF is {gcf}.
+      - 'Divide each term by {gcf}: {math(a*x)} divided by {gcf} gives {math(c1*x)}, and {b} divided by {gcf} gives {c2}.'
+      - 'Write the factored form: {equation(f, answer)}.'

@@ -1,27 +1,25 @@
 topic: geometry/triangle_properties
 difficulty: hard
 calculator: none
-
-variables:
-  k: integer(2, 5)
-  ratio_a: 1
-  ratio_b: 2
-  ratio_c: 3
-  total_ratio: ratio_a + ratio_b + ratio_c
-  unit: 180 / total_ratio
-  angle_a: ratio_a * unit
-  angle_b: ratio_b * unit
-  angle_c: ratio_c * unit
-  largest: angle_c
-
-question: "The interior angles of a triangle are in the ratio {ratio_a} : {ratio_b} : {ratio_c}. The triangle is scaled by a factor of {k}. Find the measure (in degrees) of the largest interior angle of the resulting triangle."
-
-answer: largest
-answer_type: numeric
-
-solution:
-  - "Scaling does not change interior angles, so we ignore the factor of {k}."
-  - "Let the angles be {math(s)}, {math(2*s)}, and {math(3*s)} for some {math(s)}."
-  - "Interior angles sum to 180: {math(s + 2*s + 3*s)} = {math(6*s)} = 180, so {math(s)} = 30."
-  - "The angles are {angle_a}, {angle_b}, and {angle_c} degrees."
-  - "The largest angle is {largest} degrees."
+variants:
+  - name: default
+    variables:
+      k: integer(2, 5)
+      ratio_a: 1
+      ratio_b: 2
+      ratio_c: 3
+      total_ratio: ratio_a + ratio_b + ratio_c
+      unit: 180 / total_ratio
+      angle_a: ratio_a * unit
+      angle_b: ratio_b * unit
+      angle_c: ratio_c * unit
+      largest: angle_c
+    question: 'The interior angles of a triangle are in the ratio {ratio_a} : {ratio_b} : {ratio_c}. The triangle is scaled by a factor of {k}. Find the measure (in degrees) of the largest interior angle of the resulting triangle.'
+    answer: largest
+    answer_type: numeric
+    solution:
+      - Scaling does not change interior angles, so we ignore the factor of {k}.
+      - Let the angles be {math(s)}, {math(2*s)}, and {math(3*s)} for some {math(s)}.
+      - 'Interior angles sum to 180: {math(s + 2*s + 3*s)} = {math(6*s)} = 180, so {math(s)} = 30.'
+      - The angles are {angle_a}, {angle_b}, and {angle_c} degrees.
+      - The largest angle is {largest} degrees.

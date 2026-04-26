@@ -1,22 +1,24 @@
 topic: algebra2/geometric_sequences
 difficulty: hard
 calculator: scientific
-variables:
-  a1: nonzero(-6, 6)
-  r: choice(2, 3)
-  n: integer(4, 7)
-  r_pow_n: r^n
-  one_minus_rpn: 1 - r^n
-  one_minus_r: 1 - r
-  numerator: a1 * (1 - r^n)
-  answer: a1 * (1 - r^n) / (1 - r)
-question: "Find the sum of the first {n} terms of a geometric series with first term {a1} and common ratio {r}."
-answer: answer
-answer_type: numeric
-solution:
-  - "The finite geometric series formula is {math(S_n = a_1 * (1 - q^k) / (1 - q))}, where {math(a_1)} is the first term, {math(q)} is the common ratio, and {math(k)} is the number of terms."
-  - "Substitute {math(a_1)} = {a1}, {math(q)} = {r}, {math(k)} = {n}."
-  - "Compute {math(q^k)}: {r}^{n} = {r_pow_n}."
-  - "Numerator: {math(a_1 * (1 - q^k))} = {numerator}."
-  - "Denominator: {math(1 - q)} = {one_minus_r}."
-  - "{equation(S_n, answer)}."
+variants:
+  - name: default
+    variables:
+      a1: nonzero(-6, 6)
+      r: choice(2, 3)
+      n: integer(4, 7)
+      r_pow_n: r^n
+      one_minus_rpn: 1 - r^n
+      one_minus_r: 1 - r
+      numerator: a1 * (1 - r^n)
+      answer: a1 * (1 - r^n) / (1 - r)
+    question: Find the sum of the first {n} terms of a geometric series with first term {a1} and common ratio {r}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - The finite geometric series formula is {math(S_n = a_1 * (1 - q^k) / (1 - q))}, where {math(a_1)} is the first term, {math(q)} is the common ratio, and {math(k)} is the number of terms.
+      - Substitute {math(a_1)} = {a1}, {math(q)} = {r}, {math(k)} = {n}.
+      - 'Compute {math(q^k)}: {r}^{n} = {r_pow_n}.'
+      - 'Numerator: {math(a_1 * (1 - q^k))} = {numerator}.'
+      - 'Denominator: {math(1 - q)} = {one_minus_r}.'
+      - '{equation(S_n, answer)}.'

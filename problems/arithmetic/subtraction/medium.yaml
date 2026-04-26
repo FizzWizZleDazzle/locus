@@ -1,16 +1,16 @@
 topic: arithmetic/subtraction
 difficulty: medium
 calculator: none
-
-variables:
-  answer: integer(150, 499)
-  b: integer(100, 300)
-  a: answer + b
-
-question: "A warehouse had {a} boxes in stock. After shipping out {b} boxes, how many boxes remain?"
-answer: answer
-answer_type: numeric
-solution:
-  - "Subtract the number of boxes shipped from the original stock."
-  - "Ones, tens, and hundreds columns are subtracted right to left, borrowing as needed."
-  - "The remaining number of boxes is {answer}."
+variants:
+  - name: default
+    variables:
+      answer: integer(150, 499)
+      b: integer(100, 300)
+      a: answer + b
+    question: A warehouse had {a} boxes in stock. After shipping out {b} boxes, how many boxes remain?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Subtract the number of boxes shipped from the original stock.
+      - Ones, tens, and hundreds columns are subtracted right to left, borrowing as needed.
+      - The remaining number of boxes is {answer}.

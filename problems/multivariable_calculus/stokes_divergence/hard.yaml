@@ -1,33 +1,27 @@
 topic: multivariable_calculus/stokes_divergence
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  r: integer(1, 4)
-  F1: a*x
-  F2: b*y
-  F3: c*z
-  div_F: a + b + c
-  volume: p * q * r
-  answer: div_F * volume
-
-question: >
-  Let {math(F)} be the vector field with components {math(F_1 = F1)},
-  {math(F_2 = F2)}, {math(F_3 = F3)}.
-  Use the Divergence Theorem to compute the outward flux of {math(F)}
-  through the closed surface of the rectangular box
-  {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "By the Divergence Theorem, the outward flux equals the triple integral of the divergence of {math(F)} over the box."
-  - "Compute the divergence: {partial_of(F1, x)} + {partial_of(F2, y)} + {partial_of(F3, z)} = {a} + ({b}) + ({c}) = {div_F}."
-  - "The volume of the box is {p} by {q} by {r}, giving volume {volume}."
-  - "Outward flux = {div_F} times {volume} = {answer}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      p: integer(1, 4)
+      q: integer(1, 4)
+      r: integer(1, 4)
+      F1: a*x
+      F2: b*y
+      F3: c*z
+      div_F: a + b + c
+      volume: p * q * r
+      answer: div_F * volume
+    question: |
+      Let {math(F)} be the vector field with components {math(F_1 = F1)}, {math(F_2 = F2)}, {math(F_3 = F3)}. Use the Divergence Theorem to compute the outward flux of {math(F)} through the closed surface of the rectangular box {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - By the Divergence Theorem, the outward flux equals the triple integral of the divergence of {math(F)} over the box.
+      - 'Compute the divergence: {partial_of(F1, x)} + {partial_of(F2, y)} + {partial_of(F3, z)} = {a} + ({b}) + ({c}) = {div_F}.'
+      - The volume of the box is {p} by {q} by {r}, giving volume {volume}.
+      - Outward flux = {div_F} times {volume} = {answer}.

@@ -1,26 +1,25 @@
 topic: geometry/area_of_polygons
 difficulty: hard
 calculator: scientific
-variables:
-  k: integer(1, 4)
-  offset: 3*k
-  height: 4*k
-  leg: 5*k
-  b1: integer(2, 8)
-  b2: b1 + 2*offset
-  b_sum: b1 + b2
-  leg_sq: leg^2
-  offset_sq: offset^2
-  height_sq: leg_sq - offset_sq
-  half_b_sum: b_sum / 2
-  answer: half_b_sum * height
-
-question: "An isosceles trapezoid has parallel bases of length {b1} and {b2}, and each non-parallel leg has length {leg}. Find the area of the trapezoid."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Drop perpendiculars from each end of the shorter base to the longer base. Because the trapezoid is isosceles, the longer base extends {offset} beyond the shorter base on each side."
-  - "Each right triangle has hypotenuse {leg} and horizontal leg {offset}. By the Pythagorean theorem: {math(h^2)} = {leg_sq} - {offset_sq} = {height_sq}, so {math(h)} = {height}."
-  - "Apply the trapezoid area formula {math(A = (b_1 + b_2)/2 * h)}: {math(A)} = ({b1} + {b2}) / 2 * {height} = {half_b_sum} * {height} = {answer}."
+variants:
+  - name: default
+    variables:
+      k: integer(1, 4)
+      offset: 3*k
+      height: 4*k
+      leg: 5*k
+      b1: integer(2, 8)
+      b2: b1 + 2*offset
+      b_sum: b1 + b2
+      leg_sq: leg^2
+      offset_sq: offset^2
+      height_sq: leg_sq - offset_sq
+      half_b_sum: b_sum / 2
+      answer: half_b_sum * height
+    question: An isosceles trapezoid has parallel bases of length {b1} and {b2}, and each non-parallel leg has length {leg}. Find the area of the trapezoid.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Drop perpendiculars from each end of the shorter base to the longer base. Because the trapezoid is isosceles, the longer base extends {offset} beyond the shorter base on each side.
+      - 'Each right triangle has hypotenuse {leg} and horizontal leg {offset}. By the Pythagorean theorem: {math(h^2)} = {leg_sq} - {offset_sq} = {height_sq}, so {math(h)} = {height}.'
+      - 'Apply the trapezoid area formula {math(A = (b_1 + b_2)/2 * h)}: {math(A)} = ({b1} + {b2}) / 2 * {height} = {half_b_sum} * {height} = {answer}.'

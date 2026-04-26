@@ -1,31 +1,46 @@
 topic: geometry/circle_theorems
 difficulty: hard
 calculator: none
-
-variables:
-  angle_deg: choice(35, 40, 45, 50, 55, 60, 65, 70, 75, 80)
-  arc1: choice(30, 40, 50, 60, 70, 80, 90)
-  arc_sum: 2 * angle_deg
-  arc2: arc_sum - arc1
-  answer: arc2
-constraints:
-  - arc2 > 0
-  - arc1 != arc2
-
-diagram:
-  type: circle
-  center: O
-  elements:
-    - chord: {from: A, to: C, label: ""}
-    - chord: {from: B, to: D, label: ""}
-    - central_angle: {vertex: O, sides: [A, B], label: arc1}
-    - central_angle: {vertex: O, sides: [C, D], label: "?"}
-
-question: "Two chords intersect inside a circle forming an angle of {angle_deg} degrees. One of the two arcs intercepted by the vertical angles measures {arc1} degrees. Find the measure of the other intercepted arc, in degrees."
-answer: answer
-answer_type: numeric
-solution:
-  - "When two chords intersect inside a circle, the angle equals half the sum of the two intercepted arcs."
-  - "Let the unknown arc measure {math(x)} degrees. Then: {math(angle_deg = (arc1 + x) / 2)}."
-  - "Multiply both sides by 2: {arc1} + {math(x)} = {arc_sum}."
-  - "Subtract {arc1} from both sides: {math(x)} = {arc_sum} - {arc1} = {answer} degrees."
+variants:
+  - name: default
+    variables:
+      angle_deg: choice(35, 40, 45, 50, 55, 60, 65, 70, 75, 80)
+      arc1: choice(30, 40, 50, 60, 70, 80, 90)
+      arc_sum: 2 * angle_deg
+      arc2: arc_sum - arc1
+      answer: arc2
+    constraints:
+      - arc2 > 0
+      - arc1 != arc2
+    question: Two chords intersect inside a circle forming an angle of {angle_deg} degrees. One of the two arcs intercepted by the vertical angles measures {arc1} degrees. Find the measure of the other intercepted arc, in degrees.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - When two chords intersect inside a circle, the angle equals half the sum of the two intercepted arcs.
+      - 'Let the unknown arc measure {math(x)} degrees. Then: {math(angle_deg = (arc1 + x) / 2)}.'
+      - 'Multiply both sides by 2: {arc1} + {math(x)} = {arc_sum}.'
+      - 'Subtract {arc1} from both sides: {math(x)} = {arc_sum} - {arc1} = {answer} degrees.'
+    diagram:
+      type: circle
+      center: O
+      elements:
+        - chord:
+            from: A
+            to: C
+            label: ''
+        - chord:
+            from: B
+            to: D
+            label: ''
+        - central_angle:
+            vertex: O
+            sides:
+              - A
+              - B
+            label: arc1
+        - central_angle:
+            vertex: O
+            sides:
+              - C
+              - D
+            label: '?'

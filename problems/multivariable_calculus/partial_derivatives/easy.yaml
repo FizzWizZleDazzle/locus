@@ -1,20 +1,20 @@
 topic: multivariable_calculus/partial_derivatives
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  m: integer(2, 4)
-  n: integer(2, 4)
-  f: a*x^m*y + b*x*y^n + c*x^2
-  df_dx: derivative(a*x^m*y + b*x*y^n + c*x^2, x)
-
-question: "Find {partial_of(f, x)}."
-answer: df_dx
-answer_type: expression
-solution:
-  - "Differentiate {f} with respect to {math(x)}, treating {math(y)} as a constant."
-  - "Apply the power rule to each term."
-  - "{equation(partial_of(f, x), df_dx)}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-5, 5)
+      c: nonzero(-5, 5)
+      m: integer(2, 4)
+      n: integer(2, 4)
+      f: a*x^m*y + b*x*y^n + c*x^2
+      df_dx: derivative(a*x^m*y + b*x*y^n + c*x^2, x)
+    question: Find {partial_of(f, x)}.
+    answer: df_dx
+    answer_type: expression
+    solution:
+      - Differentiate {f} with respect to {math(x)}, treating {math(y)} as a constant.
+      - Apply the power rule to each term.
+      - '{equation(partial_of(f, x), df_dx)}'

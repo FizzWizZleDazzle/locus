@@ -1,31 +1,28 @@
 topic: algebra1/multi_step_equations
 difficulty: easy
 calculator: none
-
-variables:
-  x_sol: integer(-5, 5)
-  a: nonzero(2, 5)
-  b: nonzero(1, 4)
-  c: integer(-6, 6)
-  d: integer(-8, 8)
-  inner: a*b*x_sol + a*c + d
-  lhs_expanded: expand(a*(b*x + c) + d)
-  rhs: inner
-  ab: a*b
-  ac_plus_d: a*c + d
-  step1_rhs: rhs - ac_plus_d
-  answer: x_sol
-
-constraints:
-  - c != 0
-  - d != 0
-
-question: "Solve for {math(x)}: {equation(a*(b*x + c) + d, rhs)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Distribute {a} on the left side: {equation(lhs_expanded, rhs)}"
-  - "Subtract {ac_plus_d} from both sides: {equation(ab*x, step1_rhs)}"
-  - "Divide both sides by {ab}: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      x_sol: integer(-5, 5)
+      a: nonzero(2, 5)
+      b: nonzero(1, 4)
+      c: integer(-6, 6)
+      d: integer(-8, 8)
+      inner: a*b*x_sol + a*c + d
+      lhs_expanded: expand(a*(b*x + c) + d)
+      rhs: inner
+      ab: a*b
+      ac_plus_d: a*c + d
+      step1_rhs: rhs - ac_plus_d
+      answer: x_sol
+    constraints:
+      - c != 0
+      - d != 0
+    question: 'Solve for {math(x)}: {equation(a*(b*x + c) + d, rhs)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Distribute {a} on the left side: {equation(lhs_expanded, rhs)}'
+      - 'Subtract {ac_plus_d} from both sides: {equation(ab*x, step1_rhs)}'
+      - 'Divide both sides by {ab}: {equation(x, answer)}'

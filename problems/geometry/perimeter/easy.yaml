@@ -1,17 +1,19 @@
 topic: geometry/perimeter
 difficulty: easy
 calculator: none
-variables:
-  l: integer(2, 12)
-  w: integer(2, 12)
-  two_l: 2*l
-  two_w: 2*w
-  answer: 2*l + 2*w
-constraints:
-  - l != w
-question: "Find the perimeter of a rectangle with length {l} and width {w}."
-answer: answer
-answer_type: numeric
-solution:
-  - "Perimeter of a rectangle = 2 times length + 2 times width."
-  - "= 2({l}) + 2({w}) = {two_l} + {two_w} = {answer}."
+variants:
+  - name: default
+    variables:
+      l: integer(2, 12)
+      w: integer(2, 12)
+      two_l: 2*l
+      two_w: 2*w
+      answer: 2*l + 2*w
+    constraints:
+      - l != w
+    question: Find the perimeter of a rectangle with length {l} and width {w}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Perimeter of a rectangle = 2 times length + 2 times width.
+      - = 2({l}) + 2({w}) = {two_l} + {two_w} = {answer}.

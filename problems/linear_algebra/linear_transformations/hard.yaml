@@ -1,30 +1,28 @@
 topic: linear_algebra/linear_transformations
 difficulty: hard
 calculator: none
-
-variables:
-  t11: nonzero(-5, 5)
-  t21: nonzero(-5, 5)
-  t12: nonzero(-5, 5)
-  t22: nonzero(-5, 5)
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  ans1: a*t11 + b*t12
-  ans2: a*t21 + b*t22
-  a_t11: a*t11
-  b_t12: b*t12
-  a_t21: a*t21
-  b_t22: b*t22
-
-question: "Let {math(T)} be a linear transformation such that {equation(math(T(e_1)), vec([t11, t21]))} and {equation(math(T(e_2)), vec([t12, t22]))}, where {math(e_1, e_2)} are the standard basis vectors of {math(R^2)}. Find {math(T(v))} where {equation(math(v), vec([a, b]))}."
-
-answer: ans1, ans2
-answer_type: tuple
-
-solution:
-  - "Since {math(T)} is linear, express {math(v)} as a linear combination of the standard basis vectors: {equation(math(v), a*e_1 + b*e_2)}."
-  - "Apply linearity of {math(T)}: {equation(math(T(v)), a*T(e_1) + b*T(e_2))}."
-  - "Substitute the known images with scalars {a} and {b}: {math(T(v))} = {a} {vec([t11, t21])} + {b} {vec([t12, t22])}."
-  - "Compute the first component: {a_t11} + {b_t12} = {ans1}."
-  - "Compute the second component: {a_t21} + {b_t22} = {ans2}."
-  - "Therefore {equation(math(T(v)), vec([ans1, ans2]))}."
+variants:
+  - name: default
+    variables:
+      t11: nonzero(-5, 5)
+      t21: nonzero(-5, 5)
+      t12: nonzero(-5, 5)
+      t22: nonzero(-5, 5)
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      ans1: a*t11 + b*t12
+      ans2: a*t21 + b*t22
+      a_t11: a*t11
+      b_t12: b*t12
+      a_t21: a*t21
+      b_t22: b*t22
+    question: Let {math(T)} be a linear transformation such that {equation(math(T(e_1)), vec([t11, t21]))} and {equation(math(T(e_2)), vec([t12, t22]))}, where {math(e_1, e_2)} are the standard basis vectors of {math(R^2)}. Find {math(T(v))} where {equation(math(v), vec([a, b]))}.
+    answer: ans1, ans2
+    answer_type: tuple
+    solution:
+      - 'Since {math(T)} is linear, express {math(v)} as a linear combination of the standard basis vectors: {equation(math(v), a*e_1 + b*e_2)}.'
+      - 'Apply linearity of {math(T)}: {equation(math(T(v)), a*T(e_1) + b*T(e_2))}.'
+      - 'Substitute the known images with scalars {a} and {b}: {math(T(v))} = {a} {vec([t11, t21])} + {b} {vec([t12, t22])}.'
+      - 'Compute the first component: {a_t11} + {b_t12} = {ans1}.'
+      - 'Compute the second component: {a_t21} + {b_t22} = {ans2}.'
+      - Therefore {equation(math(T(v)), vec([ans1, ans2]))}.

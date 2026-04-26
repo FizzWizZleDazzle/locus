@@ -1,29 +1,26 @@
 topic: algebra1/two_step_equations
 difficulty: hard
 calculator: none
-
-variables:
-  q: choice(2, 3, 4)
-  p: nonzero(-5, 5)
-  k: nonzero(-4, 4)
-  x_sol: k * q
-  b: integer(-12, 12)
-  coeff: p / q
-  rhs: coeff * x_sol + b
-  lhs_expr: coeff * x + b
-  step1_rhs: rhs - b
-  inv_coeff: q / p
-  answer: x_sol
-
-constraints:
-  - p != q
-  - p != -1
-
-question: "Solve for {math(x)}: {equation(lhs_expr, rhs)}"
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Subtract {b} from both sides: {equation(coeff * x, step1_rhs)}."
-  - "Multiply both sides by {inv_coeff}: {equation(math(x), answer)}."
+variants:
+  - name: default
+    variables:
+      q: choice(2, 3, 4)
+      p: nonzero(-5, 5)
+      k: nonzero(-4, 4)
+      x_sol: k * q
+      b: integer(-12, 12)
+      coeff: p / q
+      rhs: coeff * x_sol + b
+      lhs_expr: coeff * x + b
+      step1_rhs: rhs - b
+      inv_coeff: q / p
+      answer: x_sol
+    constraints:
+      - p != q
+      - p != -1
+    question: 'Solve for {math(x)}: {equation(lhs_expr, rhs)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Subtract {b} from both sides: {equation(coeff * x, step1_rhs)}.'
+      - 'Multiply both sides by {inv_coeff}: {equation(math(x), answer)}.'

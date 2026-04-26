@@ -1,22 +1,18 @@
 topic: calculus/related_rates
 difficulty: easy
 calculator: scientific
-variables:
-  r: integer(2, 8)
-  dr_dt: integer(1, 5)
-  two_pi_r: 2 * pi * r
-  dA_dt: 2 * pi * r * dr_dt
-
-question: >
-  A circle's radius is expanding at a constant rate of {dr_dt} cm/s.
-  At the instant when the radius is {r} cm, find the rate at which
-  the area of the circle is increasing. Express your answer in terms
-  of {math(pi)}.
-
-answer: dA_dt
-
-solution:
-  - "The area of a circle with radius {math(s)} is {math(A = pi*s^2)}."
-  - "Differentiating both sides with respect to time {math(t)}: {math(dA/dt = 2*pi*s)} times {math(ds/dt)}."
-  - "At this instant, {math(s)} = {r} cm and {math(ds/dt)} = {dr_dt} cm/s."
-  - "So {math(dA/dt)} = {two_pi_r} times {dr_dt} = {dA_dt} cm{math(^2)}/s."
+variants:
+  - name: default
+    variables:
+      r: integer(2, 8)
+      dr_dt: integer(1, 5)
+      two_pi_r: 2 * pi * r
+      dA_dt: 2 * pi * r * dr_dt
+    question: |
+      A circle's radius is expanding at a constant rate of {dr_dt} cm/s. At the instant when the radius is {r} cm, find the rate at which the area of the circle is increasing. Express your answer in terms of {math(pi)}.
+    answer: dA_dt
+    solution:
+      - The area of a circle with radius {math(s)} is {math(A = pi*s^2)}.
+      - 'Differentiating both sides with respect to time {math(t)}: {math(dA/dt = 2*pi*s)} times {math(ds/dt)}.'
+      - At this instant, {math(s)} = {r} cm and {math(ds/dt)} = {dr_dt} cm/s.
+      - So {math(dA/dt)} = {two_pi_r} times {dr_dt} = {dA_dt} cm{math(^2)}/s.

@@ -1,27 +1,25 @@
 topic: differential_equations/undetermined_coefficients
 difficulty: easy
 calculator: scientific
-
-variables:
-  k: integer(2, 4)
-  r: integer(5, 7)
-  A: nonzero(-4, 4)
-  k2: k*k
-  r2: r*r
-  denom: r2 - k2
-  b: A * denom
-  yp: A*exp(r*x)
-  forcing: b*exp(r*x)
-
-question: "Find a particular solution to the differential equation {math(y'')} - {k2}{math(y)} = {forcing} using the method of undetermined coefficients."
-
-answer: yp
-answer_type: expression
-
-solution:
-  - "Assume a trial solution of the form {math(y_p = C*exp(r*x))} for an unknown constant {math(C)}."
-  - "Then {math(y_p'')} = {math(C*r2*exp(r*x))}."
-  - "Substituting into the ODE: {math(C*r2*exp(r*x))} - {k2}{math(C*exp(r*x))} = {forcing}."
-  - "Dividing both sides by {math(exp(r*x))}: {math(C*(r2 - k2))} = {b}."
-  - "So {math(C*denom)} = {b}, which gives {math(C)} = {A}."
-  - "The particular solution is {yp}."
+variants:
+  - name: default
+    variables:
+      k: integer(2, 4)
+      r: integer(5, 7)
+      A: nonzero(-4, 4)
+      k2: k*k
+      r2: r*r
+      denom: r2 - k2
+      b: A * denom
+      yp: A*exp(r*x)
+      forcing: b*exp(r*x)
+    question: Find a particular solution to the differential equation {math(y'')} - {k2}{math(y)} = {forcing} using the method of undetermined coefficients.
+    answer: yp
+    answer_type: expression
+    solution:
+      - Assume a trial solution of the form {math(y_p = C*exp(r*x))} for an unknown constant {math(C)}.
+      - Then {math(y_p'')} = {math(C*r2*exp(r*x))}.
+      - 'Substituting into the ODE: {math(C*r2*exp(r*x))} - {k2}{math(C*exp(r*x))} = {forcing}.'
+      - 'Dividing both sides by {math(exp(r*x))}: {math(C*(r2 - k2))} = {b}.'
+      - So {math(C*denom)} = {b}, which gives {math(C)} = {A}.
+      - The particular solution is {yp}.

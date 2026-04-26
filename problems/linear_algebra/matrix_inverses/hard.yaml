@@ -1,31 +1,27 @@
 topic: linear_algebra/matrix_inverses
 difficulty: hard
 calculator: scientific
-
-variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  d: nonzero(-4, 4)
-  det: a*d - b*c
-  inv11: d / det
-  inv12: -b / det
-  inv21: -c / det
-  inv22: a / det
-
-constraints:
-  - det != 0
-
-question: >
-  Find the inverse of the matrix {matrix_of([[a, b], [c, d]])}.
-  Express each entry as a simplified fraction or integer.
-
-answer_type: tuple
-answer: inv11, inv12, inv21, inv22
-
-solution:
-  - "For a 2x2 matrix {matrix_of([[a, b], [c, d]])}, use the formula: swap the diagonal entries, negate the off-diagonal entries, then divide by the determinant."
-  - "Step 1: Compute the determinant. {math(ad - bc)} = ({a})({d}) - ({b})({c}) = {det}."
-  - "Step 2: Since the determinant is {det}, which is nonzero, the inverse exists."
-  - "Step 3: Form the adjugate matrix {matrix_of([[d, -b], [-c, a]])} and divide each entry by {det}."
-  - "Step 4: The inverse is {matrix_of([[inv11, inv12], [inv21, inv22]])}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      c: nonzero(-4, 4)
+      d: nonzero(-4, 4)
+      det: a*d - b*c
+      inv11: d / det
+      inv12: -b / det
+      inv21: -c / det
+      inv22: a / det
+    constraints:
+      - det != 0
+    question: |
+      Find the inverse of the matrix {matrix_of([[a, b], [c, d]])}. Express each entry as a simplified fraction or integer.
+    answer: inv11, inv12, inv21, inv22
+    answer_type: tuple
+    solution:
+      - 'For a 2x2 matrix {matrix_of([[a, b], [c, d]])}, use the formula: swap the diagonal entries, negate the off-diagonal entries, then divide by the determinant.'
+      - 'Step 1: Compute the determinant. {math(ad - bc)} = ({a})({d}) - ({b})({c}) = {det}.'
+      - 'Step 2: Since the determinant is {det}, which is nonzero, the inverse exists.'
+      - 'Step 3: Form the adjugate matrix {matrix_of([[d, -b], [-c, a]])} and divide each entry by {det}.'
+      - 'Step 4: The inverse is {matrix_of([[inv11, inv12], [inv21, inv22]])}.'

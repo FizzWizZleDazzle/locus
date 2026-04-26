@@ -1,39 +1,45 @@
 topic: algebra1/compound_inequalities
 difficulty: hard
 calculator: none
-
-variables:
-  lo: integer(-4, 1)
-  hi: integer(3, 7)
-  a1: nonzero(-5, -2)
-  a2: integer(2, 5)
-  b1: integer(-6, 6)
-  b2: integer(-6, 6)
-  d1: a1*lo + b1
-  d2: a2*hi + b2
-  lhs1: a1*x + b1
-  lhs2: a2*x + b2
-  rhs1_val: d1 - b1
-  rhs2_val: d2 - b2
-
-diagram:
-  type: number_line
-  range: [-6, 9]
-  elements:
-    - point: {at: lo, style: open}
-    - point: {at: hi, style: open}
-    - arrow: {from: lo, to: hi, color: blue}
-
-question: "Solve the compound inequality: {math(lhs1 < d1)} and {math(lhs2 < d2)}. Express your answer as a combined inequality in terms of {math(x)}."
-
-answer: lo, hi
-answer_type: tuple
-
-solution:
-  - "Solve the first inequality {math(lhs1 < d1)}."
-  - "Subtract {b1} from both sides: {math(a1*x)} < {rhs1_val}."
-  - "Divide both sides by {a1} (negative, so flip the inequality): {math(x > lo)}."
-  - "Solve the second inequality {math(lhs2 < d2)}."
-  - "Subtract {b2} from both sides: {math(a2*x)} < {rhs2_val}."
-  - "Divide both sides by {a2}: {math(x < hi)}."
-  - "The AND condition requires both to hold simultaneously: {math(lo < x)} and {math(x < hi)}, so {lo} < x < {hi}."
+variants:
+  - name: default
+    variables:
+      lo: integer(-4, 1)
+      hi: integer(3, 7)
+      a1: nonzero(-5, -2)
+      a2: integer(2, 5)
+      b1: integer(-6, 6)
+      b2: integer(-6, 6)
+      d1: a1*lo + b1
+      d2: a2*hi + b2
+      lhs1: a1*x + b1
+      lhs2: a2*x + b2
+      rhs1_val: d1 - b1
+      rhs2_val: d2 - b2
+    question: 'Solve the compound inequality: {math(lhs1 < d1)} and {math(lhs2 < d2)}. Express your answer as a combined inequality in terms of {math(x)}.'
+    answer: lo, hi
+    answer_type: tuple
+    solution:
+      - Solve the first inequality {math(lhs1 < d1)}.
+      - 'Subtract {b1} from both sides: {math(a1*x)} < {rhs1_val}.'
+      - 'Divide both sides by {a1} (negative, so flip the inequality): {math(x > lo)}.'
+      - Solve the second inequality {math(lhs2 < d2)}.
+      - 'Subtract {b2} from both sides: {math(a2*x)} < {rhs2_val}.'
+      - 'Divide both sides by {a2}: {math(x < hi)}.'
+      - 'The AND condition requires both to hold simultaneously: {math(lo < x)} and {math(x < hi)}, so {lo} < x < {hi}.'
+    diagram:
+      type: number_line
+      range:
+        - -6
+        - 9
+      elements:
+        - point:
+            at: lo
+            style: open
+        - point:
+            at: hi
+            style: open
+        - arrow:
+            from: lo
+            to: hi
+            color: blue

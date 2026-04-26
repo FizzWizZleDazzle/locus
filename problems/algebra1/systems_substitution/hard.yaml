@@ -1,31 +1,28 @@
 topic: algebra1/systems_substitution
 difficulty: hard
 calculator: none
-
-variables:
-  x_sol: nonzero(-5, 5)
-  y_sol: nonzero(-5, 5)
-  m: nonzero(-4, 4)
-  b: y_sol - m * x_sol
-  c2: nonzero(-3, 3)
-  lhs_coeff: nonzero(-6, 6)
-  a2: lhs_coeff - c2 * m
-  rhs2: a2 * x_sol + c2 * y_sol
-  sub_expanded: expand(a2 * x + c2 * (m * x + b))
-  rhs_after_sub: rhs2 - c2 * b
-
-constraints:
-  - a2 != 0
-
-question: "Solve the system by substitution: {system(equation(y, m*x + b), equation(a2*x + c2*y, rhs2))}"
-
-answer: x_sol, y_sol
-answer_type: tuple
-
-solution:
-  - "The first equation is already solved for {math(y)}: {equation(y, m*x + b)}"
-  - "Substitute into the second equation: {equation(a2*x + c2*(m*x + b), rhs2)}"
-  - "Expand: {equation(sub_expanded, rhs2)}"
-  - "Isolate {math(x)}: {equation(lhs_coeff * x, rhs_after_sub)}, giving {equation(x, x_sol)}"
-  - "Back-substitute {equation(x, x_sol)} into {equation(y, m*x + b)}: {equation(y, m*x_sol + b)}, so {equation(y, y_sol)}"
-  - "The solution is {equation(x, x_sol)} and {equation(y, y_sol)}."
+variants:
+  - name: default
+    variables:
+      x_sol: nonzero(-5, 5)
+      y_sol: nonzero(-5, 5)
+      m: nonzero(-4, 4)
+      b: y_sol - m * x_sol
+      c2: nonzero(-3, 3)
+      lhs_coeff: nonzero(-6, 6)
+      a2: lhs_coeff - c2 * m
+      rhs2: a2 * x_sol + c2 * y_sol
+      sub_expanded: expand(a2 * x + c2 * (m * x + b))
+      rhs_after_sub: rhs2 - c2 * b
+    constraints:
+      - a2 != 0
+    question: 'Solve the system by substitution: {system(equation(y, m*x + b), equation(a2*x + c2*y, rhs2))}'
+    answer: x_sol, y_sol
+    answer_type: tuple
+    solution:
+      - 'The first equation is already solved for {math(y)}: {equation(y, m*x + b)}'
+      - 'Substitute into the second equation: {equation(a2*x + c2*(m*x + b), rhs2)}'
+      - 'Expand: {equation(sub_expanded, rhs2)}'
+      - 'Isolate {math(x)}: {equation(lhs_coeff * x, rhs_after_sub)}, giving {equation(x, x_sol)}'
+      - 'Back-substitute {equation(x, x_sol)} into {equation(y, m*x + b)}: {equation(y, m*x_sol + b)}, so {equation(y, y_sol)}'
+      - The solution is {equation(x, x_sol)} and {equation(y, y_sol)}.

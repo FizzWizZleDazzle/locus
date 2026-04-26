@@ -1,24 +1,22 @@
 topic: calculus/derivative_rules
 difficulty: hard
 calculator: none
-
-variables:
-  a: nonzero(-4, 4)
-  n: integer(2, 5)
-  f: x^n * exp(a*x)
-  du: n * x^(n-1)
-  dv: a * exp(a*x)
-  du_v: du * exp(a*x)
-  u_dv: x^n * dv
-  sum_terms: du_v + u_dv
-  answer: derivative(f, x)
-
-question: "Find {derivative_of(f, x)}."
-
-answer: answer
-
-solution:
-  - "Write {f} as a product with {math(u = x^n)} and {math(v = exp(a*x))}."
-  - "Power rule: {equation(derivative_of(x^n, x), du)}."
-  - "Chain rule on the exponential: {equation(derivative_of(exp(a*x), x), dv)}."
-  - "Apply the product rule: {equation(derivative_of(f, x), sum_terms)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-4, 4)
+      n: integer(2, 5)
+      f: x^n * exp(a*x)
+      du: n * x^(n-1)
+      dv: a * exp(a*x)
+      du_v: du * exp(a*x)
+      u_dv: x^n * dv
+      sum_terms: du_v + u_dv
+      answer: derivative(f, x)
+    question: Find {derivative_of(f, x)}.
+    answer: answer
+    solution:
+      - Write {f} as a product with {math(u = x^n)} and {math(v = exp(a*x))}.
+      - 'Power rule: {equation(derivative_of(x^n, x), du)}.'
+      - 'Chain rule on the exponential: {equation(derivative_of(exp(a*x), x), dv)}.'
+      - 'Apply the product rule: {equation(derivative_of(f, x), sum_terms)}.'

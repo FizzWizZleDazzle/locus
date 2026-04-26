@@ -1,24 +1,22 @@
 topic: calculus/implicit_differentiation
 difficulty: easy
 calculator: none
-
-variables:
-  a: nonzero(1, 5)
-  b: nonzero(1, 5)
-  c: integer(4, 16)
-  lhs: a*x^2 + b*y^2
-  two_a: 2*a
-  two_b: 2*b
-  neg_two_a_x: -(2*a)*x
-  dydx: -(a*x)/(b*y)
-
-question: "Use implicit differentiation to find {derivative_of(y, x)} given {equation(lhs, c)}."
-
-answer: dydx
-answer_type: expression
-
-solution:
-  - "Differentiate both sides of {equation(lhs, c)} with respect to {math(x)}, treating {math(y)} as a function of {math(x)}."
-  - "Applying the chain rule: {math(two_a*x)} + {math(two_b*y)} {derivative_of(y, x)} = 0."
-  - "Isolate {derivative_of(y, x)}: {math(two_b*y)} {derivative_of(y, x)} = {neg_two_a_x}."
-  - "Divide both sides by {math(two_b*y)}: {equation(derivative_of(y, x), dydx)}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(1, 5)
+      b: nonzero(1, 5)
+      c: integer(4, 16)
+      lhs: a*x^2 + b*y^2
+      two_a: 2*a
+      two_b: 2*b
+      neg_two_a_x: -(2*a)*x
+      dydx: -(a*x)/(b*y)
+    question: Use implicit differentiation to find {derivative_of(y, x)} given {equation(lhs, c)}.
+    answer: dydx
+    answer_type: expression
+    solution:
+      - Differentiate both sides of {equation(lhs, c)} with respect to {math(x)}, treating {math(y)} as a function of {math(x)}.
+      - 'Applying the chain rule: {math(two_a*x)} + {math(two_b*y)} {derivative_of(y, x)} = 0.'
+      - 'Isolate {derivative_of(y, x)}: {math(two_b*y)} {derivative_of(y, x)} = {neg_two_a_x}.'
+      - 'Divide both sides by {math(two_b*y)}: {equation(derivative_of(y, x), dydx)}.'

@@ -1,29 +1,25 @@
 topic: multivariable_calculus/line_integrals
 difficulty: medium
 calculator: scientific
-
-variables:
-  a: nonzero(2, 5)
-  b: nonzero(2, 5)
-  p: nonzero(1, 4)
-  q: nonzero(1, 4)
-  F1: a*x
-  F2: b*y
-  ap2: a*p^2
-  bq2: b*q^2
-  integrand_coeff: ap2 + bq2
-  answer: integrand_coeff / 2
-
-question: >
-  Let {math(P(x,y) = F1)} and {math(Q(x,y) = F2)}.
-  Evaluate the line integral of {math(P dx + Q dy)} along the line segment
-  {math(C)} from {math((0,0))} to {math((p,q))}.
-
-solution:
-  - "Parametrize {math(C)} as {math(x = p*t)}, {math(y = q*t)} for {math(0 <= t <= 1)}, so {math(dx = p*dt)} and {math(dy = q*dt)}."
-  - "Substituting: {math(P = a*p*t)} and {math(Q = b*q*t)}."
-  - "The integrand {math(P dx + Q dy)} becomes {math(integrand_coeff*t)} dt."
-  - "Integrating from 0 to 1: {definite_integral_of(integrand_coeff*t, t, 0, 1)} = {answer}."
-
-answer: answer
-answer_type: numeric
+variants:
+  - name: default
+    variables:
+      a: nonzero(2, 5)
+      b: nonzero(2, 5)
+      p: nonzero(1, 4)
+      q: nonzero(1, 4)
+      F1: a*x
+      F2: b*y
+      ap2: a*p^2
+      bq2: b*q^2
+      integrand_coeff: ap2 + bq2
+      answer: integrand_coeff / 2
+    question: |
+      Let {math(P(x,y) = F1)} and {math(Q(x,y) = F2)}. Evaluate the line integral of {math(P dx + Q dy)} along the line segment {math(C)} from {math((0,0))} to {math((p,q))}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - Parametrize {math(C)} as {math(x = p*t)}, {math(y = q*t)} for {math(0 <= t <= 1)}, so {math(dx = p*dt)} and {math(dy = q*dt)}.
+      - 'Substituting: {math(P = a*p*t)} and {math(Q = b*q*t)}.'
+      - The integrand {math(P dx + Q dy)} becomes {math(integrand_coeff*t)} dt.
+      - 'Integrating from 0 to 1: {definite_integral_of(integrand_coeff*t, t, 0, 1)} = {answer}.'

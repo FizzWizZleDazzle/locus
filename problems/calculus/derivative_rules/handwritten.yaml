@@ -1,17 +1,15 @@
 topic: calculus/derivative_rules
 difficulty: medium
 calculator: none
-
-variables:
-  a: nonzero(-8, 8)
-  n: integer(2, 6)
-  f: a * x^n
-  answer: derivative(f, x)
-
-question: Find {derivative_of(f, x)}
-
-answer: answer
-
-solution:
-  - "Apply the power rule to {f}"
-  - "{derivative_of(f, x)} = {answer}"
+variants:
+  - name: default
+    variables:
+      a: nonzero(-8, 8)
+      n: integer(2, 6)
+      f: a * x^n
+      answer: derivative(f, x)
+    question: Find {derivative_of(f, x)}
+    answer: answer
+    solution:
+      - Apply the power rule to {f}
+      - '{derivative_of(f, x)} = {answer}'

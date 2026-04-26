@@ -1,25 +1,27 @@
 topic: algebra1/polynomial_operations
 difficulty: medium
 calculator: none
-variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-6, 6)
-  c: nonzero(-5, 5)
-  d: nonzero(-6, 6)
-  f: expand((a*x + b)*(c*x + d))
-  ac: a*c
-  ad_plus_bc: a*d + b*c
-  bd: b*d
-constraints:
-  - a != c
-  - b != d
-question: "Expand and simplify {math((a*x + b)*(c*x + d))}."
-answer: f
-answer_type: expression
-solution:
-  - "Apply the distributive property (FOIL) to {math((a*x + b)*(c*x + d))}."
-  - "Multiply each term in the first binomial by each term in the second."
-  - "The {math(x^2)} coefficient: {a} times {c} = {ac}"
-  - "The {math(x)} coefficient (outer + inner): {a} times {d} plus {b} times {c} = {ad_plus_bc}"
-  - "The constant term: {b} times {d} = {bd}"
-  - "The expanded form is {f}."
+variants:
+  - name: default
+    variables:
+      a: nonzero(-5, 5)
+      b: nonzero(-6, 6)
+      c: nonzero(-5, 5)
+      d: nonzero(-6, 6)
+      f: expand((a*x + b)*(c*x + d))
+      ac: a*c
+      ad_plus_bc: a*d + b*c
+      bd: b*d
+    constraints:
+      - a != c
+      - b != d
+    question: Expand and simplify {math((a*x + b)*(c*x + d))}.
+    answer: f
+    answer_type: expression
+    solution:
+      - Apply the distributive property (FOIL) to {math((a*x + b)*(c*x + d))}.
+      - Multiply each term in the first binomial by each term in the second.
+      - 'The {math(x^2)} coefficient: {a} times {c} = {ac}'
+      - 'The {math(x)} coefficient (outer + inner): {a} times {d} plus {b} times {c} = {ad_plus_bc}'
+      - 'The constant term: {b} times {d} = {bd}'
+      - The expanded form is {f}.

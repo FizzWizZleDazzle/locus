@@ -1,26 +1,25 @@
 topic: algebra2/radical_expressions
 difficulty: hard
 calculator: none
-
-variables:
-  c: integer(1, 3)
-  rhs_val: integer(3, 6)
-  rhs_sq: rhs_val*rhs_val
-  a: choice(2, 3)
-  x_sol: integer(2, 6)
-  b: rhs_sq - a*x_sol
-  k: rhs_val + c
-  lhs_inner: a*x + b
-  answer: x_sol
-
-constraints:
-  - b > 0
-
-question: "Solve for {math(x)}: {equation(sqrt(lhs_inner) + c, k)}"
-answer: answer
-answer_type: numeric
-solution:
-  - "Isolate the radical by subtracting {c} from both sides: {equation(sqrt(lhs_inner), rhs_val)}"
-  - "Square both sides: {equation(lhs_inner, rhs_sq)}"
-  - "Subtract {b} from both sides: {equation(a*x, rhs_sq - b)}"
-  - "Divide by {a}: {equation(x, answer)}"
+variants:
+  - name: default
+    variables:
+      c: integer(1, 3)
+      rhs_val: integer(3, 6)
+      rhs_sq: rhs_val*rhs_val
+      a: choice(2, 3)
+      x_sol: integer(2, 6)
+      b: rhs_sq - a*x_sol
+      k: rhs_val + c
+      lhs_inner: a*x + b
+      answer: x_sol
+    constraints:
+      - b > 0
+    question: 'Solve for {math(x)}: {equation(sqrt(lhs_inner) + c, k)}'
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Isolate the radical by subtracting {c} from both sides: {equation(sqrt(lhs_inner), rhs_val)}'
+      - 'Square both sides: {equation(lhs_inner, rhs_sq)}'
+      - 'Subtract {b} from both sides: {equation(a*x, rhs_sq - b)}'
+      - 'Divide by {a}: {equation(x, answer)}'

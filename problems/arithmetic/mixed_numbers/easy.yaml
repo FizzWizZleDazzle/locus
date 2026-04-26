@@ -1,24 +1,23 @@
 topic: arithmetic/mixed_numbers
 difficulty: easy
 calculator: none
-
-variables:
-  w1: integer(1, 5)
-  w2: integer(1, 5)
-  d: choice(5, 7, 11)
-  n1: integer(1, 4)
-  n2: integer(1, 4)
-  frac_sum_num: n1 + n2
-  whole_sum: w1 + w2
-  answer: whole_sum + frac_sum_num/d
-
-constraints:
-  - n1 + n2 < d
-
-question: "Add the mixed numbers {w1}{math(n1/d)} and {w2}{math(n2/d)}. Express your answer as a simplified fraction."
-answer: answer
-answer_type: numeric
-solution:
-  - "Add the whole number parts: {w1} + {w2} = {whole_sum}."
-  - "Add the fractions (same denominator {d}): {math(n1/d)} + {math(n2/d)} = {math(frac_sum_num/d)}."
-  - "Combine: {whole_sum} + {math(frac_sum_num/d)} = {answer}."
+variants:
+  - name: default
+    variables:
+      w1: integer(1, 5)
+      w2: integer(1, 5)
+      d: choice(5, 7, 11)
+      n1: integer(1, 4)
+      n2: integer(1, 4)
+      frac_sum_num: n1 + n2
+      whole_sum: w1 + w2
+      answer: whole_sum + frac_sum_num/d
+    constraints:
+      - n1 + n2 < d
+    question: Add the mixed numbers {w1}{math(n1/d)} and {w2}{math(n2/d)}. Express your answer as a simplified fraction.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Add the whole number parts: {w1} + {w2} = {whole_sum}.'
+      - 'Add the fractions (same denominator {d}): {math(n1/d)} + {math(n2/d)} = {math(frac_sum_num/d)}.'
+      - 'Combine: {whole_sum} + {math(frac_sum_num/d)} = {answer}.'

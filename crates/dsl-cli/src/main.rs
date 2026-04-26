@@ -154,10 +154,14 @@ fn cmd_parse(file: &PathBuf) {
     match locus_dsl::parse(&yaml) {
         Ok(spec) => {
             println!("OK: {}/{}", spec.topic.main, spec.topic.sub);
-            println!("  Variables: {}", spec.variables.len());
-            println!("  Constraints: {}", spec.constraints.len());
-            if let Some(ref variants) = spec.variants {
-                println!("  Variants: {}", variants.len());
+            println!("  Variants: {}", spec.variants.len());
+            for v in &spec.variants {
+                println!(
+                    "    - {} ({} vars, {} constraints)",
+                    v.name,
+                    v.variables.len(),
+                    v.constraints.len()
+                );
             }
         }
         Err(e) => {
@@ -181,7 +185,7 @@ fn cmd_generate(file: &PathBuf, count: usize, fast: bool) {
     let mut errors = 0;
     let max_consecutive_errors = 5; // bail early if file is broken
     let mut consecutive_errors = 0;
-    let gen_fn = if fast { locus_dsl::generate_fast } else { locus_dsl::generate };
+    let gen_fn = if fast { locus_dsl::generate_random_fast } else { locus_dsl::generate_random };
     for _ in 0..count {
         match gen_fn(&spec) {
             Ok(problem) => {
@@ -227,7 +231,7 @@ fn cmd_validate(path: &PathBuf, runs: usize) {
         let mut file_ok = 0;
         let mut file_err = 0;
         for _ in 0..runs {
-            match locus_dsl::generate(&spec) {
+            match locus_dsl::generate_random(&spec) {
                 Ok(_) => file_ok += 1,
                 Err(e) => {
                     eprintln!("FAIL {}: {e}", file.display());
@@ -390,7 +394,7 @@ fn cmd_batch(
     let writer = Arc::new(Mutex::new(BufWriter::with_capacity(1 << 20, file_out)));
 
     let gen_fn: fn(&locus_dsl::spec::ProblemSpec) -> Result<locus_dsl::ProblemOutput, _> =
-        if fast { locus_dsl::generate_fast } else { locus_dsl::generate };
+        if fast { locus_dsl::generate_random_fast } else { locus_dsl::generate_random };
 
     let total_written = Arc::new(AtomicUsize::new(0));
     let total_errors = Arc::new(AtomicUsize::new(0));
@@ -521,7 +525,7 @@ fn cmd_verify(path: &PathBuf, legacy_samples: usize, enum_target: usize, max_fil
         // Legacy random samples
         let mut legacy_set: HashSet<(String, String)> = HashSet::new();
         for _ in 0..legacy_samples {
-            if let Ok(p) = locus_dsl::generate_fast(&spec) {
+            if let Ok(p) = locus_dsl::generate_random_fast(&spec) {
                 legacy_set.insert((p.question_latex, p.answer_key));
             }
         }

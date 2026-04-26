@@ -1,17 +1,17 @@
 topic: algebra2/exponential_growth_decay
 difficulty: easy
 calculator: scientific
-
-variables:
-  p: choice(100, 200, 500, 1000)
-  r: choice(2, 3, 4, 5)
-  t: integer(2, 5)
-  r_to_t: r^t
-  answer: p * r_to_t
-
-question: "A population starts at {p} and grows by a factor of {r} each year. What is the population after {t} years?"
-answer: answer
-answer_type: numeric
-solution:
-  - "Apply the exponential growth formula: final population = starting population times (growth factor)^(years)."
-  - "Final population = {p} times {r}^{t} = {p} times {r_to_t} = {answer}."
+variants:
+  - name: default
+    variables:
+      p: choice(100, 200, 500, 1000)
+      r: choice(2, 3, 4, 5)
+      t: integer(2, 5)
+      r_to_t: r^t
+      answer: p * r_to_t
+    question: A population starts at {p} and grows by a factor of {r} each year. What is the population after {t} years?
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Apply the exponential growth formula: final population = starting population times (growth factor)^(years).'
+      - Final population = {p} times {r}^{t} = {p} times {r_to_t} = {answer}.

@@ -1,25 +1,23 @@
 topic: calculus/volumes_of_revolution
 difficulty: easy
 calculator: scientific
-
-variables:
-  a: choice(1, 2, 3, 4)
-  b: 3
-  f: a*x
-  f_sq: a^2 * x^2
-  F_sq: integral(f_sq, x)
-  F_hi: evaluate(F_sq, x, b)
-  F_lo: evaluate(F_sq, x, 0)
-  vol_coeff: F_hi - F_lo
-  answer: vol_coeff
-
-question: "Find the volume of the solid obtained by rotating the region bounded by {math(y = f)}, {math(y = 0)}, and {math(x = b)} about the {math(x)}-axis. Express your answer as a multiple of {math(pi)}."
-
-answer: answer
-answer_type: numeric
-
-solution:
-  - "Using the disk method: {math(V = pi)} {definite_integral_of(f_sq, x, 0, b)}."
-  - "Compute the antiderivative: {integral_of(f_sq, x)} = {F_sq} + C."
-  - "Evaluate at the bounds: {F_hi} - {F_lo} = {vol_coeff}."
-  - "The volume is {vol_coeff}{math(pi)}."
+variants:
+  - name: default
+    variables:
+      a: choice(1, 2, 3, 4)
+      b: 3
+      f: a*x
+      f_sq: a^2 * x^2
+      F_sq: integral(f_sq, x)
+      F_hi: evaluate(F_sq, x, b)
+      F_lo: evaluate(F_sq, x, 0)
+      vol_coeff: F_hi - F_lo
+      answer: vol_coeff
+    question: Find the volume of the solid obtained by rotating the region bounded by {math(y = f)}, {math(y = 0)}, and {math(x = b)} about the {math(x)}-axis. Express your answer as a multiple of {math(pi)}.
+    answer: answer
+    answer_type: numeric
+    solution:
+      - 'Using the disk method: {math(V = pi)} {definite_integral_of(f_sq, x, 0, b)}.'
+      - 'Compute the antiderivative: {integral_of(f_sq, x)} = {F_sq} + C.'
+      - 'Evaluate at the bounds: {F_hi} - {F_lo} = {vol_coeff}.'
+      - The volume is {vol_coeff}{math(pi)}.

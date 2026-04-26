@@ -1,18 +1,17 @@
 topic: precalculus/unit_circle
 difficulty: medium
 calculator: none
-
-variables:
-  angle_choice: choice(pi/6, pi/4, pi/3, 2*pi/3, 3*pi/4, 5*pi/6)
-  sin_val: sin(angle_choice)
-  cos_val: cos(angle_choice)
-  answer: tan(angle_choice)
-
-question: "Using the unit circle, find the exact value of {tan(angle_choice)}."
-answer: answer
-answer_type: expression
-
-solution:
-  - "Use the identity {equation(math(tan(theta)), math(sin(theta)/cos(theta)))}."
-  - "From the unit circle at angle {angle_choice}: {equation(sin(angle_choice), sin_val)} and {equation(cos(angle_choice), cos_val)}."
-  - "Therefore, {equation(tan(angle_choice), answer)}."
+variants:
+  - name: default
+    variables:
+      angle_choice: choice(pi/6, pi/4, pi/3, 2*pi/3, 3*pi/4, 5*pi/6)
+      sin_val: sin(angle_choice)
+      cos_val: cos(angle_choice)
+      answer: tan(angle_choice)
+    question: Using the unit circle, find the exact value of {tan(angle_choice)}.
+    answer: answer
+    answer_type: expression
+    solution:
+      - Use the identity {equation(math(tan(theta)), math(sin(theta)/cos(theta)))}.
+      - 'From the unit circle at angle {angle_choice}: {equation(sin(angle_choice), sin_val)} and {equation(cos(angle_choice), cos_val)}.'
+      - Therefore, {equation(tan(angle_choice), answer)}.
