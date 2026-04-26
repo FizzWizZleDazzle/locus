@@ -149,7 +149,12 @@ pub async fn login(
     let token = create_token(user.id, &user.username, &state.jwt_secret, 24)
         .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
 
-    let cookie = build_auth_cookie(&token, 24, state.is_production, state.cookie_domain.as_deref());
+    let cookie = build_auth_cookie(
+        &token,
+        24,
+        state.is_production,
+        state.cookie_domain.as_deref(),
+    );
 
     Ok((
         AppendHeaders([(SET_COOKIE, cookie)]),

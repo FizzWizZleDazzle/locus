@@ -65,10 +65,8 @@ pub fn is_builtin_call(definition: &str) -> bool {
 /// Returns the result as a string.
 pub fn evaluate(definition: &str, vars: &VarMap) -> Result<String, DslError> {
     let def = definition.trim();
-    let paren = def.find('(').ok_or_else(|| {
-        DslError::UnknownFunction {
-            name: def.to_string(),
-        }
+    let paren = def.find('(').ok_or_else(|| DslError::UnknownFunction {
+        name: def.to_string(),
     })?;
 
     if !def.ends_with(')') {
@@ -102,7 +100,9 @@ pub fn evaluate(definition: &str, vars: &VarMap) -> Result<String, DslError> {
             for (name, value) in &sorted_vars {
                 let pattern = format!(r"\b{}\b", regex::escape(name));
                 if let Ok(re) = regex::Regex::new(&pattern) {
-                    substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+                    substituted = re
+                        .replace_all(&substituted, format!("({})", value))
+                        .to_string();
                 }
             }
             // Try to evaluate via SymEngine
@@ -269,9 +269,7 @@ fn fn_solve(args: &[String]) -> Result<String, DslError> {
     //   f(-1) = a - b + c
     //   f(2) = 4a + 2b + c
 
-    let f = |x: f64| -> Option<f64> {
-        expr.subs_float(var, x).to_float()
-    };
+    let f = |x: f64| -> Option<f64> { expr.subs_float(var, x).to_float() };
 
     let f0 = f(0.0).ok_or_else(|| DslError::Evaluation("Can't evaluate at 0".into()))?;
     let f1 = f(1.0).ok_or_else(|| DslError::Evaluation("Can't evaluate at 1".into()))?;
@@ -330,14 +328,20 @@ fn solve_numeric(expr: &Expr, var: &str) -> Result<String, DslError> {
 
     while x < 100.0 {
         let y1 = expr.subs_float(var, x).to_float().unwrap_or(f64::NAN);
-        let y2 = expr.subs_float(var, x + step).to_float().unwrap_or(f64::NAN);
+        let y2 = expr
+            .subs_float(var, x + step)
+            .to_float()
+            .unwrap_or(f64::NAN);
 
         if y1.is_finite() && y2.is_finite() && y1 * y2 < 0.0 {
             // Sign change — bisect to find root
             let root = bisect(expr, var, x, x + step, 50);
             if let Some(r) = root {
                 // Avoid duplicates
-                if !roots.iter().any(|&existing: &f64| (existing - r).abs() < 1e-6) {
+                if !roots
+                    .iter()
+                    .any(|&existing: &f64| (existing - r).abs() < 1e-6)
+                {
                     roots.push(r);
                 }
             }
@@ -349,7 +353,11 @@ fn solve_numeric(expr: &Expr, var: &str) -> Result<String, DslError> {
         Err(DslError::Evaluation("No roots found in [-100, 100]".into()))
     } else {
         roots.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        Ok(roots.iter().map(|r| format_root(*r)).collect::<Vec<_>>().join(", "))
+        Ok(roots
+            .iter()
+            .map(|r| format_root(*r))
+            .collect::<Vec<_>>()
+            .join(", "))
     }
 }
 
@@ -419,13 +427,21 @@ fn fn_integral(args: &[String]) -> Result<String, DslError> {
     let mut degree = 0;
     let mut test = expr.clone();
     for d in 0..20 {
-        if test.subs_float(var, 1.0).to_float().map_or(true, |v| v.abs() < 1e-12)
-            && test.subs_float(var, 2.0).to_float().map_or(true, |v| v.abs() < 1e-12)
+        if test
+            .subs_float(var, 1.0)
+            .to_float()
+            .map_or(true, |v| v.abs() < 1e-12)
+            && test
+                .subs_float(var, 2.0)
+                .to_float()
+                .map_or(true, |v| v.abs() < 1e-12)
         {
             degree = d;
             break;
         }
-        test = test.diff(var).map_err(|e| DslError::Evaluation(e.to_string()))?;
+        test = test
+            .diff(var)
+            .map_err(|e| DslError::Evaluation(e.to_string()))?;
         degree = d + 1;
     }
 
@@ -436,7 +452,9 @@ fn fn_integral(args: &[String]) -> Result<String, DslError> {
         // Coefficient of x^n: differentiate n times, divide by n!
         let mut deriv = expr.clone();
         for _ in 0..n {
-            deriv = deriv.diff(var).map_err(|e| DslError::Evaluation(e.to_string()))?;
+            deriv = deriv
+                .diff(var)
+                .map_err(|e| DslError::Evaluation(e.to_string()))?;
         }
         let coeff = deriv.subs_float(var, 0.0).to_float().unwrap_or(0.0);
         let factorial: f64 = (1..=n as u64).map(|i| i as f64).product::<f64>().max(1.0);
@@ -485,12 +503,18 @@ fn fn_definite_integral(args: &[String]) -> Result<String, DslError> {
     let anti = fn_integral(&args[..2].to_vec())?;
     let anti_expr = Expr::parse(&anti).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
 
-    let lo: f64 = parse_as_float(&args[2]).map_err(|_| DslError::Evaluation(format!("Can't parse lo '{}'", args[2])))?;
-    let hi: f64 = parse_as_float(&args[3]).map_err(|_| DslError::Evaluation(format!("Can't parse hi '{}'", args[3])))?;
+    let lo: f64 = parse_as_float(&args[2])
+        .map_err(|_| DslError::Evaluation(format!("Can't parse lo '{}'", args[2])))?;
+    let hi: f64 = parse_as_float(&args[3])
+        .map_err(|_| DslError::Evaluation(format!("Can't parse hi '{}'", args[3])))?;
 
-    let f_hi = anti_expr.subs_float(&args[1], hi).to_float()
+    let f_hi = anti_expr
+        .subs_float(&args[1], hi)
+        .to_float()
         .ok_or_else(|| DslError::Evaluation("Can't evaluate at upper bound".into()))?;
-    let f_lo = anti_expr.subs_float(&args[1], lo).to_float()
+    let f_lo = anti_expr
+        .subs_float(&args[1], lo)
+        .to_float()
         .ok_or_else(|| DslError::Evaluation("Can't evaluate at lower bound".into()))?;
 
     let result = f_hi - f_lo;
@@ -499,7 +523,11 @@ fn fn_definite_integral(args: &[String]) -> Result<String, DslError> {
 
 fn fn_floor(args: &[String]) -> Result<String, DslError> {
     if args.len() != 1 {
-        return Err(DslError::FunctionArity { name: "floor".into(), expected: 1, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "floor".into(),
+            expected: 1,
+            got: args.len(),
+        });
     }
     let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
     if let Some(f) = expr.to_float() {
@@ -511,7 +539,11 @@ fn fn_floor(args: &[String]) -> Result<String, DslError> {
 
 fn fn_ceil(args: &[String]) -> Result<String, DslError> {
     if args.len() != 1 {
-        return Err(DslError::FunctionArity { name: "ceil".into(), expected: 1, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "ceil".into(),
+            expected: 1,
+            got: args.len(),
+        });
     }
     let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
     if let Some(f) = expr.to_float() {
@@ -523,7 +555,11 @@ fn fn_ceil(args: &[String]) -> Result<String, DslError> {
 
 fn fn_mod(args: &[String]) -> Result<String, DslError> {
     if args.len() != 2 {
-        return Err(DslError::FunctionArity { name: "mod".into(), expected: 2, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "mod".into(),
+            expected: 2,
+            got: args.len(),
+        });
     }
     let a = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
     let b = Expr::parse(&args[1]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
@@ -551,7 +587,11 @@ fn gcd_i64(mut a: u64, mut b: u64) -> u64 {
 
 fn fn_gcd(args: &[String]) -> Result<String, DslError> {
     if args.len() != 2 {
-        return Err(DslError::FunctionArity { name: "gcd".into(), expected: 2, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "gcd".into(),
+            expected: 2,
+            got: args.len(),
+        });
     }
     let a = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
     let b = Expr::parse(&args[1]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
@@ -560,18 +600,26 @@ fn fn_gcd(args: &[String]) -> Result<String, DslError> {
             let ia = fa.round() as i64;
             let ib = fb.round() as i64;
             if (fa - ia as f64).abs() > 1e-8 || (fb - ib as f64).abs() > 1e-8 {
-                return Err(DslError::Evaluation("gcd: arguments must be integers".into()));
+                return Err(DslError::Evaluation(
+                    "gcd: arguments must be integers".into(),
+                ));
             }
             let result = gcd_i64(ia.unsigned_abs(), ib.unsigned_abs());
             Ok(format!("{}", result))
         }
-        _ => Err(DslError::Evaluation("gcd: can't evaluate symbolically".into())),
+        _ => Err(DslError::Evaluation(
+            "gcd: can't evaluate symbolically".into(),
+        )),
     }
 }
 
 fn fn_lcm(args: &[String]) -> Result<String, DslError> {
     if args.len() != 2 {
-        return Err(DslError::FunctionArity { name: "lcm".into(), expected: 2, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "lcm".into(),
+            expected: 2,
+            got: args.len(),
+        });
     }
     let a = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
     let b = Expr::parse(&args[1]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
@@ -586,7 +634,9 @@ fn fn_lcm(args: &[String]) -> Result<String, DslError> {
             let result = ia / g * ib;
             Ok(format!("{}", result))
         }
-        _ => Err(DslError::Evaluation("lcm: can't evaluate symbolically".into())),
+        _ => Err(DslError::Evaluation(
+            "lcm: can't evaluate symbolically".into(),
+        )),
     }
 }
 
@@ -599,7 +649,11 @@ fn fn_matrix_unsupported(name: &str, _args: &[String]) -> Result<String, DslErro
 
 fn fn_dot(args: &[String]) -> Result<String, DslError> {
     if args.len() != 2 {
-        return Err(DslError::FunctionArity { name: "dot".into(), expected: 2, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "dot".into(),
+            expected: 2,
+            got: args.len(),
+        });
     }
     // Parse vectors like [1, 2, 3]
     let parse_vec = |s: &str| -> Result<Vec<f64>, DslError> {
@@ -617,7 +671,9 @@ fn fn_dot(args: &[String]) -> Result<String, DslError> {
     let va = parse_vec(&args[0])?;
     let vb = parse_vec(&args[1])?;
     if va.len() != vb.len() {
-        return Err(DslError::Evaluation("dot: vectors must be same length".into()));
+        return Err(DslError::Evaluation(
+            "dot: vectors must be same length".into(),
+        ));
     }
     let result: f64 = va.iter().zip(vb.iter()).map(|(a, b)| a * b).sum();
     Ok(format_root(result))
@@ -625,10 +681,15 @@ fn fn_dot(args: &[String]) -> Result<String, DslError> {
 
 fn fn_magnitude(args: &[String]) -> Result<String, DslError> {
     if args.len() != 1 {
-        return Err(DslError::FunctionArity { name: "magnitude".into(), expected: 1, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "magnitude".into(),
+            expected: 1,
+            got: args.len(),
+        });
     }
     let s = args[0].trim().trim_start_matches('[').trim_end_matches(']');
-    let components: Result<Vec<f64>, _> = s.split(',')
+    let components: Result<Vec<f64>, _> = s
+        .split(',')
         .map(|x| {
             let x = x.trim();
             Expr::parse(x)
@@ -645,7 +706,11 @@ fn fn_magnitude(args: &[String]) -> Result<String, DslError> {
 
 fn fn_limit(args: &[String]) -> Result<String, DslError> {
     if args.len() != 3 {
-        return Err(DslError::FunctionArity { name: "limit".into(), expected: 3, got: args.len() });
+        return Err(DslError::FunctionArity {
+            name: "limit".into(),
+            expected: 3,
+            got: args.len(),
+        });
     }
     // limit(expr, var, point) — numeric limit via approaching from both sides
     let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
@@ -754,7 +819,9 @@ fn fn_max(args: &[String]) -> Result<String, DslError> {
                 Ok(args[1].clone())
             }
         }
-        _ => Err(DslError::Evaluation("max: can't compare symbolically".into())),
+        _ => Err(DslError::Evaluation(
+            "max: can't compare symbolically".into(),
+        )),
     }
 }
 
@@ -776,7 +843,9 @@ fn fn_min(args: &[String]) -> Result<String, DslError> {
                 Ok(args[1].clone())
             }
         }
-        _ => Err(DslError::Evaluation("min: can't compare symbolically".into())),
+        _ => Err(DslError::Evaluation(
+            "min: can't compare symbolically".into(),
+        )),
     }
 }
 

@@ -11,7 +11,11 @@ pub fn n(v: f64) -> String {
     }
     let s = format!("{:.3}", v);
     let s = s.trim_end_matches('0').trim_end_matches('.').to_string();
-    if s.is_empty() || s == "-0" || s == "-" { "0".into() } else { s }
+    if s.is_empty() || s == "-0" || s == "-" {
+        "0".into()
+    } else {
+        s
+    }
 }
 
 /// Cetz coordinate literal: `(x, y)`.
@@ -70,8 +74,20 @@ pub fn line(buf: &mut String, p1: (f64, f64), p2: (f64, f64), c: Color, s: LineS
 
 /// Draw a line with a `name:` so callers can anchor labels to it via
 /// path interpolation `("name.start", 50%, "name.end")`.
-pub fn line_named(buf: &mut String, name: &str, p1: (f64, f64), p2: (f64, f64), c: Color, s: LineStyle) {
-    let _ = write!(buf, "line({}, {}, name: \"{name}\", stroke: ", pt(p1.0, p1.1), pt(p2.0, p2.1));
+pub fn line_named(
+    buf: &mut String,
+    name: &str,
+    p1: (f64, f64),
+    p2: (f64, f64),
+    c: Color,
+    s: LineStyle,
+) {
+    let _ = write!(
+        buf,
+        "line({}, {}, name: \"{name}\", stroke: ",
+        pt(p1.0, p1.1),
+        pt(p2.0, p2.1)
+    );
     stroke(buf, c, s);
     buf.push_str(")\n");
 }
@@ -93,11 +109,20 @@ pub fn label_on_line(buf: &mut String, name: &str, text: &str, anchor: &str) {
 /// `o` between rays to `a` and `b`, with `text` placed past the arc on the
 /// angular bisector. `direction: "cw"` picks the interior arc on the side
 /// where centroid usually sits; label-radius pushes label well off the arc.
-pub fn angle_arc(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), text: &str, radius: f64) {
+pub fn angle_arc(
+    buf: &mut String,
+    o: (f64, f64),
+    a: (f64, f64),
+    b: (f64, f64),
+    text: &str,
+    radius: f64,
+) {
     let _ = write!(
         buf,
         "angle.angle({o}, {a}, {b}, direction: \"cw\", radius: {r}, label-radius: {r2}, label: text(8pt)[{lab_inner}])\n",
-        o = pt(o.0, o.1), a = pt(a.0, a.1), b = pt(b.0, b.1),
+        o = pt(o.0, o.1),
+        a = pt(a.0, a.1),
+        b = pt(b.0, b.1),
         r = n(radius),
         r2 = n(radius * 2.2),
         lab_inner = text,
@@ -105,11 +130,19 @@ pub fn angle_arc(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), 
 }
 
 /// Right-angle square marker at vertex `o` (between rays to `a` and `b`).
-pub fn right_angle_mark(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), radius: f64) {
+pub fn right_angle_mark(
+    buf: &mut String,
+    o: (f64, f64),
+    a: (f64, f64),
+    b: (f64, f64),
+    radius: f64,
+) {
     let _ = write!(
         buf,
         "angle.right-angle({o}, {a}, {b}, radius: {r})\n",
-        o = pt(o.0, o.1), a = pt(a.0, a.1), b = pt(b.0, b.1),
+        o = pt(o.0, o.1),
+        a = pt(a.0, a.1),
+        b = pt(b.0, b.1),
         r = n(radius),
     );
 }
@@ -161,7 +194,12 @@ pub fn content(buf: &mut String, at: (f64, f64), text: &str) {
 /// sits in known-empty space (vertex labels offset outside a polygon, etc.)
 /// so the plate doesn't visually clutter the figure.
 pub fn content_plain(buf: &mut String, at: (f64, f64), text: &str) {
-    let _ = write!(buf, "content({}, {}, padding: 1pt)\n", pt(at.0, at.1), label(text));
+    let _ = write!(
+        buf,
+        "content({}, {}, padding: 1pt)\n",
+        pt(at.0, at.1),
+        label(text)
+    );
 }
 
 /// Plain anchored content (no plate).
@@ -223,7 +261,9 @@ pub fn point_open(buf: &mut String, at: (f64, f64), c: Color) {
 
 /// Smooth polyline through sample points.
 pub fn polyline(buf: &mut String, pts: &[(f64, f64)], c: Color, s: LineStyle) {
-    if pts.len() < 2 { return; }
+    if pts.len() < 2 {
+        return;
+    }
     let mut out = String::from("line(");
     for p in pts {
         out.push_str(&pt(p.0, p.1));

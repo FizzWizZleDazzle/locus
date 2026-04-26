@@ -81,7 +81,11 @@ pub fn Ranked() -> impl IntoView {
         let topic = selected_topic.get();
         let subtopics = selected_subtopics.get();
 
-        let q = if warmup_active.get_untracked() { warmup_queue } else { queue };
+        let q = if warmup_active.get_untracked() {
+            warmup_queue
+        } else {
+            queue
+        };
 
         if let Some(p) = q.next(topic.clone(), subtopics.clone()) {
             set_problem.set(Some(p));
@@ -95,7 +99,11 @@ pub fn Ranked() -> impl IntoView {
 
     // When the queue finishes loading and we're still waiting for a problem, pop one
     Effect::new(move |_| {
-        let q = if warmup_active.get() { warmup_queue } else { queue };
+        let q = if warmup_active.get() {
+            warmup_queue
+        } else {
+            queue
+        };
         if loading.get() && !q.loading() {
             if let Some(err) = q.error() {
                 set_error.set(Some(err));
@@ -232,15 +240,14 @@ pub fn Ranked() -> impl IntoView {
 
     // Keyboard shortcut: Enter → next problem when result is showing
     Effect::new(move |_| {
-        let handler = Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(
-            move |ev: web_sys::KeyboardEvent| {
+        let handler =
+            Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(move |ev: web_sys::KeyboardEvent| {
                 let has_result = result.get().is_some() || warmup_result.get().is_some();
                 if ev.key() == "Enter" && has_result {
                     ev.prevent_default();
                     advance_problem();
                 }
-            },
-        );
+            });
         let window = web_sys::window().unwrap();
         window
             .add_event_listener_with_callback("keydown", handler.as_ref().unchecked_ref())

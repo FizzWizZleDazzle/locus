@@ -153,9 +153,9 @@ fn collapse_math_runs(spans: Vec<Span<'_>>) -> Vec<Span<'_>> {
                     match s {
                         Span::Math(b) => merged.push_str(&b),
                         Span::Glue(g) => merged.push_str(g),
-                        Span::Prose(_) | Span::Display(_) => unreachable!(
-                            "find_math_anchor returned an index past prose/display"
-                        ),
+                        Span::Prose(_) | Span::Display(_) => {
+                            unreachable!("find_math_anchor returned an index past prose/display")
+                        }
                     }
                 }
                 merged.push_str(&body);
@@ -248,8 +248,8 @@ fn is_math_glue(s: &str) -> bool {
             // close the sentence, not get pulled into the math region as a
             // bogus decimal point. Same for sentence commas like
             // `Find $x$, then $y$`.
-            '+' | '-' | '*' | '/' | '=' | '<' | '>' | '^' | '_' |
-            '(' | ')' | '[' | ']' | '{' | '}' | '!' | ' ' | '\t' => i += 1,
+            '+' | '-' | '*' | '/' | '=' | '<' | '>' | '^' | '_' | '(' | ')' | '[' | ']' | '{'
+            | '}' | '!' | ' ' | '\t' => i += 1,
             // Backslash → LaTeX command. Allow `\cdot`, `\le`, `\to`, etc.
             '\\' => {
                 i += 1;
@@ -318,7 +318,9 @@ fn render_ref(content: &str, vars: &VarMap) -> Result<String, DslError> {
     for (name, value) in &sorted {
         let pattern = format!(r"\b{}\b", regex::escape(name));
         if let Ok(re) = regex::Regex::new(&pattern) {
-            substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+            substituted = re
+                .replace_all(&substituted, format!("({})", value))
+                .to_string();
         }
     }
     // If substitution changed something, try to render it
@@ -407,10 +409,7 @@ mod tests {
 
     #[test]
     fn merge_joins_function_notation() {
-        assert_eq!(
-            merge_adjacent_math_regions("$f$($x$)"),
-            "$f(x)$"
-        );
+        assert_eq!(merge_adjacent_math_regions("$f$($x$)"), "$f(x)$");
     }
 
     #[test]
@@ -424,10 +423,7 @@ mod tests {
     #[test]
     fn merge_does_not_join_across_words() {
         // English word `for` is not math glue — leave the regions separate.
-        assert_eq!(
-            merge_adjacent_math_regions("$x$ for $y$"),
-            "$x$ for $y$"
-        );
+        assert_eq!(merge_adjacent_math_regions("$x$ for $y$"), "$x$ for $y$");
     }
 
     #[test]
@@ -446,10 +442,7 @@ mod tests {
 
     #[test]
     fn merge_handles_negative_numbers() {
-        assert_eq!(
-            merge_adjacent_math_regions("$x$ = $-3$"),
-            "$x = -3$"
-        );
+        assert_eq!(merge_adjacent_math_regions("$x$ = $-3$"), "$x = -3$");
     }
 
     #[test]
@@ -472,10 +465,7 @@ mod tests {
     #[test]
     fn merge_handles_function_call_in_glue() {
         // `f($x$) = $5$` — `f(` is a function-call shape and should count as glue.
-        assert_eq!(
-            merge_adjacent_math_regions("f($x$) = $5$"),
-            "$f(x) = 5$"
-        );
+        assert_eq!(merge_adjacent_math_regions("f($x$) = $5$"), "$f(x) = 5$");
     }
 }
 

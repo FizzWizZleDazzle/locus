@@ -106,11 +106,25 @@ impl ProblemQueue {
 /// Trigger an off-screen image fetch so the browser caches it before the
 /// problem is rendered. No-op for empty URLs.
 fn preload_image(url: &str) {
-    if url.is_empty() { return; }
-    let window = match web_sys::window() { Some(w) => w, None => return };
-    let document = match window.document() { Some(d) => d, None => return };
-    let head = match document.head() { Some(h) => h, None => return };
-    let link = match document.create_element("link") { Ok(l) => l, Err(_) => return };
+    if url.is_empty() {
+        return;
+    }
+    let window = match web_sys::window() {
+        Some(w) => w,
+        None => return,
+    };
+    let document = match window.document() {
+        Some(d) => d,
+        None => return,
+    };
+    let head = match document.head() {
+        Some(h) => h,
+        None => return,
+    };
+    let link = match document.create_element("link") {
+        Ok(l) => l,
+        Err(_) => return,
+    };
     let _ = link.set_attribute("rel", "preload");
     let _ = link.set_attribute("as", "image");
     let _ = link.set_attribute("href", url);

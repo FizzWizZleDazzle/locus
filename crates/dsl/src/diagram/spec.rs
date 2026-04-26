@@ -17,17 +17,23 @@ use super::style::{Color, LineStyle, PointStyle};
 pub struct Num(pub String);
 
 impl Num {
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl std::ops::Deref for Num {
     type Target = str;
-    fn deref(&self) -> &str { &self.0 }
+    fn deref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl<'de> Deserialize<'de> for Num {
     fn deserialize<D>(d: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         let v = serde_yaml::Value::deserialize(d)?;
         let s = match v {
             serde_yaml::Value::String(s) => s,
@@ -36,7 +42,7 @@ impl<'de> Deserialize<'de> for Num {
             other => {
                 return Err(serde::de::Error::custom(format!(
                     "expected number or expression string, got {other:?}"
-                )))
+                )));
             }
         };
         Ok(Num(s))
@@ -468,11 +474,20 @@ pub struct ForceDiagram {
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ObjectKind { Block, Sphere, Point, Beam }
+pub enum ObjectKind {
+    Block,
+    Sphere,
+    Point,
+    Beam,
+}
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum SurfaceKind { Flat, Incline, None }
+pub enum SurfaceKind {
+    Flat,
+    Incline,
+    None,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "snake_case", deny_unknown_fields)]
@@ -530,7 +545,10 @@ pub struct Field {
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum FieldKind { Electric, Magnetic }
+pub enum FieldKind {
+    Electric,
+    Magnetic,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "snake_case", deny_unknown_fields)]

@@ -3,7 +3,7 @@
 
 use std::sync::OnceLock;
 
-use include_dir::{include_dir, Dir};
+use include_dir::{Dir, include_dir};
 use typst::diag::{FileError, FileResult};
 use typst::foundations::{Bytes, Datetime};
 use typst::syntax::package::PackageSpec;
@@ -57,9 +57,15 @@ impl InMemoryWorld {
 }
 
 impl World for InMemoryWorld {
-    fn library(&self) -> &LazyHash<Library> { library() }
-    fn book(&self) -> &LazyHash<FontBook> { &fonts().0 }
-    fn main(&self) -> FileId { self.main_id }
+    fn library(&self) -> &LazyHash<Library> {
+        library()
+    }
+    fn book(&self) -> &LazyHash<FontBook> {
+        &fonts().0
+    }
+    fn main(&self) -> FileId {
+        self.main_id
+    }
 
     fn source(&self, id: FileId) -> FileResult<Source> {
         if id == self.main_id {
@@ -89,5 +95,7 @@ impl World for InMemoryWorld {
         fonts().1.get(idx).cloned()
     }
 
-    fn today(&self, _offset: Option<i64>) -> Option<Datetime> { None }
+    fn today(&self, _offset: Option<i64>) -> Option<Datetime> {
+        None
+    }
 }

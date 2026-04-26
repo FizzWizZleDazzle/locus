@@ -50,8 +50,8 @@ pub fn login_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware,
 
 /// Creates a rate limiter for sensitive endpoints (forgot-password, resend-verification, reset-password)
 /// Limit: 5 requests per 15 minutes per IP (unlimited in debug builds)
-pub fn sensitive_rate_limiter() -> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body>
-{
+pub fn sensitive_rate_limiter()
+-> GovernorLayer<PeerIpKeyExtractor, NoOpMiddleware, axum::body::Body> {
     #[cfg(debug_assertions)]
     let requests: u32 = 1_000_000; // Effectively unlimited in dev
 

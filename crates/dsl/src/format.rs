@@ -111,7 +111,10 @@ fn find_logical_op(s: &str, op: &str) -> Option<usize> {
             b')' => depth -= 1,
             _ => {}
         }
-        if depth == 0 && i + op_bytes.len() <= bytes.len() && &bytes[i..i + op_bytes.len()] == op_bytes {
+        if depth == 0
+            && i + op_bytes.len() <= bytes.len()
+            && &bytes[i..i + op_bytes.len()] == op_bytes
+        {
             return Some(i);
         }
     }
@@ -158,12 +161,8 @@ fn eval_expr(expr: &str, answer_str: &str) -> Result<String, DslError> {
                     let expr = parse_expr(&args_resolved)?;
                     Ok(expr.to_string())
                 }
-                "numerator" => {
-                    extract_fraction_part(&args_resolved, true)
-                }
-                "denominator" => {
-                    extract_fraction_part(&args_resolved, false)
-                }
+                "numerator" => extract_fraction_part(&args_resolved, true),
+                "denominator" => extract_fraction_part(&args_resolved, false),
                 "gcd" => {
                     let parts: Vec<&str> = split_args(&args_resolved);
                     if parts.len() != 2 {
@@ -176,7 +175,9 @@ fn eval_expr(expr: &str, answer_str: &str) -> Result<String, DslError> {
                 "count" => {
                     let parts: Vec<&str> = split_args(&args_resolved);
                     if parts.len() != 2 {
-                        return Err(DslError::Evaluation("count(func, expr) requires 2 args".into()));
+                        return Err(DslError::Evaluation(
+                            "count(func, expr) requires 2 args".into(),
+                        ));
                     }
                     let func_name = parts[0].trim();
                     let expr_str = parts[1].trim();
@@ -186,7 +187,9 @@ fn eval_expr(expr: &str, answer_str: &str) -> Result<String, DslError> {
                 "degree" => {
                     let parts: Vec<&str> = split_args(&args_resolved);
                     if parts.len() != 2 {
-                        return Err(DslError::Evaluation("degree(expr, var) requires 2 args".into()));
+                        return Err(DslError::Evaluation(
+                            "degree(expr, var) requires 2 args".into(),
+                        ));
                     }
                     let deg = compute_degree(parts[0].trim(), parts[1].trim())?;
                     Ok(deg.to_string())
@@ -211,9 +214,9 @@ fn eval_expr(expr: &str, answer_str: &str) -> Result<String, DslError> {
 fn eval_expr_float(expr: &str, answer_str: &str) -> Result<f64, DslError> {
     let s = eval_expr(expr, answer_str)?;
     let parsed = parse_expr(&s)?;
-    parsed.to_float().ok_or_else(|| {
-        DslError::Evaluation(format!("Can't evaluate '{s}' to float"))
-    })
+    parsed
+        .to_float()
+        .ok_or_else(|| DslError::Evaluation(format!("Can't evaluate '{s}' to float")))
 }
 
 fn parse_expr(s: &str) -> Result<Expr, DslError> {
@@ -269,9 +272,9 @@ fn eval_to_int(expr: &str, answer_str: &str) -> Result<i64, DslError> {
     let s = eval_expr(expr, answer_str)?;
     s.parse::<i64>().or_else(|_| {
         // Try float → int
-        s.parse::<f64>().map(|f| f.round() as i64).map_err(|_| {
-            DslError::Evaluation(format!("Can't evaluate '{s}' to integer"))
-        })
+        s.parse::<f64>()
+            .map(|f| f.round() as i64)
+            .map_err(|_| DslError::Evaluation(format!("Can't evaluate '{s}' to integer")))
     })
 }
 
@@ -294,13 +297,18 @@ fn compute_degree(expr_str: &str, var: &str) -> Result<i32, DslError> {
         let val3 = current.subs_float(var, 3.0).to_float().unwrap_or(f64::NAN);
 
         // If all equal, no more var dependence
-        if val1.is_finite() && val2.is_finite() && val3.is_finite()
-            && (val1 - val2).abs() < 1e-10 && (val2 - val3).abs() < 1e-10
+        if val1.is_finite()
+            && val2.is_finite()
+            && val3.is_finite()
+            && (val1 - val2).abs() < 1e-10
+            && (val2 - val3).abs() < 1e-10
         {
             break;
         }
 
-        current = current.diff(var).map_err(|e| DslError::Evaluation(e.to_string()))?;
+        current = current
+            .diff(var)
+            .map_err(|e| DslError::Evaluation(e.to_string()))?;
         degree += 1;
     }
 
@@ -393,18 +401,18 @@ mod tests {
 
     #[test]
     fn test_compound_and() {
-        assert!(check_format(
-            "expanded and degree(answer, x) == 2",
-            "x**2 + 3*x + 1"
-        ).unwrap());
+        assert!(check_format("expanded and degree(answer, x) == 2", "x**2 + 3*x + 1").unwrap());
     }
 
     #[test]
     fn test_compound_or() {
         // Either factored OR degree <= 1
-        assert!(check_format(
-            "factored or degree(answer, x) <= 1",
-            "3*x + 6"  // not factored, but degree 1
-        ).unwrap());
+        assert!(
+            check_format(
+                "factored or degree(answer, x) <= 1",
+                "3*x + 6" // not factored, but degree 1
+            )
+            .unwrap()
+        );
     }
 }

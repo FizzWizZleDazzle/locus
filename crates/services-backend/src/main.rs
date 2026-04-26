@@ -2,12 +2,17 @@ mod auth;
 mod config;
 mod status;
 
-use axum::{Json, Router, http::Method, middleware, routing::{get, post}};
 use axum::extract::State;
 use axum::http::StatusCode;
+use axum::{
+    Json, Router,
+    http::Method,
+    middleware,
+    routing::{get, post},
+};
 use serde::Serialize;
-use sqlx::{Executor, PgPool};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::{Executor, PgPool};
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -53,8 +58,9 @@ async fn main() -> anyhow::Result<()> {
             success BOOLEAN NOT NULL,
             checksum BYTEA NOT NULL,
             execution_time BIGINT NOT NULL
-        )"
-    )).await?;
+        )",
+    ))
+    .await?;
     // Run each migration manually against our custom table
     for migration in migrator.iter() {
         let version = migration.version;
@@ -90,7 +96,10 @@ async fn main() -> anyhow::Result<()> {
         config.health_check_url.clone(),
         config.health_check_interval_secs,
     );
-    tracing::info!("Health checker started (interval: {}s)", config.health_check_interval_secs);
+    tracing::info!(
+        "Health checker started (interval: {}s)",
+        config.health_check_interval_secs
+    );
 
     let state = AppState {
         pool,
@@ -117,11 +126,14 @@ async fn main() -> anyhow::Result<()> {
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_origins)
-                .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::DELETE, Method::OPTIONS])
-                .allow_headers([
-                    axum::http::header::CONTENT_TYPE,
-                    axum::http::header::COOKIE,
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::PATCH,
+                    Method::DELETE,
+                    Method::OPTIONS,
                 ])
+                .allow_headers([axum::http::header::CONTENT_TYPE, axum::http::header::COOKIE])
                 .allow_credentials(true),
         )
         .layer(TraceLayer::new_for_http())
@@ -153,23 +165,18 @@ struct UserInfo {
     username: String,
 }
 
-async fn auth_logout(
-    State(state): State<AppState>,
-) -> axum::response::Response {
+async fn auth_logout(State(state): State<AppState>) -> axum::response::Response {
     use axum::response::IntoResponse;
 
     let cookie = auth::build_clear_cookie(state.is_production, state.cookie_domain.as_deref());
     let mut response = StatusCode::OK.into_response();
-    response.headers_mut().insert(
-        axum::http::header::SET_COOKIE,
-        cookie.parse().unwrap(),
-    );
+    response
+        .headers_mut()
+        .insert(axum::http::header::SET_COOKIE, cookie.parse().unwrap());
     response
 }
 
-async fn auth_me(
-    user: auth::AuthUser,
-) -> Json<UserInfo> {
+async fn auth_me(user: auth::AuthUser) -> Json<UserInfo> {
     Json(UserInfo {
         id: user.id,
         username: user.username,
@@ -185,6 +192,9 @@ async fn security_headers(
     let headers = res.headers_mut();
     headers.insert("x-content-type-options", "nosniff".parse().unwrap());
     headers.insert("x-frame-options", "DENY".parse().unwrap());
-    headers.insert("referrer-policy", "strict-origin-when-cross-origin".parse().unwrap());
+    headers.insert(
+        "referrer-policy",
+        "strict-origin-when-cross-origin".parse().unwrap(),
+    );
     res
 }

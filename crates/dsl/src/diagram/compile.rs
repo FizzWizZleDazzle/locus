@@ -34,15 +34,13 @@ pub fn wrap_cetz_with_length(canvas_body: &str, length: &str) -> String {
 pub fn compile(typst_src: String) -> Result<String, DslError> {
     let world = InMemoryWorld::new(typst_src);
     let warned = typst::compile::<PagedDocument>(&world);
-    let doc = warned
-        .output
-        .map_err(|errors| {
-            let msg = errors
-                .iter()
-                .map(|e| format!("{}", e.message))
-                .collect::<Vec<_>>()
-                .join("; ");
-            DslError::Evaluation(format!("typst compile failed: {msg}"))
-        })?;
+    let doc = warned.output.map_err(|errors| {
+        let msg = errors
+            .iter()
+            .map(|e| format!("{}", e.message))
+            .collect::<Vec<_>>()
+            .join("; ");
+        DslError::Evaluation(format!("typst compile failed: {msg}"))
+    })?;
     Ok(typst_svg::svg_merged(&doc, Abs::zero()))
 }

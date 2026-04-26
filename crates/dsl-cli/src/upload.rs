@@ -4,8 +4,8 @@
 //! extension. Same diagram from multiple problems = single object,
 //! deduplicated automatically.
 
-use s3::creds::Credentials;
 use s3::Bucket;
+use s3::creds::Credentials;
 use sha2::{Digest, Sha256};
 
 #[derive(Clone)]
@@ -38,15 +38,23 @@ impl Uploader {
         };
         let creds = Credentials::new(Some(&access_key), Some(&secret_key), None, None, None)
             .map_err(|e| format!("creds: {e}"))?;
-        let mut bucket = Bucket::new(&bucket_name, region, creds)
-            .map_err(|e| format!("bucket: {e}"))?;
+        let mut bucket =
+            Bucket::new(&bucket_name, region, creds).map_err(|e| format!("bucket: {e}"))?;
         bucket.set_path_style();
-        Ok(Some(Self { bucket, public_base }))
+        Ok(Some(Self {
+            bucket,
+            public_base,
+        }))
     }
 
     /// Upload `bytes` under a content-hash key. Returns the public URL.
     /// Idempotent: re-uploading the same bytes just overwrites with itself.
-    pub async fn put(&self, bytes: &[u8], extension: &str, content_type: &str) -> Result<String, String> {
+    pub async fn put(
+        &self,
+        bytes: &[u8],
+        extension: &str,
+        content_type: &str,
+    ) -> Result<String, String> {
         let mut hasher = Sha256::new();
         hasher.update(bytes);
         let hash = hex::encode(hasher.finalize());
@@ -60,6 +68,10 @@ impl Uploader {
         if !(200..300).contains(&status) {
             return Err(format!("upload {key}: HTTP {status}"));
         }
-        Ok(format!("{}/{}", self.public_base.trim_end_matches('/'), key))
+        Ok(format!(
+            "{}/{}",
+            self.public_base.trim_end_matches('/'),
+            key
+        ))
     }
 }

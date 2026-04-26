@@ -1,6 +1,9 @@
 //! Public profile endpoint
 
-use axum::{Json, extract::{Path, State}};
+use axum::{
+    Json,
+    extract::{Path, State},
+};
 use chrono::Utc;
 
 use locus_common::{

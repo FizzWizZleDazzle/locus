@@ -4,8 +4,8 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use locus_common::{DailyActivityResponse, EloHistoryPoint, UserStatsResponse};
 
-use crate::{AuthContext, api};
 use crate::components::{ActivityMatrix, BadgeGrid};
+use crate::{AuthContext, api};
 
 #[component]
 pub fn Stats() -> impl IntoView {
@@ -274,4 +274,3 @@ pub fn Stats() -> impl IntoView {
         </div>
     }
 }
-

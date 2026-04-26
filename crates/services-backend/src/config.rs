@@ -29,8 +29,8 @@ impl Config {
             _ => Environment::Development,
         };
 
-        let jwt_secret = env::var("JWT_SECRET")
-            .map_err(|_| ConfigError::MissingEnv("JWT_SECRET"))?;
+        let jwt_secret =
+            env::var("JWT_SECRET").map_err(|_| ConfigError::MissingEnv("JWT_SECRET"))?;
 
         if environment == Environment::Production && jwt_secret.len() < 32 {
             return Err(ConfigError::JwtSecretTooShort);

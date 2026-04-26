@@ -8,11 +8,7 @@ use crate::resolver::VarMap;
 use crate::template::expr_to_latex;
 
 /// Render a display function call to LaTeX
-pub fn render_display_func(
-    name: &str,
-    args_str: &str,
-    vars: &VarMap,
-) -> Result<String, DslError> {
+pub fn render_display_func(name: &str, args_str: &str, vars: &VarMap) -> Result<String, DslError> {
     let args: Vec<&str> = split_display_args(args_str);
 
     // `evaluate` is special: it needs the raw substituted expression text so it
@@ -91,7 +87,10 @@ pub fn render_display_func(
 
 fn df_derivative_of(args: &[String]) -> Result<String, DslError> {
     check_arity("derivative_of", args, 2)?;
-    Ok(format!(r"\frac{{d}}{{d{}}}\left[{}\right]", args[1], args[0]))
+    Ok(format!(
+        r"\frac{{d}}{{d{}}}\left[{}\right]",
+        args[1], args[0]
+    ))
 }
 
 fn df_nth_derivative_of(args: &[String]) -> Result<String, DslError> {
@@ -125,10 +124,7 @@ fn df_definite_integral_of(args: &[String]) -> Result<String, DslError> {
 
 fn df_limit_of(args: &[String]) -> Result<String, DslError> {
     check_arity("limit_of", args, 3)?;
-    Ok(format!(
-        r"\lim_{{{} \to {}}} {}",
-        args[1], args[2], args[0]
-    ))
+    Ok(format!(r"\lim_{{{} \to {}}} {}", args[1], args[2], args[0]))
 }
 
 fn df_sum_of(args: &[String]) -> Result<String, DslError> {
@@ -430,7 +426,10 @@ fn df_evaluate_compute(args: &[&str], vars: &VarMap) -> Result<String, DslError>
     // Build a synthetic builtin call and let crates::functions::evaluate run it.
     // This sidesteps duplicating the substitution logic and inherits all the
     // numeric-vs-symbolic handling for free.
-    let raw_args: Vec<String> = args.iter().map(|a| resolve_arg_to_raw(a.trim(), vars)).collect();
+    let raw_args: Vec<String> = args
+        .iter()
+        .map(|a| resolve_arg_to_raw(a.trim(), vars))
+        .collect();
     let synthetic_call = format!("evaluate({})", raw_args.join(", "));
     let result = crate::functions::evaluate(&synthetic_call, vars)?;
     expr_to_latex(&result)
@@ -550,15 +549,46 @@ fn parse_display_call(s: &str) -> Option<(&str, &str)> {
 fn is_display_func_name(name: &str) -> bool {
     matches!(
         name,
-        "derivative_of" | "derivative" | "nth_derivative_of" | "partial_of"
-        | "integral_of" | "definite_integral_of" | "limit_of"
-        | "sum_of" | "product_of" | "equation" | "system"
-        | "matrix_of" | "det_of" | "vec" | "norm" | "abs_of" | "abs"
-        | "set_of" | "display" | "binomial" | "evaluate" | "eval"
-        | "sqrt" | "sqrt_of" | "simplify" | "round" | "expand"
-        | "log" | "ln" | "sin" | "cos" | "tan"
-        | "asin" | "acos" | "atan" | "floor" | "ceil" | "exp" | "mod"
-        | "math"
+        "derivative_of"
+            | "derivative"
+            | "nth_derivative_of"
+            | "partial_of"
+            | "integral_of"
+            | "definite_integral_of"
+            | "limit_of"
+            | "sum_of"
+            | "product_of"
+            | "equation"
+            | "system"
+            | "matrix_of"
+            | "det_of"
+            | "vec"
+            | "norm"
+            | "abs_of"
+            | "abs"
+            | "set_of"
+            | "display"
+            | "binomial"
+            | "evaluate"
+            | "eval"
+            | "sqrt"
+            | "sqrt_of"
+            | "simplify"
+            | "round"
+            | "expand"
+            | "log"
+            | "ln"
+            | "sin"
+            | "cos"
+            | "tan"
+            | "asin"
+            | "acos"
+            | "atan"
+            | "floor"
+            | "ceil"
+            | "exp"
+            | "mod"
+            | "math"
     )
 }
 
@@ -686,13 +716,16 @@ mod tests {
     #[test]
     fn parse_display_call_recognizes_simple_form() {
         assert_eq!(parse_display_call("foo(a, b)"), Some(("foo", "a, b")));
-        assert_eq!(parse_display_call("derivative_of(f, x)"), Some(("derivative_of", "f, x")));
+        assert_eq!(
+            parse_display_call("derivative_of(f, x)"),
+            Some(("derivative_of", "f, x"))
+        );
     }
 
     #[test]
     fn parse_display_call_rejects_non_calls() {
         assert_eq!(parse_display_call("a + b"), None);
-        assert_eq!(parse_display_call("(a)+(b)"), None);   // not a single trailing call
+        assert_eq!(parse_display_call("(a)+(b)"), None); // not a single trailing call
         assert_eq!(parse_display_call("3"), None);
         assert_eq!(parse_display_call(""), None);
     }

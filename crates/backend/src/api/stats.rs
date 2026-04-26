@@ -6,7 +6,10 @@ use axum::{
 };
 use serde::Deserialize;
 
-use locus_common::{EloHistoryPoint, EloHistoryResponse, TopicStatsEntry, UserStatsResponse, badges::compute_all_badges};
+use locus_common::{
+    EloHistoryPoint, EloHistoryResponse, TopicStatsEntry, UserStatsResponse,
+    badges::compute_all_badges,
+};
 
 use super::AppState;
 use crate::{AppError, auth::AuthUser, models::daily_puzzle::get_daily_puzzle_streak};

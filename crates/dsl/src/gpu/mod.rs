@@ -16,4 +16,4 @@ pub mod hoist;
 #[cfg(feature = "gpu")]
 pub mod gpu_exec;
 
-pub use enumerator::{enumerate, Executor};
+pub use enumerator::{Executor, enumerate};

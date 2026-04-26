@@ -2,7 +2,10 @@
 
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_router::{components::A, hooks::{use_navigate, use_query_map}};
+use leptos_router::{
+    components::A,
+    hooks::{use_navigate, use_query_map},
+};
 
 use crate::{AuthContext, api, components::EmailInput, oauth};
 
@@ -49,7 +52,11 @@ pub fn Login() -> impl IntoView {
     let query = use_query_map();
 
     let redirect_url = query.read_untracked().get("redirect").unwrap_or_default();
-    let redirect_url = if redirect_url.is_empty() { None } else { Some(redirect_url) };
+    let redirect_url = if redirect_url.is_empty() {
+        None
+    } else {
+        Some(redirect_url)
+    };
 
     let (email, set_email) = signal(String::new());
     let (password, set_password) = signal(String::new());

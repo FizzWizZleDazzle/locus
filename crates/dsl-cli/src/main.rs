@@ -131,9 +131,15 @@ async fn main() {
 
     match cli.command {
         Command::Parse { file } => cmd_parse(&file),
-        Command::Generate { file, count, fast } => cmd_generate(&file, count, fast, &uploader).await,
+        Command::Generate { file, count, fast } => {
+            cmd_generate(&file, count, fast, &uploader).await
+        }
         Command::Validate { path, runs } => cmd_validate(&path, runs),
-        Command::Audit { path, runs, verbose } => cmd_audit(&path, runs, verbose),
+        Command::Audit {
+            path,
+            runs,
+            verbose,
+        } => cmd_audit(&path, runs, verbose),
         Command::Batch {
             dir,
             output,
@@ -155,7 +161,14 @@ async fn main() {
             model,
             count,
             concurrency,
-        } => cmd_ai(&topic, &difficulty, output.as_deref(), &model, count, concurrency),
+        } => cmd_ai(
+            &topic,
+            &difficulty,
+            output.as_deref(),
+            &model,
+            count,
+            concurrency,
+        ),
     }
 }
 
@@ -181,7 +194,12 @@ fn cmd_parse(file: &PathBuf) {
     }
 }
 
-async fn cmd_generate(file: &PathBuf, count: usize, fast: bool, uploader: &Option<upload::Uploader>) {
+async fn cmd_generate(
+    file: &PathBuf,
+    count: usize,
+    fast: bool,
+    uploader: &Option<upload::Uploader>,
+) {
     let yaml = read_file(file);
     let spec = match locus_dsl::parse(&yaml) {
         Ok(s) => s,
@@ -195,7 +213,11 @@ async fn cmd_generate(file: &PathBuf, count: usize, fast: bool, uploader: &Optio
     let mut errors = 0;
     let max_consecutive_errors = 5;
     let mut consecutive_errors = 0;
-    let gen_fn = if fast { locus_dsl::generate_random_fast } else { locus_dsl::generate_random };
+    let gen_fn = if fast {
+        locus_dsl::generate_random_fast
+    } else {
+        locus_dsl::generate_random
+    };
     for _ in 0..count {
         match gen_fn(&spec) {
             Ok(mut problem) => {
@@ -227,7 +249,9 @@ async fn upload_question_image(
     problem: &mut locus_dsl::ProblemOutput,
     uploader: Option<&upload::Uploader>,
 ) -> Result<(), String> {
-    let Some(up) = uploader else { return Ok(()); };
+    let Some(up) = uploader else {
+        return Ok(());
+    };
     let img = std::mem::take(&mut problem.question_image_url);
     if img.is_empty() {
         return Ok(());
@@ -279,12 +303,7 @@ fn cmd_validate(path: &PathBuf, runs: usize) {
             println!("OK   {} ({}/{})", file.display(), file_ok, runs);
             total_ok += 1;
         } else {
-            println!(
-                "FAIL {} ({}/{} passed)",
-                file.display(),
-                file_ok,
-                runs
-            );
+            println!("FAIL {} ({}/{} passed)", file.display(), file_ok, runs);
             total_err += 1;
         }
     }
@@ -315,7 +334,8 @@ fn cmd_audit(path: &PathBuf, runs: usize, verbose: bool) {
 
     // Group failures by leading issue category so the user sees a histogram —
     // makes it obvious whether one bug is responsible for many files.
-    let mut by_category: std::collections::BTreeMap<&str, usize> = std::collections::BTreeMap::new();
+    let mut by_category: std::collections::BTreeMap<&str, usize> =
+        std::collections::BTreeMap::new();
     for (_, issues) in &failures {
         if let Some(first) = issues.first() {
             // Take everything before the first " — " or ":" as the category.
@@ -329,7 +349,12 @@ fn cmd_audit(path: &PathBuf, runs: usize, verbose: bool) {
     }
 
     println!("=== AUDIT SUMMARY ===");
-    println!("{} OK, {} FAILED of {} total", total_ok, failures.len(), files.len());
+    println!(
+        "{} OK, {} FAILED of {} total",
+        total_ok,
+        failures.len(),
+        files.len()
+    );
     if !by_category.is_empty() {
         println!("\nFailure categories (first issue per file):");
         let mut sorted: Vec<_> = by_category.iter().collect();
@@ -350,10 +375,17 @@ fn cmd_audit(path: &PathBuf, runs: usize, verbose: bool) {
     } else if !failures.is_empty() {
         println!("\nFiles failing (first 20):");
         for (path, issues) in failures.iter().take(20) {
-            println!("  {} : {}", path.display(), issues.first().map(|s| s.as_str()).unwrap_or(""));
+            println!(
+                "  {} : {}",
+                path.display(),
+                issues.first().map(|s| s.as_str()).unwrap_or("")
+            );
         }
         if failures.len() > 20 {
-            println!("  … and {} more (re-run with -v for full list)", failures.len() - 20);
+            println!(
+                "  … and {} more (re-run with -v for full list)",
+                failures.len() - 20
+            );
         }
     }
 
@@ -387,7 +419,9 @@ fn cmd_batch(
     };
 
     let n_threads = threads.unwrap_or_else(|| {
-        std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8)
+        std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(8)
     });
     rayon::ThreadPoolBuilder::new()
         .num_threads(n_threads)
@@ -428,8 +462,11 @@ fn cmd_batch(
     });
     let writer = Arc::new(Mutex::new(BufWriter::with_capacity(1 << 20, file_out)));
 
-    let gen_fn: fn(&locus_dsl::spec::ProblemSpec) -> Result<locus_dsl::ProblemOutput, _> =
-        if fast { locus_dsl::generate_random_fast } else { locus_dsl::generate_random };
+    let gen_fn: fn(&locus_dsl::spec::ProblemSpec) -> Result<locus_dsl::ProblemOutput, _> = if fast {
+        locus_dsl::generate_random_fast
+    } else {
+        locus_dsl::generate_random
+    };
 
     let total_written = Arc::new(AtomicUsize::new(0));
     let total_errors = Arc::new(AtomicUsize::new(0));
@@ -513,7 +550,10 @@ fn cmd_batch(
 
 fn cmd_verify(path: &PathBuf, legacy_samples: usize, enum_target: usize, max_files: usize) {
     use std::collections::HashSet;
-    let files: Vec<PathBuf> = collect_yaml_files(path).into_iter().take(max_files).collect();
+    let files: Vec<PathBuf> = collect_yaml_files(path)
+        .into_iter()
+        .take(max_files)
+        .collect();
     if files.is_empty() {
         eprintln!("No .yaml files found in {}", path.display());
         std::process::exit(1);
@@ -536,22 +576,19 @@ fn cmd_verify(path: &PathBuf, legacy_samples: usize, enum_target: usize, max_fil
         };
 
         // Enumerator full unique set
-        let enum_rows = match locus_dsl::enumerate_problems(
-            &spec,
-            enum_target,
-            locus_dsl::Executor::Cpu,
-        ) {
-            Ok(Some(rows)) => rows,
-            Ok(None) => {
-                total_skipped += 1;
-                continue;
-            }
-            Err(e) => {
-                details.push((file.display().to_string(), format!("enum err: {e}")));
-                total_fail += 1;
-                continue;
-            }
-        };
+        let enum_rows =
+            match locus_dsl::enumerate_problems(&spec, enum_target, locus_dsl::Executor::Cpu) {
+                Ok(Some(rows)) => rows,
+                Ok(None) => {
+                    total_skipped += 1;
+                    continue;
+                }
+                Err(e) => {
+                    details.push((file.display().to_string(), format!("enum err: {e}")));
+                    total_fail += 1;
+                    continue;
+                }
+            };
         let enum_set: HashSet<(String, String)> = enum_rows
             .iter()
             .map(|p| (p.question_latex.clone(), p.answer_key.clone()))
@@ -572,12 +609,19 @@ fn cmd_verify(path: &PathBuf, legacy_samples: usize, enum_target: usize, max_fil
             total_fail += 1;
             details.push((
                 file.display().to_string(),
-                format!("legacy − enum = {} missing pairs (first: {:?})", missing.len(), missing.first()),
+                format!(
+                    "legacy − enum = {} missing pairs (first: {:?})",
+                    missing.len(),
+                    missing.first()
+                ),
             ));
         }
     }
 
-    println!("verified: {} OK, {} FAIL, {} SKIPPED", total_ok, total_fail, total_skipped);
+    println!(
+        "verified: {} OK, {} FAIL, {} SKIPPED",
+        total_ok, total_fail, total_skipped
+    );
     for (path, msg) in details.iter().take(20) {
         println!("  {path}: {msg}");
     }
@@ -637,9 +681,7 @@ fn cmd_ai(
     if skipped > 0 {
         eprintln!("Skipped {skipped} existing files");
     }
-    eprintln!(
-        "{total} to generate, concurrency {concurrency}",
-    );
+    eprintln!("{total} to generate, concurrency {concurrency}",);
     if total == 0 {
         eprintln!("Nothing to generate — all files exist");
         return;
@@ -648,7 +690,8 @@ fn cmd_ai(
     let rt = tokio::runtime::Runtime::new().unwrap();
 
     // Convert to (topic, index) pairs + separate difficulty vec for the API
-    let task_pairs: Vec<(String, usize)> = all_tasks.iter().map(|(t, _, i)| (t.clone(), *i)).collect();
+    let task_pairs: Vec<(String, usize)> =
+        all_tasks.iter().map(|(t, _, i)| (t.clone(), *i)).collect();
     let task_diffs: Vec<String> = all_tasks.iter().map(|(_, d, _)| d.clone()).collect();
 
     let results = rt.block_on(ai::generate_batch_multi_diff(

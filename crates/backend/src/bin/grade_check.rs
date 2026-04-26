@@ -8,8 +8,8 @@
 
 use std::io::{self, BufRead, Write};
 
-use locus_common::{AnswerType, GradingMode};
 use locus_common::grader::{GradeResult, grade_answer};
+use locus_common::{AnswerType, GradingMode};
 
 fn main() {
     let stdin = io::stdin();

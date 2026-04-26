@@ -26,18 +26,16 @@ pub struct DayUptime {
 }
 
 pub async fn get_latest(pool: &PgPool) -> Result<Option<StatusCheck>, sqlx::Error> {
-    sqlx::query_as::<_, StatusCheck>(
-        "SELECT * FROM status_checks ORDER BY checked_at DESC LIMIT 1"
-    )
-    .fetch_optional(pool)
-    .await
+    sqlx::query_as::<_, StatusCheck>("SELECT * FROM status_checks ORDER BY checked_at DESC LIMIT 1")
+        .fetch_optional(pool)
+        .await
 }
 
 pub async fn get_history_24h(pool: &PgPool) -> Result<Vec<StatusCheck>, sqlx::Error> {
     sqlx::query_as::<_, StatusCheck>(
         "SELECT * FROM status_checks
          WHERE checked_at > NOW() - INTERVAL '24 hours'
-         ORDER BY checked_at ASC"
+         ORDER BY checked_at ASC",
     )
     .fetch_all(pool)
     .await
@@ -50,7 +48,7 @@ pub async fn get_uptime_30d(pool: &PgPool) -> Result<UptimeResponse, sqlx::Error
             COUNT(*)::bigint,
             COUNT(*) FILTER (WHERE is_healthy)::bigint
          FROM status_checks
-         WHERE checked_at > NOW() - INTERVAL '30 days'"
+         WHERE checked_at > NOW() - INTERVAL '30 days'",
     )
     .fetch_one(pool)
     .await?;
@@ -70,7 +68,7 @@ pub async fn get_uptime_30d(pool: &PgPool) -> Result<UptimeResponse, sqlx::Error
          FROM status_checks
          WHERE checked_at > NOW() - INTERVAL '30 days'
          GROUP BY checked_at::date
-         ORDER BY checked_at::date ASC"
+         ORDER BY checked_at::date ASC",
     )
     .fetch_all(pool)
     .await?;
@@ -81,7 +79,11 @@ pub async fn get_uptime_30d(pool: &PgPool) -> Result<UptimeResponse, sqlx::Error
             date,
             checks_total: total,
             checks_healthy: healthy,
-            uptime_percent: if total > 0 { (healthy as f64 / total as f64) * 100.0 } else { 100.0 },
+            uptime_percent: if total > 0 {
+                (healthy as f64 / total as f64) * 100.0
+            } else {
+                100.0
+            },
         })
         .collect();
 
@@ -98,7 +100,7 @@ pub async fn insert_check(
     is_healthy: bool,
 ) -> Result<(), sqlx::Error> {
     sqlx::query(
-        "INSERT INTO status_checks (status_code, response_time_ms, is_healthy) VALUES ($1, $2, $3)"
+        "INSERT INTO status_checks (status_code, response_time_ms, is_healthy) VALUES ($1, $2, $3)",
     )
     .bind(status_code)
     .bind(response_time_ms)
@@ -109,8 +111,9 @@ pub async fn insert_check(
 }
 
 pub async fn cleanup_old(pool: &PgPool) -> Result<u64, sqlx::Error> {
-    let result = sqlx::query("DELETE FROM status_checks WHERE checked_at < NOW() - INTERVAL '30 days'")
-        .execute(pool)
-        .await?;
+    let result =
+        sqlx::query("DELETE FROM status_checks WHERE checked_at < NOW() - INTERVAL '30 days'")
+            .execute(pool)
+            .await?;
     Ok(result.rows_affected())
 }

@@ -1,5 +1,5 @@
-use std::time::{Duration, Instant};
 use sqlx::PgPool;
+use std::time::{Duration, Instant};
 
 use super::models;
 
@@ -31,7 +31,9 @@ pub fn spawn_health_checker(pool: PgPool, url: String, interval_secs: u64) {
                 }
             };
 
-            if let Err(e) = models::insert_check(&pool, status_code, Some(elapsed_ms), is_healthy).await {
+            if let Err(e) =
+                models::insert_check(&pool, status_code, Some(elapsed_ms), is_healthy).await
+            {
                 tracing::error!("Failed to insert health check: {}", e);
             }
 

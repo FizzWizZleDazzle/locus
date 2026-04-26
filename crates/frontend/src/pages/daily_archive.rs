@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use locus_common::DailyArchiveEntry;
 
-use crate::{api, AuthContext};
+use crate::{AuthContext, api};
 
 #[component]
 pub fn DailyArchive() -> impl IntoView {

@@ -75,7 +75,11 @@ impl Config {
         let max_db_connections = env::var("MAX_DB_CONNECTIONS")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(if environment == Environment::Production { 50 } else { 10 });
+            .unwrap_or(if environment == Environment::Production {
+                50
+            } else {
+                10
+            });
 
         Ok(Self {
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
@@ -130,5 +134,4 @@ pub enum ConfigError {
 
     #[error("JWT secret must be at least 32 characters long in production")]
     JwtSecretTooShort,
-
 }

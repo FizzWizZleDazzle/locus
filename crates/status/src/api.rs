@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
 const API_URL: &str = env!("COMMUNITY_API_URL");
 

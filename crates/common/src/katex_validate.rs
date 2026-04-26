@@ -34,7 +34,11 @@ impl std::fmt::Display for KatexIssue {
             Severity::Warning => "WARN",
         };
         if let Some(pos) = self.position {
-            write!(f, "[{}] {} (at byte {}): {}", sev, self.code, pos, self.message)
+            write!(
+                f,
+                "[{}] {} (at byte {}): {}",
+                sev, self.code, pos, self.message
+            )
         } else {
             write!(f, "[{}] {}: {}", sev, self.code, self.message)
         }
@@ -61,11 +65,17 @@ impl ValidationResult {
     }
 
     pub fn error_count(&self) -> usize {
-        self.issues.iter().filter(|i| i.severity == Severity::Error).count()
+        self.issues
+            .iter()
+            .filter(|i| i.severity == Severity::Error)
+            .count()
     }
 
     pub fn warning_count(&self) -> usize {
-        self.issues.iter().filter(|i| i.severity == Severity::Warning).count()
+        self.issues
+            .iter()
+            .filter(|i| i.severity == Severity::Warning)
+            .count()
     }
 }
 
@@ -191,9 +201,30 @@ fn fix_literal_backslash_n(input: &str) -> String {
 
 /// Known LaTeX commands starting with \n (to avoid replacing them)
 const KNOWN_N_COMMANDS: &[&str] = &[
-    "nabla", "neq", "neg", "not", "nu", "newcommand", "newline", "nolimits",
-    "notin", "nmid", "nless", "ngtr", "ncong", "nparallel", "nleq", "ngeq",
-    "nprec", "nsucc", "nsim", "nexists", "nonumber", "notag", "ni", "natural",
+    "nabla",
+    "neq",
+    "neg",
+    "not",
+    "nu",
+    "newcommand",
+    "newline",
+    "nolimits",
+    "notin",
+    "nmid",
+    "nless",
+    "ngtr",
+    "ncong",
+    "nparallel",
+    "nleq",
+    "ngeq",
+    "nprec",
+    "nsucc",
+    "nsim",
+    "nexists",
+    "nonumber",
+    "notag",
+    "ni",
+    "natural",
 ];
 
 fn fix_newlines_in_display(input: &str) -> String {
@@ -206,7 +237,12 @@ fn fix_newlines_in_display(input: &str) -> String {
             let content = &result[start + 2..abs_end];
             if content.contains('\n') {
                 let fixed_content = content.replace('\n', " ");
-                result = format!("{}$${}$${}", &result[..start], fixed_content, &result[abs_end + 2..]);
+                result = format!(
+                    "{}$${}$${}",
+                    &result[..start],
+                    fixed_content,
+                    &result[abs_end + 2..]
+                );
             } else {
                 break;
             }
@@ -224,7 +260,12 @@ fn fix_newlines_in_display(input: &str) -> String {
             let content = &result[abs_start + 2..abs_end];
             if content.contains('\n') {
                 let fixed_content = content.replace('\n', " ");
-                result = format!("{}\\[{}\\]{}", &result[..abs_start], fixed_content, &result[abs_end + 2..]);
+                result = format!(
+                    "{}\\[{}\\]{}",
+                    &result[..abs_start],
+                    fixed_content,
+                    &result[abs_end + 2..]
+                );
             }
             search = abs_start + 2 + end + 2;
         } else {
@@ -256,14 +297,21 @@ fn fix_bare_environments(input: &str) -> String {
             while i < bytes.len() {
                 if bytes[i] == b'$' && (i == 0 || bytes[i - 1] != b'\\') {
                     in_math = !in_math;
-                    if i + 1 < bytes.len() && bytes[i + 1] == b'$' { i += 1; }
+                    if i + 1 < bytes.len() && bytes[i + 1] == b'$' {
+                        i += 1;
+                    }
                 }
                 i += 1;
             }
 
             if !in_math {
                 let inner = result[begin_start..abs_end].replace('\n', " ");
-                result = format!("{}$${}$${}", &result[..begin_start], inner, &result[abs_end..]);
+                result = format!(
+                    "{}$${}$${}",
+                    &result[..begin_start],
+                    inner,
+                    &result[abs_end..]
+                );
             }
         }
     }
@@ -444,7 +492,9 @@ fn check_delimiters(input: &str, issues: &mut Vec<KatexIssue>) {
             for i in (1..parts.len()).step_by(2) {
                 let between = parts[i].trim();
                 // Currency: just digits, commas, dots, spaces
-                let is_currency = between.chars().all(|c| c.is_ascii_digit() || c == ',' || c == '.' || c == ' ');
+                let is_currency = between
+                    .chars()
+                    .all(|c| c.is_ascii_digit() || c == ',' || c == '.' || c == ' ');
                 if !is_currency && !between.is_empty() {
                     issues.push(KatexIssue {
                         severity: Severity::Error,
@@ -580,7 +630,11 @@ fn check_bare_latex_outside_delimiters(input: &str, issues: &mut Vec<KatexIssue>
         }
 
         // Check for LaTeX command outside math mode
-        if !in_math && bytes[i] == b'\\' && i + 1 < bytes.len() && bytes[i + 1].is_ascii_alphabetic() {
+        if !in_math
+            && bytes[i] == b'\\'
+            && i + 1 < bytes.len()
+            && bytes[i + 1].is_ascii_alphabetic()
+        {
             // Extract the command name
             let cmd_start = i + 1;
             let mut cmd_end = cmd_start;
@@ -591,9 +645,30 @@ fn check_bare_latex_outside_delimiters(input: &str, issues: &mut Vec<KatexIssue>
 
             // Check if it's a math command (not a text command like \text)
             let math_commands = [
-                "frac", "dfrac", "tfrac", "sqrt", "sin", "cos", "tan", "log", "ln",
-                "int", "sum", "prod", "lim", "nabla", "mathbf", "vec", "langle",
-                "rangle", "cdot", "times", "left", "right", "begin", "displaystyle",
+                "frac",
+                "dfrac",
+                "tfrac",
+                "sqrt",
+                "sin",
+                "cos",
+                "tan",
+                "log",
+                "ln",
+                "int",
+                "sum",
+                "prod",
+                "lim",
+                "nabla",
+                "mathbf",
+                "vec",
+                "langle",
+                "rangle",
+                "cdot",
+                "times",
+                "left",
+                "right",
+                "begin",
+                "displaystyle",
             ];
             if math_commands.contains(&cmd) {
                 issues.push(KatexIssue {
@@ -632,13 +707,20 @@ fn looks_like_math(s: &str) -> bool {
 /// These are data quality issues, not rendering issues — the problems need deletion/regeneration.
 fn check_corrupted_data(input: &str, issues: &mut Vec<KatexIssue>) {
     // Julia DiagramObj code leaked into question_latex (~2500 problems in production)
-    if input.contains("DiagramObj(") || input.contains("Dict{Symbol") || input.contains("stroke_width") {
+    if input.contains("DiagramObj(")
+        || input.contains("Dict{Symbol")
+        || input.contains("stroke_width")
+    {
         issues.push(KatexIssue {
             severity: Severity::Error,
             code: "factory-code-leak",
-            message: "Raw Julia/factory code in question_latex — problem must be deleted and regenerated"
-                .to_string(),
-            position: input.find("DiagramObj(").or_else(|| input.find("Dict{")).map(|p| p),
+            message:
+                "Raw Julia/factory code in question_latex — problem must be deleted and regenerated"
+                    .to_string(),
+            position: input
+                .find("DiagramObj(")
+                .or_else(|| input.find("Dict{"))
+                .map(|p| p),
         });
     }
 
@@ -660,8 +742,9 @@ fn check_corrupted_data(input: &str, issues: &mut Vec<KatexIssue>) {
         issues.push(KatexIssue {
             severity: Severity::Error,
             code: "html-in-content",
-            message: "HTML tags (<br>) in LaTeX content — should use LaTeX line breaks (\\\\) instead"
-                .to_string(),
+            message:
+                "HTML tags (<br>) in LaTeX content — should use LaTeX line breaks (\\\\) instead"
+                    .to_string(),
             position: input.find("<br").map(|p| p),
         });
     }
@@ -672,8 +755,7 @@ fn check_corrupted_data(input: &str, issues: &mut Vec<KatexIssue>) {
         issues.push(KatexIssue {
             severity: Severity::Warning,
             code: "double-slash-fraction",
-            message: "// in matrix notation — likely a malformed fraction"
-                .to_string(),
+            message: "// in matrix notation — likely a malformed fraction".to_string(),
             position: input.find("//").map(|p| p),
         });
     }
@@ -899,7 +981,8 @@ fn check_brace_balance(math: &str, offset: usize, issues: &mut Vec<KatexIssue>) 
                 issues.push(KatexIssue {
                     severity: Severity::Error,
                     code: "unmatched-brace",
-                    message: "Unexpected closing brace } without matching opening brace".to_string(),
+                    message: "Unexpected closing brace } without matching opening brace"
+                        .to_string(),
                     position: Some(offset + i),
                 });
                 return;
@@ -923,7 +1006,10 @@ fn check_left_right_pairing(math: &str, offset: usize, issues: &mut Vec<KatexIss
     // Track positions for better error messages
     let mut last_left_pos = 0;
 
-    for m in Regex::new(r"\\(left|right|middle)").unwrap().find_iter(math) {
+    for m in Regex::new(r"\\(left|right|middle)")
+        .unwrap()
+        .find_iter(math)
+    {
         let cmd = &math[m.start() + 1..m.end()];
         match cmd {
             "left" => {
@@ -979,10 +1065,7 @@ fn check_begin_end_matching(math: &str, offset: usize, issues: &mut Vec<KatexIss
             issues.push(KatexIssue {
                 severity: Severity::Error,
                 code: "unsupported-env",
-                message: format!(
-                    "Environment '{}' is not supported by KaTeX",
-                    env_name
-                ),
+                message: format!("Environment '{}' is not supported by KaTeX", env_name),
                 position: Some(offset + pos),
             });
         }
@@ -1003,10 +1086,7 @@ fn check_begin_end_matching(math: &str, offset: usize, issues: &mut Vec<KatexIss
                 issues.push(KatexIssue {
                     severity: Severity::Error,
                     code: "env-mismatch",
-                    message: format!(
-                        "\\end{{{}}} does not match \\begin{{{}}}",
-                        env_name, last.0
-                    ),
+                    message: format!("\\end{{{}}} does not match \\begin{{{}}}", env_name, last.0),
                     position: Some(offset + pos),
                 });
             }
@@ -1139,15 +1219,21 @@ fn check_double_scripts(math: &str, offset: usize, issues: &mut Vec<KatexIssue>)
             b'^' | b'_' if in_brace == 0 => {
                 if let Some((prev_char, _prev_pos)) = last_script {
                     if prev_char == bytes[i] {
-                        let script_type = if bytes[i] == b'^' { "superscript" } else { "subscript" };
+                        let script_type = if bytes[i] == b'^' {
+                            "superscript"
+                        } else {
+                            "subscript"
+                        };
                         issues.push(KatexIssue {
                             severity: Severity::Error,
                             code: "double-script",
                             message: format!(
                                 "Double {} (e.g. x{}a{}b) — use braces: x{}{{a{}b}}",
                                 script_type,
-                                bytes[i] as char, bytes[i] as char,
-                                bytes[i] as char, bytes[i] as char,
+                                bytes[i] as char,
+                                bytes[i] as char,
+                                bytes[i] as char,
+                                bytes[i] as char,
                             ),
                             position: Some(offset + i),
                         });
@@ -1288,11 +1374,17 @@ mod tests {
     }
 
     fn has_error(result: &ValidationResult, code: &str) -> bool {
-        result.issues.iter().any(|i| i.code == code && i.severity == Severity::Error)
+        result
+            .issues
+            .iter()
+            .any(|i| i.code == code && i.severity == Severity::Error)
     }
 
     fn has_warning(result: &ValidationResult, code: &str) -> bool {
-        result.issues.iter().any(|i| i.code == code && i.severity == Severity::Warning)
+        result
+            .issues
+            .iter()
+            .any(|i| i.code == code && i.severity == Severity::Warning)
     }
 
     // ====================================================================
@@ -1367,7 +1459,8 @@ mod tests {
 
     #[test]
     fn valid_cases() {
-        let r = validate_katex("$f(x) = \\begin{cases} x & x \\geq 0 \\\\ -x & x < 0 \\end{cases}$");
+        let r =
+            validate_katex("$f(x) = \\begin{cases} x & x \\geq 0 \\\\ -x & x < 0 \\end{cases}$");
         assert!(r.is_ok(), "issues: {:?}", r.issues);
     }
 
@@ -1466,20 +1559,31 @@ mod tests {
     #[test]
     fn error_unmatched_dollar_open() {
         let r = validate_katex("Simplify: $x + 2");
-        assert!(has_error(&r, "unmatched-delimiter"), "issues: {:?}", r.issues);
+        assert!(
+            has_error(&r, "unmatched-delimiter"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn error_unmatched_dollar_close() {
         let r = validate_katex("Simplify: x + 2$");
-        assert!(has_error(&r, "unmatched-delimiter"), "issues: {:?}", r.issues);
+        assert!(
+            has_error(&r, "unmatched-delimiter"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn error_unmatched_display_dollar() {
         let r = validate_katex("$$\\frac{1}{2}$");
-        assert!(has_issue(&r, "unmatched-delimiter") || has_issue(&r, "ambiguous-dollars"),
-                "issues: {:?}", r.issues);
+        assert!(
+            has_issue(&r, "unmatched-delimiter") || has_issue(&r, "ambiguous-dollars"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1489,7 +1593,11 @@ mod tests {
     #[test]
     fn warn_math_without_delimiters() {
         let r = validate_katex("Simplify: x^2 + 3x");
-        assert!(has_warning(&r, "missing-delimiters"), "issues: {:?}", r.issues);
+        assert!(
+            has_warning(&r, "missing-delimiters"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
@@ -1517,8 +1625,11 @@ mod tests {
     #[test]
     fn error_deeply_nested_unclosed() {
         let r = validate_katex("$\\frac{\\frac{1}{2}{3}$");
-        assert!(has_error(&r, "unmatched-brace") || has_error(&r, "missing-args"),
-                "issues: {:?}", r.issues);
+        assert!(
+            has_error(&r, "unmatched-brace") || has_error(&r, "missing-args"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1707,7 +1818,11 @@ mod tests {
     #[test]
     fn warn_trailing_newline_in_matrix() {
         let r = validate_katex("$\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\\\ \\end{pmatrix}$");
-        assert!(has_warning(&r, "trailing-newline"), "issues: {:?}", r.issues);
+        assert!(
+            has_warning(&r, "trailing-newline"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
@@ -1740,16 +1855,14 @@ mod tests {
 
     #[test]
     fn factory_solution_multiline() {
-        let r = validate_katex(
-            "Product rule: $x^a \\cdot x^b = x^{a+b}$"
-        );
+        let r = validate_katex("Product rule: $x^a \\cdot x^b = x^{a+b}$");
         assert!(r.is_ok(), "issues: {:?}", r.issues);
     }
 
     #[test]
     fn factory_determinant() {
         let r = validate_katex(
-            "If $A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$, find $\\det(A)$"
+            "If $A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$, find $\\det(A)$",
         );
         assert!(r.is_ok(), "issues: {:?}", r.issues);
     }
@@ -1821,7 +1934,11 @@ mod tests {
     #[test]
     fn single_dollar() {
         let r = validate_katex("$");
-        assert!(has_error(&r, "unmatched-delimiter"), "issues: {:?}", r.issues);
+        assert!(
+            has_error(&r, "unmatched-delimiter"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
@@ -1830,15 +1947,16 @@ mod tests {
         // This is a known edge case: the validator flags it because $ starts math mode
         let r = validate_katex("A toy costs $5. How much for 3?");
         // This will likely have issues since $5. How much for 3?$ looks like broken math
-        assert!(r.has_errors() || r.has_warnings(),
-                "Dollar sign in text should be flagged: {:?}", r.issues);
+        assert!(
+            r.has_errors() || r.has_warnings(),
+            "Dollar sign in text should be flagged: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn valid_complex_nested() {
-        let r = validate_katex(
-            "$\\frac{\\sqrt{x^{2}+1}}{\\left(\\frac{1}{x}\\right)^{3}}$"
-        );
+        let r = validate_katex("$\\frac{\\sqrt{x^{2}+1}}{\\left(\\frac{1}{x}\\right)^{3}}$");
         assert!(r.is_ok(), "issues: {:?}", r.issues);
     }
 
@@ -1880,19 +1998,31 @@ mod tests {
     fn newline_in_display_auto_fixed() {
         // prepare_for_rendering strips newlines, so validate_katex sees clean content
         let r = validate_katex("Text:\n$$\\begin{cases}\nx = 1 \\\\\ny = 2\n\\end{cases}$$");
-        assert!(!has_issue(&r, "newline-in-display"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "newline-in-display"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn newline_in_bracket_auto_fixed() {
         let r = validate_katex("Define:\n\\[\nr_1 = \\frac{1}{x}\n\\]");
-        assert!(!has_issue(&r, "newline-in-display"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "newline-in-display"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn valid_display_no_newlines() {
         let r = validate_katex("$$\\begin{cases} x = 1 \\\\ y = 2 \\end{cases}$$");
-        assert!(!has_issue(&r, "newline-in-display"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "newline-in-display"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1902,13 +2032,21 @@ mod tests {
     #[test]
     fn warn_unicode_math_no_delimiters() {
         let r = validate_katex("Let V = ℝ^{5} and consider vectors");
-        assert!(has_warning(&r, "missing-delimiters"), "issues: {:?}", r.issues);
+        assert!(
+            has_warning(&r, "missing-delimiters"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn warn_subscript_brace_no_delimiters() {
         let r = validate_katex("v_{1} = [[3], [2]]");
-        assert!(has_warning(&r, "missing-delimiters"), "issues: {:?}", r.issues);
+        assert!(
+            has_warning(&r, "missing-delimiters"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1919,21 +2057,33 @@ mod tests {
     fn literal_backslash_n_auto_fixed() {
         // prepare_for_rendering replaces literal \n, so validator sees clean content
         let r = validate_katex("Consider the system:\\n\\n$$x = 1$$");
-        assert!(!has_issue(&r, "literal-backslash-n"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "literal-backslash-n"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn no_warn_latex_commands_with_n() {
         // \nabla, \neq, \nu, \not — these are LaTeX commands, not escaped newlines
         let r = validate_katex("$\\nabla f = 0$");
-        assert!(!has_issue(&r, "literal-backslash-n"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "literal-backslash-n"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     #[test]
     fn no_warn_linebreak_n() {
         // \\n inside math is a LaTeX linebreak + n — not a literal \n
         let r = validate_katex("$a \\\\n b$");
-        assert!(!has_issue(&r, "literal-backslash-n"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "literal-backslash-n"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1956,7 +2106,11 @@ mod tests {
     fn valid_normal_matrix() {
         let r = validate_katex("$A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$");
         assert!(!has_issue(&r, "malformed-data"), "issues: {:?}", r.issues);
-        assert!(!has_issue(&r, "factory-code-leak"), "issues: {:?}", r.issues);
+        assert!(
+            !has_issue(&r, "factory-code-leak"),
+            "issues: {:?}",
+            r.issues
+        );
     }
 
     // ====================================================================
@@ -1968,21 +2122,33 @@ mod tests {
         // validate_katex runs on prepared content, so \$ is already fixed
         // validate_and_fix should report no issues since prepare handles it
         let (result, _) = validate_and_fix("Simplify: \\$\\frac{1}{2}\\$");
-        assert!(result.is_ok(), "should be clean after auto-fix: {:?}", result.issues);
+        assert!(
+            result.is_ok(),
+            "should be clean after auto-fix: {:?}",
+            result.issues
+        );
     }
 
     #[test]
     fn fix_literal_backslash_n_text() {
         // prepare_for_rendering handles \n, so validator sees clean content
         let (result, _) = validate_and_fix("Question:\\n\\n$$x = 1$$");
-        assert!(result.is_ok(), "should be clean after auto-fix: {:?}", result.issues);
+        assert!(
+            result.is_ok(),
+            "should be clean after auto-fix: {:?}",
+            result.issues
+        );
     }
 
     #[test]
     fn fix_newlines_in_display_block() {
         // prepare_for_rendering strips newlines in display blocks
         let (result, _) = validate_and_fix("Text:\n$$\\begin{cases}\nx = 1\n\\end{cases}$$");
-        assert!(result.is_ok(), "should be clean after auto-fix: {:?}", result.issues);
+        assert!(
+            result.is_ok(),
+            "should be clean after auto-fix: {:?}",
+            result.issues
+        );
     }
 
     #[test]

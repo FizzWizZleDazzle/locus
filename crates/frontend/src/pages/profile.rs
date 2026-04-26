@@ -5,15 +5,16 @@ use leptos::task::spawn_local;
 use leptos_router::hooks::use_params_map;
 use locus_common::{EloHistoryPoint, PublicProfileResponse, UserStatsResponse};
 
-use crate::{AuthContext, api, components::{ActivityMatrix, BadgeGrid}};
+use crate::{
+    AuthContext, api,
+    components::{ActivityMatrix, BadgeGrid},
+};
 
 #[component]
 pub fn Profile() -> impl IntoView {
     let auth = expect_context::<AuthContext>();
     let params = use_params_map();
-    let username = move || {
-        params.read().get("username").unwrap_or_default()
-    };
+    let username = move || params.read().get("username").unwrap_or_default();
 
     let (profile, set_profile) = signal(None::<PublicProfileResponse>);
     let (own_stats, set_own_stats) = signal(None::<UserStatsResponse>);
@@ -27,7 +28,8 @@ pub fn Profile() -> impl IntoView {
 
     // Is this the logged-in user's own profile?
     let is_own = move || {
-        auth.username.get()
+        auth.username
+            .get()
             .map(|u| u == username())
             .unwrap_or(false)
     };

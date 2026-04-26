@@ -7,10 +7,9 @@ use leptos_router::{hooks::use_params, params::Params};
 use locus_common::{DailyPuzzleDetailResponse, DailySubmitRequest, DailySubmitResponse};
 
 use crate::{
-    api,
+    AuthContext, api,
     components::{AnswerInput, LatexRenderer, ProblemCard},
     grader::preprocess_input,
-    AuthContext,
 };
 
 #[derive(Params, PartialEq, Clone, Debug)]
@@ -37,11 +36,7 @@ pub fn DailyPuzzleDetail() -> impl IntoView {
 
     // Load puzzle detail
     Effect::new(move |_| {
-        let date = params
-            .get()
-            .ok()
-            .and_then(|p| p.date)
-            .unwrap_or_default();
+        let date = params.get().ok().and_then(|p| p.date).unwrap_or_default();
         if date.is_empty() {
             set_error.set(Some("No date specified".into()));
             set_loading.set(false);

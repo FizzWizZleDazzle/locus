@@ -2,8 +2,8 @@ pub mod handlers;
 pub mod models;
 pub mod monitor;
 
-use axum::{Router, routing::get};
 use crate::AppState;
+use axum::{Router, routing::get};
 
 pub fn router() -> Router<AppState> {
     Router::new()

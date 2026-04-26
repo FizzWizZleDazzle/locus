@@ -1,7 +1,7 @@
 use axum::{Json, extract::State, http::StatusCode};
 
-use crate::AppState;
 use super::models;
+use crate::AppState;
 
 pub async fn current(
     State(state): State<AppState>,

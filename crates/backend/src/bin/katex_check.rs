@@ -10,7 +10,9 @@
 
 use std::io::{self, BufRead, Write};
 
-use locus_common::katex_validate::{validate_and_fix, validate_katex, prepare_for_rendering, Severity, ValidationResult};
+use locus_common::katex_validate::{
+    Severity, ValidationResult, prepare_for_rendering, validate_and_fix, validate_katex,
+};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -149,8 +151,10 @@ fn run_db_scan(args: &[String]) {
                 .to_string()
         };
 
-        let rows: Vec<(uuid::Uuid, String, String, String, String)> =
-            sqlx::query_as(&query).fetch_all(&pool).await.unwrap_or_else(|e| {
+        let rows: Vec<(uuid::Uuid, String, String, String, String)> = sqlx::query_as(&query)
+            .fetch_all(&pool)
+            .await
+            .unwrap_or_else(|e| {
                 eprintln!("ERROR: Query failed: {}", e);
                 std::process::exit(2);
             });
@@ -190,8 +194,7 @@ fn run_db_scan(args: &[String]) {
                     }
                     let s_result = validate_katex(step);
                     if !s_result.is_ok() {
-                        let id_str =
-                            format!("{} [{}] solution_latex step {}", id, label, i + 1);
+                        let id_str = format!("{} [{}] solution_latex step {}", id, label, i + 1);
                         print_result(step, &s_result, Some(&id_str));
                         total_errors += s_result.error_count();
                         total_warnings += s_result.warning_count();

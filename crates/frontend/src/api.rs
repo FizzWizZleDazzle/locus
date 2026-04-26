@@ -6,12 +6,12 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use web_sys::RequestCredentials;
 
 use locus_common::{
-    ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest,
-    DailyActivityResponse, DailyArchiveEntry, DailyPuzzleDetailResponse, DailyPuzzleResponse,
-    DailySubmitRequest, DailySubmitResponse, DeleteAccountRequest, EloHistoryResponse,
-    LeaderboardResponse, LoginRequest, ProblemResponse, PublicProfileResponse, RegisterRequest,
-    SetPasswordRequest, SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest,
-    UserProfile, UserStatsResponse,
+    ApiError, AuthResponse, ChangePasswordRequest, ChangeUsernameRequest, DailyActivityResponse,
+    DailyArchiveEntry, DailyPuzzleDetailResponse, DailyPuzzleResponse, DailySubmitRequest,
+    DailySubmitResponse, DeleteAccountRequest, EloHistoryResponse, LeaderboardResponse,
+    LoginRequest, ProblemResponse, PublicProfileResponse, RegisterRequest, SetPasswordRequest,
+    SubmitRequest, SubmitResponse, SuccessResponse, UnlinkOAuthRequest, UserProfile,
+    UserStatsResponse,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -328,7 +328,10 @@ pub async fn change_username(new_username: &str) -> Result<UserProfile, RequestE
     Ok(profile)
 }
 
-pub async fn delete_account(password: Option<&str>, confirmation: Option<&str>) -> Result<SuccessResponse, RequestError> {
+pub async fn delete_account(
+    password: Option<&str>,
+    confirmation: Option<&str>,
+) -> Result<SuccessResponse, RequestError> {
     let req = DeleteAccountRequest {
         password: password.map(|s| s.to_string()),
         confirmation: confirmation.map(|s| s.to_string()),
