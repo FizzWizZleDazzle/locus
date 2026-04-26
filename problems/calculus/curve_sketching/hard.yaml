@@ -1,34 +1,29 @@
 topic: calculus/curve_sketching
 difficulty: hard
-calculator: graphing
+calculator: scientific
+
 variables:
-  a: nonzero(-3, 3)
-  b: integer(-4, 4)
-  c: integer(-6, 6)
-  f: a * x^3 + b * x^2 + c * x
+  p: nonzero(-4, -1)
+  q: integer(2, 5)
+  b_coeff: -3*(p + q)/2
+  c_coeff: 3*p*q
+  f: x^3 + b_coeff*x^2 + c_coeff*x
   f_prime: derivative(f, x)
   f_double_prime: derivative(f_prime, x)
-  critical_points: solve(f_prime, x)
-  inflection_x: solve(f_double_prime, x)
-  inflection_y: evaluate(f, x, inflection_x)
-  y_intercept: evaluate(f, x, 0)
-  factored: a * x * (x^2 + (b/a) * x + (c/a))
-constraints:
-  - b^2 - 3*a*c > 0
-  - mod(b, a) == 0
-  - a != b
-question: "Analyze the function {equation(f(x), f)}. Find all critical points, inflection points, and sketch the curve. Identify intervals of increase/decrease and concavity."
-answer: critical_points
+  fpp_at_p: evaluate(f_double_prime, x, p)
+  fpp_at_q: evaluate(f_double_prime, x, q)
+  inflection_x: -(b_coeff)/3
+  answer: inflection_x
+
+question: "For f(x) = {f}, find the {math(x)}-coordinate of the inflection point."
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Given: {equation(f(x), f)}"
-  - "Factor: {equation(f(x), factored)}"
-  - "Find critical points by solving {equation(f_prime(x), 0)}:"
-  - "{equation(f_prime(x), f_prime)}"
-  - "Critical points: x = {critical_points}"
-  - "Find inflection point by solving {equation(f_double_prime(x), 0)}:"
-  - "{equation(f_double_prime(x), f_double_prime)}"
-  - "Inflection point at ({inflection_x}, {inflection_y})"
-  - "The y-intercept is (0, {y_intercept})"
-  - "Test intervals around critical points to determine increase/decrease"
-  - "Test concavity: f''(x) > 0 when x > {inflection_x} (concave up)"
-  - "f''(x) < 0 when x < {inflection_x} (concave down)"
+  - "Compute the first derivative: {equation(derivative_of(f, x), f_prime)}."
+  - "Compute the second derivative: {equation(nth_derivative_of(f, x, 2), f_double_prime)}."
+  - "Set the second derivative equal to zero: {equation(f_double_prime, 0)}."
+  - "Solving gives {equation(x, answer)}."
+  - "Verify the concavity changes by checking values of the second derivative on either side."
+  - "Critical points are at {math(x)} = {p} and {math(x)} = {q}, with second-derivative values {fpp_at_p} and {fpp_at_q}, confirming {math(x)} = {p} is a local maximum and {math(x)} = {q} is a local minimum."

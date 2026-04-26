@@ -1,24 +1,23 @@
 topic: precalculus/function_composition
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(2, 5)
-  b: integer(-3, 3)
-  c: integer(1, 4)
-  d: integer(-2, 2)
-  f: a * x + b
-  g: c * x + d
-  x_val: integer(-2, 2)
-  g_of_x: evaluate(g, x, x_val)
-  f_of_g_of_x: evaluate(f, x, g_of_x)
-  answer: f_of_g_of_x
-constraints:
-  - a != c
-  - b != 0
-question: "Given f(x) = {f} and g(x) = {g}, find (f ∘ g)({x_val})."
+  a: nonzero(-4, 4)
+  b: integer(-5, 5)
+  c: nonzero(-4, 4)
+  d: integer(-5, 5)
+  func_f: a*x + b
+  func_g: c*x + d
+  fog_step: a*(c*x + d) + b
+  answer: expand(fog_step)
+
+question: "Given {math(f(x))} = {func_f} and {math(g(x))} = {func_g}, find and simplify {math(f(g(x)))}."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "To find (f ∘ g)({x_val}), first find g({x_val})"
-  - "g({x_val}) = {c} · {x_val} + {d} = {g_of_x}"
-  - "Now find f(g({x_val})) = f({g_of_x})"
-  - "f({g_of_x}) = {a} · {g_of_x} + {b} = {answer}"
+  - "Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {math(f(x))} with {func_g}."
+  - "{math(f(g(x)))} = {fog_step}"
+  - "Expand and simplify: {answer}"

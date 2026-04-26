@@ -1,28 +1,19 @@
 topic: precalculus/domain_and_range
 difficulty: medium
 calculator: none
+
 variables:
-  a: nonzero(-8, 8)
-  b: integer(-8, 8)
-  c: nonzero(-8, 8)
-  numerator: a*x + b
-  f: numerator / (x - c)
-  domain_exclude: c
-  range_exclude: a
-constraints:
-  - abs(a) != abs(c)
-  - b != a * c
-question: "Find the domain and range of {equation(f(x), f)}. Express your answer using interval notation."
-answer: domain_exclude
-answer_type: domain_range
+  a: integer(2, 5)
+  b: nonzero(-8, 8)
+  x_min: -b/a
+  func: sqrt(a*x + b)
+  neg_b: -b
+
+question: "Find the domain of the function {math(y = func)}. Give your answer as the minimum value of {math(x)} for which the function is defined."
+answer: x_min
+answer_type: numeric
 solution:
-  - "The function {equation(f(x), f)} is undefined when the denominator equals zero"
-  - "Set x - {c} = 0, so x = {c}"
-  - "Domain: (-∞, {c}) ∪ ({c}, ∞)"
-  - "For the range, rewrite as y = {f}"
-  - "Solve for x: y(x - {c}) = {numerator}"
-  - "yx - {c}y = {a}x + {b}"
-  - "yx - {a}x = {c}y + {b}"
-  - "x(y - {a}) = {c}y + {b}"
-  - "This has no solution when y = {a}, so {a} is not in the range"
-  - "Range: (-∞, {a}) ∪ ({a}, ∞)"
+  - "The expression under the square root must be non-negative: {math(a*x + b >= 0)}."
+  - "Subtract {b} from both sides: {math(a*x >= neg_b)}."
+  - "Divide both sides by {a}: {math(x >= x_min)}."
+  - "The domain is all {math(x >= x_min)}, so the minimum value is {x_min}."

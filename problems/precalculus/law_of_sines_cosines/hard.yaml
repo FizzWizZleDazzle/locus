@@ -1,42 +1,27 @@
 topic: precalculus/law_of_sines_cosines
 difficulty: hard
 calculator: scientific
+
 variables:
-  # Design backward: pick angles that give clean sine/cosine values
-  A_deg: choice(30, 45, 60, 120, 135)
-  B_deg: choice(30, 45, 60)
-  C_deg: 180 - A_deg - B_deg
-  # Convert to radians for trig functions
-  A: A_deg * 3.14159 / 180
-  B: B_deg * 3.14159 / 180
-  C: C_deg * 3.14159 / 180
-  # Pick one side length
-  a: integer(5, 12)
-  # Use law of sines to find other sides (guaranteed clean by angle choices)
-  b: a * sin(B) / sin(A)
-  c: a * sin(C) / sin(A)
-  # Round to ensure clean display
-  b_clean: round(b, 2)
-  c_clean: round(c, 2)
-  # Now use law of cosines to verify: a² = b² + c² - 2bc·cos(A)
-  lhs: a^2
-  rhs_term1: b^2 + c^2
-  rhs_term2: 2 * b * c * cos(A)
-  rhs: rhs_term1 - rhs_term2
-  verification: round(rhs, 2)
+  a: integer(4, 10)
+  b: integer(4, 10)
+  C_deg: choice(60, 90, 120)
+  cos_C: cos(C_deg * pi / 180)
+  c2: a^2 + b^2 - 2*a*b*cos_C
+  c: sqrt(c2)
+  answer: c
+
 constraints:
-  - C_deg > 0
-  - C_deg < 180
-question: "In triangle ABC, angle A = {A_deg}°, angle B = {B_deg}°, and side a = {a}. Find the length of side c using the Law of Sines, then verify your answer using the Law of Cosines."
-answer: c_clean
-answer_type: number
+  - a != b
+
+question: "In triangle {math(ABC)}, side {math(a)} = {a}, side {math(b)} = {b}, and the included angle {math(C)} = {C_deg} degrees. Find side {math(c)} using the Law of Cosines."
+
+answer: answer
+answer_type: expression
+
 solution:
-  - "First, find angle C: C = 180° - {A_deg}° - {B_deg}° = {C_deg}°"
-  - "Using the Law of Sines: {equation('a/sin(A)', 'c/sin(C)')}"
-  - "Substitute: {equation(a + '/sin(' + A_deg + '°)', 'c/sin(' + C_deg + '°)')}"
-  - "Solve for c: c = {a} × sin({C_deg}°) / sin({A_deg}°)"
-  - "c = {c_clean}"
-  - "Verify using Law of Cosines: a² = b² + c² - 2bc·cos(A)"
-  - "First find b using Law of Sines: b = {b_clean}"
-  - "Check: {a}² = {b_clean}² + {c_clean}² - 2({b_clean})({c_clean})cos({A_deg}°)"
-  - "{lhs} ≈ {verification} ✓"
+  - "The Law of Cosines: {math(c^2 = a^2 + b^2 - 2*a*b*cos(C))}."
+  - "Compute {math(a^2)} = {a*a}, {math(b^2)} = {b*b}, and {math(2*a*b)} = {2*a*b}."
+  - "{equation(cos(C_deg * pi / 180), cos_C)}."
+  - "Substitute: {equation(c^2, c2)}."
+  - "Take the positive square root: {equation(c, c)}."

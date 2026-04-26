@@ -1,36 +1,32 @@
 topic: arithmetic/mixed_numbers
 difficulty: hard
 calculator: none
+
 variables:
-  # Design for subtraction requiring borrowing
-  a_whole: integer(5, 9)
-  a_num: integer(1, 4)
-  a_den: choice(5, 6, 8)
-  b_whole: integer(2, 4)
-  b_num: integer(3, 7)
-  b_den: choice(5, 6, 8)
-  # Convert to improper fractions
-  a_improper: a_whole * a_den + a_num
-  b_improper: b_whole * b_den + b_num
-  # Find common denominator and subtract
-  lcm: a_den * b_den / gcd(a_den, b_den)
-  a_scaled: a_improper * (lcm / a_den)
-  b_scaled: b_improper * (lcm / b_den)
-  diff_num: a_scaled - b_scaled
-  # Convert back to mixed number
-  ans_whole: floor(diff_num / lcm)
-  ans_num: mod(diff_num, lcm)
-  ans_gcd: gcd(ans_num, lcm)
-  final_num: ans_num / ans_gcd
-  final_den: lcm / ans_gcd
+  w1: integer(2, 5)
+  b: choice(3, 5)
+  n1: integer(1, 2)
+  w2: integer(1, 3)
+  d: choice(3, 5)
+  n2: integer(1, 2)
+  imp1: w1*b + n1
+  imp2: w2*d + n2
+  num_prod: imp1*imp2
+  den_prod: b*d
+  answer: num_prod/den_prod
+
 constraints:
-  - a_den != b_den
-  - b_num > a_num
-  - a_improper > b_improper
-question: "Subtract: {a_whole} {a_num}/{a_den} - {b_whole} {b_num}/{b_den}"
-answer: ans_whole
+  - b != d
+  - n1 < b
+
+question: "Multiply the mixed numbers {w1}{math(n1/b)} and {w2}{math(n2/d)}. Express your answer as a simplified fraction or whole number."
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Convert to improper fractions: {a_whole} {a_num}/{a_den} = {a_improper}/{a_den} and {b_whole} {b_num}/{b_den} = {b_improper}/{b_den}"
-  - "Common denominator is {lcm}: {a_improper}/{a_den} = {a_scaled}/{lcm} and {b_improper}/{b_den} = {b_scaled}/{lcm}"
-  - "Subtract: {a_scaled}/{lcm} - {b_scaled}/{lcm} = {diff_num}/{lcm}"
-  - "Convert to mixed number: {diff_num}/{lcm} = {ans_whole} {final_num}/{final_den}"
+  - "Convert each mixed number to an improper fraction by multiplying the whole part by the denominator and adding the numerator."
+  - "{w1}{math(n1/b)}: {w1} times {b} plus {n1} equals {imp1}, so the improper fraction is {math(imp1/b)}."
+  - "{w2}{math(n2/d)}: {w2} times {d} plus {n2} equals {imp2}, so the improper fraction is {math(imp2/d)}."
+  - "Multiply the fractions: {math(imp1/b)} times {math(imp2/d)} = {math(num_prod/den_prod)}."
+  - "Simplified answer: {answer}."

@@ -1,28 +1,37 @@
 topic: calculus/antiderivatives
 difficulty: hard
-calculator: none
+calculator: scientific
 variables:
-  a: nonzero(-6, 6)
-  b: nonzero(-8, 8)
-  c: nonzero(-5, 5)
-  n: integer(3, 5)
-  m: integer(2, 4)
-  f: a * x^n + b * x^m + c / x^2
-  antideriv_term1: a * x^(n+1) / (n+1)
-  antideriv_term2: b * x^(m+1) / (m+1)
-  antideriv_term3: -c / x
-  answer: simplify(antideriv_term1 + antideriv_term2 + antideriv_term3)
+  # Backward design: pick F(x) = p*x^(n+1) + q*x^(m+1) first
+  n: integer(2, 4)
+  m: integer(0, 1)
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+  # Derive f = F'(x) coefficients
+  a: (n + 1) * p
+  b: (m + 1) * q
+  # f(x) and F(x) without C
+  f: a*x^n + b*x^m
+  F_no_C: p*x^(n+1) + q*x^(m+1)
+  # Initial condition
+  x0: integer(1, 3)
+  k: integer(-8, 8)
+  # F(x0) without C
+  F_at_x0: evaluate(F_no_C, x, x0)
+  # C = k - F(x0)
+  answer: k - F_at_x0
+  # For solution display: negate F_at_x0 to avoid double-negative
+  neg_F_at_x0: -F_at_x0
+
 constraints:
-  - n > m
-  - abs(a) != abs(b)
-question: "Find the most general antiderivative of {f}"
+  - n != m
+
+question: "Find the value of the constant {math(C)} in the antiderivative {math(F(x))} = {F_no_C} + {math(C)} of {f}, given that {math(F(x_0))} = {k} when {math(x_0)} = {x0}."
+
 answer: answer
+
 solution:
-  - "We need to find {integral_of(f, x)}"
-  - "Rewrite the function: {f} = {a}x^{n} + {b}x^{m} + {c}x^(-2)"
-  - "Apply the power rule to each term:"
-  - "For {a}x^{n}: antiderivative is {a}x^{n+1}/{n+1} = {antideriv_term1}"
-  - "For {b}x^{m}: antiderivative is {b}x^{m+1}/{m+1} = {antideriv_term2}"
-  - "For {c}x^(-2): antiderivative is {c}x^(-1)/(-1) = {antideriv_term3}"
-  - "Therefore, {integral_of(f, x)} = {answer} + C"
-  - "where C is an arbitrary constant"
+  - "The given antiderivative form is {math(F(x))} = {F_no_C} + {math(C)}."
+  - "Apply the initial condition {math(F(x_0) = k)}: substitute {math(x)} = {x0}."
+  - "This gives {equation(F_at_x0 + C, k)}, so {equation(C, k + neg_F_at_x0)}."
+  - "Therefore {math(C)} = {answer}."

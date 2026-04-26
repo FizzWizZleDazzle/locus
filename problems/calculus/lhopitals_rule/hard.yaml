@@ -1,23 +1,25 @@
 topic: calculus/lhopitals_rule
 difficulty: hard
 calculator: none
+
 variables:
-  a: nonzero(-4, 4)
-  b: nonzero(-3, 3)
-  c: integer(2, 5)
-  numerator: a*x^3 - a*c^3
-  denominator: b*x^2 - b*c^2
-  num_derivative: derivative(numerator, x)
-  den_derivative: derivative(denominator, x)
-  num_at_c: evaluate(num_derivative, x, c)
-  den_at_c: evaluate(den_derivative, x, c)
-  answer: num_at_c / den_at_c
-constraints:
-  - a != b
-question: "Evaluate {limit_of(numerator/denominator, x, c)}"
+  a: nonzero(2, 5)
+  numer: exp(a*x) - 1 - a*x
+  denom: x^2
+  numer_d1: derivative(numer, x)
+  denom_d1: derivative(denom, x)
+  numer_d2: derivative(numer_d1, x)
+  denom_d2: derivative(denom_d1, x)
+  answer: a^2/2
+
+question: "Evaluate {limit_of(numer/denom, x, 0)}. Apply LHopital's rule as many times as needed."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Direct substitution gives 0/0, so apply L'Hôpital's rule"
-  - "Differentiate numerator: {derivative_of(numerator, x)} = {num_derivative}"
-  - "Differentiate denominator: {derivative_of(denominator, x)} = {den_derivative}"
-  - "Evaluate at x = {c}: {num_at_c}/{den_at_c} = {answer}"
+  - "Direct substitution at {math(x = 0)} gives 0/0, so the limit is indeterminate."
+  - "Apply LHopital's rule once: {equation(derivative_of(numer, x), numer_d1)} and {equation(derivative_of(denom, x), denom_d1)}."
+  - "The new limit {limit_of(numer_d1/denom_d1, x, 0)} is still 0/0."
+  - "Apply LHopital's rule again: {equation(nth_derivative_of(numer, x, 2), numer_d2)} and {equation(nth_derivative_of(denom, x, 2), denom_d2)}."
+  - "Now {limit_of(numer_d2/denom_d2, x, 0)} = {answer}."

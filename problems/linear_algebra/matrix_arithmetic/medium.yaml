@@ -1,30 +1,30 @@
 topic: linear_algebra/matrix_arithmetic
 difficulty: medium
 calculator: none
+
 variables:
-  a11: integer(-5, 5)
-  a12: integer(-5, 5)
-  a21: integer(-5, 5)
-  a22: integer(-5, 5)
-  b11: integer(-5, 5)
-  b12: integer(-5, 5)
-  b21: integer(-5, 5)
-  b22: integer(-5, 5)
-  c11: a11 + b11
-  c12: a12 + b12
-  c21: a21 + b21
-  c22: a22 + b22
-  answer: c11, c12, c21, c22
-constraints:
-  - a11 != 0
-  - b11 != 0
-question: "Add the matrices A = [[{a11}, {a12}], [{a21}, {a22}]] and B = [[{b11}, {b12}], [{b21}, {b22}]]. Give your answer as four values: top-left, top-right, bottom-left, bottom-right."
-answer: answer
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+  a11: integer(-4, 4)
+  a12: integer(-4, 4)
+  a21: integer(-4, 4)
+  a22: integer(-4, 4)
+  b11: integer(-4, 4)
+  b12: integer(-4, 4)
+  b21: integer(-4, 4)
+  b22: integer(-4, 4)
+  c11: p*a11 + q*b11
+  c12: p*a12 + q*b12
+  c21: p*a21 + q*b21
+  c22: p*a22 + q*b22
+
+question: "Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}. Enter the resulting matrix as four values: top-left, top-right, bottom-left, bottom-right."
+
 answer_type: tuple
+answer: c11, c12, c21, c22
+
 solution:
-  - "To add matrices, add corresponding entries"
-  - "Top-left: {a11} + {b11} = {c11}"
-  - "Top-right: {a12} + {b12} = {c12}"
-  - "Bottom-left: {a21} + {b21} = {c21}"
-  - "Bottom-right: {a22} + {b22} = {c22}"
-  - "Result: [[{c11}, {c12}], [{c21}, {c22}]]"
+  - "Scale each matrix by its scalar, then add entry by entry."
+  - "{math(p)} times {math(A)} gives {matrix_of([[p*a11, p*a12], [p*a21, p*a22]])}."
+  - "{math(q)} times {math(B)} gives {matrix_of([[q*b11, q*b12], [q*b21, q*b22]])}."
+  - "Adding entry by entry: {equation(math(p*A + q*B), matrix_of([[c11, c12], [c21, c22]]))}."

@@ -1,19 +1,31 @@
 topic: algebra2/exponential_equations
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  base: choice(2, 3, 4, 5)
-  x_val: integer(2, 5)
-  k: integer(2, 4)
-  rhs: base^(k*x_val)
-  answer: x_val
+  base: choice(2, 3, 5)
+  m: nonzero(-4, 4)
+  n: nonzero(-4, 4)
+  p: integer(-5, 5)
+  q: integer(-5, 5)
+  diff_coeff: m - n
+  diff_const: q - p
+  answer: (q - p) / (m - n)
+  lhs_exp: m*x + p
+  rhs_exp: n*x + q
+  mid_lhs: diff_coeff*x + p
+  final_lhs: diff_coeff*x
+
 constraints:
-  - base > 2
-question: "Solve for x: {equation(base^(k*x), rhs)}"
+  - m != n
+
+question: "Solve for {math(x)}: {equation(base^(m*x + p), base^(n*x + q))}"
+
 answer: answer
 answer_type: numeric
+
 solution:
-  - "We have {equation(base^(k*x), rhs)}"
-  - "Since {rhs} = {base}^{k*x_val}, we can write {equation(base^(k*x), base^(k*x_val))}"
-  - "Since the bases are equal, the exponents must be equal: {equation(k*x, k*x_val)}"
-  - "Dividing both sides by {k}: {equation(x, x_val)}"
+  - "Since both sides have the same base {base}, set the exponents equal: {equation(lhs_exp, rhs_exp)}"
+  - "Collect {math(x)}-terms on the left: {equation(mid_lhs, q)}"
+  - "Isolate the {math(x)}-term: {equation(final_lhs, diff_const)}"
+  - "Solve for {math(x)}: {equation(math(x), answer)}"

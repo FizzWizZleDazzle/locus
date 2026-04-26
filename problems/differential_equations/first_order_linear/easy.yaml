@@ -1,24 +1,23 @@
 topic: differential_equations/first_order_linear
 difficulty: easy
 calculator: none
+
 variables:
-  a: nonzero(-5, 5)
-  b: integer(-8, 8)
-  y: a*x + b
-  dy: derivative(y, x)
-  lhs: dy + 2*y
-  rhs: expand(dy + 2*y)
-  answer: a
-constraints:
-  - a > 0
-question: "Find the value of a if y = {y} is a solution to {equation(derivative(y, x) + 2*y, rhs)}"
+  k: nonzero(-4, 4)
+  y0: nonzero(-5, 5)
+  ode_rhs: k*y
+  solution_expr: y0*exp(k*x)
+  answer: y0*exp(k*x)
+
+question: >
+  Solve the initial value problem {equation(derivative(y, x), ode_rhs)} with {math(y(0))} = {y0}.
+  Find {math(y(x))}.
+
 answer: answer
-answer_type: numeric
+answer_type: expression
+
 solution:
-  - "Given y = {y}, find {derivative_of(y, x)}"
-  - "{derivative_of(y, x)} = {dy}"
-  - "Substitute into the differential equation:"
-  - "{derivative_of(y, x)} + 2y = {dy} + 2({y})"
-  - "= {dy} + {expand(2*y)}"
-  - "= {rhs}"
-  - "Since this equals {rhs}, we have a = {a}"
+  - "This is a separable ODE. Rewrite as {equation(math(dy/y), math(k*dx))} and integrate both sides."
+  - "This gives {equation(math(ln(y)), math(k*x + C))}, so {equation(math(y(x)), math(A*exp(k*x)))} for an arbitrary constant {math(A)}."
+  - "Apply the initial condition {math(y(0))} = {y0}: substituting {math(x = 0)} gives {math(A)} = {y0}."
+  - "The solution is {equation(math(y(x)), answer)}."

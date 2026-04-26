@@ -1,22 +1,33 @@
 topic: algebra1/graphing_lines
 difficulty: medium
 calculator: none
+
 variables:
-  m: nonzero(-4, 4)
-  x1: integer(-3, 3)
-  y1: integer(-5, 5)
+  m: nonzero(-5, 5)
+  x1: nonzero(-4, 4)
+  y1: integer(-6, 6)
   b: y1 - m*x1
-  x2: integer(-3, 3)
-  y2: m*x2 + b
-  answer: m
+  mx1: m*x1
+  f: m*x + b
+
 constraints:
-  - x1 != x2
   - m != 1
-question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). What is the slope of the line?"
-answer: answer
+  - m != -1
+
+question: "A line has slope {m} and passes through the point ({x1}, {y1}). What is the y-intercept of the line?"
+answer: b
 answer_type: numeric
 solution:
-  - "Use the slope formula: m = (y2 - y1)/(x2 - x1)"
-  - "m = ({y2} - {y1})/({x2} - {x1})"
-  - "m = ({y2 - y1})/({x2 - x1})"
-  - "m = {answer}"
+  - "Use slope-intercept form {math(y = m*x + b)} with slope {m} and unknown y-intercept {math(b)}."
+  - "Substitute the point ({x1}, {y1}): {y1} = ({m})({x1}) + {math(b)}."
+  - "Compute ({m})({x1}) = {mx1}, so {y1} = {mx1} + {math(b)}."
+  - "Subtract {mx1} from both sides: {math(b)} = {y1} - ({mx1}) = {b}."
+  - "The y-intercept is {b}."
+diagram:
+  type: coordinate_plane
+  x_range: [-6, 6]
+  y_range: [-8, 8]
+  grid: true
+  elements:
+    - line: {slope: m, intercept: b, color: blue, label: f}
+    - point: {x: x1, y: y1, label: P}

@@ -1,17 +1,16 @@
 topic: precalculus/inverse_trig_functions
 difficulty: easy
-calculator: scientific
+calculator: none
+
 variables:
-  angle_deg: choice(30, 45, 60)
-  angle_rad: angle_deg * pi / 180
-  sin_val: sin(angle_rad)
-  cos_val: cos(angle_rad)
-  func_type: choice("sin", "cos")
-  trig_val: sin_val if func_type == "sin" else cos_val
-  answer: angle_deg
-question: "Find the value of {func_type}^(-1)({trig_val}) in degrees."
+  input_val: choice(0, 1/2, 1, -1/2, -1)
+  answer: asin(input_val)
+
+question: "Find the value of {math(theta)}, in radians, that satisfies {equation(sin(theta), input_val)} with {math(theta)} in the principal range of arcsin."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "We need to find the angle whose {func_type} is {trig_val}"
-  - "Recall that {func_type}({angle_deg}°) = {trig_val}"
-  - "Therefore, {func_type}^(-1)({trig_val}) = {angle_deg}°"
+  - "The principal range of arcsin is from negative pi over 2 to pi over 2."
+  - "From the unit circle, the angle whose sine is {input_val} is {answer}."

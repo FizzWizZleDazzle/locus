@@ -1,22 +1,22 @@
 topic: algebra2/exponential_growth_decay
 difficulty: medium
 calculator: scientific
+
 variables:
-  initial: choice(100, 200, 500, 1000, 2000, 5000)
-  rate_percent: choice(5, 10, 15, 20, 25, 30, 40, 50)
-  rate_decimal: rate_percent / 100
-  time: choice(2, 3, 4, 5, 6, 8, 10)
-  growth_factor: 1 + rate_decimal
-  final: initial * growth_factor^time
-  rounded_final: round(final, 0)
-constraints:
-  - rate_percent <= 30 or time <= 5
-question: "A bacteria culture starts with {initial} bacteria and grows at a rate of {rate_percent}% per hour. How many bacteria will there be after {time} hours? Round to the nearest whole number."
-answer: rounded_final
+  p: choice(100, 200, 500, 1000, 1500)
+  r_pct: choice(5, 10, 15, 20, 25)
+  t: integer(2, 6)
+  factor: 1 + r_pct/100
+  growth: factor^t
+  answer: p * growth
+
+question: "A quantity starts at {p} and grows by {r_pct} percent each year. What is its value after {t} years?"
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Use the exponential growth formula: A = P(1 + r)^t"
-  - "P = {initial}, r = {rate_decimal}, t = {time}"
-  - "A = {initial}(1 + {rate_decimal})^{time}"
-  - "A = {initial}({growth_factor})^{time}"
-  - "A = {final}"
-  - "Rounded to nearest whole number: {rounded_final} bacteria"
+  - "The exponential growth formula is {math(N(t) = N_0 * (1 + r)^t)}, where {math(r)} is the growth rate as a decimal."
+  - "Here {math(N_0)} = {p} and {math(r)} = {r_pct}/100, so {math(1 + r)} = {factor}."
+  - "After {t} years, {math(N(t))} = {p} times {factor}^{t} = {p} times {growth}."
+  - "The final value is {answer}."

@@ -1,36 +1,28 @@
 topic: multivariable_calculus/directional_derivatives
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 6)
-  b: integer(2, 6)
-  c: integer(-4, 4)
-  d: integer(-4, 4)
-  f: a*x^2 + b*y^2 + c*x + d*y
-  px: integer(-2, 2)
-  py: integer(-2, 2)
-  vx: choice(-2, -1, 1, 2)
-  vy: choice(-2, -1, 1, 2)
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+  f: a*x^2 + b*y^2
   fx: derivative(f, x)
   fy: derivative(f, y)
-  fx_at_p: evaluate(fx, x, px)
-  fy_at_p: evaluate(fy, y, py)
-  grad_x: evaluate(fx_at_p, y, py)
-  grad_y: evaluate(fy_at_p, x, px)
-  v_mag_sq: vx^2 + vy^2
-  v_mag: sqrt(v_mag_sq)
-  unit_vx: vx / v_mag
-  unit_vy: vy / v_mag
-  answer: grad_x * unit_vx + grad_y * unit_vy
-constraints:
-  - vx != 0 or vy != 0
-  - v_mag_sq == 1 or v_mag_sq == 2 or v_mag_sq == 4 or v_mag_sq == 5 or v_mag_sq == 8
-question: "Let f(x,y) = {f}. Find the directional derivative of f at the point ({px}, {py}) in the direction of the vector {vec([vx, vy])}."
+  grad_x: evaluate(fx, x, p)
+  grad_y: evaluate(fy, y, q)
+  term1: 3*grad_x / 5
+  term2: 4*grad_y / 5
+  answer: term1 + term2
+
+question: "Find the directional derivative of the function {f} at the point {math(x = p)}, {math(y = q)} in the direction of the vector {math((3, 4))}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "First, find the gradient of f: ∇f = ({fx}, {fy})"
-  - "Evaluate at point ({px}, {py}): ∇f({px}, {py}) = ({grad_x}, {grad_y})"
-  - "Normalize the direction vector {vec([vx, vy])}: magnitude = {v_mag}"
-  - "Unit vector: ({unit_vx}, {unit_vy})"
-  - "Directional derivative = ∇f · û = {grad_x} · {unit_vx} + {grad_y} · {unit_vy}"
-  - "= {answer}"
+  - "The direction vector {math((3, 4))} has magnitude 5, so the unit vector is {math((3/5, 4/5))}."
+  - "The partial derivatives are {math(f_x)} = {fx} and {math(f_y)} = {fy}."
+  - "At {math(x = p)}, {math(y = q)}: {math(f_x)} = {grad_x} and {math(f_y)} = {grad_y}."
+  - "The directional derivative is {math(3/5)} times {grad_x} plus {math(4/5)} times {grad_y} = {answer}."

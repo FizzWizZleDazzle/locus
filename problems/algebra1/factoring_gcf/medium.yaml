@@ -1,24 +1,71 @@
 topic: algebra1/factoring_gcf
 difficulty: medium
 calculator: none
+
 variables:
-  gcf: integer(2, 8)
-  a: integer(2, 6)
-  b: integer(2, 6)
-  c: integer(2, 6)
-  coef1: gcf * a
-  coef2: gcf * b
-  coef3: gcf * c
-  expr: coef1 * x^2 + coef2 * x + coef3
-  inner: a * x^2 + b * x + c
-  answer: gcf * inner
+  gcf: choice(2, 3, 4, 5, 6)
+  c1: choice(1, 2, 3, 5, 7)
+  c2: choice(1, 2, 3, 5, 7)
+  a: gcf * c1
+  b: gcf * c2
+  f: a*x^2 + b*x
+  inner: c1*x + c2
+  answer: gcf * x * inner
+
 constraints:
-  - a != b
-  - b != c
-question: "Factor out the greatest common factor from {expr}"
+  - c1 != c2
+
+question: "Factor out the greatest common factor (GCF) from {f}."
 answer: answer
+answer_type: expression
+
 solution:
-  - "Find the GCF of the coefficients {coef1}, {coef2}, and {coef3}"
-  - "The GCF is {gcf}"
-  - "Factor out {gcf}: {gcf}({inner})"
-  - "Answer: {answer}"
+  - "Find the GCF of the two coefficients {a} and {b}. Both are divisible by {gcf}, so the GCF of the coefficients is {gcf}."
+  - "Each term also shares a factor of {math(x)}, so the overall GCF of the expression is {math(gcf*x)}."
+  - "Divide each term by {math(gcf*x)}: {math(a*x^2)} divided by {math(gcf*x)} gives {c1*x}, and {math(b*x)} divided by {math(gcf*x)} gives {c2}."
+  - "Write the factored form: {answer}."
+
+variants:
+  - name: binomial_squared
+    variables:
+      gcf: choice(2, 3, 4, 5, 6)
+      c1: choice(1, 2, 3, 5, 7)
+      c2: choice(1, 2, 3, 5, 7)
+      a: gcf * c1
+      b: gcf * c2
+      f: a*x^2 + b*x
+      inner: c1*x + c2
+      answer: gcf * x * inner
+    constraints:
+      - c1 != c2
+    question: "Factor out the greatest common factor (GCF) from {f}."
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Find the GCF of the two coefficients {a} and {b}. Both are divisible by {gcf}, so the GCF of the coefficients is {gcf}."
+      - "Each term also shares a factor of {math(x)}, so the overall GCF of the expression is {math(gcf*x)}."
+      - "Divide each term by {math(gcf*x)}: {math(a*x^2)} divided by {math(gcf*x)} gives {c1*x}, and {math(b*x)} divided by {math(gcf*x)} gives {c2}."
+      - "Write the factored form: {answer}."
+
+  - name: trinomial_cubic
+    variables:
+      gcf: choice(2, 3, 4, 5)
+      c1: choice(1, 2, 3, 5, 7)
+      c2: choice(1, 2, 3, 5, 7)
+      c3: choice(1, 2, 3, 5, 7)
+      a: gcf * c1
+      b: gcf * c2
+      c: gcf * c3
+      f: a*x^3 + b*x^2 + c*x
+      inner: c1*x^2 + c2*x + c3
+      answer: gcf * x * inner
+    constraints:
+      - c1 != c2
+    question: "Factor out the greatest common factor (GCF) from {f}."
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Find the GCF of the three coefficients {a}, {b}, and {c}. All three are divisible by {gcf}, so the GCF of the coefficients is {gcf}."
+      - "Each term also shares a factor of {math(x)}, so the overall GCF of the expression is {math(gcf*x)}."
+      - "Divide each term by {math(gcf*x)} to obtain the inner factor: {inner}."
+      - "Write the factored form: {answer}."

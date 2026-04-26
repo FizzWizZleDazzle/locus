@@ -1,18 +1,23 @@
 topic: arithmetic/ratios_proportions
 difficulty: easy
 calculator: none
+
 variables:
-  scale: integer(2, 5)
-  a: integer(2, 8)
-  b: a * scale
-  c: integer(3, 9)
-  answer: c * scale
+  small: integer(2, 8)
+  big: integer(2, 8)
+  k: integer(2, 5)
+  total_small: small*k
+  total_big: big*k
+  cross: big*total_small
+
 constraints:
-  - a != c
-question: "If {a} : {b} = {c} : x, find x."
-answer: answer
+  - small != big
+
+question: "A recipe uses {small} cups of flour for every {big} cups of sugar. How many cups of sugar are needed if {total_small} cups of flour are used?"
+
+answer: total_big
+
 solution:
-  - "Set up the proportion: {a}/{b} = {c}/x"
-  - "Cross multiply: {a} × x = {b} × {c}"
-  - "{a}x = {b} × {c} = {answer}"
-  - "Divide both sides by {a}: x = {answer}/{a} = {answer}"
+  - "The ratio of flour to sugar stays constant: {small} to {big}."
+  - "Scale up: {small} times {k} = {total_small} cups of flour, so multiply sugar by {k} as well."
+  - "{big} times {k} = {total_big} cups of sugar."

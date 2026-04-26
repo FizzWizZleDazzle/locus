@@ -1,17 +1,24 @@
 topic: multivariable_calculus/triple_integrals
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(1, 3)
-  x_hi: integer(1, 2)
-  y_hi: integer(1, 2)
-  z_hi: integer(1, 2)
-  f: a
-  volume: x_hi * y_hi * z_hi
-  answer: a * volume
-question: "Evaluate the triple integral ∫∫∫ {f} dV over the box [0,{x_hi}]×[0,{y_hi}]×[0,{z_hi}]"
+  a: nonzero(1, 4)
+  p: integer(1, 3)
+  q: integer(1, 3)
+  r: integer(1, 3)
+  f: a*x*y*z
+  int_x: a*p^2/2
+  int_xy: int_x * q^2/2
+  answer: int_xy * r^2/2
+
+question: "Evaluate {definite_integral_of(definite_integral_of(definite_integral_of(f, x, 0, p), y, 0, q), z, 0, r)}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Since f = {f} is constant, the integral equals {f} times the volume"
-  - "Volume = {x_hi} × {y_hi} × {z_hi} = {volume}"
-  - "Answer = {f} × {volume} = {answer}"
+  - "Since the integrand {f} is separable, the triple integral factors into a product of three single integrals."
+  - "Integrate with respect to {math(x)}: {equation(definite_integral_of(a*x, x, 0, p), int_x)}."
+  - "Integrate with respect to {math(y)}: {equation(definite_integral_of(int_x*y, y, 0, q), int_xy)}."
+  - "Integrate with respect to {math(z)}: {equation(definite_integral_of(int_xy*z, z, 0, r), answer)}."

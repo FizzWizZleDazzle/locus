@@ -2,20 +2,21 @@ topic: algebra1/polynomial_operations
 difficulty: easy
 calculator: none
 variables:
-  a: integer(2, 5)
-  b: integer(-4, 4)
-  c: integer(1, 3)
-  d: integer(-3, 3)
-  p: a*x + b
-  q: c*x + d
-  sum: p + q
-  answer: simplify(sum)
+  a: nonzero(-6, 6)
+  b: nonzero(-6, 6)
+  c: nonzero(-6, 6)
+  d: nonzero(-6, 6)
+  p: a*x^2 + b*x
+  q: c*x^2 + d
+  sum_coeff_x2: a + c
+  answer: expand(p + q)
 constraints:
-  - b != 0
-  - d != 0
+  - a != c
 question: "Add the polynomials {p} and {q}."
 answer: answer
+answer_type: expression
 solution:
-  - "Add {p} and {q}"
-  - "Combine like terms: ({a} + {c})x + ({b} + {d})"
-  - "Result: {answer}"
+  - "Align like terms: {math(x^2)} terms have coefficients {a} and {c}; the {math(x)} term has coefficient {b}; the constant is {d}."
+  - "Add the {math(x^2)} coefficients: {a} + {c} = {sum_coeff_x2}."
+  - "The {math(x)} and constant terms have no like terms to combine."
+  - "The sum is {answer}."

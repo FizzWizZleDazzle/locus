@@ -1,28 +1,35 @@
 topic: algebra1/factoring_gcf
 difficulty: hard
 calculator: none
+
 variables:
-  g: integer(2, 12)
-  a: integer(2, 8)
-  b: integer(2, 8)
-  c: integer(2, 8)
-  coef1: g * a
-  coef2: g * b
-  coef3: g * c
-  expr: coef1 * x^2 + coef2 * x * y + coef3 * y^2
-  factored_inner: a * x^2 + b * x * y + c * y^2
-  answer: g
+  gcf_num: choice(3, 4, 5, 6)
+  gcf_pow: choice(2, 3)
+  c1: nonzero(1, 5)
+  c2: nonzero(-5, -1)
+  c3: nonzero(1, 5)
+  p1: integer(3, 5)
+  p2: integer(1, 2)
+  a: gcf_num * c1
+  b: gcf_num * c2
+  c: gcf_num * c3
+  e1: gcf_pow + p1
+  e2: gcf_pow + p2
+  f: a*x^e1 + b*x^e2 + c*x^gcf_pow
+  gcf_expr: gcf_num * x^gcf_pow
+  inner: c1*x^p1 + c2*x^p2 + c3
+  answer: gcf_expr * inner
+
 constraints:
-  - a != b
-  - b != c
-  - mod(a + b + c, 2) == 1
-question: "Find the greatest common factor of all terms in {expr}"
+  - c1 != c3
+  - p1 != p2
+
+question: "Factor out the greatest common factor (GCF) from {f}."
 answer: answer
+answer_type: expression
+
 solution:
-  - "Identify the coefficients: {coef1}, {coef2}, and {coef3}"
-  - "Find the GCF of {coef1}, {coef2}, and {coef3}"
-  - "Factor {coef1} = {g} × {a}"
-  - "Factor {coef2} = {g} × {b}"
-  - "Factor {coef3} = {g} × {c}"
-  - "The GCF is {g}"
-  - "Check: {expr} = {g}({factored_inner})"
+  - "Find the GCF of the numerical coefficients {a}, {b}, {c}: the GCF is {gcf_num}."
+  - "Find the lowest power of {math(x)} appearing in all three terms: {math(x^gcf_pow)}."
+  - "The overall GCF is {gcf_expr}."
+  - "Divide each term by {gcf_expr} and write the factored form: {equation(f, answer)}."

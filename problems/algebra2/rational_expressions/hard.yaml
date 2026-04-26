@@ -1,34 +1,30 @@
 topic: algebra2/rational_expressions
 difficulty: hard
 calculator: none
+
 variables:
-  a: integer(2, 8)
-  b: integer(-8, -2)
-  c: integer(2, 8)
-  d: integer(-8, -2)
-  k: integer(2, 5)
-  numerator1: (x - a) * (x - b)
-  denominator1: (x - c) * (x - d)
-  numerator2: k * (x - c)
-  denominator2: (x - a) * (x - b)
-  f1: numerator1 / denominator1
-  f2: numerator2 / denominator2
-  product_num: numerator1 * numerator2
-  product_den: denominator1 * denominator2
-  simplified_num: k * (x - c) * (x - a) * (x - b)
-  simplified_den: (x - c) * (x - d) * (x - a) * (x - b)
-  answer: k / (x - d)
+  r: integer(2, 6)
+  p: integer(1, 5)
+  q: integer(1, 5)
+  num: expand((x - r)*(x + p))
+  den: expand((x - r)*(x + q))
+  num_factored: (x - r)*(x + p)
+  den_factored: (x - r)*(x + q)
+  answer: (x + p)/(x + q)
+  restr1: r
+  restr2: -q
+
 constraints:
-  - a != c
-  - b != d
-  - a != d
-question: "Simplify the product {equation(f1 * f2, '?')} and state any restrictions on x."
+  - p != q
+
+question: "Simplify the rational expression {math(num / den)}, stating any restrictions on {math(x)}."
+
 answer: answer
+
+answer_type: expression
+
 solution:
-  - "Start with {f1} · {f2}"
-  - "Multiply numerators: {numerator1} · {numerator2} = {product_num}"
-  - "Multiply denominators: {denominator1} · {denominator2} = {product_den}"
-  - "Cancel common factor (x - c) from numerator and denominator"
-  - "Cancel common factors (x - a)(x - b) from numerator and denominator"
-  - "Result: {answer}"
-  - "Restrictions: x ≠ {a}, x ≠ {b}, x ≠ {c}, x ≠ {d}"
+  - "Factor the numerator: {equation(num, num_factored)}"
+  - "Factor the denominator: {equation(den, den_factored)}"
+  - "The common factor is {math(x - r)}. Cancel it from numerator and denominator."
+  - "Simplified form: {answer}, with restrictions {math(x)} cannot equal {restr1} or {restr2}."

@@ -1,24 +1,28 @@
 topic: calculus/related_rates
 difficulty: hard
 calculator: scientific
+
 variables:
-  r_rate: choice(2, 3, 4, 5)
-  h_rate: choice(1, 2, 3)
-  r_val: choice(6, 8, 10, 12)
-  h_val: choice(4, 5, 8, 10)
-  V: r_val^2 * h_val
-  dV_dt: 2 * r_val * h_val * r_rate + r_val^2 * h_rate
-constraints:
-  - mod(r_val, 2) == 0
-  - h_val != r_val
-  - dV_dt < 1000
-question: "A right circular cylinder has radius r and height h, both changing with time. At the instant when r = {r_val} cm and h = {h_val} cm, the radius is increasing at {r_rate} cm/s and the height is increasing at {h_rate} cm/s. Find the rate of change of the volume at this instant."
-answer: dV_dt
+  H: integer(8, 16)
+  R: integer(3, 6)
+  h: integer(2, 5)
+  r_at_h: R*h/H
+  dV_dt: integer(2, 8)
+  ratio_sq: (R/H)^2
+  factor: pi*h^2*(R/H)^2
+  dh_dt: dV_dt/factor
+
+question: >
+  Water flows into a conical tank (vertex down) at a rate of {dV_dt} cubic meters per minute.
+  The tank has height {H} m and top radius {R} m. At the instant when the water depth is {h} m,
+  find the rate at which the water level is rising. Express your answer in terms of {math(pi)}.
+
+answer: dh_dt
+answer_type: expression
+
 solution:
-  - "Volume of a cylinder: V = πr²h"
-  - "Differentiate with respect to time using the product rule:"
-  - "dV/dt = π(2r(dr/dt)h + r²(dh/dt))"
-  - "Substitute the given values:"
-  - "dV/dt = π(2({r_val})({r_rate})({h_val}) + ({r_val})²({h_rate}))"
-  - "dV/dt = π({dV_dt})"
-  - "The volume is increasing at {dV_dt}π cm³/s"
+  - "By similar triangles, the water radius at depth {math(s)} is {math(s*R/H)}."
+  - "The water volume at depth {math(s)} is {math(V = (1/3)*pi*(s*R/H)^2*s)} = {math(pi*R^2*s^3/(3*H^2))}."
+  - "Differentiate with respect to time: {math(dV/dt = pi*R^2*s^2*(ds/dt)/H^2)}."
+  - "At {math(s)} = {h} m, the radius is {r_at_h} m and the coefficient {math(pi*s^2*(R/H)^2)} = {factor}."
+  - "Solve for {math(ds/dt)}: {math(ds/dt)} = {dV_dt}/{factor} = {dh_dt} m/min."

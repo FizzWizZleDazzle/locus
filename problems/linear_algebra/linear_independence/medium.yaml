@@ -1,33 +1,29 @@
 topic: linear_algebra/linear_independence
 difficulty: medium
 calculator: none
+
 variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  v1_1: 1
-  v1_2: 0
-  v1_3: a
-  v2_1: 0
-  v2_2: 1
-  v2_3: b
-  v3_1: c
-  v3_2: c
-  v3_3: a*c + b*c
-  v1: "[v1_1, v1_2, v1_3]"
-  v2: "[v2_1, v2_2, v2_3]"
-  v3: "[v3_1, v3_2, v3_3]"
-  sum_v1_v2: "[1, 1, a + b]"
-  answer: c
+  a1: nonzero(-5, 5)
+  a2: nonzero(-5, 5)
+  a3: nonzero(-5, 5)
+  b1: nonzero(-5, 5)
+  b2: nonzero(-5, 5)
+  b3: nonzero(-5, 5)
+  cross_x: a2*b3 - a3*b2
+  cross_y: a3*b1 - a1*b3
+  cross_z: a1*b2 - a2*b1
+
 constraints:
-  - a != b
-question: "Consider the vectors {vec(v1)}, {vec(v2)}, and {vec(v3)}. These vectors are linearly dependent. Find the value of the scalar k such that {vec(v3)} = k({vec(v1)} + {vec(v2)})."
-answer: answer
+  - cross_x != 0
+  - cross_y != 0
+
+question: "Are the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])} linearly independent in {math(R^3)}? Answer true or false."
+
+answer: "true"
+answer_type: boolean
+
 solution:
-  - "For linear dependence, we need {vec(v3)} = k{vec(v1)} + m{vec(v2)} for some scalars k, m."
-  - "Let's check if {vec(v3)} = k({vec(v1)} + {vec(v2)}) for some k."
-  - "{vec(v1)} + {vec(v2)} = {vec(v1)} + {vec(v2)} = {vec(sum_v1_v2)}"
-  - "We need {vec(v3)} = k{vec(sum_v1_v2)}"
-  - "From the first component: {v3_1} = k(1), so k = {c}"
-  - "Verify: k({vec(v1)} + {vec(v2)}) = {c}{vec(sum_v1_v2)} = {vec(v3)} ✓"
-  - "Therefore k = {answer}"
+  - "Two vectors in {math(R^3)} are linearly independent if and only if neither is a scalar multiple of the other."
+  - "Compute the cross product to detect proportionality: if the cross product is zero, the vectors are parallel."
+  - "Cross product = {vec([cross_x, cross_y, cross_z])}, which is nonzero."
+  - "The vectors are linearly independent, so the answer is true."

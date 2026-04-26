@@ -1,24 +1,25 @@
 topic: differential_equations/homogeneous_equations
 difficulty: hard
 calculator: none
+
 variables:
-  r1: integer(-5, -1)
-  r2: integer(1, 5)
-  char_eq: r^2 - (r1 + r2)*r + r1*r2
-  expanded_char: expand(char_eq)
-  a: -(r1 + r2)
-  b: r1 * r2
-  c1: integer(1, 4)
-  c2: integer(-4, -1)
-  answer: c1*exp(r1*x) + c2*exp(r2*x)
-constraints:
-  - r1 < r2
-question: "Solve the differential equation {equation(derivative(derivative(y, x), x) + a*derivative(y, x) + b*y, 0)}"
+  b: nonzero(1, 4)
+  C_val: b
+  answer: b*x^2 - b*x
+  rhs_simple: 2*y/x + b
+  rhs_full: (2*y + b*x)/x
+
+question: "Solve the initial value problem {equation(derivative_of(y, x), rhs_full)}, with initial condition {math(y(1) = 0)}, using the substitution {math(v = y/x)}."
+
 answer: answer
 answer_type: expression
+
 solution:
-  - "The characteristic equation is {equation(expanded_char, 0)}"
-  - "Factor: {equation((r - r1)*(r - r2), 0)}"
-  - "The roots are r = {r1} and r = {r2}"
-  - "Since the roots are real and distinct, the general solution is:"
-  - "y = {answer}"
+  - "The right side is {rhs_simple}, which depends only on {math(y/x)}, so the equation is homogeneous."
+  - "Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}."
+  - "Substitute: {math(v + x*(dv/dx) = 2*v + b)}, simplifying to {math(x*(dv/dx) = v + b)}."
+  - "Separate: {math((1/(v + b))*dv = (1/x)*dx)}."
+  - "Integrate: {math(ln(v + b) = ln(x) + K)}, so {math(v + b = C*x)}."
+  - "Substitute back {math(v = y/x)}: {math(y/x + b = C*x)}, giving {math(y = C*x^2 - b*x)}."
+  - "Apply {math(y(1) = 0)}: {math(C - b = 0)}, so {equation(C, C_val)}."
+  - "The particular solution is {equation(y, answer)}."

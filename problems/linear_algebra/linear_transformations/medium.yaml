@@ -2,22 +2,23 @@ topic: linear_algebra/linear_transformations
 difficulty: medium
 calculator: none
 variables:
-  a: nonzero(-3, 3)
-  b: integer(-3, 3)
-  c: integer(-3, 3)
-  d: nonzero(-3, 3)
-  x_val: integer(-4, 4)
-  y_val: integer(-4, 4)
-  T_x: a*x_val + b*y_val
-  T_y: c*x_val + d*y_val
-  answer: T_x, T_y
-constraints:
-  - a*d - b*c != 0
-question: "Let T be the linear transformation defined by T(x,y) = ({a}x + {b}y, {c}x + {d}y). Find T({x_val}, {y_val})."
-answer: answer
+  a: nonzero(-4, 4)
+  b: integer(-4, 4)
+  c: integer(-4, 4)
+  d: nonzero(-4, 4)
+  v1: integer(-3, 3)
+  v2: integer(-3, 3)
+  w1: a*v1 + b*v2
+  w2: c*v1 + d*v2
+  av1: a*v1
+  bv2: b*v2
+  cv1: c*v1
+  dv2: d*v2
+question: "A linear transformation {math(T)} from {math(R^2)} to {math(R^2)} is defined by the matrix {matrix_of([[a, b], [c, d]])}. Find {math(T(v))}, where {math(v)} = {vec([v1, v2])}."
+answer: w1, w2
 answer_type: tuple
 solution:
-  - "Apply the transformation T to the point ({x_val}, {y_val})"
-  - "T({x_val}, {y_val}) = ({a}({x_val}) + {b}({y_val}), {c}({x_val}) + {d}({y_val}))"
-  - "T({x_val}, {y_val}) = ({a*x_val} + {b*y_val}, {c*x_val} + {d*y_val})"
-  - "T({x_val}, {y_val}) = ({T_x}, {T_y})"
+  - "Multiply the matrix by the vector {math(v)} = {vec([v1, v2])}."
+  - "First component: {a}({v1}) + {b}({v2}) = {av1} + {bv2} = {w1}."
+  - "Second component: {c}({v1}) + {d}({v2}) = {cv1} + {dv2} = {w2}."
+  - "Therefore {math(T(v))} = {vec([w1, w2])}."

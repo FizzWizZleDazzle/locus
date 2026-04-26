@@ -1,20 +1,25 @@
 topic: arithmetic/long_division
 difficulty: medium
 calculator: none
+
 variables:
-  q: integer(12, 25)
-  d: integer(11, 19)
-  r: integer(0, 10)
-  dividend: q * d + r
+  dvsr: integer(6, 15)
+  quot: integer(12, 30)
+  rem: integer(1, 5)
+  dvnd: dvsr * quot + rem
+  prod: dvsr * quot
+  answer: quot
+
 constraints:
-  - r < d
-  - d > 10
-question: "Divide {dividend} by {d}. Find the quotient and remainder."
-answer: q
+  - rem < dvsr
+
+question: "Divide {dvnd} by {dvsr} using long division. What is the quotient (ignore any remainder)?"
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Set up long division: {dividend} ÷ {d}"
-  - "How many times does {d} go into {dividend}?"
-  - "{d} × {q} = {q * d}"
-  - "Subtract: {dividend} - {q * d} = {r}"
-  - "Since {r} < {d}, we stop here"
-  - "Quotient = {q}, Remainder = {r}"
+  - "We want to find how many times {dvsr} goes into {dvnd}."
+  - "Perform long division: {dvsr} goes into {dvnd} exactly {quot} times with a remainder."
+  - "Check: {dvsr} times {quot} = {prod}, and {dvnd} minus {prod} = {rem}."
+  - "Since {rem} is less than {dvsr}, the remainder is {rem} and the quotient is {quot}."

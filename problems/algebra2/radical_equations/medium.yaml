@@ -1,23 +1,23 @@
 topic: algebra2/radical_equations
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(1, 5)
-  b: integer(1, 8)
-  perfect_square: a^2
-  inner: perfect_square + b
-  c: integer(2, 9)
-  rhs: a + c
-  equation_form: sqrt(x + b)
-  answer: inner
-constraints:
-  - c > a
-  - gcd(b, perfect_square) == 1
-question: "Solve for x: {equation(equation_form, rhs)}"
+  a: nonzero(2, 5)
+  x_sol: integer(1, 8)
+  c: integer(2, 6)
+  c_sq: c^2
+  b: c_sq - a*x_sol
+  lhs: a*x + b
+  a_x_val: a*x_sol
+  answer: x_sol
+
+question: "Solve for {math(x)}: {equation(sqrt(lhs), c)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Start with {equation(equation_form, rhs)}"
-  - "Square both sides: {equation(x + b, rhs^2)}"
-  - "So x + {b} = {evaluate(rhs^2, rhs, rhs)}"
-  - "Subtract {b} from both sides: x = {evaluate(rhs^2 - b, rhs, rhs)}"
-  - "Check: {equation_form} = {sqrt(answer + b)} = {sqrt(inner)} = {rhs} ✓"
+  - "Square both sides to eliminate the radical: {equation(lhs, c_sq)}"
+  - "Isolate the variable term: {equation(a*x, a_x_val)}"
+  - "Divide both sides by {a}: {equation(x, answer)}"

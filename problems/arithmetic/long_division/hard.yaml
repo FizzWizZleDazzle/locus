@@ -1,22 +1,26 @@
 topic: arithmetic/long_division
 difficulty: hard
 calculator: none
+
 variables:
-  d: integer(11, 19)
-  q: integer(23, 47)
-  r: integer(1, 10)
-  dividend: d * q + r
-  quotient: q
-  remainder: r
+  divisor: integer(12, 30)
+  ans_q: integer(11, 49)
+  ans_r: integer(1, 11)
+  dividend: divisor * ans_q + ans_r
+  product: divisor * ans_q
+
 constraints:
-  - r < d
-  - d > 10
-question: "Divide {dividend} by {d}. Find the quotient and remainder."
-answer: quotient
+  - ans_r < divisor
+
+question: "Use long division to divide {dividend} by {divisor}. Give the quotient and the remainder."
+
+answer: ans_q, ans_r
+answer_type: tuple
+
 solution:
-  - "Perform long division of {dividend} ÷ {d}"
-  - "{d} goes into {dividend} exactly {quotient} times"
-  - "{quotient} × {d} = {d * q}"
-  - "Remainder: {dividend} - {d * q} = {remainder}"
-  - "Therefore: {dividend} = {d} × {quotient} + {remainder}"
-  - "Answer: quotient = {quotient}, remainder = {remainder}"
+  - "Divide {dividend} by {divisor}."
+  - "How many times does {divisor} fit into {dividend}? The quotient is {ans_q}."
+  - "Multiply the divisor by the quotient: {divisor} x {ans_q} = {product}."
+  - "Subtract: {dividend} - {product} = {ans_r}."
+  - "Since {ans_r} < {divisor}, the remainder is {ans_r}."
+  - "Answer: quotient = {ans_q}, remainder = {ans_r}."

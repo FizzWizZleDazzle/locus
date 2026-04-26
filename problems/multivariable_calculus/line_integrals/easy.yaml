@@ -1,25 +1,27 @@
 topic: multivariable_calculus/line_integrals
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(1, 4)
-  b: integer(1, 4)
-  t_start: 0
-  t_end: 1
-  path_x: a * t
-  path_y: b * t
-  f: x + y
-  f_on_path: a * t + b * t
-  f_simplified: (a + b) * t
-  integrand: f_simplified
-  answer: (a + b) / 2
-constraints:
-  - a != b
-question: "Evaluate the line integral {integral_of(f, C)} where f(x,y) = {f} and C is the line segment from (0,0) to ({a},{b})."
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  p: nonzero(1, 5)
+  q: nonzero(1, 5)
+  ap: a*p
+  bq: b*q
+  dot_product: a*p + b*q
+  answer: a*p + b*q
+
+question: >
+  A constant vector field {math(F)} has components {math(F_1 = a)} and {math(F_2 = b)}.
+  Evaluate the line integral of {math(F)} along the straight line segment {math(C)}
+  from {math((0, 0))} to {math((p, q))}.
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Parameterize the line segment: x = {path_x}, y = {path_y} for t in [0,1]"
-  - "Substitute into f: f(x(t),y(t)) = {f_simplified}"
-  - "The line integral becomes {integral_of(integrand, t)} from 0 to 1"
-  - "Integrate: [{integrand}*t] evaluated from 0 to 1"
-  - "Result: {answer}"
+  - "Parametrize {math(C)} by {math(r(t) = (p*t, q*t))} for {math(0 <= t <= 1)}, so the tangent vector is {math(r'(t) = (p, q))}."
+  - "For a constant vector field, the line integral equals the dot product of {math(F)} with the displacement: {math(F_1 * p + F_2 * q)}."
+  - "Substituting the values: {ap} + {bq} = {dot_product}."
+  - "The value of the line integral is {answer}."

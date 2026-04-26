@@ -1,25 +1,33 @@
 topic: geometry/area_of_polygons
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  base: integer(4, 12)
-  height: integer(3, 10)
-  side: integer(5, 15)
-  trap_base1: integer(6, 10)
-  trap_base2: integer(12, 18)
-  trap_height: integer(4, 8)
-  triangle_area: (base * height) / 2
-  square_area: side * side
-  trapezoid_area: ((trap_base1 + trap_base2) * trap_height) / 2
-  total_area: triangle_area + square_area + trapezoid_area
+  b1: integer(3, 12)
+  b2: integer(3, 12)
+  ht: integer(2, 9)
+  sum_bases: b1 + b2
+  answer: sum_bases * ht / 2
+
 constraints:
-  - trap_base2 > trap_base1
-  - base != height
-question: "A composite figure consists of three parts: a triangle with base {base} cm and height {height} cm, a square with side length {side} cm, and a trapezoid with parallel sides {trap_base1} cm and {trap_base2} cm and height {trap_height} cm. Find the total area of the composite figure."
-answer: total_area
+  - b1 != b2
+
+diagram:
+  type: polygon
+  vertices: [A, B, C, D]
+  sides:
+    AB: {label: b1}
+    CD: {label: b2}
+    BC: {label: ht, style: dashed}
+  angles:
+    B: right_angle
+
+question: "A trapezoid has parallel bases of length {b1} and {b2}, and a perpendicular height of {ht}. Find the area of the trapezoid."
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Calculate the area of each polygon separately:"
-  - "Triangle area = (1/2) × base × height = (1/2) × {base} × {height} = {triangle_area} cm²"
-  - "Square area = side² = {side}² = {square_area} cm²"
-  - "Trapezoid area = (1/2) × (base₁ + base₂) × height = (1/2) × ({trap_base1} + {trap_base2}) × {trap_height} = {trapezoid_area} cm²"
-  - "Total area = {triangle_area} + {square_area} + {trapezoid_area} = {total_area} cm²"
+  - "The area formula for a trapezoid is {math(A = (1/2)*(base_1 + base_2)*height)}."
+  - "Add the two bases: {b1} + {b2} = {sum_bases}."
+  - "Compute the area: {math(A = (1/2))} times {sum_bases} times {ht} = {answer}."

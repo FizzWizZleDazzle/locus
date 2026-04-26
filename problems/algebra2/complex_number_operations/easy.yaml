@@ -1,20 +1,23 @@
 topic: algebra2/complex_number_operations
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(-5, 5)
-  b: integer(-5, 5)
-  c: integer(-5, 5)
-  d: integer(-5, 5)
-  z1: a + b*i
-  z2: c + d*i
-  sum: (a + c) + (b + d)*i
+  a: integer(-6, 6)
+  b: nonzero(-6, 6)
+  c: integer(-6, 6)
+  d: nonzero(-6, 6)
+  real_part: a + c
+  imag_part: b + d
+  answer_expr: real_part + imag_part*i
+
 constraints:
-  - a != 0 or b != 0
-  - c != 0 or d != 0
-question: "Find the sum of {z1} and {z2}."
-answer: sum
+  - imag_part != 0
+
+question: "Add the complex numbers {math(a + b*i)} and {math(c + d*i)}. Express your answer in standard form {math(x + y*i)}."
+answer: real_part, imag_part
+answer_type: tuple
 solution:
-  - "Add the real parts: {a} + {c} = {a + c}"
-  - "Add the imaginary parts: {b} + {d} = {b + d}"
-  - "Therefore, {z1} + {z2} = {sum}"
+  - "Identify and combine the real parts: {a} and {c} sum to {real_part}."
+  - "Identify and combine the imaginary parts: {b} and {d} sum to {imag_part}."
+  - "The result in standard form is {answer_expr}."

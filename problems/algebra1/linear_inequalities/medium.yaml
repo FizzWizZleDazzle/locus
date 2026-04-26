@@ -2,19 +2,28 @@ topic: algebra1/linear_inequalities
 difficulty: medium
 calculator: none
 variables:
-  a: nonzero(2, 8)
-  b: integer(-12, 12)
-  c: integer(-20, 20)
-  rhs: a * b + c
-  answer: b
+  a: integer(2, 6)
+  b: nonzero(-8, 8)
+  c: integer(1, 4)
+  d: nonzero(-8, 8)
+  coeff: a - c
+  rhs_combined: d - b
+  answer_val: (d - b) / (a - c)
+  lhs_simplified: coeff*x
 constraints:
-  - a > 0
-  - b != 0
-question: "Solve for x: {equation(a*x + c, rhs)}"
-answer: answer
+  - a > c
+  - b != d
+question: "Solve the inequality {math(a*x + b < c*x + d)} for {math(x)}. What is the boundary value of {math(x)}?"
+answer: answer_val
 answer_type: numeric
 solution:
-  - "Start with {equation(a*x + c, rhs)}"
-  - "Subtract {c} from both sides: {equation(a*x, rhs - c)}"
-  - "Simplify: {equation(a*x, a*b)}"
-  - "Divide both sides by {a}: {equation(x, b)}"
+  - "Subtract {c*x} from both sides of {math(a*x + b < c*x + d)}: {math(coeff*x + b)} < {d}."
+  - "Subtract {b} from both sides: {lhs_simplified} < {rhs_combined}."
+  - "Divide both sides by {coeff}. Since {coeff} > 0, the inequality direction is unchanged."
+  - "The solution is {math(x)} < {answer_val}, so the boundary value is {answer_val}."
+diagram:
+  type: number_line
+  range: [-10, 10]
+  elements:
+    - point: {at: answer_val, style: open}
+    - arrow: {from: answer_val, direction: left, color: blue}

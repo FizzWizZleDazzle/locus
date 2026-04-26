@@ -1,36 +1,49 @@
 topic: linear_algebra/matrix_arithmetic
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
+  # Scalar multipliers
+  p: nonzero(-3, 3)
+  q: nonzero(-3, 3)
+
+  # Matrix A entries (2x2)
   a11: nonzero(-4, 4)
-  a12: integer(-4, 4)
-  a21: integer(-4, 4)
+  a12: nonzero(-4, 4)
+  a21: nonzero(-4, 4)
   a22: nonzero(-4, 4)
-  b11: nonzero(-3, 3)
-  b12: integer(-3, 3)
-  b21: integer(-3, 3)
-  b22: nonzero(-3, 3)
-  c11: a11*b11 + a12*b21
-  c12: a11*b12 + a12*b22
-  c21: a21*b11 + a22*b21
-  c22: a21*b12 + a22*b22
-  k: choice(2, 3, -2, -3)
-  d11: k*c11
-  d12: k*c12
-  d21: k*c21
-  d22: k*c22
-  answer: d11, d12, d21, d22
-constraints:
-  - a11 != a22
-  - b11 != b22
-question: "Let A = [[{a11}, {a12}], [{a21}, {a22}]] and B = [[{b11}, {b12}], [{b21}, {b22}]]. Find {k}(AB)."
-answer: answer
+
+  # Matrix B entries (2x2)
+  b11: nonzero(-4, 4)
+  b12: nonzero(-4, 4)
+  b21: nonzero(-4, 4)
+  b22: nonzero(-4, 4)
+
+  # Scaled A entries: p*A
+  pa11: p*a11
+  pa12: p*a12
+  pa21: p*a21
+  pa22: p*a22
+
+  # Scaled B entries: q*B
+  qb11: q*b11
+  qb12: q*b12
+  qb21: q*b21
+  qb22: q*b22
+
+  # Result entries: p*A + q*B
+  r11: p*a11 + q*b11
+  r12: p*a12 + q*b12
+  r21: p*a21 + q*b21
+  r22: p*a22 + q*b22
+
+question: "Let {equation(math(A), matrix_of([[a11, a12], [a21, a22]]))} and {equation(math(B), matrix_of([[b11, b12], [b21, b22]]))}. Compute {math(p*A + q*B)}."
+
+answer: r11, r12, r21, r22
 answer_type: tuple
+
 solution:
-  - "First compute AB by matrix multiplication"
-  - "Row 1, Col 1: ({a11})({b11}) + ({a12})({b21}) = {c11}"
-  - "Row 1, Col 2: ({a11})({b12}) + ({a12})({b22}) = {c12}"
-  - "Row 2, Col 1: ({a21})({b11}) + ({a22})({b21}) = {c21}"
-  - "Row 2, Col 2: ({a21})({b12}) + ({a22})({b22}) = {c22}"
-  - "So AB = [[{c11}, {c12}], [{c21}, {c22}]]"
-  - "Now multiply by {k}: {k}(AB) = [[{d11}, {d12}], [{d21}, {d22}]]"
+  - "Scale {math(A)} by {p} to get {equation(math(p*A), matrix_of([[pa11, pa12], [pa21, pa22]]))}."
+  - "Scale {math(B)} by {q} to get {equation(math(q*B), matrix_of([[qb11, qb12], [qb21, qb22]]))}."
+  - "Add the two scaled matrices entry-wise."
+  - "The result is {matrix_of([[r11, r12], [r21, r22]])}."

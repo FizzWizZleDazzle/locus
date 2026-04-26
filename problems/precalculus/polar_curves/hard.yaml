@@ -1,30 +1,29 @@
 topic: precalculus/polar_curves
 difficulty: hard
-calculator: graphing
+calculator: scientific
+
 variables:
-  a: integer(2, 6)
-  b: integer(2, 6)
-  k: integer(2, 5)
-  r: a + b * cos(k * theta)
-  r_at_0: evaluate(r, theta, 0)
-  r_at_pi: evaluate(r, theta, pi)
-  r_at_pi_2: evaluate(r, theta, pi/2)
-  r_at_pi_k: evaluate(r, theta, pi/k)
-  petals: 2 * k
-  inner_radius: a - b
-  outer_radius: a + b
-constraints:
-  - b < a
-  - gcd(k, 2) == 1
-question: "Consider the polar curve r = {r}. Find the total number of petals in the rose curve, and determine the maximum distance from the origin."
-answer: outer_radius
+  a: integer(2, 5)
+  a_sq: a^2
+  answer: 3*pi*a^2/2
+  r_expr: a*(1 + cos(theta))
+  r_sq_expr: a^2*(1 + cos(theta))^2
+  expanded: expand(a^2*(1 + 2*cos(theta) + cos(theta)^2))
+  const_contrib: 3*a^2/2
+  half_const: 3*a^2/4
+
+question: >
+  The polar curve {math(r = r_expr)} is a cardioid.
+  Find the total area enclosed by this cardioid using the polar area formula
+  {definite_integral_of(r^2/2, theta, 0, 2*pi)}.
+
+answer: answer
+
 solution:
-  - "The curve r = {r} is a rose curve with cosine term."
-  - "For r = a + b cos(kθ), when k is odd, the number of petals equals k."
-  - "Since k = {k} (odd), this rose has {k} petals."
-  - "The maximum value of r occurs when cos({k}θ) = 1."
-  - "This gives r_max = {a} + {b}(1) = {outer_radius}."
-  - "The minimum value occurs when cos({k}θ) = -1."
-  - "This gives r_min = {a} + {b}(-1) = {inner_radius}."
-  - "Since {inner_radius} > 0, the curve doesn't pass through the origin."
-  - "The maximum distance from the origin is {outer_radius}."
+  - "Set up the integral: {math(A)} = {definite_integral_of(r_sq_expr/2, theta, 0, 2*pi)}."
+  - "Expand: {equation(r_sq_expr, expanded)}."
+  - "Apply the identity {math(cos(theta)^2 = (1 + cos(2*theta))/2)} to replace {math(cos(theta)^2)}."
+  - "The integrand becomes {math(a^2*(3/2 + 2*cos(theta) + cos(2*theta)/2))}."
+  - "Over a full period from {math(0)} to {math(2*pi)}, the integrals of {math(cos(theta))} and {math(cos(2*theta))} are both zero."
+  - "Only the constant term {math(3*a^2/2)} survives. Multiplying by {math(1/2)} and integrating over {math(2*pi)} gives {math(A = pi*const_contrib)}."
+  - "The total enclosed area is {answer}."

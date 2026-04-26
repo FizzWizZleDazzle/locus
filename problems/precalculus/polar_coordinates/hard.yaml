@@ -1,36 +1,28 @@
 topic: precalculus/polar_coordinates
 difficulty: hard
 calculator: scientific
+
 variables:
-  # Backward design: start with clean Cartesian point, convert to polar
-  x: choice(-6, -4, -3, 3, 4, 6)
-  y: choice(-6, -4, -3, 3, 4, 6)
-  r: sqrt(x^2 + y^2)
-  theta_rad: atan2(y, x)
-  # Convert to degrees for cleaner display
-  theta_deg: round(theta_rad * 180 / pi, 1)
-  # Create another point with same r but different angle
-  angle_shift: choice(30, 45, 60, 90, 120, 135, 150)
-  theta2_deg: mod(theta_deg + angle_shift, 360)
-  theta2_rad: theta2_deg * pi / 180
-  x2: round(r * cos(theta2_rad), 2)
-  y2: round(r * sin(theta2_rad), 2)
-  # Distance between the two points
-  distance: sqrt((x2 - x)^2 + (y2 - y)^2)
-  answer: round(distance, 2)
+  r1: integer(2, 6)
+  r2: integer(2, 6)
+  ang1_choice: choice(1, 2, 3, 4, 5)
+  ang2_choice: choice(1, 2, 3, 4, 5)
+  theta1: ang1_choice * pi / 6
+  theta2: ang2_choice * pi / 6
+  cos_diff: cos(theta1 - theta2)
+  d_sq: r1^2 + r2^2 - 2*r1*r2*cos_diff
+  answer: sqrt(d_sq)
+
 constraints:
-  - x != 0
-  - y != 0
-  - abs(x) != abs(y)
-question: "A point P has Cartesian coordinates ({x}, {y}). Another point Q is located at the same distance from the origin as P, but at an angle {angle_shift}° counterclockwise from P. Find the distance between P and Q."
+  - ang1_choice != ang2_choice
+
+question: "Find the distance between the polar points {math((r1, theta1))} and {math((r2, theta2))}, given by the formula {math(d = sqrt(r1^2 + r2^2 - 2*r1*r2*cos(theta1 - theta2)))}."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "First, convert P = ({x}, {y}) to polar coordinates"
-  - "r = {sqrt(x^2 + y^2)} = {r}"
-  - "θ = arctan({y}/{x}) = {theta_deg}° (adjusting for quadrant)"
-  - "Point Q has the same radius r = {r}"
-  - "Q's angle is {theta_deg}° + {angle_shift}° = {theta2_deg}°"
-  - "Convert Q back to Cartesian: x = {r}cos({theta2_deg}°) = {x2}"
-  - "y = {r}sin({theta2_deg}°) = {y2}"
-  - "So Q = ({x2}, {y2})"
-  - "Distance = {sqrt((x2 - x)^2 + (y2 - y)^2)} = {answer}"
+  - "Apply the polar distance formula directly."
+  - "{equation(cos(theta1 - theta2), cos_diff)}."
+  - "Compute {equation(d^2, d_sq)}."
+  - "Take the positive square root: {equation(d, answer)}."

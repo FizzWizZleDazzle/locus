@@ -1,41 +1,28 @@
 topic: multivariable_calculus/triple_integrals
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(1, 3)
-  b: integer(1, 3)
-  c: integer(1, 3)
-  f: a*x + b*y + c*z
-  x_lo: 0
-  x_hi: integer(1, 2)
-  y_lo: 0
-  y_hi: integer(1, 2)
-  z_lo: 0
-  z_hi: integer(1, 2)
-  inner: integral(f, z)
-  inner_hi: evaluate(inner, z, z_hi)
-  inner_lo: evaluate(inner, z, z_lo)
-  inner_result: inner_hi - inner_lo
-  middle: integral(inner_result, y)
-  middle_hi: evaluate(middle, y, y_hi)
-  middle_lo: evaluate(middle, y, y_lo)
-  middle_result: middle_hi - middle_lo
-  outer: integral(middle_result, x)
-  outer_hi: evaluate(outer, x, x_hi)
-  outer_lo: evaluate(outer, x, x_lo)
-  answer: outer_hi - outer_lo
-constraints:
-  - x_hi != y_hi
-  - y_hi != z_hi
-question: "Evaluate the triple integral of {f} over the region [0, {x_hi}] × [0, {y_hi}] × [0, {z_hi}]"
+  a: nonzero(1, 4)
+  b: nonzero(1, 4)
+  c: nonzero(1, 4)
+  p: integer(1, 3)
+  q: integer(1, 3)
+  r: integer(1, 3)
+  f: a*x^2 + b*y + c*z
+  inner_z: a*x^2*r + b*y*r + c*r^2/2
+  after_y: a*x^2*r*q + b*r*q^2/2 + c*r^2*q/2
+  answer: a*r*q*p^3/3 + b*r*q^2*p/2 + c*r^2*q*p/2
+
+question: "Evaluate the triple integral {definite_integral_of(definite_integral_of(definite_integral_of(f, z, 0, r), y, 0, q), x, 0, p)}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Integrate with respect to z first: {definite_integral_of(f, z, z_lo, z_hi)}"
-  - "{integral_of(f, z)} = {inner}"
-  - "Evaluate bounds: {inner_hi} - {inner_lo} = {inner_result}"
-  - "Integrate with respect to y: {definite_integral_of(inner_result, y, y_lo, y_hi)}"
-  - "{integral_of(inner_result, y)} = {middle}"
-  - "Evaluate bounds: {middle_hi} - {middle_lo} = {middle_result}"
-  - "Integrate with respect to x: {definite_integral_of(middle_result, x, x_lo, x_hi)}"
-  - "{integral_of(middle_result, x)} = {outer}"
-  - "Evaluate bounds: {outer_hi} - {outer_lo} = {answer}"
+  - "Integrate with respect to {math(z)} first, holding {math(x)} and {math(y)} constant."
+  - "Inner integral: {definite_integral_of(f, z, 0, r)} = {inner_z}"
+  - "Now integrate with respect to {math(y)} from {math(0)} to {q}."
+  - "Middle integral: {definite_integral_of(inner_z, y, 0, q)} = {after_y}"
+  - "Finally integrate with respect to {math(x)} from {math(0)} to {p}."
+  - "Outer integral: {definite_integral_of(after_y, x, 0, p)} = {answer}"

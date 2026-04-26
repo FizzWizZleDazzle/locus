@@ -1,27 +1,40 @@
 topic: geometry/angle_relationships
 difficulty: hard
 calculator: none
+
 variables:
-  k: integer(2, 5)
-  m: integer(3, 8)
-  base_angle: integer(10, 30)
-  angle1: k * base_angle
-  angle2: m * base_angle
-  angle3: 180 - angle1 - angle2
-  ratio_sum: k + m
-  angle3_multiple: 180 / base_angle - ratio_sum
-constraints:
-  - angle3 > 0
-  - angle3 < 180
-  - mod(180, base_angle) == 0
-question: "In a triangle, two angles are in the ratio {k}:{m}. If the third angle is {angle3}°, find the measure of the smallest angle in the triangle."
-answer: angle1
+  x_ans: integer(8, 20)
+  coeff: choice(2, 3)
+  coeff2: choice(2, 3)
+  adj: integer(5, 15)
+  adj2: integer(5, 15)
+  coeff_sum: coeff + coeff2
+  p: coeff_sum * x_ans + adj + adj2
+  angle_b: 180 - p
+  angle_c_val: coeff * x_ans + adj
+  angle_d_val: coeff2 * x_ans + adj2
+  rhs_const: p - adj - adj2
+  inner_const: evaluate(angle_b + adj + adj2, x, 0)
+
+question: "Lines {math(l_1)} and {math(l_2)} are parallel. Two transversals intersect both lines, forming a triangle between the parallel lines. One interior angle of the triangle is co-interior with an exterior angle of {p} degrees (formed at the parallel line). The other two interior angles of the triangle measure {math(coeff*x + adj)} degrees and {math(coeff2*x + adj2)} degrees. Find {math(x)}."
+answer: x_ans
+answer_type: numeric
 solution:
-  - "Let the two angles in ratio {k}:{m} be {k}x and {m}x for some value x"
-  - "Since the angles of a triangle sum to 180°: {k}x + {m}x + {angle3} = 180"
-  - "Combining like terms: {ratio_sum}x + {angle3} = 180"
-  - "Solving for x: {ratio_sum}x = 180 - {angle3} = {angle1 + angle2}"
-  - "Therefore: x = {base_angle}"
-  - "The two angles are: {k} × {base_angle} = {angle1}° and {m} × {base_angle} = {angle2}°"
-  - "The three angles are {angle1}°, {angle2}°, and {angle3}°"
-  - "The smallest angle is {angle1}°"
+  - "Co-interior angles between parallel lines are supplementary, so they sum to 180 degrees."
+  - "The interior angle of the triangle at that vertex = 180 - {p} = {angle_b} degrees."
+  - "Apply the Triangle Angle Sum: the three interior angles must sum to 180 degrees."
+  - "{angle_b} + ({math(coeff*x + adj)}) + ({math(coeff2*x + adj2)}) = 180"
+  - "{math(coeff_sum*x)} + {inner_const} = 180"
+  - "{math(coeff_sum*x)} = {rhs_const}"
+  - "{math(x)} = {x_ans}"
+
+diagram:
+  type: coordinate_plane
+  x_range: [-1, 8]
+  y_range: [-1, 6]
+  grid: false
+  elements:
+    - line: {slope: 0, intercept: 5, color: blue, label: "l_1", style: solid}
+    - line: {slope: 0, intercept: 1, color: blue, label: "l_2", style: solid}
+    - line: {slope: -1, intercept: 7, color: black, style: solid}
+    - line: {slope: 1, intercept: -1, color: black, style: solid}

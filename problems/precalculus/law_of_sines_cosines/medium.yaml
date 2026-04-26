@@ -1,28 +1,20 @@
 topic: precalculus/law_of_sines_cosines
 difficulty: medium
 calculator: scientific
+
 variables:
-  # Design backward: pick angles that give clean sine/cosine values
-  A: choice(30, 45, 60)
-  B: choice(30, 45, 60)
-  C: 180 - A - B
-  # Pick a clean side length
-  a: integer(5, 12)
-  # Use law of sines to find b (will be clean due to angle choices)
-  b: a * sin(B * pi / 180) / sin(A * pi / 180)
-  b_rounded: round(b, 2)
-  # Use law of sines to find c
-  c: a * sin(C * pi / 180) / sin(A * pi / 180)
-  answer: round(c, 2)
-constraints:
-  - A != B  # Different angles for variety
-  - C > 0   # Valid triangle
-  - C != 90 # Avoid right triangle (too simple)
-question: "In triangle ABC, angle A = {A}°, angle B = {B}°, and side a = {a}. Find the length of side c."
-answer: answer
+  a: integer(3, 8)
+  b: 2*a
+  sin_A: 1/2
+  sin_B: 1
+
+question: "In triangle {math(ABC)}, {math(angle A = 30)} degrees and {math(angle B = 90)} degrees. The side opposite {math(angle A)} has length {a}. Use the Law of Sines to find the length of the side opposite {math(angle B)}."
+
+answer: b
+answer_type: numeric
+
 solution:
-  - "First, find angle C: C = 180° - {A}° - {B}° = {C}°"
-  - "Apply the Law of Sines: {equation('a/sin(A)', 'c/sin(C)')}"
-  - "Substitute known values: {equation(a + '/sin(' + A + '°)', 'c/sin(' + C + '°)')}"
-  - "Solve for c: c = {a} × sin({C}°) / sin({A}°)"
-  - "Calculate: c = {answer}"
+  - "The Law of Sines states {math(p / sin(A) = q / sin(B))}, where {math(p)} and {math(q)} are the sides opposite angles {math(A)} and {math(B)}."
+  - "Solving for the unknown side {math(q)}: {math(q = p * sin(B) / sin(A))}."
+  - "Here {math(p)} = {a}, {math(sin(A) = sin_A)}, and {math(sin(B) = sin_B)}."
+  - "So {math(q)} = {a} / {sin_A} = {b}."

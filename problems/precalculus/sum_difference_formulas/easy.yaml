@@ -1,23 +1,25 @@
 topic: precalculus/sum_difference_formulas
 difficulty: easy
 calculator: none
+
 variables:
-  angle1: choice(30, 45, 60)
-  angle2: choice(30, 45, 60)
-  sum_angle: angle1 + angle2
-  sin_angle1: sin(angle1 * pi / 180)
-  cos_angle1: cos(angle1 * pi / 180)
-  sin_angle2: sin(angle2 * pi / 180)
-  cos_angle2: cos(angle2 * pi / 180)
-  answer: simplify(sin_angle1 * cos_angle2 + cos_angle1 * sin_angle2)
+  a_deg: choice(30, 45, 60)
+  b_deg: choice(30, 45, 60)
+  a_rad: a_deg * pi / 180
+  b_rad: b_deg * pi / 180
+  sum_deg: a_deg + b_deg
+  answer: sin(a_rad + b_rad)
+
 constraints:
-  - angle1 != angle2
-question: "Using the sum formula for sine, find the exact value of sin({sum_angle}°)."
+  - a_deg != b_deg
+
+question: "Use the sine addition formula to find the exact value of the sine of {sum_deg} degrees."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Use the sum formula: sin(A + B) = sin(A)cos(B) + cos(A)sin(B)"
-  - "Here A = {angle1}° and B = {angle2}°"
-  - "sin({angle1}°) = {sin_angle1}, cos({angle1}°) = {cos_angle1}"
-  - "sin({angle2}°) = {sin_angle2}, cos({angle2}°) = {cos_angle2}"
-  - "sin({sum_angle}°) = {sin_angle1} × {cos_angle2} + {cos_angle1} × {sin_angle2}"
-  - "sin({sum_angle}°) = {answer}"
+  - "The sine addition formula: {math(sin(u + v) = sin(u)*cos(v) + cos(u)*sin(v))}."
+  - "Write {sum_deg} degrees as {a_deg} degrees + {b_deg} degrees."
+  - "Compute the four trig values and combine."
+  - "The exact value is {answer}."

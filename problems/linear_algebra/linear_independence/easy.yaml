@@ -2,28 +2,52 @@ topic: linear_algebra/linear_independence
 difficulty: easy
 calculator: none
 variables:
-  a1: integer(1, 5)
-  a2: integer(-5, -1)
-  b1: integer(1, 5)
-  b2: integer(1, 5)
-  k: integer(2, 4)
-  c1: k * a1
-  c2: k * a2
-  det_ab: a1 * b2 - a2 * b1
-  det_ac: a1 * c2 - a2 * c1
-  answer: det_ab != 0
-constraints:
-  - a1 != b1
-  - det_ab != 0
-question: "Are the vectors v₁ = ({a1}, {a2}) and v₂ = ({b1}, {b2}) linearly independent?"
-answer: answer
+  a1: nonzero(-5, 5)
+  a2: nonzero(-5, 5)
+  k: nonzero(-4, 4)
+  b1: k * a1
+  b2: k * a2
+question: "Are the vectors {vec([a1, a2])} and {vec([b1, b2])} linearly independent? Answer true or false."
+answer: "false"
 answer_type: boolean
 solution:
-  - "Two vectors are linearly independent if one is not a scalar multiple of the other"
-  - "Check if v₂ = k·v₁ for some scalar k"
-  - "This would require {b1} = k·{a1} and {b2} = k·{a2}"
-  - "From the first equation: k = {b1}/{a1}"
-  - "From the second equation: k = {b2}/{a2}"
-  - "Since these give different values of k, the vectors are linearly independent"
-  - "Alternatively, compute the determinant: {a1}·{b2} - {a2}·{b1} = {det_ab}"
-  - "Since {det_ab} ≠ 0, the vectors are linearly independent"
+  - "Two vectors are linearly independent if and only if neither is a scalar multiple of the other."
+  - "Check whether {vec([b1, b2])} is a scalar multiple of {vec([a1, a2])}."
+  - "We see that {vec([b1, b2])} = {k} {vec([a1, a2])}, so the vectors are linearly dependent."
+  - "The answer is false."
+
+variants:
+  - name: dependent
+    variables:
+      a1: nonzero(-5, 5)
+      a2: nonzero(-5, 5)
+      k: nonzero(-4, 4)
+      b1: k * a1
+      b2: k * a2
+    question: "Are the vectors {vec([a1, a2])} and {vec([b1, b2])} linearly independent? Answer true or false."
+    answer: "false"
+    answer_type: boolean
+    solution:
+      - "Two vectors are linearly independent if and only if neither is a scalar multiple of the other."
+      - "Check whether {vec([b1, b2])} is a scalar multiple of {vec([a1, a2])}."
+      - "We see that {vec([b1, b2])} = {k} {vec([a1, a2])}, so the vectors are linearly dependent."
+      - "The answer is false."
+
+  - name: independent
+    variables:
+      a1: nonzero(-5, 5)
+      a2: nonzero(-5, 5)
+      b1: nonzero(-5, 5)
+      b2: nonzero(-5, 5)
+      ratio1: a2 * b1
+      ratio2: a1 * b2
+    constraints:
+      - ratio1 != ratio2
+    question: "Are the vectors {vec([a1, a2])} and {vec([b1, b2])} linearly independent? Answer true or false."
+    answer: "true"
+    answer_type: boolean
+    solution:
+      - "Two vectors are linearly independent if and only if neither is a scalar multiple of the other."
+      - "Check whether {vec([b1, b2])} is a scalar multiple of {vec([a1, a2])}: we would need {math(b1 / a1 = b2 / a2)}, i.e. {math(a2 * b1 = a1 * b2)}."
+      - "Here {ratio1} is not equal to {ratio2}, so no such scalar exists."
+      - "The vectors are linearly independent, so the answer is true."

@@ -2,21 +2,15 @@ topic: algebra2/radical_expressions
 difficulty: medium
 calculator: none
 variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(2, 5)
-  perfect_square: a^2 * b
-  expr: sqrt(perfect_square * c)
-  simplified: a * sqrt(b * c)
-  answer: simplified
-constraints:
-  - b != c
-  - b * c < 50
-question: "Simplify {expr}."
+  a: integer(2, 7)
+  k: choice(2, 3, 5, 6, 7)
+  radicand: a*a*k
+  a_sq: a*a
+  answer: a*sqrt(k)
+question: "Simplify {math(sqrt(radicand))}."
 answer: answer
+answer_type: expression
 solution:
-  - "Start with {expr}"
-  - "Factor the radicand: {sqrt(perfect_square * c)} = {sqrt((a^2) * b * c)}"
-  - "Separate perfect square: {sqrt(a^2)} * {sqrt(b * c)}"
-  - "Simplify: {a} * {sqrt(b * c)}"
-  - "Final answer: {simplified}"
+  - "Factor {radicand} into a perfect square and a remaining factor: {radicand} = {a_sq} * {k}."
+  - "Apply the product rule for radicals: {math(sqrt(a_sq*k))} = {math(sqrt(a_sq)*sqrt(k))}."
+  - "The perfect square {a_sq} has square root {a}, so the simplified form is {answer}."

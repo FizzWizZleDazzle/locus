@@ -1,30 +1,77 @@
 topic: arithmetic/order_of_operations
 difficulty: hard
 calculator: none
+
 variables:
   a: integer(2, 5)
-  b: integer(3, 7)
-  c: integer(2, 4)
-  d: integer(2, 5)
-  e: integer(1, 3)
-  f: integer(4, 8)
-  term1: a * b^2
-  term2: c * d
-  term3: e * f
-  numerator: term1 - term2
-  answer: numerator / term3
+  b: integer(3, 8)
+  c: integer(1, 4)
+  d: integer(2, 6)
+  e: integer(2, 7)
+  f: integer(1, 9)
+  inner: b - c
+  sq: inner^2
+  term1: a * sq
+  term2: d * e
+  answer: a * (b - c)^2 - d * e + f
+
 constraints:
-  - mod(numerator, term3) == 0
-  - b != c
-  - d != e
-question: "Evaluate: {a} × {b}² - {c} × {d} ÷ ({e} × {f})"
+  - b > c
+
+question: "Evaluate {a}({b} - {c})^2 - {d} * {e} + {f}."
 answer: answer
+
 solution:
-  - "Follow order of operations: exponents, then multiplication/division from left to right"
-  - "First, calculate {b}² = {b^2}"
-  - "Then {a} × {b^2} = {term1}"
-  - "Next, {c} × {d} = {term2}"
-  - "And {e} × {f} = {term3}"
-  - "Now we have: {term1} - {term2} ÷ {term3}"
-  - "Division before subtraction: {term2} ÷ {term3} = {term2/term3}"
-  - "Finally: {term1} - {term2/term3} = {answer}"
+  - "Parentheses first: {b} - {c} = {inner}."
+  - "Exponent: {inner}^2 = {sq}."
+  - "Left multiplication: {a} * {sq} = {term1}."
+  - "Right multiplication: {d} * {e} = {term2}."
+  - "Final: {term1} - {term2} + {f} = {answer}."
+
+variants:
+  - name: exponent_multiply_add_subtract
+    variables:
+      a: integer(2, 5)
+      b: integer(3, 8)
+      c: integer(1, 4)
+      d: integer(2, 6)
+      e: integer(2, 7)
+      f: integer(1, 9)
+      inner: b - c
+      sq: inner^2
+      term1: a * sq
+      term2: d * e
+      answer: a * (b - c)^2 - d * e + f
+    constraints:
+      - b > c
+    question: "Evaluate {a}({b} - {c})^2 - {d} * {e} + {f}."
+    answer: answer
+    solution:
+      - "Parentheses first: {b} - {c} = {inner}."
+      - "Exponent: {inner}^2 = {sq}."
+      - "Left multiplication: {a} * {sq} = {term1}."
+      - "Right multiplication: {d} * {e} = {term2}."
+      - "Final: {term1} - {term2} + {f} = {answer}."
+
+  - name: exponent_divide_subtract
+    variables:
+      a: integer(2, 4)
+      c: integer(2, 5)
+      k: integer(3, 8)
+      inner: c * k
+      b: inner - a^2
+      d: integer(2, 5)
+      e: integer(2, 6)
+      a_sq: a^2
+      quotient: inner / c
+      term2: d * e
+      answer: (a^2 + b) / c - d * e
+    constraints:
+      - b > 0
+    question: "Evaluate ({a}^2 + {b}) / {c} - {d} * {e}."
+    answer: answer
+    solution:
+      - "Parentheses first: {a}^2 + {b} = {a_sq} + {b} = {inner}."
+      - "Division: {inner} / {c} = {quotient}."
+      - "Multiplication: {d} * {e} = {term2}."
+      - "Final: {quotient} - {term2} = {answer}."

@@ -1,25 +1,26 @@
 topic: calculus/antiderivatives
 difficulty: medium
 calculator: none
+
 variables:
-  a: nonzero(-6, 6)
-  b: nonzero(-8, 8)
-  c: integer(-10, 10)
-  f: a*x^2 + b*x + c
-  F: integral(f, x)
-  x0: integer(1, 4)
-  F_at_x0: evaluate(F, x, x0)
-  given_value: integer(-20, 20)
-  C: given_value - F_at_x0
-  answer: F + C
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  n: integer(2, 5)
+  m: integer(1, 3)
+  f: a*x^n + b*x^m
+  anti_term1: a*x^(n+1)/(n+1)
+  anti_term2: b*x^(m+1)/(m+1)
+  answer: integral(f, x)
+
 constraints:
-  - a != b
-question: "Find the antiderivative F(x) of {f} such that F({x0}) = {given_value}."
+  - n != m
+
+question: "Find {integral_of(f, x)}. Include the constant of integration {math(C)}."
+
 answer: answer
+
 solution:
-  - "First find the general antiderivative of {f}"
-  - "{integral_of(f, x)} = {F} + C"
-  - "Use the condition F({x0}) = {given_value} to find C"
-  - "Substituting x = {x0}: {F_at_x0} + C = {given_value}"
-  - "Therefore C = {C}"
-  - "The antiderivative is F(x) = {answer}"
+  - "Apply the Power Rule to each term: raise the exponent by 1 and divide by the new exponent."
+  - "First term: {anti_term1}"
+  - "Second term: {anti_term2}"
+  - "Result: {answer} + C"

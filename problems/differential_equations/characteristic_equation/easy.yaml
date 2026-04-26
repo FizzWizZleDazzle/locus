@@ -1,20 +1,22 @@
 topic: differential_equations/characteristic_equation
 difficulty: easy
 calculator: none
+
 variables:
-  r1: integer(-5, 5)
-  r2: integer(-5, 5)
-  char_eq: r^2 - (r1 + r2)*r + r1*r2
-  a: -(r1 + r2)
-  b: r1*r2
-  answer: solve(char_eq, r)
-constraints:
-  - r1 != r2
-  - r1 < r2
-question: "Find the roots of the characteristic equation for {equation(derivative(derivative(y, x), x) + a*derivative(y, x) + b*y, 0)}"
-answer: answer
-answer_type: set
+  r1: integer(-5, -1)
+  r2: integer(1, 5)
+  b: expand(-(r1 + r2))
+  c: r1 * r2
+  char_eq: x^2 + b*x + c
+  factored: (x - r1)*(x - r2)
+
+question: "Find the roots of the characteristic equation {equation(char_eq, 0)}, where {math(x)} is the characteristic root of a second-order linear ODE. Enter the roots as an ordered pair with the smaller root first."
+
+answer: r1, r2
+answer_type: tuple
+
 solution:
-  - "The characteristic equation is {equation(char_eq, 0)}"
-  - "Factor: {equation((r - r1)*(r - r2), 0)}"
-  - "The roots are r = {r1} and r = {r2}"
+  - "The characteristic equation is {equation(char_eq, 0)}."
+  - "Factor the left side: {equation(char_eq, factored)}."
+  - "Setting each factor to zero: {math(x - r1 = 0)} gives {math(x)} = {r1}, and {math(x - r2 = 0)} gives {math(x)} = {r2}."
+  - "The two roots are {r1} and {r2}."

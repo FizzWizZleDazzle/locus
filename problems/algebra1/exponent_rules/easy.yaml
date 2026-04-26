@@ -1,17 +1,19 @@
 topic: algebra1/exponent_rules
 difficulty: easy
 calculator: none
+
 variables:
-  base: integer(2, 9)
-  m: integer(2, 5)
+  m: integer(2, 7)
   n: integer(2, 5)
-  left: base^m * base^n
-  answer: base^(m + n)
-constraints:
-  - m + n <= 8
-question: "Simplify {left}"
+  factor1: x^m
+  factor2: x^n
+  answer: m + n
+
+question: "Simplify {factor1} * {factor2}. Write your answer in the form {math(x^k)} and give the value of {math(k)}."
 answer: answer
+answer_type: numeric
+
 solution:
-  - "When multiplying powers with the same base, add the exponents"
-  - "{base}^{m} × {base}^{n} = {base}^({m} + {n})"
-  - "{base}^{m} × {base}^{n} = {answer}"
+  - "Use the product rule: when multiplying powers with the same base, add the exponents."
+  - "The new exponent is {m} + {n} = {answer}."
+  - "So {factor1} * {factor2} = {math(x^answer)}."

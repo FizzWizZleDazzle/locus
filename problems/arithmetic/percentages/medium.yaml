@@ -1,16 +1,60 @@
 topic: arithmetic/percentages
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  original: choice(40, 50, 60, 80, 100, 120, 150, 200)
-  percent: choice(15, 20, 25, 30, 35, 40, 45, 50)
-  increase: original * percent / 100
-  new_value: original + increase
-constraints:
-  - percent <= 50
-question: "A store increases the price of an item from ${original} by {percent}%. What is the new price?"
-answer: new_value
+  pct: choice(10, 15, 20, 25, 30, 40, 50)
+  base: integer(2, 15)
+  orig: 20 * base
+  disc: pct * orig / 100
+  answer: orig - disc
+
+question: "A jacket originally costs {orig} dollars and is on sale for {pct}% off. What is the sale price, in dollars?"
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Calculate the increase: {percent}% of ${original}"
-  - "Increase = {original} × {percent}/100 = ${increase}"
-  - "New price = ${original} + ${increase} = ${new_value}"
+  - "Find the discount: {pct}% of {orig} = {disc} dollars"
+  - "Subtract from the original price: {orig} - {disc} = {answer} dollars"
+
+variants:
+  - name: percent_discount
+    variables:
+      pct: choice(10, 15, 20, 25, 30, 40, 50)
+      base: integer(2, 15)
+      orig: 20 * base
+      disc: pct * orig / 100
+      answer: orig - disc
+    question: "A jacket originally costs {orig} dollars and is on sale for {pct}% off. What is the sale price, in dollars?"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Find the discount: {pct}% of {orig} = {disc} dollars"
+      - "Subtract from the original price: {orig} - {disc} = {answer} dollars"
+
+  - name: percent_of_number
+    variables:
+      pct: choice(10, 15, 20, 25, 30, 40, 50, 60, 75, 80)
+      base: integer(1, 10)
+      whole: 20 * base
+      answer: pct * whole / 100
+    question: "What is {pct}% of {whole}?"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Translate: {pct}% of {whole} means {math(pct/100)} times {whole}"
+      - "Compute: {answer}"
+
+  - name: percent_increase
+    variables:
+      base: integer(1, 10)
+      orig: 20 * base
+      pct: choice(10, 20, 25, 50, 75, 100)
+      inc: pct * orig / 100
+      answer: orig + inc
+    question: "A store's monthly revenue was {orig} thousand dollars. Revenue increased by {pct}% the following month. What was the new monthly revenue, in thousands of dollars?"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Calculate the increase: {pct}% of {orig} = {inc} thousand dollars"
+      - "Add to the original: {orig} + {inc} = {answer} thousand dollars"

@@ -1,32 +1,27 @@
 topic: multivariable_calculus/gradient
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
   a: nonzero(-4, 4)
   b: nonzero(-4, 4)
   c: nonzero(-4, 4)
-  f: a*x^3 + b*x*y^2 + c*y^3
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  x0: nonzero(-3, 3)
-  y0: nonzero(-3, 3)
-  grad_x: evaluate(fx, x, x0)
-  grad_y: evaluate(fy, y, y0)
-  answer_x: evaluate(grad_x, y, y0)
-  answer_y: evaluate(grad_y, y, y0)
-constraints:
-  - a != b
-  - b != c
-  - x0 != y0
-question: "Find the gradient vector of f(x,y) = {f} at the point ({x0}, {y0})."
-answer: answer_x
+  f: a*x^2 + b*x*y + c*y^3
+  fx: derivative(a*x^2 + b*x*y + c*y^3, x)
+  fy: derivative(a*x^2 + b*x*y + c*y^3, y)
+  x0: integer(-3, 3)
+  y0: integer(-3, 3)
+  fx_val: evaluate(fx, x, x0)
+  fx_at: evaluate(fx_val, y, y0)
+  fy_val: evaluate(fy, x, x0)
+  fy_at: evaluate(fy_val, y, y0)
+
+question: "Find the gradient of the function {f} at the point {math(x =)} {x0}, {math(y =)} {y0}. Give your answer as an ordered pair {math((f_x, f_y))}."
+answer: fx_at, fy_at
+answer_type: tuple
 solution:
-  - "To find the gradient, compute partial derivatives:"
-  - "{derivative_of(f, x)} = {fx}"
-  - "{derivative_of(f, y)} = {fy}"
-  - "Evaluate at ({x0}, {y0}):"
-  - "At x = {x0}: {derivative_of(f, x)} = {grad_x}"
-  - "At y = {y0}: {derivative_of(f, y)} = {grad_y}"
-  - "Substituting y = {y0} into {grad_x}: {answer_x}"
-  - "Substituting y = {y0} into {grad_y}: {answer_y}"
-  - "Therefore, ∇f({x0}, {y0}) = ({answer_x}, {answer_y})"
+  - "Compute the partial derivative with respect to {math(x)}: {partial_of(f, x)} = {fx}."
+  - "Compute the partial derivative with respect to {math(y)}: {partial_of(f, y)} = {fy}."
+  - "Evaluate at {math(x =)} {x0} and {math(y =)} {y0}: the first component is {fx_at}."
+  - "The second component is {fy_at}."
+  - "The gradient at the given point is {vec([fx_at, fy_at])}."

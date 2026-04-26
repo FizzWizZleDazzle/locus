@@ -1,29 +1,33 @@
 topic: multivariable_calculus/stokes_divergence
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(2, 5)
-  F_x: a * y
-  F_y: b * z
-  F_z: c * x
-  curl_x: -b
-  curl_y: -c
-  curl_z: -a
-  r: integer(2, 4)
-  flux: r * r * (-a - b - c)
-  answer: flux
-constraints:
-  - a != b
-  - b != c
-question: "Let {vec(F)} = {equation(F_x, F_y, F_z)}. Use Stokes' theorem to evaluate the circulation of {vec(F)} around the boundary of the hemisphere x^2 + y^2 + z^2 = {r}^2, z ≥ 0, oriented with upward normal."
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  p: integer(1, 4)
+  q: integer(1, 4)
+  r: integer(1, 4)
+  F1: a*x
+  F2: b*y
+  F3: c*z
+  div_F: a + b + c
+  volume: p * q * r
+  answer: div_F * volume
+
+question: >
+  Let {math(F)} be the vector field with components {math(F_1 = F1)},
+  {math(F_2 = F2)}, {math(F_3 = F3)}.
+  Use the Divergence Theorem to compute the outward flux of {math(F)}
+  through the closed surface of the rectangular box
+  {math(0 <= x <= p)}, {math(0 <= y <= q)}, {math(0 <= z <= r)}.
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "By Stokes' theorem, circulation = {integral_of(curl F · n, S)}"
-  - "Calculate curl {vec(F)}: {vec(curl F)} = {equation(curl_x, curl_y, curl_z)}"
-  - "For hemisphere with upward normal, {vec(n)} = {equation(x/r, y/r, z/r)}"
-  - "On hemisphere surface: curl {vec(F)} · {vec(n)} = ({curl_x}x + {curl_y}y + {curl_z}z)/{r}"
-  - "Convert to spherical: x = {r}sinφcosθ, y = {r}sinφsinθ, z = {r}cosφ"
-  - "Integral becomes {r}({curl_x}sinφcosθ + {curl_y}sinφsinθ + {curl_z}cosφ)"
-  - "After integration over hemisphere: {answer}"
+  - "By the Divergence Theorem, the outward flux equals the triple integral of the divergence of {math(F)} over the box."
+  - "Compute the divergence: {partial_of(F1, x)} + {partial_of(F2, y)} + {partial_of(F3, z)} = {a} + ({b}) + ({c}) = {div_F}."
+  - "The volume of the box is {p} by {q} by {r}, giving volume {volume}."
+  - "Outward flux = {div_F} times {volume} = {answer}."

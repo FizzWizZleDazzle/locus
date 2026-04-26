@@ -1,21 +1,22 @@
 topic: arithmetic/subtraction
 difficulty: hard
 calculator: none
+
 variables:
-  a: integer(7, 9)
-  b: integer(1, 6)
-  c: integer(100, 999)
-  d: integer(10, 99)
-  first: a * c
-  second: b * d
-  answer: first - second
-constraints:
-  - first > second
-  - mod(c, 10) < mod(d, 10)
-question: "Calculate: {first} - {second}"
+  # Pick the round minuend (multiple of 1000, 3000–9000)
+  thousands: integer(3, 9)
+  minuend: thousands * 1000
+  # Pick the answer (difference) — a 3-digit number to ensure borrowing across zeros
+  answer: integer(100, 899)
+  # Derive the subtrahend from minuend and answer
+  subtrahend: minuend - answer
+
+question: "Compute {minuend} - {subtrahend}."
+
 answer: answer
+
 solution:
-  - "Rewrite {first} as {a} × {c} and {second} as {b} × {d}"
-  - "Since {c} ends in {mod(c, 10)} and {d} ends in {mod(d, 10)}, we need to borrow"
-  - "Perform the subtraction with borrowing across multiple place values"
-  - "{first} - {second} = {answer}"
+  - "We need to subtract {subtrahend} from {minuend}."
+  - "Since {minuend} ends in three zeros, we must borrow across them."
+  - "Rewrite {minuend} as {math(minuend - 1)} + 1, then continue borrowing as needed."
+  - "Working through the borrowing: {minuend} - {subtrahend} = {answer}."

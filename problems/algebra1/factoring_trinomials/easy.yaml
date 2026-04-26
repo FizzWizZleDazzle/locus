@@ -1,16 +1,26 @@
 topic: algebra1/factoring_trinomials
 difficulty: easy
 calculator: none
+
 variables:
-  p: integer(1, 5)
-  q: integer(1, 5)
-  expanded: x^2 + (p + q)*x + p*q
-  factored: (x + p)*(x + q)
+  r1: integer(1, 7)
+  r2: integer(1, 7)
+  root_neg: -r2
+  b_coeff: r1 - r2
+  c_coeff: -r1 * r2
+  f: expand((x - r1)*(x + r2))
+  answer: solve(f, x)
+
 constraints:
-  - p != q
-question: "Factor the trinomial {expanded}"
-answer: factored
+  - r1 != r2
+
+question: "Factor the trinomial {math(x^2 + b_coeff*x + c_coeff)} and find its roots."
+
+answer: answer
+answer_type: set
+
 solution:
-  - "We need to find two numbers that multiply to {p*q} and add to {evaluate(p + q, x, 0)}"
-  - "The numbers {p} and {q} work: {p} × {q} = {evaluate(p*q, x, 0)} and {p} + {q} = {evaluate(p + q, x, 0)}"
-  - "So {expanded} = {factored}"
+  - "Find two numbers that multiply to {c_coeff} and add to {b_coeff}."
+  - "The numbers {r1} and {root_neg} satisfy this: their product is {c_coeff} and their sum is {b_coeff}."
+  - "So the trinomial factors as {math((x - r1) * (x + r2))} = 0."
+  - "Setting each factor to zero: {math(x)} = {r1} or {math(x)} = {root_neg}."

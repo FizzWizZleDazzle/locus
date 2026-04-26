@@ -1,22 +1,21 @@
 topic: algebra2/exponential_equations
 difficulty: medium
 calculator: scientific
+
 variables:
-  k: integer(2, 5)
-  b: integer(2, 4)
-  c: integer(1, 3)
-  exponent: k * x + c
-  rhs: b^(2*k + c)
-  equation_form: b^exponent = rhs
-  answer: 2
-constraints:
-  - b != k
-question: "Solve for x: {equation(b^exponent, rhs)}"
+  base: choice(2, 3, 5)
+  a: nonzero(-4, 4)
+  c: integer(-4, 4)
+  d: integer(-2, 6)
+  diff: d - c
+  answer: diff / a
+
+question: "Solve for {math(x)}: {equation(base^(a*x + c), base^d)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "We have {equation(b^exponent, rhs)}"
-  - "Since {rhs} = {b}^{2*k + c}, we can rewrite as {equation(b^exponent, b^(2*k + c))}"
-  - "When bases are equal, exponents must be equal: {equation(exponent, 2*k + c)}"
-  - "So {equation(k * x + c, 2*k + c)}"
-  - "Subtract {c} from both sides: {equation(k * x, 2*k)}"
-  - "Divide by {k}: {equation(x, 2)}"
+  - "Both sides share base {base}, so set the exponents equal: {equation(a*x + c, d)}"
+  - "Isolate the term with {math(x)}: {equation(a*x, diff)}"
+  - "Divide both sides by {a}: {equation(x, answer)}"

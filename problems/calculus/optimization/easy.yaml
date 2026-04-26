@@ -1,22 +1,23 @@
 topic: calculus/optimization
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(2, 8)
-  b: integer(10, 30)
-  f: a * x^2 - b * x
-  df: derivative(f, x)
-  critical_x: b / (2 * a)
-  answer: evaluate(f, x, critical_x)
-constraints:
-  - mod(b, 2) == 0
-  - mod(b, a) == 0
-question: "Find the minimum value of {f}."
+  h: integer(1, 8)
+  a: integer(2, 5)
+  k: integer(1, 10)
+  f: expand(a*(x - h)^2 + k)
+  f_prime: derivative(f, x)
+  answer: h
+
+question: "A cost function is given by {math(C(x))} = {f}, where {math(x > 0)} is the number of units produced. Find the value of {math(x)} that minimizes {math(C(x))}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "To find the minimum, take the derivative: {derivative_of(f, x)} = {df}"
-  - "Set the derivative equal to zero: {equation(df, 0)}"
-  - "Solve for x: x = {critical_x}"
-  - "Since the coefficient of x^2 is positive ({a}), this is a minimum"
-  - "Substitute x = {critical_x} into {f}"
-  - "Minimum value = {answer}"
+  - "Take the derivative: {equation(math(C'(x)), f_prime)}"
+  - "Set the derivative equal to zero and solve: {equation(f_prime, 0)}"
+  - "Solving for {math(x)}: {equation(math(x), answer)}"
+  - "Since the coefficient of {math(x^2)} is {a} > 0, this critical point is a minimum."
+  - "The cost is minimized at {math(x)} = {answer}."

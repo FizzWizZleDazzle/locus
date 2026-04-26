@@ -1,20 +1,22 @@
 topic: algebra1/one_step_equations
 difficulty: hard
 calculator: none
+
 variables:
-  answer: nonzero(-15, 15)
-  a: choice(-12, -9, -6, -4, -3, 3, 4, 6, 9, 12)
-  b: a * answer
-  equation_form: choice(1, 2, 3, 4)
-  lhs: a * x
-  rhs: b
+  p: integer(2, 7)
+  q: choice(2, 3, 4, 5)
+  x_sol: nonzero(-8, 8)
+  rhs: p * x_sol / q
+  lhs_coeff: p / q
+  recip: q / p
+
 constraints:
-  - answer != 1
-  - answer != -1
-question: "Solve for x: {equation(lhs, rhs)}"
-answer: answer
+  - p != q
+
+question: "Solve for {math(x)}: {equation(lhs_coeff * x, rhs)}"
+answer: x_sol
 answer_type: numeric
 solution:
-  - "We have {equation(lhs, rhs)}"
-  - "Divide both sides by {a}: {equation(x, b/a)}"
-  - "Therefore, x = {answer}"
+  - "We have {equation(lhs_coeff * x, rhs)}."
+  - "The coefficient of {math(x)} is {lhs_coeff}. Multiply both sides by its reciprocal, {recip}."
+  - "So {equation(x, x_sol)}."

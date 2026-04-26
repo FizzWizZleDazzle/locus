@@ -1,22 +1,20 @@
 topic: arithmetic/decimals
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(2, 9)
-  b: integer(2, 9)
-  c: integer(1, 9)
-  d: choice(10, 100, 1000)
-  decimal1: a + c/d
-  product: a * b * d + b * c
-  answer: product/d
-constraints:
-  - d != 10 or c != 5
-  - mod(product, 10) != 0 or d != 100
-question: "Calculate: {decimal1} × {b}"
+  a: decimal(1, 7, 1)
+  b: decimal(1, 7, 1)
+  a_int: floor(a * 10)
+  b_int: floor(b * 10)
+  product_int: a_int * b_int
+  answer: a * b
+
+question: "Multiply {a} by {b}. Give your answer as a decimal."
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Rewrite {decimal1} as a fraction: {a} + {c}/{d}"
-  - "Multiply: ({a} + {c}/{d}) × {b}"
-  - "= {a} × {b} + {c}/{d} × {b}"
-  - "= {a * b} + {b * c}/{d}"
-  - "= {a * b} + {b * c}/{d} = {answer}"
+  - "Temporarily ignore the decimal points and multiply as whole numbers: {a_int} times {b_int} = {product_int}."
+  - "Each factor has 1 decimal place, so insert the decimal point 2 places from the right."
+  - "{a} times {b} = {answer}."

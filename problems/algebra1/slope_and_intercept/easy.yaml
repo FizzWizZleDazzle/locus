@@ -1,24 +1,18 @@
 topic: algebra1/slope_and_intercept
 difficulty: easy
 calculator: none
+
 variables:
-  m: integer(-5, 5)
-  b: integer(-8, 8)
-  f: m * x + b
-  x1: integer(-3, 3)
-  x2: integer(-3, 3)
-  y1: evaluate(f, x, x1)
-  y2: evaluate(f, x, x2)
-constraints:
-  - m != 0
-  - x1 != x2
-question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). Find the slope and y-intercept of this line."
-answer: f
-answer_type: expression
+  m: nonzero(-6, 6)
+  b: nonzero(-10, 10)
+  f: m*x + b
+
+question: "A line has equation {equation(math(y), f)}. What is the slope of the line?"
+
+answer: m
+answer_type: numeric
+
 solution:
-  - "Calculate the slope using the two points:"
-  - "m = ({y2} - {y1}) / ({x2} - {x1}) = {m}"
-  - "Use point-slope form with point ({x1}, {y1}):"
-  - "y - {y1} = {m}(x - {x1})"
-  - "Expand: y = {m}x + {b}"
-  - "The slope is {m} and the y-intercept is {b}"
+  - "The equation is in slope-intercept form, where the coefficient of {math(x)} is the slope."
+  - "From {equation(math(y), f)}, the coefficient of {math(x)} is {m}."
+  - "The slope is {m}."

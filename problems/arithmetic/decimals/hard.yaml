@@ -1,24 +1,27 @@
 topic: arithmetic/decimals
 difficulty: hard
 calculator: none
+
 variables:
-  a: integer(2, 9)
-  b: integer(2, 9)
-  c: integer(1, 9)
-  d: integer(2, 9)
-  e: integer(1, 9)
-  first: a + b/10 + c/100
-  second: d + e/100
-  product: first * second
-  rounded: round(product, 2)
-constraints:
-  - a != d
-  - b != 5
-  - e != 5
-question: "Calculate {first} × {second} and round to 2 decimal places"
-answer: rounded
+  p1: decimal(0.50, 3.00, 2)
+  p2: decimal(0.50, 3.00, 2)
+  p3: decimal(0.50, 3.00, 2)
+  q1: integer(2, 8)
+  q2: integer(2, 8)
+  q3: integer(2, 8)
+  sub1: p1 * q1
+  sub2: p2 * q2
+  sub3: p3 * q3
+  answer: sub1 + sub2 + sub3
+
+question: "A customer buys {q1} items at {p1} dollars each, {q2} items at {p2} dollars each, and {q3} items at {p3} dollars each. What is the total cost, in dollars?"
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "Multiply {first} × {second}"
-  - "Break down: {a}.{b}{c} × {d}.0{e}"
-  - "Product = {product}"
-  - "Round to 2 decimal places: {rounded}"
+  - "Multiply each price by its quantity to find each subtotal."
+  - "Subtotal 1: {q1} items at {p1} dollars = {sub1} dollars"
+  - "Subtotal 2: {q2} items at {p2} dollars = {sub2} dollars"
+  - "Subtotal 3: {q3} items at {p3} dollars = {sub3} dollars"
+  - "Total cost: {sub1} + {sub2} + {sub3} = {answer} dollars"

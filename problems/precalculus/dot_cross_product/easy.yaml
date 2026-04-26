@@ -1,23 +1,26 @@
 topic: precalculus/dot_cross_product
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  a1: integer(-5, 5)
-  a2: integer(-5, 5)
-  a3: integer(-5, 5)
-  b1: integer(-5, 5)
-  b2: integer(-5, 5)
-  b3: integer(-5, 5)
-  dot_product: a1*b1 + a2*b2 + a3*b3
-  answer: dot_product
-constraints:
-  - a1 != 0
-  - b1 != 0
-question: "Find the dot product of vectors a = ({a1}, {a2}, {a3}) and b = ({b1}, {b2}, {b3})."
+  a1: integer(-6, 6)
+  a2: integer(-6, 6)
+  a3: integer(-6, 6)
+  b1: integer(-6, 6)
+  b2: integer(-6, 6)
+  b3: integer(-6, 6)
+  prod1: a1*b1
+  prod2: a2*b2
+  prod3: a3*b3
+  answer: prod1 + prod2 + prod3
+
+question: "Find the dot product of the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])}."
 answer: answer
 answer_type: numeric
+
 solution:
-  - "The dot product formula is a·b = a₁b₁ + a₂b₂ + a₃b₃"
-  - "Substitute: ({a1})({b1}) + ({a2})({b2}) + ({a3})({b3})"
-  - "Calculate: {a1*b1} + {a2*b2} + {a3*b3}"
-  - "Result: {answer}"
+  - "The dot product multiplies corresponding components and sums them."
+  - "First components: {a1} times {b1} = {prod1}."
+  - "Second components: {a2} times {b2} = {prod2}."
+  - "Third components: {a3} times {b3} = {prod3}."
+  - "The dot product equals {prod1} + {prod2} + {prod3} = {answer}."

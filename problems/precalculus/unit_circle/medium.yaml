@@ -1,25 +1,18 @@
 topic: precalculus/unit_circle
 difficulty: medium
 calculator: none
+
 variables:
-  angle_deg: choice(30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330)
-  quadrant: choice(1, 2, 3, 4)
-  ref_angle: choice(30, 45, 60)
-  cos_num: choice(1, 1, 1, 2, 3)
-  sin_num: choice(1, 2, 3, 1, 1)
-  cos_denom: choice(1, 2, 2, 2, 2)
-  sin_denom: choice(1, 2, 2, 2, 2)
-  cos_sign: choice(1, -1)
-  sin_sign: choice(1, -1)
-  cos_val: cos_sign * cos_num / cos_denom
-  sin_val: sin_sign * sin_num / sin_denom
-  answer: cos_val, sin_val
-constraints:
-  - cos_val != sin_val
-question: "A point on the unit circle has coordinates ({cos_val}, {sin_val}). Find the angle in degrees between 0° and 360°."
-answer: angle_deg
-answer_type: numeric
+  angle_choice: choice(pi/6, pi/4, pi/3, 2*pi/3, 3*pi/4, 5*pi/6)
+  sin_val: sin(angle_choice)
+  cos_val: cos(angle_choice)
+  answer: tan(angle_choice)
+
+question: "Using the unit circle, find the exact value of {tan(angle_choice)}."
+answer: answer
+answer_type: expression
+
 solution:
-  - "The point ({cos_val}, {sin_val}) is on the unit circle"
-  - "We need to find the angle θ such that cos(θ) = {cos_val} and sin(θ) = {sin_val}"
-  - "Based on the signs and values, this corresponds to {angle_deg}°"
+  - "Use the identity {equation(math(tan(theta)), math(sin(theta)/cos(theta)))}."
+  - "From the unit circle at angle {angle_choice}: {equation(sin(angle_choice), sin_val)} and {equation(cos(angle_choice), cos_val)}."
+  - "Therefore, {equation(tan(angle_choice), answer)}."

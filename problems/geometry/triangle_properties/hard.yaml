@@ -1,34 +1,27 @@
 topic: geometry/triangle_properties
 difficulty: hard
-calculator: scientific
+calculator: none
+
 variables:
-  # Use a 3-4-5 triangle scaled by factor k for clean calculations
   k: integer(2, 5)
-  a: 3 * k
-  b: 4 * k
-  c: 5 * k
-  # Semi-perimeter
-  s: (a + b + c) / 2
-  # Area using Heron's formula - guaranteed to be 6k^2
-  area: sqrt(s * (s - a) * (s - b) * (s - c))
-  # Inradius = area/s = 6k^2 / 6k = k
-  inradius: area / s
-  # Circumradius = abc/(4*area) = 60k^3 / (24k^2) = 5k/2
-  circumradius: (a * b * c) / (4 * area)
-  # Ratio is always 5/2 regardless of k
-  ratio_num: 5
-  ratio_den: 2
-  answer: ratio_num
-constraints:
-  - a < b
-  - b < c
-question: "A triangle has sides of length {a}, {b}, and {c}. Find the ratio of its circumradius to its inradius. Express your answer as a fraction in the form p/q, where p and q are coprime positive integers. What is the value of p?"
-answer: answer
+  ratio_a: 1
+  ratio_b: 2
+  ratio_c: 3
+  total_ratio: ratio_a + ratio_b + ratio_c
+  unit: 180 / total_ratio
+  angle_a: ratio_a * unit
+  angle_b: ratio_b * unit
+  angle_c: ratio_c * unit
+  largest: angle_c
+
+question: "The interior angles of a triangle are in the ratio {ratio_a} : {ratio_b} : {ratio_c}. The triangle is scaled by a factor of {k}. Find the measure (in degrees) of the largest interior angle of the resulting triangle."
+
+answer: largest
+answer_type: numeric
+
 solution:
-  - "First, verify this is a valid triangle: {a} + {b} = {evaluate(a + b, k, k)} > {c} ✓"
-  - "Calculate the semi-perimeter: s = ({a} + {b} + {c})/2 = {s}"
-  - "Using Heron's formula: Area = {sqrt(s * (s - a) * (s - b) * (s - c))} = {area}"
-  - "The inradius r = Area/s = {area}/{s} = {inradius}"
-  - "The circumradius R = abc/(4·Area) = ({a} × {b} × {c})/(4 × {area}) = {circumradius}"
-  - "The ratio R/r = {circumradius}/{inradius} = {ratio_num}/{ratio_den}"
-  - "Since gcd({ratio_num}, {ratio_den}) = 1, we have p = {answer}"
+  - "Scaling does not change interior angles, so we ignore the factor of {k}."
+  - "Let the angles be {math(s)}, {math(2*s)}, and {math(3*s)} for some {math(s)}."
+  - "Interior angles sum to 180: {math(s + 2*s + 3*s)} = {math(6*s)} = 180, so {math(s)} = 30."
+  - "The angles are {angle_a}, {angle_b}, and {angle_c} degrees."
+  - "The largest angle is {largest} degrees."

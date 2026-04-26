@@ -1,28 +1,28 @@
 topic: algebra1/factoring_trinomials
 difficulty: hard
 calculator: none
+
 variables:
-  p: prime(2, 7)
-  q: prime(2, 7)
-  r: nonzero(-5, 5)
-  s: nonzero(-5, 5)
-  a: p * q
-  b: p * s + q * r
-  c: r * s
-  expanded: a * x^2 + b * x + c
-  factored: p * q * (x + r/p) * (x + s/q)
-  answer: expand((p * x + r) * (q * x + s))
+  lc: choice(2, 3)
+  p: nonzero(-5, 5)
+  q: nonzero(-5, 5)
+  f: expand((lc*x - p)*(x - q))
+  ans: (lc*x - p)*(x - q)
+  coeff_a: lc
+  coeff_b: lc*(-q) + (-p)
+  coeff_c: p*q
+  ac_product: lc*p*q
+  num1: lc*(-q)
+  num2: -p
+
 constraints:
   - p != q
-  - abs(r) != abs(s)
-  - gcd(p, r) == 1 and gcd(q, s) == 1
-question: "Factor completely: {expanded}"
-answer: answer
+
+question: "Factor the trinomial completely: {f}"
+answer: ans
+answer_type: expression
 solution:
-  - "We need to factor {expanded} where the leading coefficient is {a} = {p} × {q}"
-  - "Look for factors of ac = {a} × {c} = {evaluate(a * c, x, 0)}"
-  - "We need two numbers that multiply to {evaluate(a * c, x, 0)} and add to {b}"
-  - "These numbers are {evaluate(p * s, x, 0)} and {evaluate(q * r, x, 0)}"
-  - "Rewrite: {equation(expanded, a * x^2 + p * s * x + q * r * x + c)}"
-  - "Group: {equation(expanded, p * x * (q * x + s) + r * (q * x + s))}"
-  - "Factor: {equation(expanded, answer)}"
+  - "Identify the coefficients: {math(a)} = {coeff_a}, {math(b)} = {coeff_b}, {math(c)} = {coeff_c}."
+  - "Use the AC method: multiply {math(a)} and {math(c)}: {coeff_a} times {coeff_c} = {ac_product}."
+  - "Find two numbers that multiply to {ac_product} and add to {coeff_b}: those are {num1} and {num2}."
+  - "Rewrite the middle term and factor by grouping to obtain {ans}."

@@ -1,32 +1,27 @@
 topic: differential_equations/separable_equations
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  k: nonzero(-4, 4)
-  c: integer(1, 5)
+  a: nonzero(1, 4)
   n: integer(2, 4)
-  initial_y: integer(1, 3)
-  f: k * x^n
-  g: c * y
-  rhs: f / g
-  separated_lhs: c * y
-  separated_rhs: k * x^n
-  integrated_lhs: (c * y^2) / 2
-  integrated_rhs: (k * x^(n+1)) / (n+1)
-  general_solution: y^2 = (2*k*x^(n+1))/(c*(n+1)) + C
-  C_value: initial_y^2 - (2*k)/(c*(n+1))
-  answer: sqrt((2*k*x^(n+1))/(c*(n+1)) + C_value)
-constraints:
-  - k > 0
-  - mod(2*k, c*(n+1)) == 0
-question: "Solve the differential equation {equation(derivative_of(y, x), rhs)} with initial condition y(1) = {initial_y}."
-answer: answer
+  b: integer(1, 5)
+  np1: n + 1
+  antideriv_coeff: 2 * a / np1
+  C_val: b^2
+  f_rhs: a * x^n
+  f_expr: a * x^n / y
+  rhs_antideriv: a * x^np1 / np1
+  answer: sqrt(antideriv_coeff * x^np1 + C_val)
+
+question: "Solve the initial value problem {equation(math(dy/dx), f_expr)}, {math(y(0))} = {b}. Express {math(y)} as an explicit function of {math(x)}."
+
 solution:
-  - "Start with {equation(derivative_of(y, x), rhs)}"
-  - "Separate variables: {equation(separated_lhs * derivative_of(y, x), separated_rhs)}"
-  - "Integrate both sides: {equation(integral_of(separated_lhs, y), integral_of(separated_rhs, x))}"
-  - "This gives: {equation(integrated_lhs, integrated_rhs + C)}"
-  - "Simplify: {general_solution}"
-  - "Apply initial condition y(1) = {initial_y}:"
-  - "Substitute x = 1, y = {initial_y} to find C = {C_value}"
-  - "Therefore: y = {answer}"
+  - "Separate variables: multiply both sides by {math(y)} and by {math(dx)} to get {math(y * dy)} = {f_rhs} {math(dx)}."
+  - "Integrate both sides: {equation(y^2 / 2, rhs_antideriv + C)}, where {math(C)} is an arbitrary constant."
+  - "Apply the initial condition {math(y(0))} = {b}: substituting {math(x = 0)} gives {equation(b^2 / 2, C)}, so {math(C)} = {C_val / 2}."
+  - "Substitute back and multiply by 2: {equation(y^2, antideriv_coeff * x^np1 + C_val)}."
+  - "Taking the positive square root (since {math(y(0))} = {b} > 0): {equation(y, answer)}."
+
+answer: answer
+answer_type: expression

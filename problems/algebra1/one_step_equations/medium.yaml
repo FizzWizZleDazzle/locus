@@ -1,17 +1,73 @@
 topic: algebra1/one_step_equations
 difficulty: medium
 calculator: none
+
 variables:
-  answer: integer(-12, 12)
-  a: nonzero(-8, 8)
-  b: a * answer
-constraints:
-  - a != 1
-  - a != -1
-question: "Solve for x: {equation(a*x, b)}"
+  b: nonzero(-12, 12)
+  answer: integer(-10, 10)
+  c: answer + b
+
+question: "Solve for {math(x)}: {equation(x + b, c)}"
 answer: answer
 answer_type: numeric
 solution:
-  - "We have {equation(a*x, b)}"
-  - "Divide both sides by {a}: {equation(x, b/a)}"
-  - "Therefore, x = {answer}"
+  - "Start with {equation(x + b, c)}."
+  - "Subtract {b} from both sides."
+  - "Solution: {equation(x, answer)}"
+
+variants:
+  - name: addition
+    variables:
+      b: nonzero(-12, 12)
+      answer: integer(-10, 10)
+      c: answer + b
+    question: "Solve for {math(x)}: {equation(x + b, c)}"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Start with {equation(x + b, c)}."
+      - "Subtract {b} from both sides."
+      - "Solution: {equation(x, answer)}"
+
+  - name: subtraction
+    variables:
+      b: integer(1, 12)
+      answer: integer(-10, 10)
+      c: answer - b
+    question: "Solve for {math(x)}: {equation(x - b, c)}"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Start with {equation(x - b, c)}."
+      - "Add {b} to both sides."
+      - "Solution: {equation(x, answer)}"
+
+  - name: multiplication
+    variables:
+      a: nonzero(-8, 8)
+      answer: nonzero(-10, 10)
+      c: a * answer
+    constraints:
+      - a != 1
+    question: "Solve for {math(x)}: {equation(a*x, c)}"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Start with {equation(a*x, c)}."
+      - "Divide both sides by {a}."
+      - "Solution: {equation(x, answer)}"
+
+  - name: division
+    variables:
+      a: nonzero(-8, 8)
+      answer: nonzero(-10, 10)
+      c: answer / a
+    constraints:
+      - a != 1
+    question: "Solve for {math(x)}: {equation(x/a, c)}"
+    answer: answer
+    answer_type: numeric
+    solution:
+      - "Start with {equation(x/a, c)}."
+      - "Multiply both sides by {a}."
+      - "Solution: {equation(x, answer)}"

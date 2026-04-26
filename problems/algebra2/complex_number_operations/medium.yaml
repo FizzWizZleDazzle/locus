@@ -1,30 +1,31 @@
 topic: algebra2/complex_number_operations
 difficulty: medium
 calculator: none
+
 variables:
-  a1: integer(-5, 5)
-  b1: nonzero(-5, 5)
-  a2: integer(-5, 5)
-  b2: nonzero(-5, 5)
-  z1: a1 + b1*i
-  z2: a2 + b2*i
-  product: expand((a1 + b1*i)*(a2 + b2*i))
-  real_part: a1*a2 - b1*b2
-  imag_part: a1*b2 + b1*a2
-  answer: real_part + imag_part*i
-constraints:
-  - a1 != a2
-  - b1 != b2
-question: "Multiply the complex numbers {equation(z1, '')} and {equation(z2, '')}. Express your answer in the form a + bi."
-answer: answer
-answer_type: expression
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: nonzero(-5, 5)
+  d: nonzero(-5, 5)
+  ac: a*c
+  bd: b*d
+  ad: a*d
+  bc: b*c
+  neg_bd: -b*d
+  real_part: a*c - b*d
+  imag_part: a*d + b*c
+
+question: "Compute the product of {math(a + b*i)} and {math(c + d*i)}, where {math(i^2 = -1)}. Give your answer as an ordered pair {math((p, q))} where {math(p)} is the real part and {math(q)} is the imaginary part."
+
+answer: real_part, imag_part
+answer_type: tuple
+
 solution:
-  - "Use FOIL to multiply {equation((a1 + b1*i), '')} and {equation((a2 + b2*i), '')}"
-  - "First terms: {a1} × {a2} = {a1*a2}"
-  - "Outer terms: {a1} × {b2}i = {a1*b2}i"
-  - "Inner terms: {b1}i × {a2} = {b1*a2}i"
-  - "Last terms: {b1}i × {b2}i = {b1*b2}i² = {-1*b1*b2}"
-  - "Combine: {a1*a2} + {a1*b2}i + {b1*a2}i + {-1*b1*b2}"
-  - "Real part: {a1*a2} + ({-1*b1*b2}) = {real_part}"
-  - "Imaginary part: {a1*b2} + {b1*a2} = {imag_part}"
-  - "Answer: {answer}"
+  - "Use FOIL to multiply the two complex numbers."
+  - "F (first): {a} * {c} = {ac}."
+  - "O (outer): {a} * {math(d*i)} = {math(ad*i)}."
+  - "I (inner): {math(b*i)} * {c} = {math(bc*i)}."
+  - "L (last): {math(b*i)} * {math(d*i)} = {math(b*d)} * {math(i^2)} = {bd} * (-1) = {neg_bd}."
+  - "Combine real parts: {ac} and {neg_bd} give {real_part}."
+  - "Combine imaginary parts: {ad} and {bc} give {imag_part}."
+  - "The product is {math(real_part + imag_part*i)}, giving {math((p, q))} = ({real_part}, {imag_part})."

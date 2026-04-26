@@ -1,23 +1,18 @@
 topic: algebra2/logarithm_properties
 difficulty: medium
 calculator: scientific
+
 variables:
-  base: choice(2, 3, 5)
-  p: integer(1, 4)
-  q: integer(1, 4)
-  a: base^p
-  b: base^q
-  product: a * b
-  sum: p + q
-  answer: sum
-constraints:
-  - p + q <= 6
-question: "Simplify {equation(log(product, base), log(a, base) + log(b, base))} and find the value of {log(product, base)}."
-answer: answer
+  p: integer(2, 5)
+  q: integer(2, 5)
+  expr_expanded: p*log(x) + q*log(y)
+
+question: "Use logarithm properties to fully expand {math(log(x^p * y^q))} into a sum of logarithms."
+answer: expr_expanded
+answer_type: expression
+
 solution:
-  - "We have {equation(log(product, base), log(a, base) + log(b, base))}"
-  - "Since {a} = {base}^{p} and {b} = {base}^{q}, we get:"
-  - "{log(a, base)} = {p} and {log(b, base)} = {q}"
-  - "So {log(a, base) + log(b, base)} = {p} + {q} = {sum}"
-  - "Therefore {log(product, base)} = {sum}"
-  - "We can verify: {product} = {a} × {b} = {base}^{p} × {base}^{q} = {base}^{sum}"
+  - "Apply the product rule: {math(log(A*B) = log(A) + log(B))}"
+  - "{equation(log(x^p * y^q), log(x^p) + log(y^q))}"
+  - "Apply the power rule: {math(log(A^n) = n*log(A))}"
+  - "{equation(log(x^p * y^q), expr_expanded)}"

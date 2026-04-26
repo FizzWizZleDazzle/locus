@@ -1,19 +1,26 @@
 topic: geometry/right_triangle_trig
 difficulty: easy
 calculator: scientific
+
 variables:
-  angle_deg: choice(30, 45, 60)
-  angle_rad: angle_deg * 3.14159 / 180
-  adjacent: choice(3, 4, 5, 6, 8)
-  opposite: adjacent * tan(angle_rad)
-  opposite_rounded: round(opposite, 0)
-  hypotenuse: adjacent / cos(angle_rad)
-  hyp_rounded: round(hypotenuse, 0)
-constraints:
-  - angle_deg <= 60
-question: "A right triangle has an angle of {angle_deg}° and an adjacent side of length {adjacent}. Find the length of the opposite side (round to the nearest integer)."
-answer: opposite_rounded
+  hyp: choice(4, 6, 8, 10, 12)
+  angle_deg: 30
+  sin_val: sin(pi/6)
+  answer: hyp * sin(pi/6)
+
+question: "In a right triangle, the hypotenuse has length {hyp} and one acute angle measures {angle_deg} degrees. Find the length of the side opposite the {angle_deg}-degree angle."
+
+answer: answer
+answer_type: numeric
+
+diagram:
+  type: triangle
+  vertices: [A, B, C]
+  sides: {AB: hyp, BC: answer}
+  angles: {A: angle_deg}
+  right_angle: B
+
 solution:
-  - "In a right triangle, tan(θ) = opposite/adjacent"
-  - "tan({angle_deg}°) × {adjacent} = opposite"
-  - "opposite = {opposite_rounded}"
+  - "Use the sine ratio: opposite = hypotenuse times sin(30 degrees)."
+  - "sin(30 degrees) = {sin_val}."
+  - "opposite = {hyp} times {sin_val} = {answer}."

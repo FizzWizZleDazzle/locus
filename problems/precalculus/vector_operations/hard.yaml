@@ -1,37 +1,29 @@
 topic: precalculus/vector_operations
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a1: nonzero(-6, 6)
-  a2: nonzero(-6, 6)
-  a3: nonzero(-6, 6)
-  b1: nonzero(-6, 6)
-  b2: nonzero(-6, 6)
-  b3: nonzero(-6, 6)
-  k: choice(-3, -2, 2, 3)
-  m: choice(-2, 2, 3)
-  ka1: k * a1
-  ka2: k * a2
-  ka3: k * a3
-  mb1: m * b1
-  mb2: m * b2
-  mb3: m * b3
-  c1: ka1 + mb1
-  c2: ka2 + mb2
-  c3: ka3 + mb3
-  dot_ac: a1 * c1 + a2 * c2 + a3 * c3
-  dot_ab: a1 * b1 + a2 * b2 + a3 * b3
-  answer: dot_ac
-constraints:
-  - a1 != b1
-  - a2 != b2
-question: "Let a = ({a1}, {a2}, {a3}) and b = ({b1}, {b2}, {b3}). If c = {k}a + {m}b, find a · c."
+  a1: nonzero(-5, 5)
+  a2: nonzero(-5, 5)
+  a3: nonzero(-5, 5)
+  b1: nonzero(-5, 5)
+  b2: nonzero(-5, 5)
+  b3: nonzero(-5, 5)
+  dot_val: a1*b1 + a2*b2 + a3*b3
+  a_mag_sq: a1*a1 + a2*a2 + a3*a3
+  b_mag_sq: b1*b1 + b2*b2 + b3*b3
+  a_mag: sqrt(a_mag_sq)
+  b_mag: sqrt(b_mag_sq)
+  cos_angle: dot_val/(a_mag*b_mag)
+  answer: cos_angle
+
+question: "Find the cosine of the angle between the vectors {vec([a1, a2, a3])} and {vec([b1, b2, b3])}."
+
 answer: answer
-answer_type: numeric
+answer_type: expression
+
 solution:
-  - "First find c = {k}a + {m}b"
-  - "{k}a = {k}({a1}, {a2}, {a3}) = ({ka1}, {ka2}, {ka3})"
-  - "{m}b = {m}({b1}, {b2}, {b3}) = ({mb1}, {mb2}, {mb3})"
-  - "c = ({ka1}, {ka2}, {ka3}) + ({mb1}, {mb2}, {mb3}) = ({c1}, {c2}, {c3})"
-  - "Now compute a · c = ({a1})({c1}) + ({a2})({c2}) + ({a3})({c3})"
-  - "a · c = {a1 * c1} + {a2 * c2} + {a3 * c3} = {answer}"
+  - "Use the dot product formula: {math(cos(theta) = (a . b)/(|a|*|b|))}."
+  - "Compute the dot product: {equation(a1*b1 + a2*b2 + a3*b3, dot_val)}."
+  - "Compute the squared magnitudes: {equation(a_mag_sq, a_mag_sq)} and {equation(b_mag_sq, b_mag_sq)}."
+  - "Therefore the cosine of the angle is {answer}."

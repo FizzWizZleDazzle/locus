@@ -1,25 +1,19 @@
 topic: algebra2/exponential_equations
 difficulty: easy
-calculator: scientific
+calculator: none
+
 variables:
-  k: integer(1, 5)
-  c: integer(2, 6)
   base: choice(2, 3, 4, 5)
-  exponent: k * x + c
-  f: base^exponent
-  target_exp: integer(2, 5)
-  target: base^target_exp
-  equation_to_solve: f - target
-  x_value: (target_exp - c) / k
-  answer: simplify(x_value)
-constraints:
-  - mod(target_exp - c, k) == 0
-  - target_exp > c
-question: "Solve for x: {equation(f, target)}"
+  answer: integer(1, 4)
+  result: base^answer
+
+question: "Solve for {math(x)}: {equation(math(base^x), result)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "We have {equation(f, target)}"
-  - "Since the bases are equal, we can equate the exponents:"
-  - "{equation(exponent, target_exp)}"
-  - "Solve for x: {equation(k * x, target_exp - c)}"
-  - "Therefore, x = {answer}"
+  - "Identify the base on the left side: {base}."
+  - "Rewrite the right side as a power of {base}: {result} = {base}^{answer}."
+  - "The equation becomes {equation(math(base^x), math(base^answer))}, so the exponents are equal."
+  - "Therefore {equation(math(x), answer)}."

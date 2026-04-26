@@ -1,22 +1,25 @@
 topic: precalculus/function_composition
 difficulty: medium
 calculator: none
+
 variables:
   a: nonzero(-4, 4)
-  b: integer(-5, 5)
-  c: nonzero(-3, 3)
-  d: integer(-4, 4)
-  f: a*x + b
-  g: c*x + d
-  x_val: integer(-3, 3)
-  g_at_x: evaluate(g, x, x_val)
-  answer: evaluate(f, x, g_at_x)
-constraints:
-  - a != c
-question: "Given f(x) = {f} and g(x) = {g}, find (f ∘ g)({x_val})."
+  b: nonzero(-5, 5)
+  c: nonzero(-4, 4)
+  d: integer(-5, 5)
+  func_f: a*x + b
+  func_g: c*x^2 + d
+  fog_raw: a*(c*x^2 + d) + b
+  answer: expand(fog_raw)
+  ac: a*c
+  ad_plus_b: a*d + b
+
+question: "Let {equation(f(x), func_f)} and {equation(g(x), func_g)}. Find {math(f(g(x)))} in expanded form."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "To find (f ∘ g)({x_val}), first compute g({x_val})"
-  - "g({x_val}) = {c}({x_val}) + {d} = {g_at_x}"
-  - "Then compute f(g({x_val})) = f({g_at_x})"
-  - "f({g_at_x}) = {a}({g_at_x}) + {b} = {answer}"
+  - "Substitute {math(g(x))} into {math(f(x))}: replace every {math(x)} in {func_f} with {func_g}."
+  - "{math(f(g(x)))} = {a}({func_g}) + {b} = {ac} {math(x^2)} + {ad_plus_b}"
+  - "Therefore {math(f(g(x)))} = {answer}."

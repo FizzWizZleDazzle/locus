@@ -1,21 +1,26 @@
 topic: algebra2/logarithmic_equations
 difficulty: medium
 calculator: scientific
+
 variables:
   base: choice(2, 3, 5)
-  k: integer(2, 5)
-  power: base^k
-  c: integer(1, 8)
-  rhs: k + c
-  answer: base^c
+  k: integer(2, 3)
+  bk: base^k
+  a: integer(2, 4)
+  x_sol: integer(1, 4)
+  c: bk - a*x_sol
+  lhs_arg: a*x + c
+  answer: x_sol
+
 constraints:
-  - c != k
-question: "Solve for x: {equation(log(base, x * power), rhs)}"
+  - c > 0
+
+question: "Solve for {math(x)}: {equation(log(lhs_arg, base), k)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Start with {equation(log(base, x * power), rhs)}"
-  - "Use the logarithm property: {equation(log(base, x) + log(base, power), rhs)}"
-  - "Since {power} = {base}^{k}, we have {equation(log(base, x) + k, rhs)}"
-  - "Subtract {k} from both sides: {equation(log(base, x), c)}"
-  - "Convert to exponential form: {equation(x, base^c)}"
-  - "Therefore x = {answer}"
+  - "Rewrite in exponential form: {equation(lhs_arg, bk)}"
+  - "Subtract {c} from both sides: {equation(a*x, bk - c)}"
+  - "Divide both sides by {a}: {equation(x, answer)}"

@@ -1,26 +1,22 @@
 topic: differential_equations/homogeneous_equations
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(-5, 5)
-  b: integer(-5, 5)
-  c: nonzero(-3, 3)
-  f: a*x + b*y
-  g: c*y
-  eq_form: (a*x + b*y)*dx + c*y*dy
-  substitution: y/x
-  answer: ln(abs(x)) + (b/c)*ln(abs(a + b*(y/x))) - (a/c)*(y/x)
-constraints:
-  - a != 0
-  - a + b != 0
-question: "Solve the homogeneous differential equation {equation(eq_form, 0)}"
+  b: nonzero(1, 4)
+  C_val: b
+  answer: b*x^2 - b*x
+  lhs_ode: 2*y + b*x
+
+question: "Solve the initial value problem {math(dy/dx)} = {math(lhs_ode / x)}, {math(y(1) = 0)}, using the substitution {math(v = y/x)}."
 answer: answer
+answer_type: expression
 solution:
-  - "This is homogeneous since both terms have degree 1"
-  - "Let v = {substitution}, so y = vx and dy = v dx + x dv"
-  - "Substituting: ({a}x + {b}vx)dx + {c}vx(v dx + x dv) = 0"
-  - "Factor out x: x[({a} + {b}v)dx + {c}v(v dx + x dv)] = 0"
-  - "Simplify: ({a} + {b}v + {c}v²)dx + {c}vx dv = 0"
-  - "Separate variables: dx/x = -{c}v dv/({a} + {b}v + {c}v²)"
-  - "Integrate both sides to get the solution"
-  - "Back-substitute v = y/x to get: {answer} = C"
+  - "The ODE {math(dy/dx = lhs_ode / x)} is homogeneous of degree 1 since the right side depends only on {math(y/x)}."
+  - "Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}."
+  - "Substituting: {math(v + x*(dv/dx) = 2*v + b)}, which simplifies to {math(x*(dv/dx) = v + b)}."
+  - "Separating variables: {math((1/(v + b))*dv = (1/x)*dx)}."
+  - "Integrating both sides yields {math(ln(v + b) = ln(x) + K)}, so {math(v + b = C*x)}."
+  - "Back-substituting {math(v = y/x)} gives {math(y/x + b = C*x)}, so the general solution is {math(y = C*x^2 - b*x)}."
+  - "Applying {math(y(1) = 0)}: {math(C*1^2 - b*1 = 0)}, so {math(C = C_val)}."
+  - "The particular solution is {math(y = answer)}."

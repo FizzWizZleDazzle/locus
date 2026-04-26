@@ -1,17 +1,20 @@
 topic: geometry/arc_length_sectors
 difficulty: easy
 calculator: scientific
+
 variables:
-  r: integer(3, 12)
-  angle_deg: choice(30, 45, 60, 90, 120, 180)
-  angle_rad: angle_deg * 3.14159 / 180
-  arc_length_exact: r * angle_rad
-  arc_length: round(arc_length_exact, 2)
-constraints:
-  - r > 5
-question: "A circle has radius {r} cm. Find the arc length of a sector with central angle {angle_deg}°. Round to 2 decimal places."
-answer: arc_length
+  r: integer(2, 12)
+  angle: choice(30, 45, 60, 90, 120, 180)
+  arc_len: (angle / 360) * 2 * pi * r
+  sect_frac: angle / 360
+  circ: 2 * pi * r
+
+question: "A circle has radius {r}. Find the arc length of a sector with central angle {angle} degrees. Express your answer in terms of {math(pi)}."
+
+answer: arc_len
+
 solution:
-  - "Arc length formula: s = rθ where θ is in radians"
-  - "Convert {angle_deg}° to radians: {angle_deg}° × π/180 ≈ {angle_rad} radians"
-  - "Arc length = {r} × {angle_rad} ≈ {arc_length} cm"
+  - "Arc length = (central angle / 360) x 2{math(pi)} x r."
+  - "The sector is {sect_frac} of the full circle."
+  - "Full circumference = 2{math(pi)}({r}) = {circ}."
+  - "Arc length = {sect_frac} x {circ} = {arc_len}."

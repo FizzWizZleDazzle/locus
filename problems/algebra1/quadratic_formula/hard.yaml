@@ -1,33 +1,30 @@
 topic: algebra1/quadratic_formula
 difficulty: hard
 calculator: none
+
 variables:
-  p: prime(2, 7)
-  q: prime(2, 7)
-  k: nonzero(-3, 3)
-  a: k * p * q
-  b_factor: integer(-5, 5)
-  b: b_factor * k * (p + q)
-  c: k * p * q * b_factor^2
-  f: a * x^2 + b * x + c
-  discriminant: b^2 - 4 * a * c
-  sqrt_disc: sqrt(discriminant)
-  x1: (-b + sqrt_disc) / (2 * a)
-  x2: (-b - sqrt_disc) / (2 * a)
-  answer: solve(f, x)
+  a: choice(2, 3, 4)
+  r1: nonzero(-5, 5)
+  r2: nonzero(-5, 5)
+  f: a*(x - r1)*(x - r2)
+  expanded: expand(f)
+  b_coeff: -a*(r1 + r2)
+  c_coeff: a*r1*r2
+  disc: a^2*(r1 - r2)^2
+  disc_sqrt: sqrt(disc)
+  answer: solve(expanded, x)
+
 constraints:
-  - p != q
-  - b_factor != 0
-  - b_factor != 1
-question: "Solve {equation(f, 0)} using the quadratic formula."
+  - r1 != r2
+
+question: "Use the quadratic formula to solve {equation(expanded, 0)} for {math(x)}."
+
 answer: answer
 answer_type: set
+
 solution:
-  - "Given {equation(f, 0)} where a = {a}, b = {b}, c = {c}"
-  - "Apply the quadratic formula: x = (-b ± √(b² - 4ac)) / (2a)"
-  - "Calculate discriminant: b² - 4ac = {b}² - 4({a})({c}) = {discriminant}"
-  - "Since {discriminant} = {b_factor}²({k}²)({p} - {q})², we have √{discriminant} = {sqrt_disc}"
-  - "x = ({-b} ± {sqrt_disc}) / {2 * a}"
-  - "x₁ = ({-b} + {sqrt_disc}) / {2 * a} = {x1}"
-  - "x₂ = ({-b} - {sqrt_disc}) / {2 * a} = {x2}"
-  - "Therefore x = {x1} or x = {x2}"
+  - "Identify coefficients: {equation(math(A), a)}, {equation(math(B), b_coeff)}, {equation(math(C), c_coeff)}."
+  - "Compute the discriminant: {equation(math(B^2 - 4*A*C), disc)}."
+  - "The square root of the discriminant is {disc_sqrt}."
+  - "Apply the quadratic formula: {math(x)} = {math((-b_coeff + disc_sqrt) / (2*a))} or {math(x)} = {math((-b_coeff - disc_sqrt) / (2*a))}."
+  - "The solutions are {equation(math(x), r1)} and {equation(math(x), r2)}."

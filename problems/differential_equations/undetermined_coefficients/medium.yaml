@@ -1,28 +1,27 @@
 topic: differential_equations/undetermined_coefficients
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  a: choice(2, 3, 4)
-  b: choice(1, 2, 3)
-  c: nonzero(-4, 4)
-  d: integer(-3, 3)
-  char_eq: r^2 - a*r + b
-  yp: c*x + d
-  yp_prime: derivative(yp, x)
-  yp_double_prime: derivative(yp_prime, x)
-  lhs: yp_double_prime - a*yp_prime + b*yp
-  lhs_expanded: expand(lhs)
-  rhs: -a*c + b*(c*x + d)
-  rhs_expanded: expand(rhs)
-  answer: yp
-constraints:
-  - c != d
-question: "Find a particular solution to {equation(derivative(derivative(y, x), x) - a*derivative(y, x) + b*y, rhs_expanded)} using the method of undetermined coefficients."
-answer: answer
+  k: integer(2, 4)
+  r: integer(5, 7)
+  A: nonzero(-4, 4)
+  k2: k*k
+  r2: r*r
+  denom: r2 - k2
+  b: A * denom
+  yp: A*exp(r*x)
+  forcing: b*exp(r*x)
+
+question: "Find a particular solution to the differential equation {nth_derivative_of(y, x, 2)} - {k2}{math(y)} = {forcing} using the method of undetermined coefficients."
+
+answer: yp
+answer_type: expression
+
 solution:
-  - "Since the right side is {rhs_expanded}, we try {equation(y_p, c*x + d)}"
-  - "Then {equation(derivative(y_p, x), c)} and {equation(derivative(derivative(y_p, x), x), 0)}"
-  - "Substituting: {equation(0 - a*c + b*(c*x + d), rhs_expanded)}"
-  - "This gives us {equation(lhs_expanded, rhs_expanded)}"
-  - "Matching coefficients confirms our guess works"
-  - "Therefore {equation(y_p, answer)}"
+  - "Assume a trial solution of the form {math(y_p = C*exp(r*x))} for an unknown constant {math(C)}."
+  - "Compute {nth_derivative_of(yp, x, 2)} = {math(C*r2*exp(r*x))}."
+  - "Substitute into the ODE: {math(C*r2*exp(r*x))} - {k2}{math(C*exp(r*x))} = {forcing}."
+  - "Divide both sides by {math(exp(r*x))}: {math(C*(r2 - k2))} = {b}."
+  - "So {math(C*denom)} = {b}, giving {math(C)} = {A}."
+  - "The particular solution is {yp}."

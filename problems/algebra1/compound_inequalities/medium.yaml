@@ -1,27 +1,35 @@
 topic: algebra1/compound_inequalities
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(-8, -2)
-  b: integer(3, 8)
-  c: integer(-5, 5)
-  left_bound: a + c
-  right_bound: b + c
-  expr: x - c
-  left_ineq: a < expr
-  right_ineq: expr < b
-  answer_left: left_bound
-  answer_right: right_bound
-constraints:
-  - a < 0
-  - b > 0
-  - left_bound < right_bound
-question: "Solve the compound inequality {equation(left_ineq, '')} and {equation(right_ineq, '')}."
-answer: answer_left, answer_right
+  m: choice(2, 3, 4)
+  b: nonzero(-5, 5)
+  lo_x: integer(-4, 0)
+  hi_x: integer(1, 5)
+  lo: m*lo_x + b
+  hi: m*hi_x + b
+  lo_bound: lo_x
+  hi_bound: hi_x
+  lo_minus_b: lo - b
+  hi_minus_b: hi - b
+  expr: expand(m*x + b)
+
+question: "Solve the compound inequality {math(lo < expr)} and {math(expr <= hi)}. Write the solution in the form {math(p < x <= q)} and enter the values of {math(p)} and {math(q)} as an ordered pair."
+
+answer: lo_bound, hi_bound
 answer_type: tuple
+
 solution:
-  - "We have {equation(a < expr, '')} and {equation(expr < b, '')}"
-  - "This can be written as {a} < {expr} < {b}"
-  - "Add {c} to all parts: {a} + {c} < x < {b} + {c}"
-  - "Simplify: {left_bound} < x < {right_bound}"
-  - "The solution is the interval ({answer_left}, {answer_right})"
+  - "Rewrite as a three-part inequality: {math(lo < expr <= hi)}."
+  - "Subtract {b} from all three parts: {math(lo_minus_b < m*x <= hi_minus_b)}."
+  - "Divide all three parts by {m}: {math(lo_bound < x <= hi_bound)}."
+  - "The solution is {math(lo_bound < x <= hi_bound)}, so {math(p)} = {lo_bound} and {math(q)} = {hi_bound}."
+
+diagram:
+  type: number_line
+  range: [-6, 7]
+  elements:
+    - point: {at: lo_bound, style: open}
+    - point: {at: hi_bound, style: filled}
+    - arrow: {from: lo_bound, to: hi_bound, direction: right, color: blue}

@@ -1,22 +1,26 @@
 topic: geometry/similar_triangles
 difficulty: medium
 calculator: none
+
 variables:
-  k: integer(2, 5)
-  a1: integer(3, 8)
-  b1: integer(4, 10)
-  c1: integer(5, 12)
-  a2: k * a1
-  b2: k * b1
-  c2: k * c1
-  answer: c2
+  k: choice(2, 3, 4)
+  a: integer(3, 8)
+  b: integer(3, 8)
+  c: integer(3, 8)
+  A: k * a
+  B: k * b
+  answer: k * c
+
 constraints:
-  - a1 < b1
-  - b1 < c1
-  - a1 + b1 > c1
-question: "Two triangles are similar. The first triangle has sides {a1}, {b1}, and {c1}. The second triangle has sides {a2}, {b2}, and an unknown side. Find the length of the unknown side."
+  - a != c
+  - b != c
+
+question: "Triangle {math(PQR)} is similar to triangle {math(XYZ)}. In triangle {math(PQR)}, the sides opposite to vertices {math(P)}, {math(Q)}, and {math(R)} measure {a}, {b}, and {c} respectively. In triangle {math(XYZ)}, the sides corresponding to those opposite {math(P)} and {math(Q)} measure {A} and {B}. Find the length of the side of triangle {math(XYZ)} corresponding to the side opposite {math(R)}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Since the triangles are similar, corresponding sides are proportional"
-  - "The ratio of corresponding sides is {a2}/{a1} = {k}"
-  - "Therefore, the unknown side = {c1} × {k} = {answer}"
+  - "Since the triangles are similar, corresponding sides are proportional."
+  - "Find the scale factor by dividing a known side of {math(XYZ)} by the corresponding side of {math(PQR)}: {A} divided by {a} equals {k}."
+  - "Apply the scale factor to the side opposite {math(R)}: {c} times {k} equals {answer}."

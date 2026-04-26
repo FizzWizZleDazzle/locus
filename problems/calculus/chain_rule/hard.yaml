@@ -3,24 +3,20 @@ difficulty: hard
 calculator: none
 variables:
   a: nonzero(-4, 4)
-  b: integer(2, 5)
-  c: nonzero(-3, 3)
-  inner: a * x^b + c
-  m: integer(3, 6)
-  outer_form: u^m
-  f: (a * x^b + c)^m
-  du_dx: derivative(inner, x)
-  df_du: m * u^(m-1)
-  answer: derivative(f, x)
-constraints:
-  - a != -c
-  - gcd(abs(a*b), abs(m)) == 1
-question: "Find {derivative_of(f, x)} where f(x) = {f}"
-answer: answer
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  n: integer(2, 5)
+  inner: b*x^2 + c*x
+  f: a*(b*x^2 + c*x)^n
+  f_prime: derivative(f, x)
+  inner_prime: derivative(inner, x)
+  coeff: a*n
+  n_minus_1: n - 1
+question: "Find {derivative_of(f, x)}."
+answer: f_prime
+answer_type: expression
 solution:
-  - "Let u = {inner}, so f(x) = {outer_form}"
-  - "By the chain rule: {derivative_of(f, x)} = {derivative_of(f, u)} · {derivative_of(u, x)}"
-  - "{derivative_of(u, x)} = {du_dx}"
-  - "{derivative_of(f, u)} = {df_du}"
-  - "Therefore: {derivative_of(f, x)} = ({df_du}) · ({du_dx})"
-  - "Substituting u = {inner}: {derivative_of(f, x)} = {answer}"
+  - "Let {math(u)} = {inner}."
+  - "Inner derivative: {equation(derivative(inner, x), inner_prime)}."
+  - "Outer derivative with respect to {math(u)}: {coeff} {math(u^n_minus_1)}."
+  - "Chain rule gives: {equation(derivative_of(f, x), f_prime)}."

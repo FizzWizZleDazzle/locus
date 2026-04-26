@@ -1,38 +1,29 @@
 topic: differential_equations/undetermined_coefficients
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: choice(2, 3, 4)
-  b: choice(5, 6, 8)
-  c: integer(1, 3)
-  d: integer(2, 4)
-  char_eq: r^2 + a*r + b
-  forcing: c*x + d
-  A: integer(1, 3)
-  B: integer(1, 4)
-  yp: A*x + B
-  yp_prime: derivative(yp, x)
-  yp_double_prime: derivative(yp_prime, x)
-  left_side: yp_double_prime + a*yp_prime + b*yp
-  expanded_left: expand(left_side)
-  coeff_x: a*A
-  coeff_const: a*B + b*B
-  A_num: c
-  A_denom: b
-  B_num: d*b - a*c
-  B_denom: b^2
-  answer: A_num/A_denom, B_num/B_denom
-constraints:
-  - c < d
-question: "Find a particular solution to y'' + {a}y' + {b}y = {forcing} using the method of undetermined coefficients. Express your answer as y_p = Ax + B where A and B are fractions."
-answer: answer
-answer_type: tuple
+  k: integer(2, 4)
+  k2: k*k
+  A_val: integer(1, 5)
+  B_val: integer(1, 5)
+  C_val: integer(1, 5)
+  forcing: A_val*x^2 + B_val*x + C_val
+  E_val: A_val/k2
+  D_val: B_val/k2
+  F_val: (C_val - 2*E_val)/k2
+  yp: E_val*x^2 + D_val*x + F_val
+
+question: "Find a particular solution to the differential equation {nth_derivative_of(y, x, 2)} + {k2}{math(y)} = {forcing} using undetermined coefficients."
+
+answer: yp
+answer_type: expression
+
 solution:
-  - "For the forcing term {forcing}, we try y_p = Ax + B"
-  - "Then y_p' = {yp_prime} and y_p'' = {yp_double_prime}"
-  - "Substituting into the differential equation:"
-  - "{equation(expanded_left, forcing)}"
-  - "Comparing coefficients of x: {equation(coeff_x, c)}"
-  - "So A = {A_num}/{A_denom}"
-  - "Comparing constant terms: {equation(coeff_const, d)}"
-  - "So B = {B_num}/{B_denom}"
+  - "Since the forcing is a quadratic polynomial, assume {math(y_p = E*x^2 + D*x + F)}."
+  - "Compute {nth_derivative_of(yp, x, 2)} = {math(2*E)}."
+  - "Substitute into the ODE: {math(2*E)} + {k2}({math(E*x^2 + D*x + F)}) = {forcing}."
+  - "Match coefficients of {math(x^2)}: {math(k2*E)} = {A_val}, so {equation(E, E_val)}."
+  - "Match coefficients of {math(x)}: {math(k2*D)} = {B_val}, so {equation(D, D_val)}."
+  - "Match constants: {math(2*E + k2*F)} = {C_val}, giving {equation(F, F_val)}."
+  - "The particular solution is {yp}."

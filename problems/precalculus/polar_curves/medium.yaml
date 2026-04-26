@@ -1,25 +1,19 @@
 topic: precalculus/polar_curves
 difficulty: medium
-calculator: graphing
+calculator: scientific
+
 variables:
-  a: integer(2, 8)
-  n: choice(3, 4, 5, 6)
-  curve: a * sin(n * theta)
-  max_r: a
-  num_petals: n
-  petal_angle: 2 * pi / n
-  first_petal_end: pi / n
-  area_one_petal: integral(0.5 * curve^2, theta, 0, first_petal_end)
-  total_area: simplify(n * area_one_petal)
-constraints:
-  - a > 3
-  - n != 4
-question: "Consider the polar curve r = {curve}. Find the total area enclosed by all petals of this rose curve."
-answer: total_area
+  a: integer(2, 6)
+  a_sq: a*a
+  answer: pi*a_sq
+
+question: "Find the area enclosed by the polar circle {math(r = a)} of radius {a}."
+
+answer: answer
+answer_type: expression
+
 solution:
-  - "The curve r = {curve} is a rose with {num_petals} petals"
-  - "Each petal spans an angle of {petal_angle} radians"
-  - "The first petal goes from θ = 0 to θ = {first_petal_end}"
-  - "Area of one petal: {integral_of(0.5 * curve^2, theta)} from 0 to {first_petal_end}"
-  - "Area of one petal = {area_one_petal}"
-  - "Total area = {num_petals} × {area_one_petal} = {total_area}"
+  - "The polar area formula is {math(A = (1/2)*integral(r^2, theta, 0, 2*pi))}."
+  - "With {math(r = a)} a constant, {math(r^2 = a^2)} = {a_sq}."
+  - "Integrating {a_sq} over {math(theta)} from 0 to {math(2*pi)} gives {math(2*pi*a_sq)}."
+  - "Multiply by {math(1/2)}: area = {answer}."

@@ -1,33 +1,34 @@
 topic: differential_equations/variation_of_parameters
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  r1: integer(-3, -1)
-  r2: integer(1, 3)
-  k: integer(2, 4)
-  y_h: c1*exp(r1*x) + c2*exp(r2*x)
-  g: k*exp(r1*x)
-  W: exp(r1*x)*r2*exp(r2*x) - exp(r2*x)*r1*exp(r1*x)
-  W_simplified: (r2 - r1)*exp((r1 + r2)*x)
-  u1_prime: -g*exp(r2*x)/W_simplified
-  u2_prime: g*exp(r1*x)/W_simplified
-  u1: integral(u1_prime, x)
-  u2: integral(u2_prime, x)
-  y_p: u1*exp(r1*x) + u2*exp(r2*x)
-  y_p_simplified: simplify(y_p)
-  answer: y_h + y_p_simplified
-constraints:
-  - r1 != r2
-question: "Solve y'' - {r1 + r2}y' + {r1*r2}y = {g} using variation of parameters."
-answer: answer
+  a: nonzero(-4, 4)
+  m: choice(2, 3, 4, -2, -3, -4)
+  m_sq: m*m
+  denom: m_sq - 1
+  g: a*exp(m*x)
+  y1: exp(x)
+  y2: exp(-x)
+  W_val: -2
+  m_minus_1: m - 1
+  m_plus_1: m + 1
+  u1_prime: a*exp(m_minus_1*x)/2
+  u2_prime: -a*exp(m_plus_1*x)/2
+  u1: a*exp(m_minus_1*x)/(2*m_minus_1)
+  u2: -a*exp(m_plus_1*x)/(2*m_plus_1)
+  yp: a*exp(m*x)/denom
+
+question: >
+  Use variation of parameters to find a particular solution {math(y_p)} to
+  {nth_derivative_of(y, x, 2)} - {math(y)} = {g}.
+
+answer: yp
+answer_type: expression
+
 solution:
-  - "First find the homogeneous solution for y'' - {r1 + r2}y' + {r1*r2}y = 0"
-  - "The characteristic equation is r² - {r1 + r2}r + {r1*r2} = 0"
-  - "This factors as (r - {r1})(r - {r2}) = 0, giving r = {r1}, {r2}"
-  - "So {equation('y_h', y_h)}"
-  - "For variation of parameters, let y_p = u₁(x)e^({r1}x) + u₂(x)e^({r2}x)"
-  - "The Wronskian is W = {W_simplified}"
-  - "Then u₁' = {u1_prime} and u₂' = {u2_prime}"
-  - "Integrating: u₁ = {u1} and u₂ = {u2}"
-  - "So y_p = {y_p_simplified}"
-  - "The general solution is y = {answer}"
+  - "The homogeneous equation {math(y'' - y = 0)} has characteristic roots {math(r = 1)} and {math(r = -1)}, giving fundamental solutions {math(y_1)} = {y1} and {math(y_2)} = {y2}."
+  - "The Wronskian is {equation(math(W), W_val)}."
+  - "By variation of parameters: {equation(math(u_1'), u1_prime)} and {equation(math(u_2'), u2_prime)}."
+  - "Integrating: {equation(math(u_1), u1)} and {equation(math(u_2), u2)}."
+  - "The particular solution {math(y_p = u_1 y_1 + u_2 y_2)} simplifies to {equation(math(y_p), yp)}."

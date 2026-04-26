@@ -1,22 +1,23 @@
 topic: geometry/surface_area
 difficulty: medium
-calculator: none
+calculator: scientific
 variables:
-  length: choice(4, 5, 6, 8, 10)
-  width: choice(3, 4, 5, 6, 8)
-  height: choice(2, 3, 4, 5, 6)
-  face1: length * width
-  face2: length * height
-  face3: width * height
-  answer: 2 * (face1 + face2 + face3)
+  l: integer(2, 9)
+  w: integer(2, 9)
+  h: integer(2, 9)
+  lw: l * w
+  lh: l * h
+  wh: w * h
+  sum_faces: lw + lh + wh
+  answer: 2 * sum_faces
 constraints:
-  - length > width
-  - width > height
-question: "A rectangular prism has dimensions {length} cm × {width} cm × {height} cm. Find its total surface area."
+  - l != w
+  - w != h
+question: "Find the total surface area of a rectangular prism with length {l}, width {w}, and height {h}."
 answer: answer
+answer_type: numeric
 solution:
-  - "A rectangular prism has 6 faces in 3 pairs of congruent rectangles"
-  - "Top and bottom faces: 2 × ({length} × {width}) = 2 × {face1} = {2 * face1} cm²"
-  - "Front and back faces: 2 × ({length} × {height}) = 2 × {face2} = {2 * face2} cm²"
-  - "Left and right faces: 2 × ({width} × {height}) = 2 × {face3} = {2 * face3} cm²"
-  - "Total surface area = {2 * face1} + {2 * face2} + {2 * face3} = {answer} cm²"
+  - "Use the formula: total surface area = 2(lw + lh + wh)."
+  - "Length times width = {lw}. Length times height = {lh}. Width times height = {wh}."
+  - "Sum of the three face pairs: {lw} + {lh} + {wh} = {sum_faces}."
+  - "Multiply by 2: the total surface area is {answer} square units."

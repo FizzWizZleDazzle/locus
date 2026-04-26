@@ -1,28 +1,26 @@
 topic: precalculus/graphing_trig
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: choice(2, 3, 4)
-  b: choice(1, 2, 4)
-  c: choice(-3, -2, -1, 1, 2, 3)
-  d: choice(-2, -1, 0, 1, 2)
-  f: a*sin(b*x + c) + d
-  amplitude: a
-  phase_shift: -c/b
-  vertical_shift: d
-  max_value: a + d
-  min_value: -a + d
-  answer: amplitude, b, phase_shift, vertical_shift
-constraints:
-  - a > 0
-  - b > 0
-question: "Find the amplitude, period coefficient B (where period = 2π/B), phase shift, and vertical shift of {f}."
-answer: answer
+  A: integer(2, 6)
+  B: nonzero(2, 5)
+  C: nonzero(-3, 3)
+  D: integer(-4, 4)
+  f: A*sin(B*x + C) + D
+  period: 2*pi/B
+  phase: -C/B
+  amp: A
+  vert: D
+
+question: "For {math(f(x))} = {f}, find the amplitude, period, phase shift, and vertical shift. Give the period in terms of {math(pi)} and the phase shift as a number."
+
+answer: amp, period, phase, vert
 answer_type: tuple
+
 solution:
-  - "The function {f} is in the form A·sin(Bx + C) + D"
-  - "Amplitude = |A| = |{a}| = {amplitude}"
-  - "Period coefficient B = {b}, so period = 2π/{b}"
-  - "Phase shift = -C/B = -({c})/{b} = {phase_shift}"
-  - "Vertical shift = D = {vertical_shift}"
-  - "The graph oscillates between {min_value} and {max_value}"
+  - "For a function {math(A*sin(B*x + C) + D)}, the amplitude is {math(|A|)}, the period is {math(2*pi/B)}, the phase shift is {math(-C/B)}, and the vertical shift is {math(D)}."
+  - "Amplitude is {amp}."
+  - "Period is {math(2*pi)} divided by {B} = {period}."
+  - "Phase shift is {math(-C/B)} = {phase}."
+  - "Vertical shift is {vert}."

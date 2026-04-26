@@ -1,18 +1,23 @@
 topic: algebra1/graphing_lines
 difficulty: easy
 calculator: none
+
 variables:
-  m: choice(-3, -2, -1, 1, 2, 3)
-  b: integer(-5, 5)
-  f: m * x + b
-  x_val: choice(0, 1, 2, 3)
-  y_val: evaluate(f, x, x_val)
-constraints:
-  - b != 0
-question: "Find the y-coordinate when x = {x_val} for the line {equation(y, f)}."
-answer: y_val
+  m: nonzero(-5, 5)
+  b: integer(-8, 8)
+  f: m*x + b
+
+question: "A line is given by the equation {equation(math(y), f)}. What is the slope of the line?"
+answer: m
+answer_type: numeric
 solution:
-  - "We have the line {equation(y, f)}"
-  - "Substitute x = {x_val}:"
-  - "y = {m} × {x_val} + {b}"
-  - "y = {y_val}"
+  - "The equation {equation(math(y), f)} is in slope-intercept form, where the coefficient of {math(x)} is the slope."
+  - "The slope is {m}."
+
+diagram:
+  type: coordinate_plane
+  x_range: [-5, 5]
+  y_range: [-8, 8]
+  grid: true
+  elements:
+    - line: {slope: m, intercept: b, color: blue, label: "y"}

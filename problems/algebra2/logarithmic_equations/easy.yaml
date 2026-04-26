@@ -1,16 +1,17 @@
 topic: algebra2/logarithmic_equations
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  b: choice(2, 3, 5, 10)
-  k: integer(1, 5)
-  answer: b^k
-  equation: log(answer, b)
-constraints:
-  - answer <= 125
-question: "Solve for x: {equation(log(x, b), k)}"
+  base: choice(2, 3, 5, 10)
+  answer: integer(1, 4)
+  argument: base^answer
+
+question: "Solve for {math(x)}: {equation(log(argument, base), x)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Start with {equation(log(x, b), k)}"
-  - "Convert to exponential form: {equation(x, b^k)}"
-  - "Calculate: {equation(x, answer)}"
+  - "Rewrite the logarithmic equation in exponential form: {equation(log(argument, base), x)} becomes {equation(base^x, argument)}."
+  - "Recognize that {argument} = {base}^{answer}, so {equation(x, answer)}."

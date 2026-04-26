@@ -2,32 +2,26 @@ topic: algebra2/complex_number_operations
 difficulty: hard
 calculator: none
 variables:
-  a1: nonzero(-5, 5)
-  b1: nonzero(-5, 5)
-  a2: nonzero(-5, 5)
-  b2: nonzero(-5, 5)
-  z1: a1 + b1*i
-  z2: a2 + b2*i
-  product_real: a1*a2 - b1*b2
-  product_imag: a1*b2 + a2*b1
-  product: product_real + product_imag*i
-  z2_conj: a2 - b2*i
-  num_real: a1*a2 + b1*b2
-  num_imag: b1*a2 - a1*b2
-  denom: a2*a2 + b2*b2
-  quot_real: num_real/denom
-  quot_imag: num_imag/denom
-  answer: quot_real + quot_imag*i
-constraints:
-  - a1 != a2
-  - b1 != b2
-question: "Let z₁ = {z1} and z₂ = {z2}. Find z₁/z₂ in the form a + bi."
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  c: nonzero(-5, 5)
+  d: nonzero(-5, 5)
+  numer: a + b*I
+  denom: c + d*I
+  denom_sq: c*c + d*d
+  num_real: a*c + b*d
+  num_imag: b*c - a*d
+  real_part: num_real / denom_sq
+  imag_part: num_imag / denom_sq
+  answer: real_part + imag_part*I
+  conj: c - d*I
+  num_after_conj: num_real + num_imag*I
+question: "Divide {numer} by {denom} and write the result in the form {math(p + q*I)}, where {math(p)} and {math(q)} are real numbers."
 answer: answer
 answer_type: expression
 solution:
-  - "To divide complex numbers, multiply by the conjugate of the denominator"
-  - "z₁/z₂ = {z1}/{z2} · {z2_conj}/{z2_conj}"
-  - "Numerator: ({a1} + {b1}i)({a2} - {b2}i) = {a1}·{a2} - {a1}·{b2}i + {b1}·{a2}i - {b1}·{b2}i²"
-  - "= {num_real} + {num_imag}i (since i² = -1)"
-  - "Denominator: ({a2} + {b2}i)({a2} - {b2}i) = {denom}"
-  - "Therefore: z₁/z₂ = ({num_real} + {num_imag}i)/{denom} = {answer}"
+  - "Multiply the numerator and denominator by the complex conjugate of the denominator."
+  - "The conjugate of {denom} is {conj}."
+  - "New numerator: {numer} times {conj} = {num_after_conj}."
+  - "New denominator: {denom} times {conj} = {denom_sq}."
+  - "Divide each component by {denom_sq}: {answer}."

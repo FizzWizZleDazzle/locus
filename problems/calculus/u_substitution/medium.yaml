@@ -1,28 +1,25 @@
 topic: calculus/u_substitution
 difficulty: medium
 calculator: none
+
 variables:
   a: nonzero(-4, 4)
-  b: nonzero(-3, 3)
-  inner: a*x + b
-  power: integer(2, 5)
-  integrand: inner^power
-  u: inner
-  du: a
-  f_u: u^power
-  F_u: integral(f_u, u)
-  coeff: power + 1
-  F_x_num: inner^coeff
-  F_x_denom: a * coeff
-  answer: F_x_num / F_x_denom
-constraints:
-  - a != b
-question: "Find {integral_of(integrand, x)}"
+  b: nonzero(-4, 4)
+  c: nonzero(-5, 5)
+  n: integer(2, 5)
+  f: a*(b*x + c)^n
+  f_expanded: expand(f)
+  antideriv: integral(f_expanded, x)
+  n1: n + 1
+  coeff: a / (b * n1)
+  answer: antideriv
+
+question: "Use u-substitution to evaluate {integral_of(f, x)}. Express your answer without the substitution variable."
 answer: answer
+answer_type: expression
+
 solution:
-  - "Let u = {u}, then du = {du} dx"
-  - "So dx = du/{du}"
-  - "The integral becomes {integral_of(f_u, u)} · (1/{du})"
-  - "= (1/{du}) · {F_u}"
-  - "Substituting back u = {inner}:"
-  - "= {answer} + C"
+  - "Let {math(u = b*x + c)}, so {math(du = b*dx)}."
+  - "The integral becomes {math(a/b)} {integral_of(u^n, u)}."
+  - "Integrating: {coeff} {math(u^n1)} + C."
+  - "Substitute back {math(u = b*x + c)} and expand to obtain {answer} + C."

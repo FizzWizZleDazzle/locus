@@ -1,21 +1,22 @@
 topic: arithmetic/multiplication
 difficulty: hard
 calculator: none
+
 variables:
-  a: integer(13, 29)
-  b: integer(11, 19)
-  c: integer(2, 9)
-  d: choice(10, 20, 30, 40, 50, 60, 70, 80, 90)
-  first_product: a * b
-  second_product: c * d
-  answer: first_product + second_product
-constraints:
-  - mod(a, 5) != 0
-  - mod(b, 5) != 0
-  - first_product < 500
-question: "Calculate: {a} × {b} + {c} × {d}"
+  a: integer(100, 499)
+  b_tens: integer(1, 4)
+  b_ones: integer(1, 9)
+  b: b_tens * 10 + b_ones
+  partial_ones: a * b_ones
+  partial_tens_val: a * b_tens * 10
+  answer: a * b
+
+question: "Find the product {a} times {b} by computing and adding partial products."
 answer: answer
+answer_type: numeric
+
 solution:
-  - "First, calculate {a} × {b} = {first_product}"
-  - "Then, calculate {c} × {d} = {second_product}"
-  - "Finally, add: {first_product} + {second_product} = {answer}"
+  - "Write {b} as {b_tens} tens and {b_ones} ones."
+  - "Ones partial product: {a} times {b_ones} = {partial_ones}."
+  - "Tens partial product: {a} times {b_tens} times 10 = {partial_tens_val}."
+  - "Add the partial products: {partial_ones} + {partial_tens_val} = {answer}."

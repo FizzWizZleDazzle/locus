@@ -1,28 +1,24 @@
 topic: calculus/derivative_rules
 difficulty: hard
 calculator: none
+
 variables:
-  a: nonzero(-6, 6)
-  b: nonzero(-8, 8)
-  c: integer(2, 5)
-  d: nonzero(-4, 4)
-  n: integer(3, 6)
-  m: integer(2, 4)
-  f: a * x^n + b * sqrt(x)
-  g: c * x^m + d
-  h: f * g
-  h_expanded: expand(h)
-  answer: derivative(h_expanded, x)
-constraints:
-  - a != -b
-  - c != -d
-  - n != m
-question: "Find {derivative_of(h_expanded, x)} where h(x) = ({f})({g})"
+  a: nonzero(-4, 4)
+  n: integer(2, 5)
+  f: x^n * exp(a*x)
+  du: n * x^(n-1)
+  dv: a * exp(a*x)
+  du_v: du * exp(a*x)
+  u_dv: x^n * dv
+  sum_terms: du_v + u_dv
+  answer: derivative(f, x)
+
+question: "Find {derivative_of(f, x)}."
+
 answer: answer
+
 solution:
-  - "Let f(x) = {f} and g(x) = {g}"
-  - "Using the product rule: (fg)' = f'g + fg'"
-  - "First find f'(x) = {derivative_of(f, x)}"
-  - "Then find g'(x) = {derivative_of(g, x)}"
-  - "Apply product rule: h'(x) = ({derivative_of(f, x)})({g}) + ({f})({derivative_of(g, x)})"
-  - "Expanding and simplifying: {derivative_of(h_expanded, x)} = {answer}"
+  - "Write {f} as a product with {math(u = x^n)} and {math(v = exp(a*x))}."
+  - "Power rule: {equation(derivative_of(x^n, x), du)}."
+  - "Chain rule on the exponential: {equation(derivative_of(exp(a*x), x), dv)}."
+  - "Apply the product rule: {equation(derivative_of(f, x), sum_terms)}."

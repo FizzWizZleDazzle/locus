@@ -2,37 +2,29 @@ topic: arithmetic/fractions
 difficulty: hard
 calculator: none
 variables:
-  a: integer(2, 9)
-  b: integer(2, 9)
-  c: integer(2, 9)
-  d: integer(2, 9)
-  e: integer(2, 9)
-  f: integer(2, 9)
-  first_num: a*d - b*c
-  first_den: b*d
-  second_num: first_num*f
-  second_den: first_den*e
-  third_num: c*f
-  third_den: d*e
-  final_num: second_num + third_num
-  final_den: second_den
-  gcd_val: gcd(final_num, final_den)
-  answer_num: final_num/gcd_val
-  answer_den: final_den/gcd_val
-  answer: answer_num/answer_den
+  a: integer(2, 5)
+  b: choice(3, 4, 5, 6)
+  c: integer(1, 3)
+  d: choice(2, 3, 4)
+  e: integer(1, 3)
+  f: choice(6, 8, 10, 12)
+  div_num: a*d
+  div_den: b*c
+  g1: gcd(div_num, div_den)
+  q_num: div_num/g1
+  q_den: div_den/g1
+  q_frac: q_num/q_den
+  lcd: lcm(q_den, f)
+  diff_num: q_num*(lcd/q_den) - e*(lcd/f)
+  g2: gcd(abs(diff_num), lcd)
+  answer: diff_num/g2 / (lcd/g2)
 constraints:
-  - gcd(a, b) == 1
-  - gcd(c, d) == 1
-  - gcd(e, f) == 1
-question: "Simplify: ({a}/{b} - {c}/{d}) × {e}/{f} + {c}/{d}"
+  - diff_num > 0
+question: "Evaluate {math(a/b)} divided by {math(c/d)}, then subtract {math(e/f)}. Express your answer as a single fraction in lowest terms."
 answer: answer
+answer_type: numeric
 solution:
-  - "First, compute {a}/{b} - {c}/{d}"
-  - "Common denominator: {b} × {d} = {first_den}"
-  - "{a}/{b} - {c}/{d} = ({a}×{d} - {b}×{c})/{first_den} = {first_num}/{first_den}"
-  - "Next, multiply by {e}/{f}: {first_num}/{first_den} × {e}/{f} = {second_num}/{second_den}"
-  - "Now add {c}/{d}. Common denominator: {second_den}"
-  - "{c}/{d} = {third_num}/{third_den}"
-  - "{second_num}/{second_den} + {third_num}/{second_den} = {final_num}/{second_den}"
-  - "Simplify by dividing by GCD({final_num}, {final_den}) = {gcd_val}"
-  - "Final answer: {answer}"
+  - "Step 1: Divide {math(a/b)} by {math(c/d)} by multiplying by the reciprocal."
+  - "{math(a/b)} times {math(d/c)} = {q_frac}"
+  - "Step 2: Subtract {math(e/f)} from {q_frac}. The LCD of {q_den} and {f} is {lcd}."
+  - "The result is {answer}."

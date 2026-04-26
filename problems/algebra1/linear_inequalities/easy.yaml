@@ -1,19 +1,22 @@
 topic: algebra1/linear_inequalities
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(2, 8)
-  b: integer(-20, 20)
-  c: integer(-20, 20)
-  inequality: a * x + b < c
-  rhs: c - b
-  answer: x < rhs / a
+  a: integer(2, 6)
+  bnd: integer(-5, 5)
+  b: nonzero(-8, 8)
+  c: a*bnd + b
+  rhs_step: c - b
+
 constraints:
-  - mod(c - b, a) == 0
-  - c != b
-question: "Solve the inequality {inequality} for x."
-answer: answer
+  - b != c
+
+question: "Solve {math(a*x + b < c)} for {math(x)}. Give the boundary value of {math(x)}."
+answer: bnd
+answer_type: numeric
 solution:
-  - "Start with {inequality}"
-  - "Subtract {b} from both sides: {equation(a * x, rhs)}"
-  - "Divide both sides by {a}: {answer}"
+  - "Start with {math(a*x + b < c)}."
+  - "Subtract {b} from both sides: {math(a*x)} < {rhs_step}."
+  - "Divide both sides by {a}. Since {a} > 0, the inequality sign stays the same."
+  - "The solution is {math(x)} < {bnd}, so the boundary value is {bnd}."

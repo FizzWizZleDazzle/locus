@@ -1,22 +1,24 @@
 topic: calculus/volumes_of_revolution
 difficulty: medium
 calculator: scientific
+
 variables:
-  a: integer(1, 4)
-  b: integer(2, 5)
-  c: a + b
-  f: sqrt(x)
-  pi_coeff: a * c
-  answer: pi_coeff
-constraints:
-  - c > a
-question: "Find the volume of the solid obtained by rotating the region bounded by {equation(y, f)}, y = 0, x = {a}, and x = {c} about the x-axis. Express your answer as a multiple of π."
+  a: nonzero(1, 4)
+  n: integer(1, 2)
+  lo: integer(0, 1)
+  hi: integer(2, 4)
+  f: a*x^n
+  f_sq: a^2 * x^(2*n)
+  antideriv: integral(f_sq, x)
+  coeff: definite_integral(f_sq, x, lo, hi)
+  answer: pi * coeff
+
+question: "Find the volume of the solid obtained by rotating the region bounded by {math(y)} = {f}, {math(y = 0)}, {math(x)} = {lo}, and {math(x)} = {hi} about the {math(x)}-axis."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "Using the disk method: V = π∫[a to b] R(x)² dx"
-  - "Here R(x) = {f}, so R(x)² = x"
-  - "V = π∫[{a} to {c}] x dx"
-  - "V = π[x²/2] from {a} to {c}"
-  - "V = π({c}²/2 - {a}²/2)"
-  - "V = π({pi_coeff})"
-  - "The answer is {answer}π"
+  - "Using the disk method, the volume is {math(V)} = {definite_integral_of(pi * f_sq, x, lo, hi)}."
+  - "Antiderivative of {f_sq}: {equation(integral_of(f_sq, x), antideriv)} + C."
+  - "Evaluate: {math(V)} = {math(pi)} ({coeff}) = {answer}."

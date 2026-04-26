@@ -1,23 +1,22 @@
 topic: linear_algebra/row_reduction
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(1, 4)
-  b: integer(1, 4)
-  c: integer(1, 5)
-  d: integer(1, 5)
-  det: a*d - b*c
-  answer: 1, 0, d/det, -b/det, 0, 1, -c/det, a/det
-constraints:
-  - det > 0
-question: "Find the reduced row echelon form of the matrix [[{a}, {b}], [{c}, {d}]]"
-answer: answer
+  x_sol: integer(-4, 4)
+  y_sol: integer(-4, 4)
+  a11: nonzero(-3, 3)
+  a12: nonzero(-3, 3)
+  c1: a11*x_sol + a12*y_sol
+  a22: nonzero(-3, 3)
+  c2: a22*y_sol
+  x_ans: x_sol
+  y_ans: y_sol
+
+question: "Use back-substitution on the row-reduced augmented matrix {matrix_of([[a11, a12, c1], [0, a22, c2]])} to find the values of {math(x)} and {math(y)} that satisfy the system."
+answer: x_ans, y_ans
 answer_type: tuple
 solution:
-  - "Start with the matrix [[{a}, {b}], [{c}, {d}]]"
-  - "Divide row 1 by {a}: [[1, {b}/{a}], [{c}, {d}]]"
-  - "Subtract {c} times row 1 from row 2: [[1, {b}/{a}], [0, {d} - {c}*{b}/{a}]]"
-  - "Simplify row 2: [[1, {b}/{a}], [0, {det}/{a}]]"
-  - "Divide row 2 by {det}/{a}: [[1, {b}/{a}], [0, 1]]"
-  - "Subtract {b}/{a} times row 2 from row 1: [[1, 0], [0, 1]]"
-  - "The reduced row echelon form is the 2×2 identity matrix"
+  - "The second row represents the equation {equation(a22*y, c2)}, giving {equation(y, y_ans)}."
+  - "Substituting {equation(y, y_ans)} into the first row: {equation(a11*x, c1 - a12*y_ans)}, giving {equation(x, x_ans)}."
+  - "The solution is {equation(x, x_ans)} and {equation(y, y_ans)}."

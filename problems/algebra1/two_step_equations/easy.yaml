@@ -1,20 +1,22 @@
 topic: algebra1/two_step_equations
 difficulty: easy
 calculator: none
+
 variables:
-  x: integer(1, 9)
-  a: choice(2, 3, 4, 5)
-  b: integer(1, 20)
-  rhs: a*x + b
-  answer: x
+  a: nonzero(-8, 8)
+  b: nonzero(-10, 10)
+  answer: integer(-10, 10)
+  rhs: a * answer + b
+  rhs_step2: rhs - b
+
 constraints:
-  - rhs > 0
-question: "Solve for x: {equation(a*x + b, rhs)}"
+  - a != 1
+  - a != -1
+
+question: "Solve for {math(x)}: {equation(a*x + b, rhs)}"
+
 answer: answer
-answer_type: numeric
+
 solution:
-  - "Start with {equation(a*x + b, rhs)}"
-  - "Subtract {b} from both sides: {equation(a*x, rhs - b)}"
-  - "Since {rhs} - {b} = {rhs - b}, we have {equation(a*x, rhs - b)}"
-  - "Divide both sides by {a}: {equation(x, (rhs - b)/a)}"
-  - "Therefore x = {answer}"
+  - "Subtract {b} from both sides: {equation(a*x, rhs_step2)}"
+  - "Divide both sides by {a}: {equation(math(x), answer)}"

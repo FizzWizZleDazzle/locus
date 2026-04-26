@@ -1,26 +1,30 @@
 topic: geometry/pythagorean_theorem
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  k: integer(2, 5)
-  base_a: choice(3, 5, 7, 8, 9, 12)
-  base_b: choice(4, 12, 24, 15, 40, 35)
-  base_c: choice(5, 13, 25, 17, 41, 37)
-  a: k * base_a
-  b: k * base_b
-  c: k * base_c
-  given_leg: a
-  unknown_leg: b
-  hypotenuse: c
-  answer: unknown_leg
-constraints:
-  - base_a < base_b
-question: "A right triangle has one leg of length {given_leg} and hypotenuse of length {hypotenuse}. Find the length of the other leg."
+  k: integer(1, 4)
+  leg_a: 3*k
+  leg_b: 4*k
+  hyp: 5*k
+  leg_a2: leg_a^2
+  hyp2: hyp^2
+  diff: hyp2 - leg_a2
+  answer: sqrt(diff)
+
+question: "A right triangle has a hypotenuse of {hyp} cm and one leg of {leg_a} cm. Find the length of the other leg."
+
 answer: answer
+answer_type: numeric
+
+diagram:
+  type: triangle
+  vertices: [A, B, C]
+  sides: {AB: hyp, BC: leg_a, AC: answer}
+  right_angle: A
+
 solution:
-  - "Using the Pythagorean theorem: a² + b² = c²"
-  - "We have {given_leg}² + b² = {hypotenuse}²"
-  - "So b² = {hypotenuse}² - {given_leg}²"
-  - "b² = {evaluate(hypotenuse^2, hypotenuse, hypotenuse)} - {evaluate(given_leg^2, given_leg, given_leg)}"
-  - "b² = {evaluate(hypotenuse^2 - given_leg^2, hypotenuse, hypotenuse)}"
-  - "Therefore b = {answer}"
+  - "Apply the Pythagorean theorem: {math(a^2 + b^2 = c^2)}, where {math(c)} is the hypotenuse."
+  - "Rearrange to isolate the unknown leg {math(b)}: subtract {math(a^2)} from both sides."
+  - "{math(b^2)} = {hyp2} - {leg_a2} = {diff}"
+  - "Take the positive square root: {math(b)} = {answer} cm."

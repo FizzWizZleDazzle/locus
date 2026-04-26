@@ -1,24 +1,28 @@
 topic: multivariable_calculus/change_of_variables
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
   a: integer(2, 5)
   b: integer(2, 5)
-  c: integer(1, 4)
-  d: integer(1, 4)
-  det: a * d - b * c
-  scale: integer(2, 4)
-  region_area: scale * scale
-  answer: region_area * det
-constraints:
-  - det > 0
-  - a != b
-  - c != d
-question: "Consider the transformation u = {a}x + {b}y, v = {c}x + {d}y. Find the area of the image of the square [0, {scale}] × [0, {scale}] under this transformation."
+  ab: a + b
+  answer: a^3 * b / 3
+  inner_integral: definite_integral(u^2, u, 0, a)
+  outer_integral: definite_integral(1, v, 0, b)
+
+question: >
+  Let {math(R)} be the parallelogram with vertices
+  {math((0, 0))}, {math((a, 0))}, {math((ab, b))}, and {math((b, b))}.
+  Using the substitution {math(u = x - y)} and {math(v = y)},
+  evaluate the double integral of {math((x - y)^2)} over {math(R)}.
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "The Jacobian of the transformation is the determinant of the matrix with rows ({a}, {b}) and ({c}, {d})"
-  - "J = {a} · {d} - {b} · {c} = {det}"
-  - "The area of the original square is {scale} × {scale} = {region_area}"
-  - "Under the transformation, the area is scaled by |J| = |{det}| = {det}"
-  - "Therefore, the area of the image is {region_area} × {det} = {answer}"
+  - "Apply the substitution {math(u = x - y)}, {math(v = y)}, so {math(x = u + v)} and {math(y = v)}."
+  - "The Jacobian of the inverse transformation satisfies {math(|J| = 1)}, so {math(dA = du dv)}."
+  - "The parallelogram {math(R)} maps to the rectangle {math(0 <= u <= a)}, {math(0 <= v <= b)}."
+  - "The integrand becomes {math((x - y)^2 = u^2)}."
+  - "The double integral separates: {definite_integral_of(u^2, u, 0, a)} times {definite_integral_of(1, v, 0, b)}."
+  - "Evaluating: {inner_integral} times {b} equals {answer}."

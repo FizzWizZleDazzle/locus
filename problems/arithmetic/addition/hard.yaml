@@ -1,20 +1,22 @@
 topic: arithmetic/addition
 difficulty: hard
 calculator: none
+
 variables:
-  a: integer(100, 999)
-  b: integer(100, 999)
+  a: integer(1000, 4999)
+  b: integer(1000, 4999)
   c: integer(100, 999)
   d: integer(100, 999)
-  sum_ab: a + b
-  sum_cd: c + d
-  answer: sum_ab + sum_cd
-constraints:
-  - mod(a, 10) + mod(b, 10) >= 10
-  - mod(c, 10) + mod(d, 10) >= 10
-question: "Calculate: {a} + {b} + {c} + {d}"
+  ab: a + b
+  abc: a + b + c
+  answer: a + b + c + d
+
+question: "A warehouse receives four shipments of boxes. The first shipment contains {a} boxes, the second contains {b} boxes, the third contains {c} boxes, and the fourth contains {d} boxes. How many boxes does the warehouse receive in total?"
+
 answer: answer
+
 solution:
-  - "Group the first two numbers: {a} + {b} = {sum_ab}"
-  - "Group the last two numbers: {c} + {d} = {sum_cd}"
-  - "Add the results: {sum_ab} + {sum_cd} = {answer}"
+  - "Add the first two shipments: {a} + {b} = {ab}."
+  - "Add the third shipment: {ab} + {c} = {abc}."
+  - "Add the fourth shipment: {abc} + {d} = {answer}."
+  - "The warehouse receives {answer} boxes in total."

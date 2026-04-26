@@ -1,25 +1,25 @@
 topic: algebra1/exponent_rules
 difficulty: medium
 calculator: none
+
 variables:
-  base: integer(2, 5)
   m: integer(3, 7)
   n: integer(2, 5)
-  k: integer(2, 4)
-  expr1: base^m * base^n
-  expr2: base^k
-  left_side: expr1 / expr2
-  exponent_sum: m + n - k
-  answer: base^exponent_sum
-constraints:
-  - m > k
-  - exponent_sum > 0
-  - exponent_sum <= 8
-question: "Simplify {equation(left_side, ?)} and express as a single power of {base}."
+  p: integer(1, 3)
+  sum_mn: m + n
+  exp_fin: m + n - p
+  num1: x^m
+  num2: x^n
+  denom: x^p
+  answer: x^exp_fin
+
+question: "Simplify {num1} times {num2} divided by {denom}. Write your answer as a single power of {math(x)}."
 answer: answer
+answer_type: expression
+
 solution:
-  - "Start with {equation(left_side, ?)}"
-  - "Apply the product rule in the numerator: {base}^{m} × {base}^{n} = {base}^({m}+{n}) = {base}^{m + n}"
-  - "Now we have {base}^{m + n} ÷ {base}^{k}"
-  - "Apply the quotient rule: {base}^{m + n} ÷ {base}^{k} = {base}^({m + n}-{k}) = {base}^{exponent_sum}"
-  - "Therefore, the answer is {answer}"
+  - "First apply the product rule in the numerator: add the exponents of {num1} and {num2}."
+  - "{m} + {n} = {sum_mn}, so the numerator simplifies to {math(x^sum_mn)}."
+  - "Now apply the quotient rule: subtract the exponent of the denominator."
+  - "{sum_mn} - {p} = {exp_fin}"
+  - "The simplified form is {answer}."

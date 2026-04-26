@@ -1,19 +1,25 @@
 topic: differential_equations/second_order_constant
 difficulty: easy
 calculator: none
+
 variables:
-  r1: integer(-5, 5)
-  r2: integer(-5, 5)
-  char_eq: r^2 - (r1 + r2)*r + r1*r2
-  expanded: expand(char_eq)
-  answer: r1, r2
+  r1: integer(-5, -1)
+  r2: integer(-5, -1)
+  p_coeff: expand(-(r1 + r2))
+  q_coeff: r1 * r2
+  sol_r1: exp(r1*x)
+  sol_r2: exp(r2*x)
+
 constraints:
   - r1 != r2
-  - r1 < r2
-question: "Find the roots of the characteristic equation for the differential equation {equation(derivative(derivative(y, x), x) - (r1 + r2)*derivative(y, x) + r1*r2*y, 0)}"
-answer: answer
+
+question: "Find the general solution of the second-order ODE with characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}. Give the two linearly independent solutions that form the fundamental set."
+
+answer: sol_r1, sol_r2
 answer_type: set
+
 solution:
-  - "The characteristic equation is {equation(expanded, 0)}"
-  - "This factors as {equation((r - r1)*(r - r2), 0)}"
-  - "So r = {r1} or r = {r2}"
+  - "Solve the characteristic equation {equation(r^2 + p_coeff*r + q_coeff, 0)}."
+  - "Factor: {equation((r - r1)*(r - r2), 0)}, giving real distinct roots {math(r_1 = r1)} and {math(r_2 = r2)}."
+  - "The two linearly independent solutions are {sol_r1} and {sol_r2}."
+  - "The general solution is {math(y = C_1 * e^(r1*x) + C_2 * e^(r2*x))}."

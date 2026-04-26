@@ -1,17 +1,20 @@
 topic: precalculus/trig_identities
 difficulty: easy
 calculator: none
+
 variables:
-  angle: choice(0, 30, 45, 60, 90, 120, 135, 150, 180)
-  rad_angle: angle * pi / 180
-  sin_val: sin(rad_angle)
-  cos_val: cos(rad_angle)
-  answer: sin_val^2 + cos_val^2
-question: "Verify the Pythagorean identity for θ = {angle}°. Calculate sin²({angle}°) + cos²({angle}°)."
+  a: choice(2, 3, 4, 5, 6, 7, 8, -2, -3, -4, -5, -6, -7, -8)
+  b: nonzero(-6, 6)
+  expr: b + a*sin(theta)^2 + a*cos(theta)^2
+  after_identity: b + a
+  answer: a + b
+
+question: "Simplify {expr} using a trigonometric identity."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "For θ = {angle}°, we have sin({angle}°) = {sin_val} and cos({angle}°) = {cos_val}"
-  - "sin²({angle}°) = ({sin_val})² = {sin_val^2}"
-  - "cos²({angle}°) = ({cos_val})² = {cos_val^2}"
-  - "sin²({angle}°) + cos²({angle}°) = {sin_val^2} + {cos_val^2} = {answer}"
-  - "This confirms the Pythagorean identity: sin²θ + cos²θ = 1"
+  - "Group the trigonometric terms and factor out {a}: {math(b + a*(sin(theta)^2 + cos(theta)^2))}."
+  - "Apply the Pythagorean identity {math(sin(theta)^2 + cos(theta)^2 = 1)} to get {math(b + a*1)}."
+  - "The expression simplifies to {answer}."

@@ -1,14 +1,23 @@
 topic: calculus/antiderivatives
 difficulty: easy
 calculator: none
+
 variables:
-  a: nonzero(-6, 6)
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
   n: integer(2, 5)
-  f: a * x^n
+  m: integer(1, 3)
+  f: a*x^n + b*x^m
   answer: integral(f, x)
-question: "Find {integral_of(f, x)}"
+
+constraints:
+  - n != m
+
+question: "Find the general antiderivative {math(F(x))} of {f}. Include the constant of integration {math(C)}."
+
 answer: answer
+
 solution:
-  - "Apply the power rule for integration to {f}"
-  - "For {integral_of(a * x^n, x)}, we get a * x^(n+1)/(n+1) + C"
-  - "{integral_of(f, x)} = {answer}"
+  - "Apply the power rule for antiderivatives: the antiderivative of {math(x^k)} is {math(x^(k+1)/(k+1))} + C."
+  - "Integrate each term separately:"
+  - "{integral_of(f, x)} = {answer} + C"

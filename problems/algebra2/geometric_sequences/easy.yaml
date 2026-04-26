@@ -1,20 +1,21 @@
 topic: algebra2/geometric_sequences
 difficulty: easy
 calculator: none
+
 variables:
-  a1: integer(2, 12)
-  r: choice(2, 3, 4, 5)
+  a1: choice(2, 3, 4, 5, 6)
+  r: choice(2, 3, 4)
   n: integer(4, 6)
-  term_n: a1 * r^(n-1)
-  sum_n: a1 * (r^n - 1) / (r - 1)
-question: "A geometric sequence has first term {a1} and common ratio {r}. Find the sum of the first {n} terms."
-answer: sum_n
+  exp: n - 1
+  r_pow: evaluate(r^k, k, exp)
+  answer: a1 * r_pow
+
+question: "A geometric sequence has first term {a1} and common ratio {r}. Find the {n}th term."
+
+answer: answer
+answer_type: numeric
+
 solution:
-  - "For a geometric sequence with first term a₁ = {a1} and common ratio r = {r}:"
-  - "The sum of the first n terms is S_n = a₁(r^n - 1)/(r - 1)"
-  - "S_{n} = {a1}({r}^{n} - 1)/({r} - 1)"
-  - "S_{n} = {a1}({r}^{n} - 1)/{r - 1}"
-  - "Calculate {r}^{n} = {r^n}"
-  - "S_{n} = {a1}({r^n} - 1)/{r - 1}"
-  - "S_{n} = {a1} × {r^n - 1}/{r - 1}"
-  - "S_{n} = {sum_n}"
+  - "The nth term of a geometric sequence equals the first term times the common ratio raised to the power (n - 1)."
+  - "Here the first term is {a1}, the common ratio is {r}, and n = {n}, so the exponent is {exp}."
+  - "The {n}th term = {a1} * {r}^{exp} = {answer}."

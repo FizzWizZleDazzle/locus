@@ -1,21 +1,18 @@
 topic: precalculus/inverse_functions
 difficulty: medium
 calculator: none
+
 variables:
-  a: nonzero(2, 5)
-  b: integer(-8, 8)
-  f: a*x + b
-  y_val: integer(-10, 10)
-  x_val: (y_val - b)/a
-  answer: x_val
-constraints:
-  - a > 0
-  - mod(y_val - b, a) == 0
-question: "If {equation(f(x), a*x + b)}, find the value of x when {equation(f(x), y_val)}."
+  a: choice(-5, -4, -3, -2, 2, 3, 4, 5)
+  b: nonzero(-6, 6)
+  func: a*x + b
+  answer: expand((x - b) / a)
+
+question: "A function is defined by {math(f(x))} = {func}. Find the inverse function."
 answer: answer
-answer_type: numeric
+answer_type: expression
 solution:
-  - "Given {equation(f(x), a*x + b)} and {equation(f(x), y_val)}"
-  - "Set up the equation: {equation(a*x + b, y_val)}"
-  - "Subtract {b} from both sides: {equation(a*x, y_val - b)}"
-  - "Divide by {a}: {equation(x, answer)}"
+  - "Write {equation(math(y), func)} and swap {math(x)} and {math(y)}: {equation(math(x), a*y + b)}."
+  - "Subtract {b} from both sides: {equation(math(x - b), a*y)}."
+  - "Divide both sides by {a}: {equation(math(y), answer)}."
+  - "The inverse function is {answer}."

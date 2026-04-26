@@ -2,18 +2,18 @@ topic: algebra2/arithmetic_sequences
 difficulty: medium
 calculator: none
 variables:
-  a1: integer(-20, 20)
-  d: nonzero(-8, 8)
-  n: integer(15, 25)
-  an: a1 + (n - 1) * d
-  sum_n: n * (a1 + an) / 2
-constraints:
-  - mod(n * (a1 + an), 2) == 0
-question: "An arithmetic sequence has first term {a1} and common difference {d}. Find the sum of the first {n} terms."
-answer: sum_n
+  a1: integer(2, 15)
+  d: nonzero(-6, 6)
+  n: integer(6, 20)
+  n_minus_1: n - 1
+  step: n_minus_1 * d
+  answer: a1 + step
+
+question: "An arithmetic sequence has first term {a1} and common difference {d}. Find the {n}th term."
+answer: answer
+answer_type: numeric
 solution:
-  - "For an arithmetic sequence with first term a₁ = {a1} and common difference d = {d}"
-  - "The nth term is given by: aₙ = a₁ + (n-1)d"
-  - "So the {n}th term is: a_{n} = {a1} + ({n}-1)({d}) = {a1} + {evaluate((n-1)*d, n, n)} = {an}"
-  - "The sum of the first n terms is: Sₙ = n(a₁ + aₙ)/2"
-  - "S_{n} = {n}({a1} + {an})/2 = {n}({evaluate(a1 + an, a1, a1)})/2 = {sum_n}"
+  - "The nth term formula is: a_n = a_1 + (n - 1)d."
+  - "Here the first term is {a1}, the common difference is {d}, and n = {n}."
+  - "Compute (n - 1)d: ({n_minus_1})({d}) = {step}."
+  - "Therefore the {n}th term equals {a1} + ({step}) = {answer}."

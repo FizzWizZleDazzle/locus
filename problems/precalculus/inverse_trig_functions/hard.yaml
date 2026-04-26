@@ -1,27 +1,19 @@
 topic: precalculus/inverse_trig_functions
 difficulty: hard
 calculator: none
+
 variables:
-  angle_deg: choice(30, 45, 60, 120, 135, 150)
-  angle_rad: angle_deg * pi / 180
-  sin_val: sin(angle_rad)
-  cos_val: cos(angle_rad)
-  a: choice(2, 3, 4, 5)
-  b: choice(2, 3, 4, 5)
-  expr: a * sin_val + b * cos_val
-  simplified: expand(expr)
-  arcsin_input: sin_val
-  arccos_input: cos_val
-  answer: angle_deg
-constraints:
-  - a != b
-question: "If arcsin({arcsin_input}) + arccos({arccos_input}) = θ radians, find θ in degrees."
+  input_val: choice(1/2, sqrt(2)/2, sqrt(3)/2)
+  outer_arg: asin(input_val)
+  answer: cos(asin(input_val))
+
+question: "Find the exact value of {math(cos(asin(input_val)))}."
+
 answer: answer
-answer_type: numeric
+answer_type: expression
+
 solution:
-  - "Let α = arcsin({arcsin_input}) and β = arccos({arccos_input})"
-  - "We know that sin(α) = {arcsin_input} and cos(β) = {arccos_input}"
-  - "For special angles: sin({angle_deg}°) = {sin_val} and cos({angle_deg}°) = {cos_val}"
-  - "Since {arcsin_input} and {arccos_input} correspond to the same angle {angle_deg}°"
-  - "We have α = {angle_deg}° and β = {angle_deg}°"
-  - "Therefore θ = α + β = {angle_deg}° + {angle_deg}° = {answer}°"
+  - "Let {math(theta)} = {math(asin(input_val))}, so {equation(sin(theta), input_val)} with {math(theta)} in the principal range of arcsin."
+  - "Use the Pythagorean identity {equation(sin(theta)^2 + cos(theta)^2, 1)}, with {math(cos(theta) >= 0)} on the principal range."
+  - "Therefore {equation(cos(theta), sqrt(1 - input_val^2))}."
+  - "The exact value is {answer}."

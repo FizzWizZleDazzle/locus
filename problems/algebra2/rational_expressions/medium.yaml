@@ -1,26 +1,22 @@
 topic: algebra2/rational_expressions
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(2, 6)
-  b: integer(2, 6)
-  c: integer(2, 6)
-  d: integer(2, 6)
-  numerator: a*x + b
-  denominator: c*x + d
-  f: numerator / denominator
-  x_val: integer(-3, 3)
-  num_eval: evaluate(numerator, x, x_val)
-  den_eval: evaluate(denominator, x, x_val)
-  answer: num_eval / den_eval
-constraints:
-  - a != c
-  - den_eval != 0
-question: "Evaluate {f} when x = {x_val}"
+  r1: integer(2, 6)
+  r2: integer(-6, -1)
+  numer: expand((x - r1)*(x - r2))
+  denom: x - r1
+  factor1: x - r1
+  factor2: x - r2
+  answer: x - r2
+
+question: "Simplify the rational expression {math(numer / denom)} (assume {math(x != r1)})."
 answer: answer
-answer_type: numeric
+answer_type: expression
+
 solution:
-  - "Substitute x = {x_val} into {f}"
-  - "Numerator: {numerator} = {a}({x_val}) + {b} = {num_eval}"
-  - "Denominator: {denominator} = {c}({x_val}) + {d} = {den_eval}"
-  - "Result: {equation(num_eval / den_eval, answer)}"
+  - "Factor the numerator {numer} as {math(factor1 * factor2)}."
+  - "Rewrite: {math(numer / denom)} = {math(factor1 * factor2 / denom)}."
+  - "Cancel the common factor {math(factor1)} from numerator and denominator."
+  - "The simplified result is {answer}."

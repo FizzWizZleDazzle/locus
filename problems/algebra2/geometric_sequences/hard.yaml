@@ -2,27 +2,21 @@ topic: algebra2/geometric_sequences
 difficulty: hard
 calculator: scientific
 variables:
-  r: choice(2, 3, 4, 5, 1/2, 1/3, 1/4, 1/5)
+  a1: nonzero(-6, 6)
+  r: choice(2, 3)
   n: integer(4, 7)
-  k: integer(10, 15)
-  first_term: integer(1, 8)
-  a_n: first_term * r^(n-1)
-  a_k: first_term * r^(k-1)
-  sum_n: first_term * (1 - r^n) / (1 - r)
-  sum_k: first_term * (1 - r^k) / (1 - r)
-  answer: sum_k - sum_n
-constraints:
-  - k > n + 3
-question: "A geometric sequence has first term {first_term} and common ratio {r}. Find the sum of all terms from the {n}th term to the {k}th term inclusive."
+  r_pow_n: r^n
+  one_minus_rpn: 1 - r^n
+  one_minus_r: 1 - r
+  numerator: a1 * (1 - r^n)
+  answer: a1 * (1 - r^n) / (1 - r)
+question: "Find the sum of the first {n} terms of a geometric series with first term {a1} and common ratio {r}."
 answer: answer
+answer_type: numeric
 solution:
-  - "The sum from term {n} to term {k} equals S_{k} - S_{n-1}"
-  - "For a geometric sequence with first term a = {first_term} and ratio r = {r}:"
-  - "S_n = a(1 - r^n)/(1 - r) when r ≠ 1"
-  - "S_{k} = {first_term}(1 - {r}^{k})/(1 - {r}) = {sum_k}"
-  - "S_{n-1} = {first_term}(1 - {r}^{n-1})/(1 - {r}) = {first_term} * (1 - r^(n-1)) / (1 - r)"
-  - "But we need the sum including the nth term, so we calculate S_{k} - S_{n-1}"
-  - "Actually, let's use: sum from n to k = a_n * (1 - r^(k-n+1))/(1 - r)"
-  - "a_n = {first_term} * {r}^({n}-1) = {a_n}"
-  - "Sum = {a_n} * (1 - {r}^({k}-{n}+1))/(1 - {r})"
-  - "Sum = {a_n} * (1 - {r}^{k-n+1})/(1 - {r}) = {answer}"
+  - "The finite geometric series formula is {math(S_n = a_1 * (1 - q^k) / (1 - q))}, where {math(a_1)} is the first term, {math(q)} is the common ratio, and {math(k)} is the number of terms."
+  - "Substitute {math(a_1)} = {a1}, {math(q)} = {r}, {math(k)} = {n}."
+  - "Compute {math(q^k)}: {r}^{n} = {r_pow_n}."
+  - "Numerator: {math(a_1 * (1 - q^k))} = {numerator}."
+  - "Denominator: {math(1 - q)} = {one_minus_r}."
+  - "{equation(S_n, answer)}."

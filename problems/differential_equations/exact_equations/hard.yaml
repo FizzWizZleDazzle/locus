@@ -1,30 +1,31 @@
 topic: differential_equations/exact_equations
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(2, 5)
-  M: a*x^2 + b*x*y + c*y^2
-  N: b*x^2 + 2*c*x*y + a*y^2
-  dM_dy: derivative(M, y)
-  dN_dx: derivative(N, x)
-  F_from_M: integral(M, x)
-  g_prime: N - derivative(F_from_M, y)
-  g: integral(g_prime, y)
-  answer: F_from_M + g
-constraints:
-  - a != b
-  - b != c
-  - a != c
-question: "Solve the exact differential equation {equation(M*dx + N*dy, 0)}"
-answer: answer
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  # Potential function F(x,y) = a*x^2*y + b*x*y^2 + c*x^2 + d*y^2
+  # M = F_x, N = F_y  =>  M dx + N dy = 0 is exact
+  M: 2*a*x*y + b*y^2 + 2*c*x
+  N: a*x^2 + 2*b*x*y + 2*d*y
+  M_y: derivative(M, y)
+  N_x: derivative(N, x)
+  F: a*x^2*y + b*x*y^2 + c*x^2 + d*y^2
+  F_y_expr: derivative(F, y)
+
+question: "Show that the differential equation {M} dx + {N} dy = 0 is exact, then find its general solution."
+
+answer: F
+answer_type: expression
+
 solution:
-  - "Check exactness: {derivative_of(M, y)} = {dM_dy} and {derivative_of(N, x)} = {dN_dx}"
-  - "Since {dM_dy} = {dN_dx}, the equation is exact"
-  - "Find F such that {derivative_of(F, x)} = {M} and {derivative_of(F, y)} = {N}"
-  - "Integrate M with respect to x: F = {integral_of(M, x)} = {F_from_M} + g(y)"
-  - "Take {derivative_of(F, y)} = {derivative(F_from_M, y)} + g'(y) = {N}"
-  - "So g'(y) = {N} - {derivative(F_from_M, y)} = {g_prime}"
-  - "Integrate: g(y) = {integral_of(g_prime, y)} = {g}"
-  - "Therefore F(x,y) = {answer} = C"
+  - "Step 1 — Check exactness. Here {math(M)} = {M} and {math(N)} = {N}."
+  - "Compute {partial_of(M, y)} = {M_y} and {partial_of(N, x)} = {N_x}."
+  - "Since {equation(M_y, N_x)}, the equation is exact."
+  - "Step 2 — Find the potential function. Integrate {math(M)} with respect to {math(x)}: {math(F)} = {F} + {math(g(y))}."
+  - "Step 3 — Determine {math(g(y))}. Differentiate with respect to {math(y)} and set equal to {math(N)}."
+  - "We get {equation(F_y_expr, N)}, which holds identically, so {math(g'(y) = 0)}."
+  - "Thus {math(g(y))} is an arbitrary constant, and the general solution is {equation(F, C)}."

@@ -1,21 +1,16 @@
 topic: arithmetic/decimals
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(1, 9)
-  b: integer(1, 9)
-  c: integer(1, 9)
-  d: integer(1, 9)
-  first: a + b/10
-  second: c + d/10
-  answer: first + second
-constraints:
-  - a + c < 10
-  - b + d < 10
-question: "Add: {first} + {second}"
+  a: decimal(1, 9, 1)
+  b: decimal(1, 9, 1)
+  answer: a + b
+
+question: "Add the decimals: {a} + {b}"
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Line up the decimal points"
-  - "Add tenths: {b} + {d} = {b + d} tenths"
-  - "Add ones: {a} + {c} = {a + c}"
-  - "Result: {answer}"
+  - "Line up the decimal points and add digit by digit."
+  - "{a} + {b} = {answer}"

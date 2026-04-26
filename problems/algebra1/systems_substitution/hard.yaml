@@ -1,36 +1,31 @@
 topic: algebra1/systems_substitution
 difficulty: hard
 calculator: none
+
 variables:
-  # Design backward: pick solution first
-  x_val: integer(-5, 5)
-  y_val: integer(-5, 5)
-  # Build system that has this solution
-  a: nonzero(-4, 4)
-  b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  d: nonzero(-4, 4)
-  # First equation: ax + by = e where e is computed from solution
-  e: a * x_val + b * y_val
-  # Second equation: cx + dy = f where f is computed from solution
-  f: c * x_val + d * y_val
-  # The solution is guaranteed by construction
-  x_answer: x_val
-  y_answer: y_val
+  x_sol: nonzero(-5, 5)
+  y_sol: nonzero(-5, 5)
+  m: nonzero(-4, 4)
+  b: y_sol - m * x_sol
+  c2: nonzero(-3, 3)
+  lhs_coeff: nonzero(-6, 6)
+  a2: lhs_coeff - c2 * m
+  rhs2: a2 * x_sol + c2 * y_sol
+  sub_expanded: expand(a2 * x + c2 * (m * x + b))
+  rhs_after_sub: rhs2 - c2 * b
+
 constraints:
-  - a * d != b * c  # Ensure system is not degenerate
-  - abs(a) != abs(b)  # Make substitution more interesting
-  - abs(c) != abs(d)  # Avoid trivial cases
-question: "Solve the system using substitution: {system(a*x + b*y = e, c*x + d*y = f)}"
-answer: x_answer, y_answer
+  - a2 != 0
+
+question: "Solve the system by substitution: {system(equation(y, m*x + b), equation(a2*x + c2*y, rhs2))}"
+
+answer: x_sol, y_sol
 answer_type: tuple
+
 solution:
-  - "Given system: {equation(a*x + b*y, e)} and {equation(c*x + d*y, f)}"
-  - "From the first equation, solve for x: x = {equation((e - b*y)/a, (e - b*y)/a)}"
-  - "Substitute into the second equation: {equation(c*(e - b*y)/a + d*y, f)}"
-  - "Simplify: {equation((c*e - c*b*y)/a + d*y, f)}"
-  - "Multiply through by {a}: {equation(c*e - c*b*y + a*d*y, a*f)}"
-  - "Collect y terms: {equation((a*d - c*b)*y, a*f - c*e)}"
-  - "Since {a*d - c*b} ≠ 0, we get y = {y_answer}"
-  - "Substitute back: x = {equation((e - b*y_answer)/a, x_answer)}"
-  - "Solution: ({x_answer}, {y_answer})"
+  - "The first equation is already solved for {math(y)}: {equation(y, m*x + b)}"
+  - "Substitute into the second equation: {equation(a2*x + c2*(m*x + b), rhs2)}"
+  - "Expand: {equation(sub_expanded, rhs2)}"
+  - "Isolate {math(x)}: {equation(lhs_coeff * x, rhs_after_sub)}, giving {equation(x, x_sol)}"
+  - "Back-substitute {equation(x, x_sol)} into {equation(y, m*x + b)}: {equation(y, m*x_sol + b)}, so {equation(y, y_sol)}"
+  - "The solution is {equation(x, x_sol)} and {equation(y, y_sol)}."

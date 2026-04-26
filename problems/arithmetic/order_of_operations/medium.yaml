@@ -1,21 +1,24 @@
 topic: arithmetic/order_of_operations
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(2, 9)
-  b: integer(2, 9)
-  c: integer(2, 9)
-  d: integer(2, 5)
-  product: b * c
-  sum: a + product
-  answer: sum / d
-constraints:
-  - mod(sum, d) == 0
-  - d != a
-question: "Evaluate: {a} + {b} × {c} ÷ {d}"
+  a: integer(1, 8)
+  b: integer(2, 6)
+  c: integer(2, 5)
+  e: choice(2, 3, 4)
+  k: integer(1, 5)
+  d: e * k
+  c_sq: c^2
+  mul: b * c_sq
+  div: d / e
+  answer: a + mul - div
+
+question: "Evaluate {a} + {b} * {c}^2 - {d} / {e} using the correct order of operations."
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Following order of operations (PEMDAS/BODMAS)"
-  - "First multiply: {b} × {c} = {product}"
-  - "Then add: {a} + {product} = {sum}"
-  - "Finally divide: {sum} ÷ {d} = {answer}"
+  - "Apply the exponent first: {c}^2 = {c_sq}"
+  - "Then multiply and divide left to right: {b} * {c_sq} = {mul}, and {d} / {e} = {div}"
+  - "Finally, add and subtract left to right: {a} + {mul} - {div} = {answer}"

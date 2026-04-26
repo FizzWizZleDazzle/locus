@@ -1,30 +1,30 @@
 topic: arithmetic/fractions
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(1, 4)
-  b: integer(2, 8)
-  c: integer(1, 4)
-  d: integer(2, 8)
-  gcd_ab: gcd(a, b)
-  gcd_cd: gcd(c, d)
-  num1: a / gcd_ab
-  den1: b / gcd_ab
-  num2: c / gcd_cd
-  den2: d / gcd_cd
-  product_num: num1 * num2
-  product_den: den1 * den2
-  final_gcd: gcd(product_num, product_den)
-  answer_num: product_num / final_gcd
-  answer_den: product_den / final_gcd
-  answer: answer_num / answer_den
+  a: integer(1, 6)
+  b: prime(3, 11)
+  c: integer(1, 6)
+  d: prime(3, 11)
+  lcd: b*d
+  num_a: a*d
+  num_c: c*b
+  num_sum: a*d + c*b
+  answer: num_sum/lcd
+
 constraints:
-  - den1 != 1
-  - den2 != 1
-  - answer_den <= 12
-question: "Multiply: {num1}/{den1} × {num2}/{den2}"
+  - b != d
+  - a < b
+  - c < d
+
+question: "Add {math(a/b)} and {math(c/d)}. Write your answer as a single fraction in lowest terms."
+
 answer: answer
+
 solution:
-  - "Multiply numerators: {num1} × {num2} = {product_num}"
-  - "Multiply denominators: {den1} × {den2} = {product_den}"
-  - "Simplify {product_num}/{product_den} = {answer_num}/{answer_den}"
+  - "Find a common denominator: {b} times {d} = {lcd}."
+  - "Scale {math(a/b)} by {d}: new numerator = {a} times {d} = {num_a}."
+  - "Scale {math(c/d)} by {b}: new numerator = {c} times {b} = {num_c}."
+  - "Add the numerators: {num_a} + {num_c} = {num_sum}."
+  - "The answer in lowest terms is {answer}."

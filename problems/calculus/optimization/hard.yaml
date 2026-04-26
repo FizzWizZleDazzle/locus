@@ -1,28 +1,25 @@
 topic: calculus/optimization
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 5)
-  b: integer(3, 8)
-  c: integer(10, 30)
-  f: a * x^3 - b * x^2 + c
-  f_prime: derivative(f, x)
-  critical_x: 2 * b / (3 * a)
-  f_second: derivative(f_prime, x)
-  f_second_at_crit: evaluate(f_second, x, critical_x)
-  max_value: evaluate(f, x, 0)
-  min_value: evaluate(f, x, critical_x)
-  answer: min_value
-constraints:
-  - mod(2*b, 3*a) == 0
-  - a * 2 < b
-question: "A particle's height is given by {f} for x in [0, 4]. Find the minimum height."
+  F: choice(24, 32, 40, 48)
+  area_expr: (F - 2*w)*w
+  dA: derivative(area_expr, w)
+  w_opt: F/4
+  L_opt: F/2
+  answer: evaluate(area_expr, w, w_opt)
+
+question: >
+  A farmer has {F} meters of fencing to enclose a rectangular plot along a straight barn wall.
+  No fencing is needed along the wall. What is the maximum area, in square meters, that can be enclosed?
+
 answer: answer
+
 solution:
-  - "To find extrema, we need critical points and boundary values"
-  - "Find critical points: {derivative_of(f, x)} = 0"
-  - "{f_prime} = 0 gives x = {critical_x}"
-  - "Check second derivative: {derivative_of(f_prime, x)} = {f_second}"
-  - "At x = {critical_x}: f''({critical_x}) = {f_second_at_crit} > 0, so local minimum"
-  - "Compare values: f(0) = {max_value}, f({critical_x}) = {min_value}, f(4) = {evaluate(f, x, 4)}"
-  - "The minimum height is {answer}"
+  - "Let {math(w)} be the width (perpendicular to the wall) and {math(L)} be the length (parallel to the wall)."
+  - "The fencing constraint is {equation(L + 2*w, F)}, so {equation(math(L), F - 2*w)}."
+  - "Area: {equation(math(A(w)), area_expr)}."
+  - "Differentiate and set equal to zero: {equation(dA, 0)}."
+  - "Solving gives the optimal width {equation(math(w), w_opt)} m, and length {equation(math(L), L_opt)} m."
+  - "Maximum area: {equation(math(A), answer)} square meters."

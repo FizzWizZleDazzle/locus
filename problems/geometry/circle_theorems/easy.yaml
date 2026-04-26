@@ -1,18 +1,27 @@
 topic: geometry/circle_theorems
 difficulty: easy
 calculator: none
+
 variables:
-  r: integer(3, 8)
-  angle: choice(30, 45, 60, 90, 120)
-  arc_length: 2 * 3.14159 * r * angle / 360
-  arc_length_simplified: simplify(2 * r * angle / 360)
-  answer: arc_length_simplified
-constraints:
-  - angle <= 180
-question: "A circle has radius {r}. Find the arc length of a sector with central angle {angle}°. Express your answer in terms of π."
+  central: choice(40, 60, 80, 100, 120, 140, 160)
+  half_central: central / 2
+  answer: half_central
+
+question: >-
+  A central angle in a circle measures {central} degrees. An inscribed angle
+  subtends the same arc. What is the measure of the inscribed angle, in degrees?
+
 answer: answer
+answer_type: numeric
+
+diagram:
+  type: circle
+  center: O
+  radius: r
+  elements:
+    - central_angle: {vertex: O, sides: [A, B], label: central}
+    - inscribed_angle: {vertex: C, sides: [A, B], label: answer}
+
 solution:
-  - "Arc length formula: s = (θ/360°) × 2πr"
-  - "Given: radius = {r}, central angle = {angle}°"
-  - "s = ({angle}/360) × 2π × {r}"
-  - "s = {answer}π"
+  - "The Inscribed Angle Theorem states that an inscribed angle is half the central angle subtending the same arc."
+  - "Inscribed angle = {central} / 2 = {answer} degrees."

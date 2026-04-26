@@ -1,24 +1,24 @@
 topic: differential_equations/homogeneous_equations
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(2, 5)
-  b: integer(1, 4)
-  c: a * b
-  r1: -a
-  r2: -b
-  char_eq: r^2 + (a + b)*r + c
-  y: C1 * e^(r1 * x) + C2 * e^(r2 * x)
-  y_prime: derivative(y, x)
-  y_double_prime: derivative(y_prime, x)
-  lhs: simplify(y_double_prime + (a + b)*y_prime + c*y)
-constraints:
-  - a != b
-question: "Solve the homogeneous differential equation {equation(y'' + (a + b)*y' + c*y, 0)}"
-answer: y
+  a: nonzero(1, 4)
+  b: nonzero(1, 4)
+  c: nonzero(1, 4)
+  rhs_top: a*y + b*x
+  rhs: rhs_top / x
+  general: c*x^a - b*x
+
+question: "Solve the differential equation {equation(derivative_of(y, x), rhs)} using the substitution {math(v = y/x)}. Give the general solution {math(y(x))}."
+
+answer: general
+answer_type: expression
+
 solution:
-  - "Write the characteristic equation: {equation(char_eq, 0)}"
-  - "Factor: {equation((r + a)*(r + b), 0)}"
-  - "The roots are r = {r1} and r = {r2}"
-  - "Since we have two distinct real roots, the general solution is:"
-  - "y = {y}"
+  - "The right side depends only on the ratio {math(y/x)}, so the equation is homogeneous."
+  - "Let {math(v = y/x)}, so {math(y = v*x)} and {math(dy/dx = v + x*(dv/dx))}."
+  - "Substituting: {math(v + x*(dv/dx) = a*v + b)}, which simplifies to {math(x*(dv/dx) = (a - 1)*v + b)}."
+  - "Separating variables: {math(dv/((a - 1)*v + b) = dx/x)}."
+  - "Integrate both sides to obtain {math(v + b/(a-1))} as a multiple of a power of {math(x)}."
+  - "Back-substituting {math(v = y/x)} yields the general solution {math(y(x))} = {general}."

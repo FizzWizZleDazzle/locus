@@ -1,25 +1,28 @@
 topic: algebra1/slope_and_intercept
 difficulty: medium
 calculator: none
+
 variables:
-  m: nonzero(-6, 6)
-  x1: integer(-5, 5)
-  y1: integer(-8, 8)
-  x2: integer(-5, 5)
-  y2: y1 + m*(x2 - x1)
-  b: y1 - m*x1
-  equation: m*x + b
-  answer: m, b
+  a: nonzero(-5, 5)
+  p: nonzero(-5, 5)
+  c: nonzero(-8, 8)
+  slope: -a / p
+  y_int: c / p
+  lhs: a*x + p*y
+  rhs_step2: c - a*x
+  slope_intercept: slope*x + y_int
+
 constraints:
-  - x1 != x2
-  - m != 1
-question: "A line passes through the points ({x1}, {y1}) and ({x2}, {y2}). Find the slope and y-intercept of the line."
-answer: answer
+  - p != 1
+  - p != -1
+
+question: "Rewrite the equation {equation(lhs, c)} in slope-intercept form. Identify the slope and y-intercept."
+
+answer: slope, y_int
 answer_type: tuple
+
 solution:
-  - "Calculate the slope: m = (y2 - y1)/(x2 - x1)"
-  - "m = ({y2} - {y1})/({x2} - {x1}) = {y2 - y1}/{x2 - x1} = {m}"
-  - "Use point-slope form with ({x1}, {y1}): y - {y1} = {m}(x - {x1})"
-  - "Expand: y - {y1} = {m}x - {m*x1}"
-  - "Solve for y: y = {m}x + {b}"
-  - "The slope is {m} and the y-intercept is {b}"
+  - "Start with {equation(lhs, c)}."
+  - "Subtract {a}x from both sides: {equation(p*y, rhs_step2)}."
+  - "Divide both sides by {p}: {equation(y, slope_intercept)}."
+  - "The slope is {slope} and the y-intercept is {y_int}."

@@ -1,20 +1,26 @@
 topic: calculus/chain_rule
 difficulty: easy
 calculator: none
+
 variables:
-  a: nonzero(-5, 5)
-  b: integer(-8, 8)
-  n: integer(2, 4)
-  inner: a * x + b
-  f: inner^n
-  answer: derivative(f, x)
-constraints:
-  - a != 1
-  - a != -1
-question: "Find the derivative of {f} where the inner function is {inner}."
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: integer(-6, 6)
+  n: integer(2, 5)
+  inner: b*x + c
+  f: a*(b*x + c)^n
+  f_prime: derivative(f, x)
+  coeff: a*n*b
+  nm1: n - 1
+  answer: f_prime
+
+question: "Find {derivative_of(f, x)}."
+
 answer: answer
+
 solution:
-  - "Let u = {inner}, so f(x) = u^{n}"
-  - "By the chain rule: f'(x) = {n} * u^{n-1} * u'"
-  - "Since u' = {a}, we have f'(x) = {n} * ({inner})^{n-1} * {a}"
-  - "Therefore, {derivative_of(f, x)} = {answer}"
+  - "Let {math(u)} = {inner} (the inner function)."
+  - "The outer function is {math(a)} times {math(u^n)}, so its derivative with respect to {math(u)} is {math(a*n)} times {math(u^(nm1))}."
+  - "The derivative of the inner function is {math(u')} = {b}."
+  - "By the chain rule, multiply: {coeff} times {math((b*x + c)^(nm1))}."
+  - "Therefore {equation(derivative_of(f, x), answer)}."

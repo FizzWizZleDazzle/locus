@@ -1,37 +1,38 @@
 topic: differential_equations/variation_of_parameters
 difficulty: medium
 calculator: scientific
+
 variables:
-  r1: integer(-4, -1)
-  r2: integer(1, 4)
-  g_coeff: choice(1, 2, 3, 4)
-  g: g_coeff * exp(3*x)
-  char_eq: (r - r1) * (r - r2)
-  expanded_char: expand(char_eq)
-  a: -(r1 + r2)
-  b: r1 * r2
-  y1: exp(r1 * x)
-  y2: exp(r2 * x)
-  W: y1 * derivative(y2, x) - y2 * derivative(y1, x)
-  W_simplified: simplify(W)
-  u1_prime: -y2 * g / W_simplified
-  u2_prime: y1 * g / W_simplified
-  u1: integral(u1_prime, x)
-  u2: integral(u2_prime, x)
-  y_p: simplify(u1 * y1 + u2 * y2)
-  answer: y_p
-constraints:
-  - r1 != r2
-  - r1 + r2 != 3
-question: "Use variation of parameters to find a particular solution to {equation(derivative(derivative(y, x), x) + a * derivative(y, x) + b * y, g)}."
-answer: answer
+  a: choice(1, 2, 3)
+  a2: a^2
+  neg_a2: -a^2
+  two_a: 2*a
+  four_a2: 4*a^2
+  neg_two_a: -2*a
+  yp: x*exp(a*x)/(2*a)
+  u1: x/(2*a)
+  u1_prime: 1/(2*a)
+  rhs_ode: exp(a*x)
+  y1: exp(a*x)
+  y2: exp(-a*x)
+  e2ax: exp(2*a*x)
+  u2: -exp(2*a*x)/(4*a^2)
+  u2_times_y2: -exp(a*x)/(4*a^2)
+  yp_full: x*exp(a*x)/(2*a) - exp(a*x)/(4*a^2)
+
+question: >
+  Use variation of parameters to find a particular solution {math(y_p)} to
+  {nth_derivative_of(y, x, 2)} - {a2} y = {rhs_ode},
+  given that the homogeneous solutions are {y1} and {y2}.
+
+answer: yp
+answer_type: expression
+
 solution:
-  - "The characteristic equation is {equation(expanded_char, 0)}"
-  - "This factors as {equation(char_eq, 0)}, giving r = {r1}, {r2}"
-  - "The complementary solution is y_c = c1 * exp({r1}*x) + c2 * exp({r2}*x)"
-  - "For variation of parameters, let y1 = {y1} and y2 = {y2}"
-  - "The Wronskian is W = {W_simplified}"
-  - "u1' = -{y2} * {g} / {W_simplified} = {u1_prime}"
-  - "u2' = {y1} * {g} / {W_simplified} = {u2_prime}"
-  - "Integrating: u1 = {u1}, u2 = {u2}"
-  - "Therefore y_p = u1*y1 + u2*y2 = {y_p}"
+  - "The ODE is {nth_derivative_of(y, x, 2)} - {a2} y = {rhs_ode}, with homogeneous solutions {math(y_1)} = {y1} and {math(y_2)} = {y2}."
+  - "The Wronskian is {math(W = y_1 y_2' - y_2 y_1')} = {neg_two_a}."
+  - "With {math(g(x))} = {rhs_ode}, the variation of parameters formulas give {math(u_1' = -y_2 g / W)} = {u1_prime}, so {math(u_1)} = {u1}."
+  - "Similarly {math(u_2' = y_1 g / W)} = {e2ax} / {neg_two_a}, so {math(u_2)} = {u2}."
+  - "The particular solution is {math(y_p = u_1 y_1 + u_2 y_2)} = {yp_full}."
+  - "The second term {u2_times_y2} is a multiple of {math(y_1)} and can be absorbed into the homogeneous solution."
+  - "Therefore the particular solution is {math(y_p)} = {yp}."

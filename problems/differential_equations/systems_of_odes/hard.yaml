@@ -1,43 +1,32 @@
 topic: differential_equations/systems_of_odes
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(-4, 4)
-  b: integer(-4, 4)
-  c: integer(-4, 4)
-  d: integer(-4, 4)
-  A: matrix(2, 2, -4, 4)
-  det: a*d - b*c
-  trace: a + d
-  discriminant: trace^2 - 4*det
-  sqrt_disc: sqrt(discriminant)
-  lambda1: (trace + sqrt_disc)/2
-  lambda2: (trace - sqrt_disc)/2
-  v1_x: b
-  v1_y: lambda1 - a
-  v2_x: b
-  v2_y: lambda2 - a
-  c1: 2
-  c2: -1
-  x_gen: c1 * v1_x * exp(lambda1 * t) + c2 * v2_x * exp(lambda2 * t)
-  y_gen: c1 * v1_y * exp(lambda1 * t) + c2 * v2_y * exp(lambda2 * t)
-  x0: evaluate(x_gen, t, 0)
-  y0: evaluate(y_gen, t, 0)
+  lam1: nonzero(-4, -1)
+  lam2: integer(1, 4)
+  a11: 0
+  a12: 1
+  a21: -lam1*lam2
+  a22: lam1 + lam2
+  trace_val: a11 + a22
+  det_val: a11*a22 - a12*a21
+  char_poly: expand((x - lam1)*(x - lam2))
+  gen_x: C_1*exp(lam1*t) + C_2*exp(lam2*t)
+  gen_y: lam1*C_1*exp(lam1*t) + lam2*C_2*exp(lam2*t)
+
 constraints:
-  - det > 0
-  - discriminant > 0
-  - b != 0
-question: "Solve the system {system(derivative_of(x, t) = a*x + b*y, derivative_of(y, t) = c*x + d*y)} with initial conditions x(0) = {x0}, y(0) = {y0}."
-answer: x_gen
-answer_type: expression
+  - lam1 != lam2
+
+question: "Consider the linear system {system(equation(derivative_of(x, t), a11*x + a12*y), equation(derivative_of(y, t), a21*x + a22*y))}. Find the eigenvalues of the coefficient matrix {matrix_of([[a11, a12], [a21, a22]])}."
+
+answer: lam1, lam2
+answer_type: set
+
 solution:
-  - "Write the system in matrix form: {derivative_of(vec([x, y]), t)} = {matrix_of(A)}{vec([x, y])}"
-  - "Find eigenvalues by solving {equation(det_of([[a - lambda, b], [c, d - lambda]]), 0)}"
-  - "This gives {equation(lambda^2 - trace*lambda + det, 0)}"
-  - "Using the quadratic formula: λ₁ = {lambda1}, λ₂ = {lambda2}"
-  - "For λ₁ = {lambda1}, eigenvector v₁ = {vec([v1_x, v1_y])}"
-  - "For λ₂ = {lambda2}, eigenvector v₂ = {vec([v2_x, v2_y])}"
-  - "General solution: {vec([x, y])} = c₁{vec([v1_x, v1_y])}e^({lambda1}t) + c₂{vec([v2_x, v2_y])}e^({lambda2}t)"
-  - "Apply initial conditions: {x0} = c₁({v1_x}) + c₂({v2_x}) and {y0} = c₁({v1_y}) + c₂({v2_y})"
-  - "Solving this system gives c₁ = {c1}, c₂ = {c2}"
-  - "Therefore x(t) = {x_gen}"
+  - "The coefficient matrix is {matrix_of([[a11, a12], [a21, a22]])}."
+  - "Set up the characteristic equation {equation(det_of([[a11 - x, a12], [a21, a22 - x]]), 0)}."
+  - "Expanding gives {equation(char_poly, 0)}."
+  - "Factoring: {equation((x - lam1)*(x - lam2), 0)}."
+  - "The eigenvalues are {lam1} and {lam2}."
+  - "The general solution can be written as {math(x(t))} = {gen_x} and {math(y(t))} = {gen_y}."

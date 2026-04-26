@@ -1,33 +1,30 @@
 topic: differential_equations/first_order_linear
 difficulty: medium
 calculator: scientific
+
 variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  c: nonzero(-5, 5)
-  p: a
-  q: b * x + c
-  f: p * y + q
-  integrating_factor: exp(a * x)
-  rhs_integrated: simplify((b * x + c) * exp(a * x))
-  general_solution: simplify((integral(rhs_integrated, x) + C) / exp(a * x))
-  y0: integer(-3, 3)
-  x0: 0
-  C_value: simplify(y0 * exp(a * x0) - evaluate(integral(rhs_integrated, x), x, x0))
-  particular: simplify((evaluate(integral(rhs_integrated, x), x, x) + C_value) / exp(a * x))
-constraints:
-  - abs(a) != abs(b)
-  - a != b
-question: "Solve the initial value problem {derivative_of(y, x)} + {a}y = {q} with y(0) = {y0}"
-answer: particular
+  p: integer(1, 3)
+  k: integer(1, 3)
+  m: integer(1, 3)
+  y0: integer(2, 6)
+  kp_sum: k + p
+  b: m * kp_sum
+  C: y0 - m
+  rhs: b * exp(k*x)
+  antideriv: m * exp(kp_sum * x)
+  answer_expr: m * exp(k*x) + C * exp(-p*x)
+  mu: exp(p*x)
+  neg_p: -p
+
+question: "Solve the initial value problem {derivative_of(y, x)} + {math(p*y)} = {rhs}, {math(y(0) = y0)}."
+
+answer: answer_expr
+answer_type: expression
+
 solution:
-  - "This is a first-order linear ODE in standard form {derivative_of(y, x)} + P(x)y = Q(x)"
-  - "Here P(x) = {a} and Q(x) = {q}"
-  - "The integrating factor is μ(x) = {integrating_factor}"
-  - "Multiply both sides by μ(x): {integrating_factor} · {derivative_of(y, x)} + {integrating_factor} · {a}y = {integrating_factor} · ({q})"
-  - "The left side is the derivative of {integrating_factor} · y"
-  - "So {derivative_of({integrating_factor} · y, x)} = {rhs_integrated}"
-  - "Integrate both sides: {integrating_factor} · y = {integral_of(rhs_integrated, x)} + C"
-  - "Therefore y = {general_solution}"
-  - "Apply initial condition y(0) = {y0} to find C = {C_value}"
-  - "The particular solution is y = {particular}"
+  - "This is a first-order linear ODE. The integrating factor is {mu}."
+  - "Multiply both sides by {mu}: {equation(derivative_of(exp(p*x)*y, x), b * exp(kp_sum * x))}."
+  - "Integrate both sides: {equation(exp(p*x)*y, antideriv + C)}."
+  - "Divide by {mu} to get the general solution: {equation(y, m * exp(k*x) + C * exp(neg_p*x))}."
+  - "Apply the initial condition {math(y(0) = y0)}: the constant of integration is {C}."
+  - "The particular solution is {equation(y, answer_expr)}."

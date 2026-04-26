@@ -2,27 +2,51 @@ topic: differential_equations/characteristic_equation
 difficulty: hard
 calculator: none
 variables:
-  r1: integer(-5, -1)
+  r1: nonzero(-5, -1)
   r2: integer(1, 5)
-  char_eq: (r - r1)*(r - r2)
-  expanded_char: expand(char_eq)
-  a: -(r1 + r2)
-  b: r1 * r2
-  diff_eq: derivative(derivative(y, x), x) + a*derivative(y, x) + b*y
-  roots: solve(expanded_char, r)
-  c1: choice(2, 3, 4)
-  c2: choice(-3, -2, -1)
-  general_solution: c1*exp(r1*x) + c2*exp(r2*x)
-  answer: general_solution
+  b_coeff: evaluate(-1*(r1 + r2), r1, r1)
+  c_coeff: evaluate(r1 * r2, r1, r1)
+  char_poly: r^2 + b_coeff*r + c_coeff
+  gen_sol: C1*exp(r1*x) + C2*exp(r2*x)
 constraints:
-  - r1 < r2
-question: "Find the general solution to the differential equation {equation(diff_eq, 0)}"
-answer: answer
+  - r1 != r2
+question: "A second-order linear homogeneous ODE with constant coefficients has characteristic equation {equation(char_poly, 0)}. Write the general solution {math(y(x))}."
+answer: gen_sol
 answer_type: expression
 solution:
-  - "Write the characteristic equation by substituting y = e^(rx)"
-  - "This gives {equation(expanded_char, 0)}"
-  - "Factor: {equation(char_eq, 0)}"
-  - "The roots are r = {r1} and r = {r2}"
-  - "Since we have two distinct real roots, the general solution is y = C₁e^({r1}x) + C₂e^({r2}x)"
-  - "Using C₁ = {c1} and C₂ = {c2}, we get y = {answer}"
+  - "The characteristic equation is {equation(char_poly, 0)}."
+  - "Solve by factoring: the roots are {math(r = r1)} and {math(r = r2)}."
+  - "Since the two roots are real and distinct, the general solution is {equation(math(y(x)), gen_sol)}."
+
+variants:
+  - name: repeated_root
+    variables:
+      r0: nonzero(-4, 4)
+      b_coeff: evaluate(-2*r0, r0, r0)
+      c_coeff: evaluate(r0^2, r0, r0)
+      char_poly: r^2 + b_coeff*r + c_coeff
+      gen_sol: exp(r0*x)*(C1 + C2*x)
+    question: "A second-order linear homogeneous ODE with constant coefficients has characteristic equation {equation(char_poly, 0)}. Write the general solution {math(y(x))}."
+    answer: gen_sol
+    answer_type: expression
+    solution:
+      - "The characteristic equation is {equation(char_poly, 0)}."
+      - "This factors as {math((r - r0)^2 = 0)}, giving a repeated root {math(r = r0)}."
+      - "For a repeated root, the general solution is {equation(math(y(x)), gen_sol)}."
+
+  - name: complex_roots
+    variables:
+      alpha: integer(-3, 3)
+      beta: integer(1, 4)
+      b_coeff: evaluate(-2*alpha, alpha, alpha)
+      c_coeff: evaluate(alpha^2 + beta^2, alpha, alpha)
+      char_poly: r^2 + b_coeff*r + c_coeff
+      disc: evaluate(b_coeff^2 - 4*c_coeff, alpha, alpha)
+      gen_sol: exp(alpha*x)*(C1*cos(beta*x) + C2*sin(beta*x))
+    question: "A second-order linear homogeneous ODE with constant coefficients has characteristic equation {equation(char_poly, 0)}. Write the general solution {math(y(x))}."
+    answer: gen_sol
+    answer_type: expression
+    solution:
+      - "The characteristic equation is {equation(char_poly, 0)}."
+      - "The discriminant is {disc} (negative), so the roots are complex: {math(alpha + beta*i)} and {math(alpha - beta*i)}."
+      - "For complex roots with real part {alpha} and imaginary part {math(+/-)} {beta}, the general solution is {equation(math(y(x)), gen_sol)}."

@@ -1,23 +1,24 @@
 topic: algebra1/factoring_trinomials
 difficulty: medium
 calculator: none
+
 variables:
-  p: integer(-6, 6)
-  q: integer(-6, 6)
-  f: (x + p) * (x + q)
-  expanded: expand(f)
-  a: 1
-  b: p + q
-  c: p * q
-  answer: f
+  r1: nonzero(-7, 7)
+  r2: nonzero(-7, 7)
+  poly: expand((x - r1)*(x - r2))
+  b_coeff: -(r1 + r2)
+  c_coeff: r1 * r2
+  answer: (x - r1)*(x - r2)
+
 constraints:
-  - p != q
-  - p != 0
-  - q != 0
-question: "Factor the trinomial {expanded} completely."
+  - r1 != r2
+  - r1 != -r2
+
+question: "Factor the trinomial {poly}."
 answer: answer
+answer_type: expression
+
 solution:
-  - "We need to factor {expanded} where a = {a}, b = {b}, c = {c}"
-  - "Find two numbers that multiply to {c} and add to {b}"
-  - "These numbers are {p} and {q} since {p} × {q} = {c} and {p} + {q} = {b}"
-  - "Therefore {expanded} = {answer}"
+  - "Find two numbers that multiply to {c_coeff} and add to {b_coeff}."
+  - "Those numbers are {math(-r1)} and {math(-r2)}."
+  - "Write the factored form: {answer}."

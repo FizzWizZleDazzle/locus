@@ -1,21 +1,21 @@
 topic: calculus/derivative_rules
 difficulty: easy
 calculator: none
+
 variables:
-  a: nonzero(-5, 5)
-  b: integer(-8, 8)
-  c: integer(-8, 8)
-  f: a * x^2 + b * x + c
-  answer: derivative(f, x)
-constraints:
-  - a != 1
-  - a != -1
-question: "Find {derivative_of(f, x)}"
-answer: answer
+  a: nonzero(1, 6)
+  n: integer(2, 5)
+  b: nonzero(1, 8)
+  f: a*x^n + b*x
+  coeff: a*n
+  power_term_deriv: coeff*x^(n-1)
+  f_prime: derivative(f, x)
+
+question: "Find {derivative_of(f, x)}."
+
+answer: f_prime
+
 solution:
-  - "Given function: {f}"
-  - "Apply the power rule to each term:"
-  - "The derivative of {a}x^2 is 2({a})x = {evaluate(2*a, x, x)}x"
-  - "The derivative of {b}x is {b}"
-  - "The derivative of {c} is 0"
-  - "Therefore, {derivative_of(f, x)} = {answer}"
+  - "Apply the power rule to each term of {f}."
+  - "The derivative of {math(a*x^n)} is {power_term_deriv}, and the derivative of {math(b*x)} is {b}."
+  - "Therefore, {derivative_of(f, x)} = {f_prime}."

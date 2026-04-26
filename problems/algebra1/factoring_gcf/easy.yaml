@@ -1,23 +1,24 @@
 topic: algebra1/factoring_gcf
 difficulty: easy
 calculator: none
+
 variables:
-  gcf: integer(2, 6)
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(2, 5)
-  coef1: gcf * a
-  coef2: gcf * b
-  coef3: gcf * c
-  expression: coef1*x^2 + coef2*x + coef3
-  factored_inner: a*x^2 + b*x + c
-  answer: gcf * factored_inner
+  gcf: choice(2, 3, 4, 5, 6)
+  c1: integer(1, 5)
+  c2: integer(1, 5)
+  a: gcf * c1
+  b: gcf * c2
+  f: a*x + b
+  answer: gcf*(c1*x + c2)
+
 constraints:
-  - a != b
-  - b != c
-question: "Factor out the greatest common factor from {expression}"
+  - c1 != c2
+
+question: "Factor out the greatest common factor (GCF) from {f}."
 answer: answer
+answer_type: expression
+
 solution:
-  - "Find the GCF of the coefficients {coef1}, {coef2}, and {coef3}"
-  - "The GCF is {gcf}"
-  - "Factor out {gcf}: {equation(expression, answer)}"
+  - "Identify the GCF of {a} and {b}. Both are divisible by {gcf}, so the GCF is {gcf}."
+  - "Divide each term by {gcf}: {math(a*x)} divided by {gcf} gives {math(c1*x)}, and {b} divided by {gcf} gives {c2}."
+  - "Write the factored form: {equation(f, answer)}."

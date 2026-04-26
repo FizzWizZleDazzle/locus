@@ -1,38 +1,32 @@
 topic: linear_algebra/vector_spaces
 difficulty: hard
 calculator: none
+
 variables:
-  a1: nonzero(-3, 3)
-  a2: nonzero(-3, 3)
-  a3: nonzero(-3, 3)
-  b1: nonzero(-3, 3)
-  b2: nonzero(-3, 3)
-  b3: nonzero(-3, 3)
-  c1: nonzero(-3, 3)
-  c2: nonzero(-3, 3)
-  c3: nonzero(-3, 3)
-  v1: (a1, a2, a3)
-  v2: (b1, b2, b3)
-  v3: (c1, c2, c3)
-  k1: integer(-2, 2)
-  k2: integer(-2, 2)
-  k3: integer(-2, 2)
-  combo1: k1*a1 + k2*b1 + k3*c1
-  combo2: k1*a2 + k2*b2 + k3*c2
-  combo3: k1*a3 + k2*b3 + k3*c3
-  w: (combo1, combo2, combo3)
-  det_coeff: a1*(b2*c3 - b3*c2) - a2*(b1*c3 - b3*c1) + a3*(b1*c2 - b2*c1)
-  answer: True
-constraints:
-  - k1 != 0
-  - k2 != 0
-question: "Consider the vectors v₁ = {v1}, v₂ = {v2}, v₃ = {v3} in ℝ³. Let w = {w} = {k1}v₁ + {k2}v₂ + {k3}v₃. Do the vectors v₁, v₂, v₃ form a basis for ℝ³?"
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: nonzero(-4, 4)
+  k1: nonzero(-3, 3)
+  k2: nonzero(-3, 3)
+  e: k1*a + k2*c
+  f: k1*b + k2*d
+  v1_1: a
+  v1_2: b
+  v2_1: c
+  v2_2: d
+  v3_1: e
+  v3_2: f
+  answer: 2
+
+question: "What is the dimension of the span of the vectors {vec([v1_1, v1_2])}, {vec([v2_1, v2_2])}, and {vec([v3_1, v3_2])} in {math(R^2)}, given that the third vector is a linear combination of the first two with coefficients {k1} and {k2}?"
+
 answer: answer
-answer_type: boolean
+answer_type: numeric
+
 solution:
-  - "Three vectors form a basis for ℝ³ if they are linearly independent"
-  - "Check if the determinant of the matrix [v₁ v₂ v₃] is nonzero"
-  - "det = {a1}({b2}·{c3} - {b3}·{c2}) - {a2}({b1}·{c3} - {b3}·{c1}) + {a3}({b1}·{c2} - {b2}·{c1})"
-  - "det = {a1}·({b2*c3 - b3*c2}) - {a2}·({b1*c3 - b3*c1}) + {a3}·({b1*c2 - b2*c1})"
-  - "det = {det_coeff}"
-  - "Since det ≠ 0, the vectors are linearly independent and form a basis: {answer}"
+  - "The span lives in {math(R^2)}, so its dimension is at most 2."
+  - "The third vector equals {k1} times the first plus {k2} times the second, so it adds nothing new."
+  - "Check whether the first two vectors are linearly independent by computing the determinant of {matrix_of([[v1_1, v2_1], [v1_2, v2_2]])}."
+  - "If the determinant is nonzero, the first two vectors span all of {math(R^2)}, giving dimension 2."
+  - "Generically, this determinant is nonzero, so the dimension of the span is {answer}."

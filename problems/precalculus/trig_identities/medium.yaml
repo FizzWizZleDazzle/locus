@@ -1,21 +1,18 @@
 topic: precalculus/trig_identities
 difficulty: medium
-calculator: scientific
+calculator: none
 variables:
-  angle: choice(30, 45, 60, 90, 120, 135, 150)
-  rad: angle * pi / 180
-  sin_val: sin(rad)
-  cos_val: cos(rad)
-  tan_val: tan(rad)
-  lhs: sin_val^2 + cos_val^2
-  answer: simplify(lhs)
-question: "Verify the Pythagorean identity for θ = {angle}°. Calculate sin²({angle}°) + cos²({angle}°)."
+  a: choice(-6, -5, -4, -3, -2, 2, 3, 4, 5, 6)
+  b: nonzero(-8, 8)
+  f: a*sin(theta)^2 + a*cos(theta)^2 + b
+  answer: a + b
+constraints:
+  - a != b
+question: "Simplify the expression {f}."
 answer: answer
+answer_type: numeric
 solution:
-  - "For θ = {angle}°, we have θ = {rad} radians"
-  - "sin({angle}°) = {sin_val}"
-  - "cos({angle}°) = {cos_val}"
-  - "sin²({angle}°) = ({sin_val})² = {simplify(sin_val^2)}"
-  - "cos²({angle}°) = ({cos_val})² = {simplify(cos_val^2)}"
-  - "sin²({angle}°) + cos²({angle}°) = {simplify(sin_val^2)} + {simplify(cos_val^2)} = {answer}"
-  - "This confirms the Pythagorean identity: sin²θ + cos²θ = 1"
+  - "Apply the Pythagorean identity: {equation(sin(theta)^2 + cos(theta)^2, 1)}."
+  - "Factor {a} from the trig terms: {equation(f, a*(sin(theta)^2 + cos(theta)^2) + b)}."
+  - "Substitute the identity: {equation(a*(sin(theta)^2 + cos(theta)^2) + b, a + b)}."
+  - "The simplified result is {answer}."

@@ -1,30 +1,20 @@
 topic: multivariable_calculus/double_integrals
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(1, 3)
-  b: integer(2, 4)
-  c: integer(1, 3)
-  d: integer(2, 4)
-  k: integer(2, 5)
-  f: k*x*y
-  inner_integral: integral(f, y)
-  inner_evaluated_upper: evaluate(inner_integral, y, d)
-  inner_evaluated_lower: evaluate(inner_integral, y, c)
-  inner_result: inner_evaluated_upper - inner_evaluated_lower
-  outer_integral: integral(inner_result, x)
-  outer_evaluated_upper: evaluate(outer_integral, x, b)
-  outer_evaluated_lower: evaluate(outer_integral, x, a)
-  answer: outer_evaluated_upper - outer_evaluated_lower
-constraints:
-  - a < b
-  - c < d
-question: "Evaluate the double integral of {f} over the region [{a}, {b}] × [{c}, {d}]"
+  a: nonzero(1, 4)
+  b: nonzero(1, 4)
+  p: integer(2, 5)
+  q: integer(2, 5)
+  inner_antideriv: a*x*p + b*p^2/2
+  answer: a*q^2*p/2 + b*p^2*q/2
+
+question: "Evaluate {definite_integral_of(a*x + b*y, y, 0, p)} where {math(x)} ranges from {math(0)} to {q}."
 answer: answer
+answer_type: numeric
 solution:
-  - "First integrate with respect to y: {integral_of(f, y)} from {c} to {d}"
-  - "The antiderivative of {f} with respect to y is {inner_integral}"
-  - "Evaluating from y = {c} to y = {d}: {inner_result}"
-  - "Now integrate {inner_result} with respect to x from {a} to {b}"
-  - "The antiderivative is {outer_integral}"
-  - "Evaluating from x = {a} to x = {b}: {answer}"
+  - "Integrate with respect to {math(y)} first, treating {math(x)} as a constant."
+  - "Inner integral: {equation(definite_integral_of(a*x + b*y, y, 0, p), inner_antideriv)}"
+  - "Now integrate with respect to {math(x)} from {math(0)} to {q}."
+  - "Outer integral: {equation(definite_integral_of(inner_antideriv, x, 0, q), answer)}"

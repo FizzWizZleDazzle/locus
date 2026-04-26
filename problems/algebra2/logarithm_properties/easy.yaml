@@ -1,17 +1,22 @@
 topic: algebra2/logarithm_properties
 difficulty: easy
-calculator: scientific
+calculator: none
+
 variables:
-  base: choice(2, 3, 5, 10)
-  power: integer(2, 5)
-  value: base^power
-  answer: power
+  b: choice(2, 3, 5, 10)
+  p: integer(1, 4)
+  q: integer(1, 4)
+  A: b^p
+  B: b^q
+  AB: A * B
+  answer: p + q
+
 constraints:
-  - value <= 1000
-question: "Simplify {equation(log(value, base), '?')}"
+  - p != q
+
+question: "Given that log base {b} of {A} equals {p} and log base {b} of {B} equals {q}, use the product rule to find log base {b} of {AB}."
 answer: answer
+answer_type: numeric
 solution:
-  - "We need to find the value of {log(value, base)}"
-  - "This means finding the power to which {base} must be raised to get {value}"
-  - "Since {equation(base^power, value)}, we have {equation(log(value, base), power)}"
-  - "Therefore, {equation(log(value, base), answer)}"
+  - "The product rule states: log base {b} of {math(A*B)} = log base {b} of {A} + log base {b} of {B}."
+  - "Substitute the given values: {p} + {q} = {answer}."

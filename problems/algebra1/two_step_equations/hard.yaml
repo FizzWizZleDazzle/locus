@@ -1,20 +1,29 @@
 topic: algebra1/two_step_equations
 difficulty: hard
 calculator: none
+
 variables:
-  x: integer(-12, 12)
-  a: choice(-8, -6, -4, -3, 3, 4, 6, 8)
-  b: nonzero(-24, 24)
-  c: a*x + b
-  answer: x
+  q: choice(2, 3, 4)
+  p: nonzero(-5, 5)
+  k: nonzero(-4, 4)
+  x_sol: k * q
+  b: integer(-12, 12)
+  coeff: p / q
+  rhs: coeff * x_sol + b
+  lhs_expr: coeff * x + b
+  step1_rhs: rhs - b
+  inv_coeff: q / p
+  answer: x_sol
+
 constraints:
-  - x != 0
-question: "Solve for x: {equation(a*x + b, c)}"
+  - p != q
+  - p != -1
+
+question: "Solve for {math(x)}: {equation(lhs_expr, rhs)}"
+
 answer: answer
 answer_type: numeric
+
 solution:
-  - "Start with {equation(a*x + b, c)}"
-  - "Subtract {b} from both sides: {equation(a*x, c - b)}"
-  - "Since {c} - {b} = {c - b}, we have {equation(a*x, c - b)}"
-  - "Divide both sides by {a}: {equation(x, (c - b)/a)}"
-  - "Therefore x = {answer}"
+  - "Subtract {b} from both sides: {equation(coeff * x, step1_rhs)}."
+  - "Multiply both sides by {inv_coeff}: {equation(math(x), answer)}."

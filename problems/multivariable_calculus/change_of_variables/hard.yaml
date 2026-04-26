@@ -1,29 +1,28 @@
 topic: multivariable_calculus/change_of_variables
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 4)
-  b: integer(2, 4)
-  c: integer(1, 3)
-  d: integer(1, 3)
-  det: a*d - b*c
-  f_coeff: integer(2, 6)
-  g_coeff: integer(1, 4)
-  h_coeff: integer(1, 3)
-  new_f_coeff: f_coeff*d*d + g_coeff*2*c*d + h_coeff*c*c
-  new_g_coeff: -f_coeff*2*b*d - g_coeff*(a*d + b*c) - h_coeff*2*a*c
-  new_h_coeff: f_coeff*b*b + g_coeff*2*a*b + h_coeff*a*a
-  answer: new_f_coeff, new_g_coeff, new_h_coeff
-constraints:
-  - det > 0
-  - a != b
-question: "Consider the change of variables u = {a}x + {b}y, v = {c}x + {d}y. Transform the expression {f_coeff}x^2 + {g_coeff}xy + {h_coeff}y^2 into the (u,v) coordinate system. Express as Au^2 + Buv + Cv^2 and find (A, B, C)."
-answer: answer
-answer_type: tuple
+  p: integer(1, 4)
+  q: integer(1, 4)
+  jac_det: 3
+  jac_inv: 1/3
+  int_u: p^2/2
+  int_v: q^2/2
+  answer: p^2 * q^2 / 12
+
+question: >
+  Let {math(R)} be the parallelogram in the {math(xy)}-plane bounded by the lines
+  {math(x + y = 0)}, {math(x + y = p)}, {math(2x - y = 0)}, and {math(2x - y = q)}.
+  Using the substitution {math(u = x + y)}, {math(v = 2x - y)}, evaluate
+  the double integral of {math((x+y)(2x-y))} over {math(R)}.
+
 solution:
-  - "From u = {a}x + {b}y and v = {c}x + {d}y, we need to express x and y in terms of u and v"
-  - "The Jacobian determinant is {a}*{d} - {b}*{c} = {det}"
-  - "Solving the system: x = ({d}u - {b}v)/{det}, y = (-{c}u + {a}v)/{det}"
-  - "Substitute into {f_coeff}x^2 + {g_coeff}xy + {h_coeff}y^2"
-  - "After expanding and collecting terms, we get {new_f_coeff}u^2 + {new_g_coeff}uv + {new_h_coeff}v^2"
-  - "Therefore (A, B, C) = {answer}"
+  - "Under the substitution {math(u = x + y)} and {math(v = 2x - y)}, the expression {math((x+y)(2x-y))} becomes {math(u*v)}."
+  - "The Jacobian determinant of the forward map is {det_of([[1, 1], [2, -1]])} = {math(-3)}, so the absolute Jacobian factor is {jac_inv}."
+  - "The region {math(R)} maps to the rectangle {math(0 \\le u \\le)} {p}, {math(0 \\le v \\le)} {q} in the {math(uv)}-plane."
+  - "The transformed integral equals {jac_inv} {math(\\cdot)} {definite_integral_of(u, u, 0, p)} {math(\\cdot)} {definite_integral_of(v, v, 0, q)}."
+  - "Evaluating: {jac_inv} times {int_u} times {int_v} = {answer}."
+
+answer: answer
+answer_type: numeric

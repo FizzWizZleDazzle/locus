@@ -1,19 +1,23 @@
 topic: algebra2/rational_equations
 difficulty: easy
 calculator: none
+
 variables:
-  x_val: integer(1, 8)
-  k: integer(2, 6)
-  numerator: k * x_val
-  f: numerator / x
-  answer: x_val
+  c: choice(2, 3, 4, -2, -3, -4)
+  k: nonzero(-4, 4)
+  a: c * k
+  b: integer(1, 5)
+  answer: k + b
+
 constraints:
-  - x_val != k
-question: "Solve for x: {equation(f, k)}"
+  - k != b
+
+question: "Solve for {math(x)}: {equation(a / (x - b), c)}"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Start with {equation(f, k)}"
-  - "This means {equation(numerator/x, k)}"
-  - "Multiply both sides by x: {numerator} = {k}x"
-  - "Divide both sides by {k}: x = {numerator}/{k}"
-  - "Simplify: x = {answer}"
+  - "Multiply both sides by {math(x - b)} to clear the denominator: {equation(a, c * (x - b))}"
+  - "Divide both sides by {c}: {equation(x - b, k)}"
+  - "Add {b} to both sides: {equation(x, answer)}"

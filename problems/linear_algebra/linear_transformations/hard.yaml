@@ -1,31 +1,30 @@
 topic: linear_algebra/linear_transformations
 difficulty: hard
 calculator: none
+
 variables:
-  a: nonzero(-3, 3)
-  b: nonzero(-3, 3)
-  c: nonzero(-3, 3)
-  d: nonzero(-3, 3)
-  v1: integer(-4, 4)
-  v2: integer(-4, 4)
-  w1: a*v1 + b*v2
-  w2: c*v1 + d*v2
-  det: a*d - b*c
-  x: integer(-5, 5)
-  y: integer(-5, 5)
-  Tx: a*x + b*y
-  Ty: c*x + d*y
-  answer: Tx, Ty
-constraints:
-  - det != 0
-  - v1 != 0
-  - v2 != 0
-question: "A linear transformation T: R² → R² maps the vector ({v1}, 0) to ({w1}, {w2}) and the vector (0, {v2}) to ({b*v2}, {d*v2}). Find T({x}, {y})."
-answer: answer
+  t11: nonzero(-5, 5)
+  t21: nonzero(-5, 5)
+  t12: nonzero(-5, 5)
+  t22: nonzero(-5, 5)
+  a: nonzero(-4, 4)
+  b: nonzero(-4, 4)
+  ans1: a*t11 + b*t12
+  ans2: a*t21 + b*t22
+  a_t11: a*t11
+  b_t12: b*t12
+  a_t21: a*t21
+  b_t22: b*t22
+
+question: "Let {math(T)} be a linear transformation such that {equation(math(T(e_1)), vec([t11, t21]))} and {equation(math(T(e_2)), vec([t12, t22]))}, where {math(e_1, e_2)} are the standard basis vectors of {math(R^2)}. Find {math(T(v))} where {equation(math(v), vec([a, b]))}."
+
+answer: ans1, ans2
 answer_type: tuple
+
 solution:
-  - "The transformation matrix is determined by where T maps the standard basis vectors"
-  - "Since T({v1}, 0) = ({w1}, {w2}), we have T(1, 0) = ({w1}/{v1}, {w2}/{v1}) = ({a}, {c})"
-  - "Since T(0, {v2}) = ({b*v2}, {d*v2}), we have T(0, 1) = ({b*v2}/{v2}, {d*v2}/{v2}) = ({b}, {d})"
-  - "So the transformation matrix is [[{a}, {b}], [{c}, {d}]]"
-  - "Therefore T({x}, {y}) = [{a}, {b}; {c}, {d}] * [{x}; {y}] = ({Tx}, {Ty})"
+  - "Since {math(T)} is linear, express {math(v)} as a linear combination of the standard basis vectors: {equation(math(v), a*e_1 + b*e_2)}."
+  - "Apply linearity of {math(T)}: {equation(math(T(v)), a*T(e_1) + b*T(e_2))}."
+  - "Substitute the known images with scalars {a} and {b}: {math(T(v))} = {a} {vec([t11, t21])} + {b} {vec([t12, t22])}."
+  - "Compute the first component: {a_t11} + {b_t12} = {ans1}."
+  - "Compute the second component: {a_t21} + {b_t22} = {ans2}."
+  - "Therefore {equation(math(T(v)), vec([ans1, ans2]))}."

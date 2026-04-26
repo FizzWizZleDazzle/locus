@@ -1,26 +1,24 @@
 topic: calculus/integration_by_parts
 difficulty: easy
 calculator: none
+
 variables:
-  a: nonzero(-5, 5)
-  b: nonzero(-5, 5)
-  u: a * x
-  dv: b * e^x
-  du: derivative(u, x)
-  v: integral(dv, x)
-  integrand: u * dv
-  uv: u * v
-  vdu: v * du
-  integral_vdu: integral(vdu, x)
-  answer: uv - integral_vdu
-constraints:
-  - a != b
-question: "Find {integral_of(integrand, x)} using integration by parts"
+  c: nonzero(1, 4)
+  f: x * exp(c*x)
+  dv_expr: exp(c*x)
+  v_part: exp(c*x) / c
+  v_part_int: exp(c*x) / c^2
+  term1: x * exp(c*x) / c
+  term2: exp(c*x) / c^2
+  answer: x * exp(c*x) / c - exp(c*x) / c^2
+
+question: "Use integration by parts to find {integral_of(f, x)} (omit the constant of integration)."
+
 answer: answer
+answer_type: expression
+
 solution:
-  - "Use integration by parts: {integral_of(u * dv, x)} = uv - {integral_of(v * du, x)}"
-  - "Let u = {u}, so du = {du} dx"
-  - "Let dv = {dv} dx, so v = {v}"
-  - "Apply the formula: ({u})({v}) - {integral_of(vdu, x)}"
-  - "= {uv} - {integral_vdu}"
-  - "= {answer} + C"
+  - "Let {math(u = x)} and {math(dv)} = {dv_expr} {math(dx)}, so {math(du = dx)} and {equation(math(v), v_part)}."
+  - "Apply the integration by parts formula: {term1} {math(-)} {integral_of(v_part, x)}."
+  - "The remaining integral evaluates to {v_part_int}."
+  - "Therefore {equation(integral_of(f, x), term1)} {math(-)} {term2} + C."

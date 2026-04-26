@@ -1,27 +1,51 @@
 topic: algebra1/systems_elimination
 difficulty: hard
 calculator: none
+
 variables:
-  x: integer(-4, 4)
-  y: integer(-4, 4)
-  a1: choice(2, 3, 4, 5)
-  b1: choice(-5, -4, -3, -2, 2, 3, 4, 5)
-  c1: a1*x + b1*y
-  a2: choice(-5, -4, -3, -2, 2, 3, 4, 5)
-  b2: choice(2, 3, 4, 5)
-  c2: a2*x + b2*y
-  answer: x, y
+  x_sol: nonzero(-5, 5)
+  y_sol: nonzero(-5, 5)
+  # Equation 1: a1*x + b1*y = c1_final
+  a1: nonzero(-4, 4)
+  b1: nonzero(-4, 4)
+  c1_step: evaluate(a1*x + b1*y, x, x_sol)
+  c1_final: evaluate(c1_step, y, y_sol)
+  # Equation 2: a2*x + b2*y = c2_final
+  a2: nonzero(-4, 4)
+  b2: nonzero(-4, 4)
+  c2_step: evaluate(a2*x + b2*y, x, x_sol)
+  c2_final: evaluate(c2_step, y, y_sol)
+  # Multipliers to eliminate x: multiply eq1 by a2, eq2 by a1, then subtract
+  m1: a2
+  m2: a1
+  # Scaled coefficients
+  sc_a1: a1*m1
+  sc_b1: b1*m1
+  sc_c1: c1_final*m1
+  sc_a2: a2*m2
+  sc_b2: b2*m2
+  sc_c2: c2_final*m2
+  # After subtraction: x cancels, leaving elim_b * y = elim_c
+  elim_b: sc_b1 - sc_b2
+  elim_c: sc_c1 - sc_c2
+  # Substitution check: a1*x_sol + b1*y_sol
+  sub_lhs: evaluate(a1*x + b1*y_sol, x, x_sol)
+
 constraints:
-  - a1*b2 != a2*b1
-question: "Solve the system of equations:\n{system(a1*x + b1*y = c1, a2*x + b2*y = c2)}"
-answer: answer
+  - a1 != a2
+  - b1 != b2
+
+question: "Solve the system using elimination: {system(equation(a1*x + b1*y, c1_final), equation(a2*x + b2*y, c2_final))}"
+
+answer: x_sol, y_sol
 answer_type: tuple
+
 solution:
-  - "Given system: {equation(a1*x + b1*y, c1)} and {equation(a2*x + b2*y, c2)}"
-  - "Multiply first equation by {b2}: {equation(a1*b2*x + b1*b2*y, c1*b2)}"
-  - "Multiply second equation by {b1}: {equation(a2*b1*x + b1*b2*y, c2*b1)}"
-  - "Subtract to eliminate y: {equation((a1*b2 - a2*b1)*x, c1*b2 - c2*b1)}"
-  - "Solve for x: x = {x}"
-  - "Substitute into first equation: {equation(a1*x + b1*y, c1)}"
-  - "Solve for y: y = {y}"
-  - "Solution: (x, y) = ({x}, {y})"
+  - "To eliminate {math(x)}, multiply equation 1 by {m1} and equation 2 by {m2}."
+  - "Equation 1 becomes: {equation(sc_a1*x + sc_b1*y, sc_c1)}."
+  - "Equation 2 becomes: {equation(sc_a2*x + sc_b2*y, sc_c2)}."
+  - "Subtract equation 2 from equation 1. The {math(x)}-terms cancel, giving {equation(elim_b*y, elim_c)}."
+  - "Solve for {math(y)}: {equation(y, y_sol)}."
+  - "Substitute {equation(y, y_sol)} into equation 1: {equation(a1*x + b1*y_sol, c1_final)}."
+  - "Solve for {math(x)}: {equation(x, x_sol)}."
+  - "The solution is {math(x)} = {x_sol}, {math(y)} = {y_sol}."

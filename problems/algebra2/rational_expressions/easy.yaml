@@ -1,21 +1,24 @@
 topic: algebra2/rational_expressions
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(2, 8)
-  b: integer(2, 8)
-  c: integer(2, 8)
-  numerator: a * (x - b)
-  denominator: c * (x - b)
-  simplified: a / c
+  r1: integer(-5, 5)
+  r2: integer(-6, 6)
+  a: nonzero(-4, 4)
+  num: expand(a*(x - r1)*(x - r2))
+  den: expand(a*(x - r1))
+  common: expand(a*(x - r1))
+  answer: x - r2
+
 constraints:
-  - gcd(a, c) == 1
-  - a != c
-question: "Simplify the rational expression {equation(numerator, denominator)}, stating any restrictions on x."
-answer: simplified
+  - r1 != r2
+
+question: "Simplify the rational expression {math(num/den)}, where {math(x != r1)}."
+answer: answer
+answer_type: expression
 solution:
-  - "Factor out the common factor (x - {b}) from numerator and denominator"
-  - "{equation(numerator, denominator)} = {equation(a * (x - b), c * (x - b))}"
-  - "Cancel the common factor: {equation(a, c)}"
-  - "The simplified expression is {simplified}"
-  - "Restriction: x ≠ {b} (to avoid division by zero)"
+  - "Factor the numerator: {math(num)} = {math(a*(x - r1)*(x - r2))}."
+  - "The denominator is {math(den)} = {math(a*(x - r1))}."
+  - "Cancel the common factor {math(common)} from numerator and denominator."
+  - "The simplified expression is {answer}."

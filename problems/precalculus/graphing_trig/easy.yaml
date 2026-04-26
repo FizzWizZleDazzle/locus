@@ -1,19 +1,18 @@
 topic: precalculus/graphing_trig
 difficulty: easy
 calculator: none
+
 variables:
-  a: choice(1, 2, 3, 4)
-  b: choice(1, 2, 4)
-  c: choice(0, 1, -1, 2, -2)
-  f: a * sin(b * x) + c
-  period: 2 * pi / b
-  amplitude: a
-  midline: c
-question: "Find the amplitude, period, and midline of {f}."
-answer: amplitude
-answer_type: multiple
+  A: nonzero(1, 5)
+  B: choice(1, 2, 3, 4)
+  f: A*sin(B*x)
+  answer: 2*pi/B
+
+question: "What is the period of {math(y = f)}?"
+answer: answer
+answer_type: expression
+
 solution:
-  - "For a function of the form A·sin(Bx) + C:"
-  - "Amplitude = |A| = |{a}| = {amplitude}"
-  - "Period = 2π/|B| = 2π/{b} = {period}"
-  - "Midline: y = C = {c}"
+  - "The period of {math(y = A*sin(B*x))} is {math(2*pi)} divided by the coefficient of {math(x)}."
+  - "In {math(y = f)}, the coefficient of {math(x)} is {B}."
+  - "Period = {math(2*pi)} / {B} = {answer}."

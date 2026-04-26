@@ -2,31 +2,35 @@ topic: precalculus/dot_cross_product
 difficulty: hard
 calculator: scientific
 variables:
-  a1: integer(-5, 5)
-  a2: integer(-5, 5)
-  a3: integer(-5, 5)
-  b1: integer(-5, 5)
-  b2: integer(-5, 5)
-  b3: integer(-5, 5)
-  c1: integer(-5, 5)
-  c2: integer(-5, 5)
-  c3: integer(-5, 5)
-  cross_bc_1: b2*c3 - b3*c2
-  cross_bc_2: b3*c1 - b1*c3
-  cross_bc_3: b1*c2 - b2*c1
-  dot_product: a1*cross_bc_1 + a2*cross_bc_2 + a3*cross_bc_3
-  answer: abs(dot_product)
-constraints:
-  - a1^2 + a2^2 + a3^2 > 0
-  - b1^2 + b2^2 + b3^2 > 0
-  - c1^2 + c2^2 + c3^2 > 0
-question: "Find the volume of the parallelepiped formed by vectors {vec([a1, a2, a3])}, {vec([b1, b2, b3])}, and {vec([c1, c2, c3])}."
-answer: answer
+  a1: nonzero(-4, 4)
+  a2: integer(-4, 4)
+  a3: integer(-4, 4)
+  b1: integer(-4, 4)
+  b2: nonzero(-4, 4)
+  b3: integer(-4, 4)
+  cx: a2*b3 - a3*b2
+  cy: a3*b1 - a1*b3
+  cz: a1*b2 - a2*b1
+  a2b3: a2*b3
+  a3b2: a3*b2
+  a3b1: a3*b1
+  a1b3: a1*b3
+  a1b2: a1*b2
+  a2b1: a2*b1
+  check_u: a1*cx + a2*cy + a3*cz
+  check_v: b1*cx + b2*cy + b3*cz
+
+question: "Let {math(u)} = {vec([a1, a2, a3])} and {math(v)} = {vec([b1, b2, b3])}. Compute the cross product {math(u \\times v)}, then verify your answer is orthogonal to both {math(u)} and {math(v)} by computing the two dot products."
+answer: cx, cy, cz
+answer_type: tuple
 solution:
-  - "The volume of a parallelepiped is |a · (b × c)|"
-  - "First compute b × c:"
-  - "b × c = ({cross_bc_1}, {cross_bc_2}, {cross_bc_3})"
-  - "Now compute a · (b × c):"
-  - "a · (b × c) = {a1}({cross_bc_1}) + {a2}({cross_bc_2}) + {a3}({cross_bc_3})"
-  - "= {dot_product}"
-  - "Volume = |{dot_product}| = {answer}"
+  - "Step 1: Compute {math(u \\times v)} using the determinant formula."
+  - "{det_of([[i, j, k], [a1, a2, a3], [b1, b2, b3]])}"
+  - "i-component: ({a2})({b3}) - ({a3})({b2}) = {a2b3} - {a3b2} = {cx}"
+  - "j-component (negated minor): -(({a1})({b3}) - ({a3})({b1})) = -({a1b3} - {a3b1}) = {cy}"
+  - "k-component: ({a1})({b2}) - ({a2})({b1}) = {a1b2} - {a2b1} = {cz}"
+  - "So {math(u \\times v)} = {vec([cx, cy, cz])}."
+  - "Step 2: Verify orthogonality."
+  - "{math(u \\cdot (u \\times v))} = ({a1})({cx}) + ({a2})({cy}) + ({a3})({cz}) = {check_u}"
+  - "{math(v \\cdot (u \\times v))} = ({b1})({cx}) + ({b2})({cy}) + ({b3})({cz}) = {check_v}"
+  - "Both dot products equal {check_u}, confirming {math(u \\times v)} is orthogonal to both {math(u)} and {math(v)}."

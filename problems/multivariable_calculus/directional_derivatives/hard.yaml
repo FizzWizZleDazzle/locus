@@ -1,43 +1,30 @@
 topic: multivariable_calculus/directional_derivatives
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
   a: nonzero(-4, 4)
   b: nonzero(-4, 4)
-  c: nonzero(-4, 4)
-  f: a*x^2 + b*x*y + c*y^2
-  x0: integer(-3, 3)
-  y0: integer(-3, 3)
-  # Pick direction vector components that form Pythagorean triple for clean unit vector
-  triple_choice: choice(1, 2, 3)
-  u1_raw: choice(3, 5, 8)
-  u2_raw: choice(4, 12, 15)
-  mag: choice(5, 13, 17)
-  # Ensure consistent signs for variety
-  sign: choice(-1, 1)
-  u1: sign * u1_raw
-  u2: u2_raw
-  # Compute gradient at point
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  fx_at_point: evaluate(fx, x, x0)
-  fy_at_point: evaluate(fy, y, y0)
-  fx_final: evaluate(fx_at_point, y, y0)
-  fy_final: evaluate(fy_at_point, x, x0)
-  # Directional derivative (before normalizing)
-  dot_product: fx_final * u1 + fy_final * u2
-  answer: dot_product / mag
-constraints:
-  - x0 != 0 or y0 != 0
-  - fx_final != 0 or fy_final != 0
-question: "Find the directional derivative of f(x,y) = {f} at the point ({x0}, {y0}) in the direction of the vector {vec([u1, u2])}."
+  x0: integer(1, 3)
+  y0: integer(1, 3)
+  func: a*x^2*y + b*y^3
+  fx: derivative(func, x)
+  fy: derivative(func, y)
+  fx_at: evaluate(fx, x, x0)
+  fx_at_pt: evaluate(fx_at, y, y0)
+  fy_at: evaluate(fy, x, x0)
+  fy_at_pt: evaluate(fy_at, y, y0)
+  term1: fx_at_pt * 3 / 5
+  term2: fy_at_pt * 4 / 5
+  answer: term1 + term2
+
+question: "Find the directional derivative of {math(f(x,y))} = {func} at the point {math((x0, y0))} in the direction of the vector {math((3, 4))}."
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "First, find the gradient of f(x,y) = {f}"
-  - "∂f/∂x = {fx}"
-  - "∂f/∂y = {fy}"
-  - "At point ({x0}, {y0}): ∇f = {vec([fx_final, fy_final])}"
-  - "The direction vector is v = {vec([u1, u2])}"
-  - "Magnitude of v: |v| = {mag}"
-  - "Unit vector: u = v/|v| = {vec([u1, u2])}/{mag}"
-  - "Directional derivative: D_u f = ∇f · u = {dot_product}/{mag} = {answer}"
+  - "The direction vector {math((3, 4))} has magnitude 5, so the unit vector is {math(u_1 = 3/5)} and {math(u_2 = 4/5)}."
+  - "Compute the partial derivatives: {equation(partial_of(func, x), fx)} and {equation(partial_of(func, y), fy)}."
+  - "Evaluate the gradient at {math((x0, y0))}: {math(f_x)} = {fx_at_pt} and {math(f_y)} = {fy_at_pt}."
+  - "Apply {math(D_u f = f_x u_1 + f_y u_2)}: {term1} + {term2} = {answer}."

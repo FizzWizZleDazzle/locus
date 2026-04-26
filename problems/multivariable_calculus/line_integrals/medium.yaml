@@ -1,27 +1,29 @@
 topic: multivariable_calculus/line_integrals
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(1, 3)
-  t_start: 0
-  t_end: 1
-  curve_x: c * t
-  curve_y: c * t^2
-  dx_dt: derivative(curve_x, t)
-  dy_dt: derivative(curve_y, t)
-  F_x: a * curve_y
-  F_y: b * curve_x
-  integrand: simplify(F_x * dx_dt + F_y * dy_dt)
-  answer: integral(integrand, t, t_start, t_end)
-constraints:
-  - a != b
-question: "Evaluate the line integral {integral_of(F · dr, C)} where F = {vec([a*y, b*x])} and C is the curve parametrized by r(t) = {vec([curve_x, curve_y])} for t ∈ [{t_start}, {t_end}]."
-answer: answer
+  a: nonzero(2, 5)
+  b: nonzero(2, 5)
+  p: nonzero(1, 4)
+  q: nonzero(1, 4)
+  F1: a*x
+  F2: b*y
+  ap2: a*p^2
+  bq2: b*q^2
+  integrand_coeff: ap2 + bq2
+  answer: integrand_coeff / 2
+
+question: >
+  Let {math(P(x,y) = F1)} and {math(Q(x,y) = F2)}.
+  Evaluate the line integral of {math(P dx + Q dy)} along the line segment
+  {math(C)} from {math((0,0))} to {math((p,q))}.
+
 solution:
-  - "Parametrize the curve: x(t) = {curve_x}, y(t) = {curve_y}"
-  - "Compute derivatives: dx/dt = {dx_dt}, dy/dt = {dy_dt}"
-  - "Substitute into F: F(r(t)) = {vec([F_x, F_y])}"
-  - "Compute F · dr/dt = {F_x} · {dx_dt} + {F_y} · {dy_dt} = {integrand}"
-  - "Integrate: {definite_integral_of(integrand, t, t_start, t_end)} = {answer}"
+  - "Parametrize {math(C)} as {math(x = p*t)}, {math(y = q*t)} for {math(0 <= t <= 1)}, so {math(dx = p*dt)} and {math(dy = q*dt)}."
+  - "Substituting: {math(P = a*p*t)} and {math(Q = b*q*t)}."
+  - "The integrand {math(P dx + Q dy)} becomes {math(integrand_coeff*t)} dt."
+  - "Integrating from 0 to 1: {definite_integral_of(integrand_coeff*t, t, 0, 1)} = {answer}."
+
+answer: answer
+answer_type: numeric

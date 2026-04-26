@@ -1,20 +1,30 @@
 topic: algebra2/arithmetic_sequences
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  a1: integer(-20, -10)
-  d: nonzero(3, 8)
-  n: integer(12, 18)
-  an: a1 + (n - 1) * d
-  sum_n: n * (a1 + an) / 2
-  answer: sum_n
-constraints:
-  - d > 0
-question: "Find the sum of the first {n} terms of an arithmetic sequence where the first term is {a1} and the common difference is {d}."
-answer: answer
+  a1: integer(2, 9)
+  d: integer(2, 7)
+  p: integer(3, 5)
+  q: integer(7, 10)
+  n: integer(12, 20)
+  ap: a1 + (p - 1)*d
+  aq: a1 + (q - 1)*d
+  q_minus_p: q - p
+  aq_minus_ap: aq - ap
+  p_minus_1: p - 1
+  a1_times_2: 2*a1
+  sum_n: n * (2*a1 + (n - 1)*d) / 2
+  n_minus_1: n - 1
+
+question: "The {p}th term of an arithmetic sequence is {ap} and the {q}th term is {aq}. Find the sum of the first {n} terms."
+answer: sum_n
 answer_type: numeric
 solution:
-  - "Use the formula for the nth term: a_n = a_1 + (n-1)d"
-  - "Find the {n}th term: a_{n} = {a1} + ({n} - 1) × {d} = {a1} + {(n-1)*d} = {an}"
-  - "Use the sum formula: S_n = n(a_1 + a_n)/2"
-  - "S_{n} = {n} × ({a1} + {an})/2 = {n} × {a1 + an}/2 = {answer}"
+  - "Let {math(a_1)} be the first term and {math(d)} the common difference, with general term {math(a_k = a_1 + (k-1)d)}."
+  - "Equation 1 (term {p}): {math(a_1 + (p-1)d)} = {ap}."
+  - "Equation 2 (term {q}): {math(a_1 + (q-1)d)} = {aq}."
+  - "Subtract Equation 1 from Equation 2: {math((q-p)d)} = {aq} - {ap} = {aq_minus_ap}."
+  - "There are {q_minus_p} steps between terms {p} and {q}, so {math(d)} = {aq_minus_ap} / {q_minus_p} = {d}."
+  - "Back-substitute {math(d)} = {d} into Equation 1: {math(a_1)} = {ap} - {p_minus_1} * {d} = {a1}."
+  - "Apply the sum formula {math(S_n = (n/2)(2a_1 + (n-1)d))} with {math(n)} = {n}: ({n}/2)({a1_times_2} + {n_minus_1} * {d}) = {sum_n}."

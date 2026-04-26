@@ -1,24 +1,26 @@
 topic: linear_algebra/eigenvalues
 difficulty: medium
-calculator: none
+calculator: scientific
 variables:
-  lambda1: integer(-5, 5)
-  lambda2: integer(-5, 5)
-  a: nonzero(-4, 4)
-  d: nonzero(-4, 4)
-  b: a * d - lambda1 - lambda2
-  c: lambda1 * lambda2 / a
-  char_poly: expand((lambda - a) * (lambda - d) - b * c)
-  answer: solve(char_poly, lambda)
-constraints:
-  - lambda1 != lambda2
-  - a != d
-question: "Find the eigenvalues of the matrix [[{a}, {b}], [{c}, {d}]]"
-answer: answer
+  lam1: choice(3, 4, 5, 2)
+  lam2: choice(-2, 1, -1, -3)
+  tr: lam1 + lam2
+  det_val: lam1 * lam2
+  mat_b: 1
+  mat_c: -1 * det_val
+  mat_a: 0
+  mat_d: tr
+  char_poly: lambda^2 - tr*lambda + det_val
+  disc: tr^2 - 4*det_val
+  disc_sqrt: sqrt(disc)
+  lam_plus: (tr + disc_sqrt) / 2
+  lam_minus: (tr - disc_sqrt) / 2
+question: "Find the eigenvalues of {matrix_of([[mat_a, mat_b], [mat_c, mat_d]])}."
+answer: lam1, lam2
 answer_type: set
 solution:
-  - "The characteristic polynomial is det(A - λI) = 0"
-  - "det([[{a} - λ, {b}], [{c}, {d} - λ]]) = 0"
-  - "({a} - λ)({d} - λ) - ({b})({c}) = 0"
-  - "Expanding: {char_poly} = 0"
-  - "The eigenvalues are λ = {lambda1} and λ = {lambda2}"
+  - "Compute the trace and determinant: trace = {mat_a} + {mat_d} = {tr}, and det = ({mat_a})({mat_d}) - ({mat_b})({mat_c}) = {det_val}."
+  - "The characteristic equation is {equation(char_poly, 0)}."
+  - "The discriminant is {disc}."
+  - "By the quadratic formula: {math(lambda_1)} = {lam_plus} and {math(lambda_2)} = {lam_minus}."
+  - "The eigenvalues are {lam1} and {lam2}."

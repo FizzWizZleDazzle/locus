@@ -1,29 +1,29 @@
 topic: differential_equations/exact_equations
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  a: integer(2, 5)
-  b: integer(2, 5)
-  c: integer(1, 4)
-  M: a * x + b * y
-  N: b * x + c * y
-  dM_dy: derivative(M, y)
-  dN_dx: derivative(N, x)
-  F: integral(M, x)
-  g_prime: N - derivative(F, y)
-  g: integral(g_prime, y)
-  answer: F + g
-constraints:
-  - dM_dy == dN_dx
-question: "Solve the exact differential equation {equation(M * dx + N * dy, 0)}"
-answer: answer
+  a: nonzero(1, 4)
+  b: nonzero(1, 5)
+  c: nonzero(1, 4)
+  M: 2*a*x + b*y
+  N: b*x + 2*c*y
+  F: a*x^2 + b*x*y + c*y^2
+  int_M: a*x^2 + b*x*y
+  g_prime_val: 2*c*y
+  g_y: c*y^2
+
+question: >
+  Verify that the differential equation
+  {math(M*dx + N*dy = 0)}
+  is exact, then find the general solution.
+
+answer: F
+answer_type: expression
+
 solution:
-  - "Check exactness: {derivative_of(M, y)} = {dM_dy} and {derivative_of(N, x)} = {dN_dx}"
-  - "Since {dM_dy} = {dN_dx}, the equation is exact"
-  - "Find F(x,y) such that {derivative_of(F, x)} = {M}"
-  - "Integrate: F = {integral_of(M, x)} = {F} + g(y)"
-  - "Use {derivative_of(F, y)} = {N} to find g(y)"
-  - "{derivative_of(F, y)} = {derivative(F, y)} + g'(y) = {N}"
-  - "So g'(y) = {g_prime}"
-  - "Therefore g(y) = {g}"
-  - "The solution is F(x,y) = {answer} = C"
+  - "Let M = {M} and N = {N}."
+  - "Compute {partial_of(M, y)} = {b} and {partial_of(N, x)} = {b}. Since these partial derivatives are equal, the equation is exact."
+  - "Integrate M with respect to x: {equation(integral_of(M, x), int_M + g(y))}."
+  - "Differentiate with respect to y and set equal to N: {math(b*x)} + {math(g'(y))} = {N}, so {math(g'(y))} = {g_prime_val}."
+  - "Integrate to get {math(g(y))} = {g_y}. The general solution is {equation(F, C)}."

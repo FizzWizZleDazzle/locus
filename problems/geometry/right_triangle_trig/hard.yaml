@@ -2,32 +2,23 @@ topic: geometry/right_triangle_trig
 difficulty: hard
 calculator: scientific
 variables:
-  # Use Pythagorean triple (5,12,13) scaled by factor k
-  k: choice(2, 3, 4)
-  a: 5 * k
-  b: 12 * k
-  c: 13 * k
-  # Pick which leg is opposite to angle theta
-  opposite: choice(a, b)
-  adjacent: choice(b, a)
-  # Derived trig values
-  sin_theta: opposite / c
-  cos_theta: adjacent / c
-  tan_theta: opposite / adjacent
-  # Expression to evaluate
-  numerator: 2 * sin_theta * cos_theta
-  denominator: cos_theta^2 - sin_theta^2
-  answer: simplify(numerator / denominator)
-constraints:
-  - opposite != adjacent
-question: "In a right triangle with hypotenuse {c} and legs {a} and {b}, angle θ is opposite the side of length {opposite}. Find the exact value of {equation(2*sin(θ)*cos(θ), cos^2(θ) - sin^2(θ))}."
-answer: answer
+  angle_deg: choice(30, 45, 60)
+  hyp: choice(6, 8, 10, 12, 14)
+  sin_val: sin(angle_deg * pi / 180)
+  cos_val: cos(angle_deg * pi / 180)
+  opp: hyp * sin(angle_deg * pi / 180)
+  adj: hyp * cos(angle_deg * pi / 180)
+question: "In a right triangle, one acute angle measures {angle_deg} degrees and the hypotenuse has length {hyp}. Find the exact lengths of both legs."
+answer: opp, adj
+answer_type: set
+diagram:
+  type: triangle
+  vertices: [A, B, C]
+  sides: {AB: hyp, BC: opp, AC: adj}
+  angles: {A: angle_deg}
+  right_angle: C
 solution:
-  - "Given: hypotenuse = {c}, legs = {a} and {b}"
-  - "Since θ is opposite the side of length {opposite}, we have:"
-  - "sin(θ) = {opposite}/{c} = {sin_theta}"
-  - "cos(θ) = {adjacent}/{c} = {cos_theta}"
-  - "Calculate the numerator: 2sin(θ)cos(θ) = 2({sin_theta})({cos_theta}) = {numerator}"
-  - "Calculate the denominator: cos²(θ) - sin²(θ) = ({cos_theta})² - ({sin_theta})² = {denominator}"
-  - "Therefore: {equation(2*sin(θ)*cos(θ), cos^2(θ) - sin^2(θ))} = {numerator}/{denominator} = {answer}"
-  - "Note: This equals tan(2θ) by the double angle formula"
+  - "Let {math(theta)} = {angle_deg} degrees and hypotenuse = {hyp}."
+  - "Opposite leg uses sine: {equation(math(sin(theta)), math(opposite / hypotenuse))}, so {math(opposite)} = {hyp} times {sin_val} = {opp}."
+  - "Adjacent leg uses cosine: {equation(math(cos(theta)), math(adjacent / hypotenuse))}, so {math(adjacent)} = {hyp} times {cos_val} = {adj}."
+  - "The two legs have exact lengths {opp} and {adj}."

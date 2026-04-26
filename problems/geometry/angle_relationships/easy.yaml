@@ -1,17 +1,19 @@
 topic: geometry/angle_relationships
 difficulty: easy
 calculator: none
+
 variables:
-  angle1: integer(20, 70)
-  angle2: 180 - angle1
-  answer: angle2
+  angle_a: integer(20, 160)
+  answer: 180 - angle_a
+
 constraints:
-  - mod(angle1, 5) == 0
-question: "Two angles form a linear pair. If one angle measures {angle1}°, what is the measure of the other angle?"
+  - angle_a != 90
+
+question: "Two angles are supplementary. One angle measures {angle_a} degrees. What is the measure of the other angle, in degrees?"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Linear pairs are supplementary (sum to 180°)"
-  - "Let the other angle = x"
-  - "{angle1}° + x = 180°"
-  - "x = 180° - {angle1}°"
-  - "x = {answer}°"
+  - "Supplementary angles sum to 180 degrees."
+  - "Other angle = 180 - {angle_a} = {answer} degrees."

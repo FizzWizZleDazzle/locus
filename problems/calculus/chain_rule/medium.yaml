@@ -3,21 +3,55 @@ difficulty: medium
 calculator: none
 variables:
   a: nonzero(-4, 4)
-  b: integer(2, 5)
-  c: nonzero(-6, 6)
-  inner: a * x + b
-  outer_exp: integer(2, 4)
-  f: (inner)^outer_exp
-  f_expanded: expand(f)
+  b: nonzero(-4, 4)
+  n: integer(2, 5)
+  p: integer(2, 4)
+  inner: a*x^n + b
+  f: (a*x^n + b)^p
+  inner_deriv: derivative(inner, x)
   answer: derivative(f, x)
-constraints:
-  - a != -1
-  - a != 1
-question: "Find {derivative_of(f_expanded, x)}"
+question: "Find {derivative_of(f, x)}."
 answer: answer
+answer_type: expression
 solution:
-  - "Recognize that {f_expanded} = {equation(inner, u)}^{outer_exp} where u = {inner}"
-  - "Using the chain rule: {derivative_of(f, x)} = {outer_exp} * {equation(inner, u)}^{outer_exp - 1} * {derivative_of(inner, x)}"
-  - "The derivative of {inner} with respect to x is {a}"
-  - "Therefore: {derivative_of(f, x)} = {outer_exp} * {equation(inner, u)}^{outer_exp - 1} * {a}"
-  - "Simplifying: {derivative_of(f, x)} = {answer}"
+  - "Let {math(u)} = {inner} (the inner function)."
+  - "The outer function is {math(u^p)}, so its derivative with respect to {math(u)} is {math(p * u^(p-1))}."
+  - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
+  - "By the chain rule: {derivative_of(f, x)} = {answer}."
+
+variants:
+  - name: power_outer
+    variables:
+      a: nonzero(-4, 4)
+      b: nonzero(-4, 4)
+      n: integer(2, 5)
+      p: integer(2, 4)
+      inner: a*x^n + b
+      f: (a*x^n + b)^p
+      inner_deriv: derivative(inner, x)
+      answer: derivative(f, x)
+    question: "Find {derivative_of(f, x)}."
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Let {math(u)} = {inner} (the inner function)."
+      - "The outer function is {math(u^p)}, so its derivative with respect to {math(u)} is {math(p * u^(p-1))}."
+      - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
+      - "By the chain rule: {derivative_of(f, x)} = {answer}."
+
+  - name: trig_outer
+    variables:
+      a: nonzero(-4, 4)
+      n: integer(2, 4)
+      inner: a*x^n
+      f: sin(a*x^n)
+      inner_deriv: derivative(inner, x)
+      answer: derivative(f, x)
+    question: "Find {derivative_of(f, x)}."
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Let {math(u)} = {inner} (the inner function)."
+      - "The outer function is {math(sin(u))}, so its derivative with respect to {math(u)} is {math(cos(u))}."
+      - "The inner derivative is {derivative_of(inner, x)} = {inner_deriv}."
+      - "By the chain rule: {derivative_of(f, x)} = {answer}."

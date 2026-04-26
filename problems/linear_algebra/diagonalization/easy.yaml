@@ -1,24 +1,29 @@
 topic: linear_algebra/diagonalization
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  lambda1: integer(1, 5)
-  lambda2: integer(1, 5)
-  a11: lambda1
-  a22: lambda2
-  a12: 0
-  a21: 0
-  char_poly: (lambda1 - t)*(lambda2 - t)
-  expanded_char: expand(char_poly)
-  answer: lambda1, lambda2
+  lam1: nonzero(-4, -1)
+  lam2: integer(1, 4)
+  a: 0
+  b: 1
+  c: -lam1*lam2
+  d: lam1 + lam2
+  tr: a + d
+  det_val: a*d - b*c
+  char_poly: expand((x - lam1)*(x - lam2))
+
 constraints:
-  - lambda1 != lambda2
-  - lambda1 < lambda2
-question: "Find the eigenvalues of the diagonal matrix A = [[{a11}, {a12}], [{a21}, {a22}]]"
-answer: answer
+  - lam1 != lam2
+
+question: "Find the eigenvalues of the matrix {matrix_of([[a, b], [c, d]])} by solving its characteristic polynomial. Enter the eigenvalues as a set."
+
+answer: lam1, lam2
 answer_type: set
+
 solution:
-  - "For a diagonal matrix, the eigenvalues are the diagonal entries"
-  - "The characteristic polynomial is det(A - tI) = {expanded_char}"
-  - "Setting equal to zero: {equation(expanded_char, 0)}"
-  - "The eigenvalues are {lambda1} and {lambda2}"
+  - "Compute the trace and determinant: trace is {tr}, determinant is {det_val}."
+  - "The characteristic polynomial is {equation(char_poly, 0)}."
+  - "Factoring: {equation((x - lam1)*(x - lam2), 0)}."
+  - "The eigenvalues are {lam1} and {lam2}."
+  - "A 2x2 matrix with two distinct real eigenvalues is always diagonalizable over the reals."

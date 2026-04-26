@@ -1,14 +1,17 @@
 topic: arithmetic/percentages
 difficulty: easy
 calculator: none
+
 variables:
-  original: choice(20, 25, 40, 50, 80, 100, 200, 250)
-  percent: choice(10, 20, 25, 50)
-  increase: original * percent / 100
-  answer: original + increase
-question: "A store item costs ${original}. If the price increases by {percent}%, what is the new price?"
+  pct: choice(10, 20, 25, 50)
+  base: integer(1, 10)
+  answer: base * 4
+  whole: answer * 100 / pct
+
+question: "What is {pct}% of {whole}?"
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Calculate the increase: {percent}% of ${original}"
-  - "Increase = {original} × {percent}/100 = ${increase}"
-  - "New price = ${original} + ${increase} = ${answer}"
+  - "Convert the percentage to a decimal: {pct}% = {math(pct/100)}"
+  - "Multiply: {math(pct/100)} times {whole} = {answer}"

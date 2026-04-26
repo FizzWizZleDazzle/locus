@@ -1,31 +1,31 @@
 topic: geometry/circle_theorems
 difficulty: hard
 calculator: none
+
 variables:
-  # Parametric Pythagorean triple: a = m²-n², b = 2mn, c = m²+n²
-  m: integer(2, 6)
-  n: integer(1, 5)
-  scale: integer(1, 3)
-  a: scale * (m*m - n*n)
-  b: scale * 2*m*n
-  c: scale * (m*m + n*n)
-  # Chord endpoints on circle with radius c centered at origin
-  x1: a
-  y1: b
-  x2: -b
-  y2: a
-  # Distance from center to chord
-  midpoint_x: (x1 + x2)/2
-  midpoint_y: (y1 + y2)/2
-  distance_squared: midpoint_x*midpoint_x + midpoint_y*midpoint_y
-  distance: sqrt(distance_squared)
-  answer: distance
+  angle_deg: choice(35, 40, 45, 50, 55, 60, 65, 70, 75, 80)
+  arc1: choice(30, 40, 50, 60, 70, 80, 90)
+  arc_sum: 2 * angle_deg
+  arc2: arc_sum - arc1
+  answer: arc2
 constraints:
-  - m > n
-question: "A circle has radius {c} and center at the origin. A chord has endpoints at ({x1}, {y1}) and ({x2}, {y2}). Find the distance from the center to the chord."
+  - arc2 > 0
+  - arc1 != arc2
+
+diagram:
+  type: circle
+  center: O
+  elements:
+    - chord: {from: A, to: C, label: ""}
+    - chord: {from: B, to: D, label: ""}
+    - central_angle: {vertex: O, sides: [A, B], label: arc1}
+    - central_angle: {vertex: O, sides: [C, D], label: "?"}
+
+question: "Two chords intersect inside a circle forming an angle of {angle_deg} degrees. One of the two arcs intercepted by the vertical angles measures {arc1} degrees. Find the measure of the other intercepted arc, in degrees."
 answer: answer
+answer_type: numeric
 solution:
-  - "The perpendicular from the center to a chord bisects the chord"
-  - "Midpoint of chord: ({midpoint_x}, {midpoint_y})"
-  - "Distance from center (0, 0) to midpoint: {answer}"
-  - "Note: Both endpoints are on the circle since {x1}^2 + {y1}^2 = {c}^2 and {x2}^2 + {y2}^2 = {c}^2"
+  - "When two chords intersect inside a circle, the angle equals half the sum of the two intercepted arcs."
+  - "Let the unknown arc measure {math(x)} degrees. Then: {math(angle_deg = (arc1 + x) / 2)}."
+  - "Multiply both sides by 2: {arc1} + {math(x)} = {arc_sum}."
+  - "Subtract {arc1} from both sides: {math(x)} = {arc_sum} - {arc1} = {answer} degrees."

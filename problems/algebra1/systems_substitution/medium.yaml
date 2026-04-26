@@ -1,28 +1,32 @@
 topic: algebra1/systems_substitution
 difficulty: medium
 calculator: none
+
 variables:
-  x: integer(-4, 4)
-  y: integer(-5, 5)
-  a: nonzero(-3, 3)
-  b: integer(2, 5)
-  c: a*x + b
-  d: nonzero(-4, 4)
-  e: nonzero(-3, 3)
-  f: d*x + e*y
-  answer: x, y
+  x_sol: integer(-5, 5)
+  y_sol: integer(-5, 5)
+  m: nonzero(-4, 4)
+  k: y_sol - m*x_sol
+  a: nonzero(-4, 4)
+  c: nonzero(-4, 4)
+  d: a*x_sol + c*y_sol
+  coeff: a + c*m
+  rhs_sub: d - c*k
+  answer_x: x_sol
+  answer_y: y_sol
+
 constraints:
-  - a != d
-  - e != 0
-question: "Solve the system of equations using substitution: {system(y = c, f = 0)}"
-answer: answer
+  - coeff != 0
+
+question: "Solve the system using substitution: {system(equation(y, m*x + k), equation(a*x + c*y, d))}"
+
+answer: answer_x, answer_y
 answer_type: tuple
+
 solution:
-  - "From the first equation: y = {c}"
-  - "Substitute into the second equation: {d}x + {e}({c}) = 0"
-  - "Simplify: {d}x + {e*a}x + {e*b} = 0"
-  - "Combine like terms: {d + e*a}x + {e*b} = 0"
-  - "Solve for x: {d + e*a}x = {-e*b}"
-  - "x = {x}"
-  - "Substitute back: y = {a}({x}) + {b} = {y}"
-  - "Solution: ({x}, {y})"
+  - "The first equation gives {equation(y, m*x + k)}."
+  - "Substitute into the second equation: {equation(a*x + c*(m*x + k), d)}."
+  - "Expand and combine like terms: {equation(coeff*x + c*k, d)}."
+  - "Solve for x: {equation(coeff*x, rhs_sub)}, so {equation(x, answer_x)}."
+  - "Substitute back: {equation(y, m*answer_x + k)}, so {equation(y, answer_y)}."
+  - "The solution is {equation(x, answer_x)} and {equation(y, answer_y)}."

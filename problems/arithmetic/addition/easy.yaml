@@ -1,13 +1,17 @@
 topic: arithmetic/addition
 difficulty: easy
 calculator: none
+
 variables:
-  a_tens: integer(1, 5)
-  a: a_tens * 10
-  b_tens: integer(1, 5)
-  b: b_tens * 10
+  a: integer(10, 99)
+  b: integer(10, 99)
   answer: a + b
-question: "Calculate: {a} + {b}"
+
+question: "What is {a} + {b}?"
+
 answer: answer
+answer_type: numeric
+
 solution:
-  - "Add the tens: {a} + {b} = {answer}"
+  - "Add the ones digits, then the tens digits (carrying if needed)."
+  - "The sum is {a} + {b} = {answer}."

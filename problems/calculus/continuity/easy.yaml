@@ -1,27 +1,19 @@
 topic: calculus/continuity
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(-5, 5)
-  b: nonzero(-8, 8)
-  c: integer(-10, 10)
-  x0: integer(-3, 3)
-  left_value: a * x0 + b
-  right_value: c
-  f_left: a * x + b
-  f_right: c
-  continuous_c: left_value
-  answer: continuous_c
-constraints:
-  - left_value != c
-question: "Let f(x) = {equation(f_left, 'if x < ' + str(x0))}, {equation(c, 'if x ≥ ' + str(x0))}. Find the value of c that makes f continuous at x = {x0}."
+  m: nonzero(-4, 4)
+  b: integer(-5, 5)
+  c: integer(-3, 3)
+  answer: m*c + b
+  f_left: m*x + b
+
+question: "The function {math(f(x))} is defined piecewise as {math(f(x))} = {f_left} for {math(x < c)}, and {math(f(x))} = {math(k)} for {math(x >= c)}. Find the value of {math(k)} that makes {math(f(x))} continuous at {math(x = c)}."
+
 answer: answer
+
 solution:
-  - "For f to be continuous at x = {x0}, we need the left and right limits to equal f({x0})"
-  - "Left limit: As x approaches {x0} from the left, f(x) = {f_left}"
-  - "So the left limit is {a}({x0}) + {b} = {left_value}"
-  - "Right limit: As x approaches {x0} from the right, f(x) = {c}"
-  - "So the right limit is {c}"
-  - "For continuity, we need: left limit = right limit = f({x0})"
-  - "Since x = {x0} falls in the second piece, f({x0}) = {c}"
-  - "Therefore, c = {answer}"
+  - "For continuity at {math(x = c)}, we need the left-hand limit to equal {math(f(c))}."
+  - "Compute the left-hand limit: {limit_of(f_left, x, c)} = {answer}."
+  - "Therefore {math(k)} = {answer}."

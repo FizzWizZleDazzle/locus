@@ -2,29 +2,16 @@ topic: arithmetic/ratios_proportions
 difficulty: medium
 calculator: none
 variables:
-  # Design backwards: pick a clean ratio first
-  ratio_num: integer(2, 5)
-  ratio_den: integer(3, 7)
-  # Pick a multiplier to scale up
-  k: integer(4, 12)
-  # Build the proportion parts
-  a: ratio_num * k
-  b: ratio_den * k
-  # Pick another multiplier for second ratio
-  m: integer(3, 9)
-  c: ratio_num * m
-  d: ratio_den * m
-  # The unknown we're solving for
+  a: choice(3, 5, 7)
+  b: choice(2, 4, 8)
+  k: integer(2, 6)
+  c: a * k
+  d: b * k
+  bc: b * c
   answer: d
-constraints:
-  - ratio_num < ratio_den
-  - k != m
-  - gcd(ratio_num, ratio_den) == 1
-question: "If {a} : {b} = {c} : x, find the value of x."
+question: "Solve the proportion {math(a / b = c / x)} for {math(x)}."
 answer: answer
+answer_type: numeric
 solution:
-  - "Set up the proportion: {a}/{b} = {c}/x"
-  - "Cross multiply: {a} × x = {b} × {c}"
-  - "{a}x = {b*c}"
-  - "x = {b*c}/{a}"
-  - "x = {answer}"
+  - "Cross-multiply: {a} times {math(x)} equals {b} times {c}, giving {math(a)} {math(x)} = {bc}."
+  - "Divide both sides by {a}: {math(x)} = {bc} divided by {a} = {answer}."

@@ -1,33 +1,47 @@
 topic: geometry/perimeter
 difficulty: medium
-calculator: none
+calculator: scientific
+
 variables:
-  shape: choice(1, 2, 3)
-  # Rectangle with integer dimensions
-  rect_length: integer(5, 12)
-  rect_width: integer(3, 8)
-  rect_perimeter: 2 * (rect_length + rect_width)
-  # Triangle with integer sides forming valid triangle
-  tri_a: integer(4, 10)
-  tri_b: integer(5, 11)
-  tri_c: integer(6, 12)
-  tri_perimeter: tri_a + tri_b + tri_c
-  # Regular hexagon with integer side length
-  hex_side: integer(3, 8)
-  hex_perimeter: 6 * hex_side
-  # Select appropriate values based on shape
-  perimeter: choice(rect_perimeter, tri_perimeter, hex_perimeter)
-  shape_name: choice("rectangle", "triangle", "regular hexagon")
-  dimension1: choice(rect_length, tri_a, hex_side)
-  dimension2: choice(rect_width, tri_b, hex_side)
-  dimension3: choice(rect_width, tri_c, hex_side)
+  a: integer(3, 8)
+  b: integer(3, 8)
+  c: integer(1, 3)
+  d: integer(1, 3)
+  width: a + c
+  height: b + d
+  answer: 2*a + 2*b + 2*c + 2*d
+
 constraints:
-  - rect_length > rect_width
-  - tri_a + tri_b > tri_c
-  - tri_a + tri_c > tri_b
-question: "A {shape_name} has dimensions {dimension1}, {dimension2}, and {dimension3}. Find its perimeter."
-answer: perimeter
+  - a > c
+  - b > d
+
+diagram:
+  type: polygon
+  vertices:
+    - {x: 0, y: 0}
+    - {x: width, y: 0}
+    - {x: width, y: b}
+    - {x: a, y: b}
+    - {x: a, y: height}
+    - {x: 0, y: height}
+  labels:
+    bottom: width
+    right_partial: b
+    inner_h: c
+    inner_v: d
+    top_partial: a
+    left: height
+
+question: "An L-shaped figure has an outer width of {width} cm and an outer height of {height} cm. A rectangular notch of width {c} cm and height {d} cm is cut from the top-right corner. Find the perimeter of the L-shaped figure."
+
+answer: answer
+
 solution:
-  - "For a {shape_name}, add all side lengths"
-  - "Perimeter = {dimension1} + {dimension2} + {dimension3} + remaining sides"
-  - "Perimeter = {perimeter}"
+  - "Label the six sides of the L-shape."
+  - "Bottom side: {width} cm"
+  - "Right side (partial height): {b} cm"
+  - "Inner horizontal step: {c} cm"
+  - "Inner vertical step: {d} cm"
+  - "Top side (partial width): {a} cm"
+  - "Left side (full height): {height} cm"
+  - "Perimeter = {width} + {b} + {c} + {d} + {a} + {height} = {answer} cm"

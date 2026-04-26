@@ -2,26 +2,16 @@ topic: linear_algebra/subspaces
 difficulty: easy
 calculator: none
 variables:
-  a: nonzero(-3, 3)
-  b: nonzero(-3, 3)
-  c: nonzero(-3, 3)
-  v1: matrix(3, 1, 0, 0)
-  v2: matrix(3, 1, 0, 0)
-  v3: matrix(3, 1, 0, 0)
-  test_vec: matrix(3, 1, 0, 0)
-  answer: True
-constraints:
-  - a != b
-  - b != c
-question: "Let S = span({vec(v1)}, {vec(v2)}, {vec(v3)}). Is {vec(test_vec)} in S?"
-answer: answer
-answer_type: boolean
+  a: nonzero(-5, 5)
+  b: nonzero(-5, 5)
+  lhs: a*x + b*y
+  ans: "Yes"
+question: "Let {math(S)} be the set of all vectors {math((x, y))} in {math(R^2)} satisfying {equation(lhs, 0)}. Is {math(S)} a subspace of {math(R^2)}? Answer Yes or No."
+answer: ans
+answer_type: word
 solution:
-  - "S consists of all linear combinations of {vec(v1)}, {vec(v2)}, and {vec(v3)}"
-  - "Any vector in S has the form c1{vec(v1)} + c2{vec(v2)} + c3{vec(v3)}"
-  - "This gives us [{a}c1, {b}c2, {c}c3]"
-  - "To check if {vec(test_vec)} is in S, we need:"
-  - "{a}c1 = 2, {b}c2 = 3, {c}c3 = 5"
-  - "Since {a}, {b}, {c} are all nonzero, we can solve:"
-  - "c1 = 2/{a}, c2 = 3/{b}, c3 = 5/{c}"
-  - "Therefore {vec(test_vec)} is in S"
+  - "We verify the three subspace axioms for {math(S)}."
+  - "Axiom 1 (contains zero vector): Substituting {math((x,y) = (0,0))} gives {math(0 = 0)}, which is true. So the zero vector is in {math(S)}."
+  - "Axiom 2 (closed under addition): Let {math((x_1, y_1))} and {math((x_2, y_2))} be in {math(S)}, so {equation(a*x_1 + b*y_1, 0)} and {equation(a*x_2 + b*y_2, 0)}. Adding these two equations gives {equation(a*(x_1+x_2) + b*(y_1+y_2), 0)}, so the sum is in {math(S)}."
+  - "Axiom 3 (closed under scalar multiplication): Let {math((x,y))} be in {math(S)} and let {math(k)} be any scalar. Multiplying the equation by {math(k)} gives {equation(a*(k*x) + b*(k*y), 0)}, so the scaled vector is also in {math(S)}."
+  - "All three axioms hold, so {math(S)} is a subspace of {math(R^2)}."

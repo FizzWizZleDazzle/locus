@@ -1,23 +1,23 @@
 topic: multivariable_calculus/partial_derivatives
 difficulty: medium
 calculator: none
+
 variables:
   a: nonzero(-5, 5)
   b: nonzero(-5, 5)
   c: nonzero(-5, 5)
-  f: a*x^2 + b*x*y + c*y^2
-  fx: derivative(f, x)
-  fy: derivative(f, y)
-  x0: integer(-3, 3)
-  y0: integer(-3, 3)
-  answer: evaluate(fx, x, x0)
-constraints:
-  - a != b
-  - b != c
-question: "Let f(x,y) = {f}. Find {derivative_of(f, x)} at the point ({x0}, {y0})."
-answer: answer
+  d: nonzero(-5, 5)
+  f: a*x^2*y + b*x*y^2 + c*x + d*y
+  f_x: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, x)
+  f_y: derivative(a*x^2*y + b*x*y^2 + c*x + d*y, y)
+
+question: "Find both first-order partial derivatives of {f}."
+
+answer: f_x, f_y
+answer_type: tuple
+
 solution:
-  - "To find the partial derivative with respect to x, treat y as a constant"
-  - "{derivative_of(f, x)} = {fx}"
-  - "Now evaluate at ({x0}, {y0})"
-  - "Substituting x = {x0}: {fx} = {answer}"
+  - "Differentiate with respect to {math(x)}, treating {math(y)} as a constant:"
+  - "{equation(partial_of(f, x), f_x)}"
+  - "Differentiate with respect to {math(y)}, treating {math(x)} as a constant:"
+  - "{equation(partial_of(f, y), f_y)}"

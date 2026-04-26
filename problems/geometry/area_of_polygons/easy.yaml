@@ -1,15 +1,22 @@
 topic: geometry/area_of_polygons
 difficulty: easy
 calculator: none
+
 variables:
-  length: integer(3, 12)
-  width: integer(2, 10)
-  area: length * width
+  b1: choice(2, 4, 6, 8, 10)
+  b2: choice(3, 5, 7, 9, 11)
+  ht: choice(2, 4, 6, 8, 10)
+  sum_bases: b1 + b2
+  answer: sum_bases * ht / 2
+
 constraints:
-  - length > width
-question: "A rectangle has length {length} units and width {width} units. What is its area?"
-answer: area
+  - b1 != b2
+
+question: "Find the area of a trapezoid with parallel sides {b1} and {b2}, and height {ht}."
+answer: answer
+answer_type: numeric
+
 solution:
-  - "The area of a rectangle is length × width"
-  - "Area = {length} × {width}"
-  - "Area = {area} square units"
+  - "Use the trapezoid area formula: {math(A = (b_1 + b_2) / 2 * h)}."
+  - "The sum of the parallel sides is {b1} + {b2} = {sum_bases}."
+  - "Multiply by the height and divide by 2: {math(A)} = {sum_bases} times {ht} divided by 2 = {answer}."

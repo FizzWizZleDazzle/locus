@@ -1,33 +1,57 @@
 topic: algebra2/complex_number_equations
 difficulty: medium
 calculator: none
+
 variables:
-  a: integer(1, 5)
-  b: integer(1, 5)
-  c: integer(2, 8)
-  d: integer(2, 8)
-  real_part: a*c - b*d
-  imag_part: a*d + b*c
-  answer_real: a
-  answer_imag: b
-constraints:
-  - real_part > 0
-  - imag_part > 0
-  - gcd(real_part, imag_part) == 1
-question: "If z = {a} + {b}i and w = {c} + {d}i, find z such that z · w = {real_part} + {imag_part}i."
-answer: answer_real
-answer_type: complex
+  a: integer(-5, 5)
+  b: nonzero(-5, 5)
+  re_ans: integer(-5, 5)
+  im_ans: nonzero(-5, 5)
+  c: a + re_ans
+  d: b + im_ans
+  known: a + b*I
+  rhs: c + d*I
+  answer: re_ans + im_ans*I
+
+question: "Solve for {math(z)}: {equation(z + known, rhs)}"
+answer: answer
+answer_type: expression
+
 solution:
-  - "Let z = a + bi where a and b are real numbers"
-  - "We have z · w = (a + bi)({c} + {d}i)"
-  - "Expanding: (a + bi)({c} + {d}i) = a·{c} + a·{d}i + bi·{c} + bi·{d}i"
-  - "= a·{c} + a·{d}i + b·{c}i + b·{d}i²"
-  - "Since i² = -1: = a·{c} + a·{d}i + b·{c}i - b·{d}"
-  - "= (a·{c} - b·{d}) + (a·{d} + b·{c})i"
-  - "Comparing with {real_part} + {imag_part}i:"
-  - "a·{c} - b·{d} = {real_part}"
-  - "a·{d} + b·{c} = {imag_part}"
-  - "From the given z = {a} + {b}i, we can verify:"
-  - "{a}·{c} - {b}·{d} = {real_part} ✓"
-  - "{a}·{d} + {b}·{c} = {imag_part} ✓"
-  - "Therefore z = {answer_real} + {answer_imag}i"
+  - "Isolate {math(z)} by subtracting {known} from both sides."
+  - "{equation(z, answer)}"
+
+variants:
+  - name: addition
+    variables:
+      a: integer(-5, 5)
+      b: nonzero(-5, 5)
+      re_ans: integer(-5, 5)
+      im_ans: nonzero(-5, 5)
+      c: a + re_ans
+      d: b + im_ans
+      known: a + b*I
+      rhs: c + d*I
+      answer: re_ans + im_ans*I
+    question: "Solve for {math(z)}: {equation(z + known, rhs)}"
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Isolate {math(z)} by subtracting {known} from both sides."
+      - "{equation(z, answer)}"
+
+  - name: scalar_multiply
+    variables:
+      k: choice(2, 3, 4, 5)
+      re_ans: nonzero(-4, 4)
+      im_ans: nonzero(-4, 4)
+      c: k * re_ans
+      d: k * im_ans
+      rhs: c + d*I
+      answer: re_ans + im_ans*I
+    question: "Solve for {math(z)}: {equation(k*z, rhs)}"
+    answer: answer
+    answer_type: expression
+    solution:
+      - "Divide both sides by {k}."
+      - "{equation(z, answer)}"

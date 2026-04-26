@@ -1,35 +1,27 @@
 topic: differential_equations/second_order_constant
 difficulty: hard
-calculator: none
+calculator: scientific
+
 variables:
-  r1: integer(-5, -1)
-  r2: integer(1, 5)
-  char_poly: (r - r1) * (r - r2)
-  expanded_char: expand(char_poly)
-  a: -(r1 + r2)
-  b: r1 * r2
-  c1: integer(-3, 3)
-  c2: integer(-3, 3)
-  general_solution: c1 * e^(r1 * x) + c2 * e^(r2 * x)
-  y0: evaluate(general_solution, x, 0)
-  y_prime: derivative(general_solution, x)
-  y0_prime: evaluate(y_prime, x, 0)
-  answer: general_solution
+  alpha: nonzero(-3, 3)
+  beta: integer(1, 4)
+  p: -2*alpha
+  q: alpha^2 + beta^2
+  char_lhs: r^2 + p*r + q
+  sol_real: exp(alpha*x)
+  cos_part: cos(beta*x)
+  sin_part: sin(beta*x)
+
 constraints:
-  - r1 != r2
-  - c1 != 0
-  - c2 != 0
-question: "Solve the initial value problem: y'' + {a}y' + {b}y = 0 with y(0) = {y0} and y'(0) = {y0_prime}"
-answer: answer
+  - alpha != beta
+
+question: "The characteristic equation of a second-order linear ODE with constant coefficients is {equation(char_lhs, 0)}. The roots are complex. Identify the real and imaginary parts of the roots."
+
+answer: alpha, beta
+answer_type: tuple
+
 solution:
-  - "The characteristic equation is r² + {a}r + {b} = 0"
-  - "This factors as {equation(char_poly, 0)}"
-  - "So r = {r1} or r = {r2}"
-  - "General solution: y = C₁e^({r1}x) + C₂e^({r2}x)"
-  - "Apply y(0) = {y0}: C₁ + C₂ = {y0}"
-  - "Find y' = {r1}C₁e^({r1}x) + {r2}C₂e^({r2}x)"
-  - "Apply y'(0) = {y0_prime}: {r1}C₁ + {r2}C₂ = {y0_prime}"
-  - "From the first equation: C₁ + C₂ = {y0}"
-  - "From the second equation: {r1}C₁ + {r2}C₂ = {y0_prime}"
-  - "Solving this system gives C₁ = {c1} and C₂ = {c2}"
-  - "Therefore y = {answer}"
+  - "Use the quadratic formula on {equation(char_lhs, 0)}. The discriminant is {p*p - 4*q}, which is negative, so the roots are complex."
+  - "The roots are {alpha} + {beta}i and {alpha} - {beta}i."
+  - "Real part is {alpha} and imaginary part is {beta}."
+  - "The general solution is {math(y(x))} = {sol_real}({math(C_1)}{cos_part} + {math(C_2)}{sin_part})."

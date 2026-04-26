@@ -1,22 +1,22 @@
 topic: algebra2/complex_number_equations
 difficulty: easy
 calculator: none
+
 variables:
-  a: integer(1, 5)
-  b: integer(1, 5)
-  c: integer(1, 5)
-  d: integer(1, 5)
-  lhs: (a + b*i) + z
+  a: integer(-5, 5)
+  b: nonzero(-5, 5)
+  x_ans: integer(-5, 5)
+  y_ans: nonzero(-5, 5)
+  c: a + x_ans
+  d: b + y_ans
+  lhs: x + y*i + a + b*i
   rhs: c + d*i
-  answer: (c - a) + (d - b)*i
-constraints:
-  - a != c
-  - b != d
-question: "Solve for z: {equation(lhs, rhs)}"
-answer: answer
+
+question: "Find real numbers {math(x)} and {math(y)} satisfying {equation(lhs, rhs)}."
+
+answer: x_ans, y_ans
+answer_type: tuple
+
 solution:
-  - "We have {equation((a + b*i) + z, c + d*i)}"
-  - "Subtract {a + b*i} from both sides"
-  - "z = {c + d*i} - ({a + b*i})"
-  - "z = {c} - {a} + ({d} - {b})i"
-  - "z = {answer}"
+  - "Group real and imaginary parts: real part gives {equation(x + a, c)}, imaginary part gives {equation(y + b, d)}."
+  - "Solving: {equation(x, x_ans)} and {equation(y, y_ans)}."

@@ -1,21 +1,76 @@
 topic: geometry/pythagorean_theorem
 difficulty: easy
-calculator: none
+calculator: scientific
+
 variables:
-  scale: integer(1, 4)
-  base_a: choice(3, 5, 8, 7)
-  base_b: choice(4, 12, 15, 24)
-  a: scale * base_a
-  b: scale * base_b
-  c_squared: a^2 + b^2
-  c: sqrt(c_squared)
-constraints:
-  - is_integer(c)
-  - a < b
-question: "A right triangle has legs of length {a} and {b}. Find the length of the hypotenuse."
-answer: c
+  k: integer(1, 3)
+  leg1: 3*k
+  leg2: 4*k
+  leg1_sq: leg1^2
+  leg2_sq: leg2^2
+  c2: leg1_sq + leg2_sq
+  answer: sqrt(c2)
+
+question: "A right triangle has legs of length {leg1} and {leg2}. Find the length of the hypotenuse."
+
+answer: answer
+
 solution:
-  - "Use the Pythagorean theorem: a² + b² = c²"
-  - "Substitute the given values: {a}² + {b}² = c²"
-  - "Calculate: {c_squared} = c²"
-  - "Take the square root: c = {c}"
+  - "Apply the Pythagorean theorem: {math(a^2 + b^2 = c^2)}"
+  - "Substitute the leg lengths: {leg1_sq} + {leg2_sq} = {c2}"
+  - "Take the square root: {math(c)} = {answer}"
+
+variants:
+  - name: triple_3_4_5
+    variables:
+      k: integer(1, 4)
+      leg1: 3*k
+      leg2: 4*k
+      leg1_sq: leg1^2
+      leg2_sq: leg2^2
+      c2: leg1_sq + leg2_sq
+      answer: sqrt(c2)
+    question: "A right triangle has legs of length {leg1} and {leg2}. Find the length of the hypotenuse."
+    answer: answer
+    solution:
+      - "Apply the Pythagorean theorem: {math(a^2 + b^2 = c^2)}"
+      - "Substitute the leg lengths: {leg1_sq} + {leg2_sq} = {c2}"
+      - "Take the square root: {math(c)} = {answer}"
+
+  - name: triple_5_12_13
+    variables:
+      k: integer(1, 3)
+      leg1: 5*k
+      leg2: 12*k
+      leg1_sq: leg1^2
+      leg2_sq: leg2^2
+      c2: leg1_sq + leg2_sq
+      answer: sqrt(c2)
+    question: "A right triangle has legs of length {leg1} and {leg2}. Find the length of the hypotenuse."
+    answer: answer
+    solution:
+      - "Apply the Pythagorean theorem: {math(a^2 + b^2 = c^2)}"
+      - "Substitute the leg lengths: {leg1_sq} + {leg2_sq} = {c2}"
+      - "Take the square root: {math(c)} = {answer}"
+
+  - name: triple_8_15_17
+    variables:
+      k: integer(1, 2)
+      leg1: 8*k
+      leg2: 15*k
+      leg1_sq: leg1^2
+      leg2_sq: leg2^2
+      c2: leg1_sq + leg2_sq
+      answer: sqrt(c2)
+    question: "A right triangle has legs of length {leg1} and {leg2}. Find the length of the hypotenuse."
+    answer: answer
+    solution:
+      - "Apply the Pythagorean theorem: {math(a^2 + b^2 = c^2)}"
+      - "Substitute the leg lengths: {leg1_sq} + {leg2_sq} = {c2}"
+      - "Take the square root: {math(c)} = {answer}"
+
+diagram:
+  type: triangle
+  vertices: [A, B, C]
+  sides: {AB: leg1, BC: leg2}
+  right_angle: B

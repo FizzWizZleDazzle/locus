@@ -1,23 +1,21 @@
 topic: precalculus/polar_coordinates
 difficulty: medium
 calculator: scientific
+
 variables:
-  angle_deg: choice(30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330)
-  r: integer(2, 8)
-  theta: angle_deg * pi / 180
-  x: r * cos(theta)
-  y: r * sin(theta)
-  x_clean: simplify(x)
-  y_clean: simplify(y)
-constraints:
-  - r > 3
-question: "Convert the polar coordinates ({r}, {angle_deg}°) to rectangular coordinates (x, y)."
-answer: x_clean
-answer_type: coordinate_pair
+  x_val: nonzero(-5, 5)
+  y_val: nonzero(-5, 5)
+  r_sq: x_val^2 + y_val^2
+  r_val: sqrt(r_sq)
+  theta_val: atan(y_val/x_val)
+
+question: "Convert the rectangular point {math((x_val, y_val))} to polar coordinates {math((r, theta))} with {math(r > 0)} and {math(theta)} the principal angle of arctan from the positive {math(x)}-axis."
+
+answer: r_val, theta_val
+answer_type: tuple
+
 solution:
-  - "Given polar coordinates: r = {r}, θ = {angle_deg}°"
-  - "Convert angle to radians: θ = {angle_deg}° × π/180 = {theta}"
-  - "Use conversion formulas: x = r cos(θ), y = r sin(θ)"
-  - "x = {r} × cos({angle_deg}°) = {x_clean}"
-  - "y = {r} × sin({angle_deg}°) = {y_clean}"
-  - "Rectangular coordinates: ({x_clean}, {y_clean})"
+  - "Use the formulas {math(r = sqrt(x^2 + y^2))} and {math(theta = atan(y/x))}."
+  - "Compute {math(x^2 + y^2)}: {equation(x_val^2 + y_val^2, r_sq)}."
+  - "So {equation(r, r_val)}."
+  - "Compute {equation(theta, theta_val)}."
