@@ -64,8 +64,12 @@ async fn generate_one(
     api_key: &str,
     model: &str,
 ) -> Result<String, String> {
+    let playbook_block = match topic_playbook_excerpt(topic) {
+        Some(excerpt) => format!("\n\nTopic-specific guidance:\n{excerpt}\n"),
+        None => String::new(),
+    };
     let initial_user = format!(
-        "Write a problem YAML for topic `{topic}`, difficulty `{difficulty}`.\n\n\
+        "Write a problem YAML for topic `{topic}`, difficulty `{difficulty}`.{playbook_block}\n\n\
          Use the tools to verify your YAML before saving:\n\
          1. Draft your YAML.\n\
          2. Call `render_samples` to see exactly what students will see.\n\
@@ -938,6 +942,33 @@ fn system_prompt() -> String {
     // helping the hard ones, and pass rate drops from ~62% to ~42%. The fix
     // is to put the truly load-bearing rules in the core prompt instead.
     SYSTEM_PROMPT_CORE.to_string()
+}
+
+/// Pull just the bullet line(s) for a single `main/sub` topic from the
+/// playbook, so we can inject targeted guidance into the user message
+/// without dumping the whole document (which empirically hurt pass rate).
+/// Returns None when the topic isn't documented — caller should fall back
+/// to the generic prompt.
+pub(crate) fn topic_playbook_excerpt(topic: &str) -> Option<String> {
+    let (main, sub) = topic.split_once('/')?;
+    let header = format!("## {}/*", main);
+    let body_start = TOPIC_PLAYBOOK.find(&header)?;
+    // Section runs until the next "## " heading or EOF.
+    let after = &TOPIC_PLAYBOOK[body_start + header.len()..];
+    let section_end = after.find("\n## ").unwrap_or(after.len());
+    let section = &after[..section_end];
+
+    let needle = format!("`{}/{}`", main, sub);
+    let mut hits: Vec<&str> = Vec::new();
+    for line in section.lines() {
+        if line.contains(&needle) {
+            hits.push(line.trim());
+        }
+    }
+    if hits.is_empty() {
+        return None;
+    }
+    Some(hits.join("\n"))
 }
 
 // Kept as a SYSTEM_PROMPT alias for tests that grep the prompt body.
