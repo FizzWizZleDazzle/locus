@@ -184,9 +184,88 @@ fn fn_expand(args: &[String]) -> Result<String, DslError> {
 }
 
 fn fn_factor(args: &[String]) -> Result<String, DslError> {
-    // SymEngine doesn't have a direct factor() — use expand as placeholder
-    // TODO: implement proper factoring
-    fn_simplify(args)
+    if args.len() != 1 {
+        return Err(DslError::FunctionArity {
+            name: "factor".into(),
+            expected: 1,
+            got: args.len(),
+        });
+    }
+    // SymEngine's C API doesn't expose polynomial factoring, so we factor by
+    // finding rational roots and emitting `c * (x - r1) * (x - r2) * ...`.
+    // Degree-1 and degree-2 polynomials always reduce; higher degrees fall
+    // through to `expand` when no rational roots exist (correct: a polynomial
+    // that doesn't factor over Q stays in expanded form).
+    let expr = Expr::parse(&args[0]).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    let symbols = expr.free_symbols();
+    if symbols.len() != 1 {
+        return Ok(expr.expand().to_string());
+    }
+    let var = &symbols[0];
+
+    let roots_str = match fn_solve(&[args[0].clone(), var.clone()]) {
+        Ok(s) => s,
+        Err(_) => return Ok(expr.expand().to_string()),
+    };
+    let roots: Vec<&str> = roots_str.split(',').map(|s| s.trim()).collect();
+    if roots.is_empty() {
+        return Ok(expr.expand().to_string());
+    }
+
+    let factors: Vec<String> = roots
+        .iter()
+        .map(|r| {
+            // (x - r), with sign-aware formatting so `r = -3` becomes `(x + 3)`
+            if let Ok(rf) = parse_as_float(r) {
+                if rf < 0.0 {
+                    format!("({} + {})", var, format_root(-rf))
+                } else {
+                    format!("({} - {})", var, format_root(rf))
+                }
+            } else {
+                format!("({} - ({}))", var, r)
+            }
+        })
+        .collect();
+    let factor_product = factors.join("*");
+
+    // Determine leading coefficient: at a non-root x, ratio of expr to the
+    // factor product equals the leading coefficient. Pick a value that's
+    // safely away from any root.
+    let factor_expr =
+        Expr::parse(&factor_product).map_err(|e| DslError::ExpressionParse(e.to_string()))?;
+    let mut probe = 7.0f64;
+    let mut leading: Option<f64> = None;
+    for _ in 0..5 {
+        let f_val = factor_expr.subs_float(var, probe).to_float().unwrap_or(0.0);
+        if f_val.abs() > 1e-6 {
+            let e_val = expr.subs_float(var, probe).to_float();
+            if let Some(ev) = e_val {
+                leading = Some(ev / f_val);
+                break;
+            }
+        }
+        probe += 13.0;
+    }
+    let leading = match leading {
+        Some(l) => l,
+        None => return Ok(expr.expand().to_string()),
+    };
+    let leading_rounded = leading.round();
+    if (leading - leading_rounded).abs() > 1e-6 {
+        // Non-integer leading coeff — give up and return expanded form
+        return Ok(expr.expand().to_string());
+    }
+    let lc = leading_rounded as i64;
+    // Return the factored form as a literal string — round-tripping through
+    // SymEngine would re-expand it (the C API has no `hold` flag).
+    let result = match lc {
+        0 => "0".into(),
+        1 => factor_product,
+        -1 => format!("-{}", factor_product),
+        _ => format!("{}*{}", lc, factor_product),
+    };
+    Ok(result)
 }
 
 fn fn_simplify(args: &[String]) -> Result<String, DslError> {

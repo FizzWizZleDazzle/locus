@@ -219,12 +219,14 @@ impl Expr {
                 return Some(real_double_get_d(self.ptr));
             }
 
-            // If it's an Integer or Rational, convert via string
+            // If it's an Integer or Rational, convert via string. SymEngine
+            // prints rationals as "p/q" which Rust's f64 parser rejects, so
+            // split on '/' and divide explicitly.
             if is_a_Integer(self.ptr) != 0 || is_a_Rational(self.ptr) != 0 {
                 let s = basic_str(self.ptr);
                 let str_val = CStr::from_ptr(s).to_string_lossy().into_owned();
                 basic_str_free(s);
-                return str_val.parse::<f64>().ok();
+                return parse_rational_str(&str_val);
             }
 
             // General case: use evalf in real domain (real=1 to avoid complex results)
@@ -358,6 +360,21 @@ impl std::fmt::Display for ExprError {
             ExprError::NotImplemented => write!(f, "Not implemented"),
         }
     }
+}
+
+/// Parse SymEngine's string form of an Integer or Rational ("3", "-7", "5/2",
+/// "-12/7") to f64. The Rust stdlib's `f64::parse` doesn't accept "p/q", so
+/// we handle the rational case explicitly.
+fn parse_rational_str(s: &str) -> Option<f64> {
+    if let Some((num, den)) = s.split_once('/') {
+        let n: f64 = num.parse().ok()?;
+        let d: f64 = den.parse().ok()?;
+        if d == 0.0 {
+            return None;
+        }
+        return Some(n / d);
+    }
+    s.parse::<f64>().ok()
 }
 
 #[cfg(all(test, not(target_arch = "wasm32")))]

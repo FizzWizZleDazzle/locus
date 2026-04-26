@@ -6,13 +6,11 @@
 //! See `docs/DSL_SPEC.md` for the full specification.
 
 pub mod answer;
-pub mod constraints;
 pub mod display;
 pub mod error;
 pub mod format;
 pub mod functions;
 pub mod gpu;
-pub mod latex;
 pub mod resolver;
 pub mod sampler;
 pub mod spec;
