@@ -55,6 +55,17 @@ docker_compose() {
     fi
 }
 
+# Wire git hooks (rustfmt + secret/URL checks)
+ensure_hooks() {
+    local current
+    current=$(git config --local --get core.hooksPath 2>/dev/null || true)
+    if [ "$current" != ".githooks" ]; then
+        git config --local core.hooksPath .githooks
+        chmod +x .githooks/* 2>/dev/null || true
+        log_info "Installed .githooks (rustfmt + secret checks)"
+    fi
+}
+
 # Create .env if it doesn't exist
 ensure_env() {
     if [ ! -f .env ]; then
@@ -219,6 +230,7 @@ main() {
     echo ""
 
     check_deps
+    ensure_hooks
 
     if [ "$run_services" = true ]; then
         # Services mode (services-backend + status frontend)

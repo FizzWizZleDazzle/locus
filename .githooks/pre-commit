@@ -93,6 +93,22 @@ if [ "$GITLEAKS_AVAILABLE" = true ]; then
 fi
 
 # =============================================================================
+# 3. Enforce rustfmt on staged Rust files
+# =============================================================================
+STAGED_RS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.rs$' || true)
+if [ -n "$STAGED_RS" ]; then
+    echo -e "${BLUE}Checking rustfmt...${NC}"
+    if ! cargo fmt --all --check >/dev/null 2>&1; then
+        FOUND_ISSUES=1
+        echo -e "${RED}ERROR: Code is not formatted. Run: cargo fmt --all${NC}"
+        echo ""
+    else
+        echo -e "${GREEN}[PASS] Code is rustfmt-clean${NC}"
+        echo ""
+    fi
+fi
+
+# =============================================================================
 # Final result
 # =============================================================================
 if [ $FOUND_ISSUES -eq 1 ]; then
