@@ -65,11 +65,17 @@ pub fn render(spec: &Field, vars: &VarMap) -> Result<String, DslError> {
 
     for c in &charges {
         let color = if c.q >= 0.0 { Color::Red } else { Color::Blue };
-        cetz::circle(&mut s, (c.x, c.y), 0.18, color, Some(color));
-        let glyph = if c.q >= 0.0 { "+" } else { "-" };
-        cetz::content(&mut s, (c.x, c.y), glyph);
+        cetz::circle(&mut s, (c.x, c.y), 0.35, color, Some(color));
         if let Some(label) = &c.label {
-            cetz::content_anchor(&mut s, (c.x + 0.3, c.y - 0.3), label, "north-west");
+            // Push label outside the dot in a sensible direction so labels
+            // don't crowd each other. Sign of x picks left vs right side.
+            let dir_x = if c.x >= 0.0 { 0.6 } else { -0.6 };
+            cetz::content_anchor(
+                &mut s,
+                (c.x + dir_x, c.y + 0.6),
+                label,
+                if dir_x > 0.0 { "south-west" } else { "south-east" },
+            );
         }
     }
 

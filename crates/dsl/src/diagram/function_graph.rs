@@ -74,11 +74,14 @@ pub fn render(spec: &FunctionGraph, vars: &VarMap) -> Result<String, DslError> {
             cetz::point(&mut s, (x, y), Color::Red);
             if fb.label {
                 let lab = format!("({:.0}, {:.0})", x, y);
-                // Put label above the point with extra clearance so it
-                // doesn't collide with the curve or x-axis.
-                let dy_off = (yhi - ylo) * 0.08;
-                let label_y = (y + dy_off).min(yhi - dy_off * 0.5);
-                cetz::content_anchor(&mut s, (x, label_y), &lab, "south");
+                // Place label diagonally to the upper-right, away from the
+                // curve direction, with bigger clearance.
+                let dx_off = (xhi - xlo) * 0.05;
+                let dy_off = (yhi - ylo) * 0.07;
+                let nudge = if matches!(kind, "min") { -dy_off } else { dy_off };
+                let label_at = (x + dx_off, (y + nudge).clamp(ylo, yhi));
+                let anchor = if nudge >= 0.0 { "south-west" } else { "north-west" };
+                cetz::content_anchor(&mut s, label_at, &lab, anchor);
             }
         }
     }
