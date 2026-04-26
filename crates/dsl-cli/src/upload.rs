@@ -24,8 +24,23 @@ impl Uploader {
             _ => return Ok(None),
         };
         let bucket_name = std::env::var("S3_BUCKET").unwrap_or_else(|_| "diagrams".into());
-        let public_base = std::env::var("S3_PUBLIC_BASE")
-            .unwrap_or_else(|_| format!("{}/{}", endpoint.trim_end_matches('/'), bucket_name));
+        // Require S3_PUBLIC_BASE explicitly. Never default to the endpoint
+        // URL — would write `http://localhost:9000/...` (or whatever the
+        // dev endpoint is) into stored problem rows.
+        let public_base = std::env::var("S3_PUBLIC_BASE").map_err(|_| {
+            "S3_PUBLIC_BASE is required when S3_ENDPOINT_URL is set; refusing to default \
+             to the endpoint URL (would leak local addresses into stored URLs)".to_string()
+        })?;
+        if public_base.contains("localhost")
+            || public_base.contains("127.0.0.1")
+            || public_base.contains("0.0.0.0")
+        {
+            return Err(format!(
+                "S3_PUBLIC_BASE points at a local address ({public_base}); \
+                 refusing to upload — set it to the production media URL (e.g. \
+                 https://media.locusmath.org/diagrams)"
+            ));
+        }
         let access_key = std::env::var("MINIO_ACCESS_KEY")
             .or_else(|_| std::env::var("AWS_ACCESS_KEY_ID"))
             .map_err(|_| "MINIO_ACCESS_KEY (or AWS_ACCESS_KEY_ID) required".to_string())?;
