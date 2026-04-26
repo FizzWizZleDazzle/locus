@@ -156,6 +156,24 @@ pub fn content(buf: &mut String, at: (f64, f64), text: &str) {
     );
 }
 
+/// Same as `content` but no white plate underneath — use when the label
+/// sits in known-empty space (vertex labels offset outside a polygon, etc.)
+/// so the plate doesn't visually clutter the figure.
+pub fn content_plain(buf: &mut String, at: (f64, f64), text: &str) {
+    let _ = write!(buf, "content({}, {}, padding: 1pt)\n", pt(at.0, at.1), label(text));
+}
+
+/// Plain anchored content (no plate).
+pub fn content_anchor_plain(buf: &mut String, at: (f64, f64), text: &str, anchor: &str) {
+    let _ = write!(
+        buf,
+        "content({}, {}, anchor: \"{}\", padding: 2pt)\n",
+        pt(at.0, at.1),
+        label(text),
+        anchor,
+    );
+}
+
 /// Place text with directional anchor relative to the point (north/south/etc).
 /// `padding: 1pt` keeps text off the anchor coordinate's stroke; `frame: rect`
 /// + white fill gives a tiny background plate so labels are readable when

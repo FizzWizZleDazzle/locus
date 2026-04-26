@@ -71,7 +71,7 @@ pub fn render(spec: &Polygon, vars: &VarMap) -> Result<String, DslError> {
         let dx = p.0 - cen.0; let dy = p.1 - cen.1;
         let len = (dx * dx + dy * dy).sqrt().max(1e-6);
         let lp = (p.0 + dx / len * v_off, p.1 + dy / len * v_off);
-        cetz::content(&mut s, lp, name);
+        cetz::content_plain(&mut s, lp, name);
     }
 
     // Right-angle marks.

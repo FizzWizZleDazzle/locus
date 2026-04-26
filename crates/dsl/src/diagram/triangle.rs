@@ -61,7 +61,7 @@ pub fn render(spec: &Triangle, vars: &VarMap) -> Result<String, DslError> {
         let len = (dx * dx + dy * dy).sqrt().max(1e-6);
         let off = 0.4;
         let lp = (p.0 + dx / len * off, p.1 + dy / len * off);
-        cetz::content(&mut s, lp, vname);
+        cetz::content_plain(&mut s, lp, vname);
     }
 
     // Angle labels via cetz angle.angle helper (auto arc + bisector label).

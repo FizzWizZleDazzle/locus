@@ -91,7 +91,7 @@ pub fn render(spec: &CoordinatePlane, vars: &VarMap) -> Result<String, DslError>
                         (_, true)    => "north",      // on x-axis -> south
                         _            => "south-west", // upper-right of point
                     };
-                    cetz::content_anchor(&mut s, (x, y), label, anchor);
+                    cetz::content_anchor_plain(&mut s, (x, y), label, anchor);
                 }
             }
             CpElement::Shade(sh) => {

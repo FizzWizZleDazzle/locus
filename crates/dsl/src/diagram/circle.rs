@@ -66,7 +66,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
     let mut s = String::new();
     cetz::circle(&mut s, (0.0, 0.0), r, Color::Black, None);
     cetz::point(&mut s, (0.0, 0.0), Color::Black);
-    cetz::content_anchor(&mut s, (0.0, 0.0), center, "south-east");
+    cetz::content_anchor_plain(&mut s, (-0.06, -0.06), center, "north-east");
 
     let put_pt = |s: &mut String, name: &str, positions: &BTreeMap<String, (f64, f64)>| {
         let p = positions[name];
@@ -75,7 +75,7 @@ pub fn render(spec: &Circle, _vars: &VarMap) -> Result<String, DslError> {
         let len = (dx * dx + dy * dy).sqrt().max(1e-6);
         let off = 0.18;
         let lp = (p.0 + dx / len * off, p.1 + dy / len * off);
-        cetz::content(s, lp, name);
+        cetz::content_plain(s, lp, name);
     };
 
     for el in &spec.elements {
