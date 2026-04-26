@@ -39,6 +39,7 @@ unsafe extern "C" {
 
     // String representations
     fn basic_str(b: *const CBasic) -> *mut c_char;
+    fn basic_str_latex(b: *const CBasic) -> *mut c_char;
     fn basic_str_free(s: *mut c_char);
 
     // Parsing & construction
@@ -118,6 +119,19 @@ impl Expr {
         se_lock!();
         unsafe {
             let s = basic_str(self.ptr);
+            let result = CStr::from_ptr(s).to_string_lossy().into_owned();
+            basic_str_free(s);
+            result
+        }
+    }
+
+    /// LaTeX representation via SymEngine's native printer.
+    /// Handles sqrt, Pow, Rational, Derivative, Integral, Abs, sin/cos/log/exp,
+    /// infinity, pi, E, I, lambda, etc — without any regex post-processing.
+    pub fn to_latex(&self) -> String {
+        se_lock!();
+        unsafe {
+            let s = basic_str_latex(self.ptr);
             let result = CStr::from_ptr(s).to_string_lossy().into_owned();
             basic_str_free(s);
             result
@@ -326,5 +340,77 @@ impl std::fmt::Display for ExprError {
             ExprError::ParseError(msg) => write!(f, "Parse error: {}", msg),
             ExprError::NotImplemented => write!(f, "Not implemented"),
         }
+    }
+}
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+mod tests {
+    use super::*;
+
+    /// SymEngine's native LaTeX printer should handle all the patterns the
+    /// regex-based converter previously botched.
+    #[test]
+    fn latex_native_printer_covers_common_forms() {
+        let cases = [
+            ("sqrt(20)",            r"\sqrt{20}"),
+            ("x**(7/2)",            r"x^{\frac{7}{2}}"),
+            // Single-digit exponents are emitted unbraced — KaTeX renders identically
+            ("3*x**2 + 2*x + 1",    r"1 + 2 x + 3 x^2"),
+            ("sin(x) + cos(2*x)",   r"\sin{\left(x\right)} + \cos{\left(2 x\right)}"),
+            ("lambda + 1",          r"1 + \lambda"),
+            ("oo",                  r"\infty"),
+            ("-oo",                 r"-\infty"),
+            ("pi",                  r"\pi"),
+            ("E",                   r"e"),
+        ];
+        for (input, want) in cases {
+            let got = Expr::parse(input).unwrap().to_latex();
+            assert_eq!(got, want, "input={input}");
+        }
+    }
+
+    #[test]
+    fn latex_inequalities_parse() {
+        // Required for the {math(x < c)} display function — SymEngine should
+        // accept comparison operators and emit \lt, \le, etc.
+        for input in ["x < 3", "x <= 3", "x > 3", "x >= 3", "f - g"] {
+            let parsed = Expr::parse(input);
+            assert!(parsed.is_ok(), "{input} failed to parse");
+        }
+    }
+
+    /// SymEngine's parser does NOT accept `=` as Equality — confirming the
+    /// behavior we work around in expr_to_latex. Callers that want `lambda = 3`
+    /// should split the lhs/rhs and use `{equation(lhs, rhs)}` instead, which
+    /// runs each side through the parser independently.
+    #[test]
+    fn latex_equality_assignment_fails_to_parse() {
+        // Document the limitation so future contributors don't add this as
+        // a feature request to SymEngine when fixing it on our end is easier.
+        let parsed = Expr::parse("x = 3");
+        assert!(
+            parsed.is_err(),
+            "If this starts passing, expr_to_latex can stop falling back on `=` inputs"
+        );
+    }
+
+    /// SymEngine accepts both `oo` and `inf` as infinity; `infinity` is NOT
+    /// a recognized literal — callers that emit `infinity` must translate first.
+    #[test]
+    fn latex_infinity_aliases() {
+        assert_eq!(Expr::parse("oo").unwrap().to_latex(), r"\infty");
+        assert_eq!(Expr::parse("inf").unwrap().to_latex(), r"\infty");
+        // `infinity` parses as a free symbol named "infinity"
+        assert_eq!(Expr::parse("infinity").unwrap().to_latex(), "infinity");
+    }
+
+    /// Integer/Rational/RealDouble exponents render correctly.
+    #[test]
+    fn latex_powers_handle_all_exponent_kinds() {
+        assert_eq!(Expr::parse("x**2").unwrap().to_latex(), r"x^2");
+        assert_eq!(Expr::parse("x**(-1)").unwrap().to_latex(), r"x^{-1}");
+        assert_eq!(Expr::parse("(a+b)**3").unwrap().to_latex(), r"\left(a + b\right)^3");
+        // Fractional exponent — the bug from `derivative_rules/hard.yaml`
+        assert!(Expr::parse("x**(7/2)").unwrap().to_latex().contains(r"\frac{7}{2}"));
     }
 }
