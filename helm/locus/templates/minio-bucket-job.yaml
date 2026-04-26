@@ -1,15 +1,16 @@
 {{- if .Values.minio.initBucket }}
+# Bucket bootstrap. Recreated on every helm install/upgrade via a content
+# hash in the name so it always reconciles, even if a prior release was
+# rolled back or a sibling resource (e.g. backend rollout) failed and
+# blocked Helm hooks from running.
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Release.Name }}-minio-init
+  name: {{ .Release.Name }}-minio-init-{{ .Values.minio.bucket | default "diagrams" | sha256sum | trunc 8 }}
   labels:
     app: {{ .Release.Name }}-minio
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
+  ttlSecondsAfterFinished: 300
   backoffLimit: 5
   template:
     spec:
