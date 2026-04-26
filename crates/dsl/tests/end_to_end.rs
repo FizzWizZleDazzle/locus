@@ -9,7 +9,7 @@
 //! - Answer type is correctly inferred
 //! - Generated values are within expected ranges
 
-use locus_dsl::{generate_random, parse, ProblemOutput};
+use locus_dsl::{ProblemOutput, generate_random, parse};
 
 /// Wrap a legacy flat-body YAML into the new variants-only form. Splits the
 /// top-level keys into header (topic/difficulty/calculator/time) and body
@@ -66,8 +66,7 @@ fn wrap_legacy(yaml: &str) -> String {
 /// Helper: parse + generate N, assert all succeed, return results
 fn gen_problems(yaml: &str, n: usize) -> Vec<ProblemOutput> {
     let wrapped = wrap_legacy(yaml);
-    let spec =
-        parse(&wrapped).unwrap_or_else(|e| panic!("Parse failed: {e}\nYAML:\n{wrapped}"));
+    let spec = parse(&wrapped).unwrap_or_else(|e| panic!("Parse failed: {e}\nYAML:\n{wrapped}"));
     (0..n)
         .map(|i| {
             generate_random(&spec)
@@ -210,7 +209,11 @@ answer_type: set
 
     for p in &problems {
         assert_eq!(p.answer_type, "set");
-        assert!(p.answer_key.contains(','), "Set answer should have comma: {}", p.answer_key);
+        assert!(
+            p.answer_key.contains(','),
+            "Set answer should have comma: {}",
+            p.answer_key
+        );
         assert!(p.question_latex.contains('='));
     }
 }
@@ -238,9 +241,17 @@ answer: answer
 
     for p in &problems {
         assert_eq!(p.answer_type, "expression");
-        assert!(p.answer_key.contains('x'), "Derivative should contain x: {}", p.answer_key);
+        assert!(
+            p.answer_key.contains('x'),
+            "Derivative should contain x: {}",
+            p.answer_key
+        );
         // Check display function rendered
-        assert!(p.question_latex.contains("\\frac{d}{dx}"), "Should have d/dx: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("\\frac{d}{dx}"),
+            "Should have d/dx: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -276,7 +287,11 @@ answer: answer
             "Definite integral should be numeric: {}",
             p.answer_key
         );
-        assert!(p.question_latex.contains("\\int"), "Should have integral sign: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("\\int"),
+            "Should have integral sign: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -488,8 +503,16 @@ answer: b
 
     for p in &problems {
         // equation() should produce "lhs = rhs" with $ delimiters
-        assert!(p.question_latex.contains('='), "equation() should have =: {}", p.question_latex);
-        assert!(p.question_latex.contains('$'), "Should have $ delimiters: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains('='),
+            "equation() should have =: {}",
+            p.question_latex
+        );
+        assert!(
+            p.question_latex.contains('$'),
+            "Should have $ delimiters: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -510,8 +533,16 @@ answer: answer
     );
 
     for p in &problems {
-        assert!(p.question_latex.contains("\\int"), "integral_of should produce \\int: {}", p.question_latex);
-        assert!(p.question_latex.contains("dx"), "Should have dx: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("\\int"),
+            "integral_of should produce \\int: {}",
+            p.question_latex
+        );
+        assert!(
+            p.question_latex.contains("dx"),
+            "Should have dx: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -533,8 +564,16 @@ answer: answer
     );
 
     for p in &problems {
-        assert!(p.question_latex.contains("\\lim"), "limit_of should produce \\lim: {}", p.question_latex);
-        assert!(p.question_latex.contains("\\to"), "Should have \\to: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("\\lim"),
+            "limit_of should produce \\lim: {}",
+            p.question_latex
+        );
+        assert!(
+            p.question_latex.contains("\\to"),
+            "Should have \\to: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -563,8 +602,14 @@ solution:
 
     for p in &problems {
         assert!(!p.solution_latex.is_empty(), "Solution should not be empty");
-        assert!(p.solution_latex.contains('$'), "Solution should have rendered math");
-        assert!(p.solution_latex.contains('\n'), "Solution should have multiple steps");
+        assert!(
+            p.solution_latex.contains('$'),
+            "Solution should have rendered math"
+        );
+        assert!(
+            p.solution_latex.contains('\n'),
+            "Solution should have multiple steps"
+        );
     }
 }
 
@@ -670,7 +715,11 @@ answer: answer
     );
 
     for p in &problems {
-        assert!(p.answer_key.contains('x'), "Derivative should have x: {}", p.answer_key);
+        assert!(
+            p.answer_key.contains('x'),
+            "Derivative should have x: {}",
+            p.answer_key
+        );
     }
 }
 
@@ -763,7 +812,10 @@ answer: a
 "#,
     ))
     .unwrap();
-    assert!(generate_random(&spec).is_err(), "Should fail: {{b}} is undefined in template");
+    assert!(
+        generate_random(&spec).is_err(),
+        "Should fail: {{b}} is undefined in template"
+    );
 }
 
 #[test]
@@ -817,7 +869,11 @@ fn e2e_all_problem_files_parse() {
     let mut files = Vec::new();
     collect_yaml_files(&problem_dir, &mut files);
 
-    assert!(!files.is_empty(), "No problem files found in {}", problem_dir.display());
+    assert!(
+        !files.is_empty(),
+        "No problem files found in {}",
+        problem_dir.display()
+    );
 
     let mut parse_ok = 0;
     let mut parse_fail = 0;
@@ -831,7 +887,12 @@ fn e2e_all_problem_files_parse() {
             }
         }
     }
-    assert_eq!(parse_fail, 0, "{parse_fail}/{} files failed to parse", files.len());
+    assert_eq!(
+        parse_fail,
+        0,
+        "{parse_fail}/{} files failed to parse",
+        files.len()
+    );
 }
 
 #[test]
@@ -847,20 +908,20 @@ fn e2e_handwritten_problem_files_generate() {
     collect_yaml_files(&problem_dir, &mut files);
 
     // Only test handwritten files for full generation (AI files skip generation validation)
-    let handwritten: Vec<_> = files.iter().filter(|f| {
-        f.file_name().map_or(false, |n| n == "handwritten.yaml")
-    }).collect();
+    let handwritten: Vec<_> = files
+        .iter()
+        .filter(|f| f.file_name().map_or(false, |n| n == "handwritten.yaml"))
+        .collect();
 
     assert!(!handwritten.is_empty(), "No handwritten files found");
 
     for file in &handwritten {
         let yaml = std::fs::read_to_string(file).unwrap();
-        let spec = parse(&yaml)
-            .unwrap_or_else(|e| panic!("Parse failed for {}: {e}", file.display()));
+        let spec =
+            parse(&yaml).unwrap_or_else(|e| panic!("Parse failed for {}: {e}", file.display()));
         for i in 0..5 {
-            generate_random(&spec).unwrap_or_else(|e| {
-                panic!("Generation {i} failed for {}: {e}", file.display())
-            });
+            generate_random(&spec)
+                .unwrap_or_else(|e| panic!("Generation {i} failed for {}: {e}", file.display()));
         }
     }
 }
@@ -887,15 +948,24 @@ fn collect_yaml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) 
 fn assert_no_render_leaks(yaml: &str, n: usize) {
     let problems = gen_problems(yaml, n);
     let banned: &[(&str, &str)] = &[
-        (r"\*\*",               "raw `**` — SymEngine native printer should emit `^{}`"),
-        (r"\bsqrt\(",           "raw `sqrt(` — should render as \\sqrt{}"),
-        (r"\binfinity\b",       "literal word `infinity` — should be \\infty"),
-        (r"\bderivative_of\(",  "literal display-fn name `derivative_of(`"),
-        (r"\bintegral_of\(",    "literal display-fn name `integral_of(`"),
-        (r"\bevaluate\(",       "literal display-fn name `evaluate(`"),
-        (r"\blimit_of\(",       "literal display-fn name `limit_of(`"),
-        (r"\bdet_of\(",         "literal display-fn name `det_of(`"),
-        (r"\bmatrix_of\(",      "literal display-fn name `matrix_of(`"),
+        (
+            r"\*\*",
+            "raw `**` — SymEngine native printer should emit `^{}`",
+        ),
+        (r"\bsqrt\(", "raw `sqrt(` — should render as \\sqrt{}"),
+        (
+            r"\binfinity\b",
+            "literal word `infinity` — should be \\infty",
+        ),
+        (
+            r"\bderivative_of\(",
+            "literal display-fn name `derivative_of(`",
+        ),
+        (r"\bintegral_of\(", "literal display-fn name `integral_of(`"),
+        (r"\bevaluate\(", "literal display-fn name `evaluate(`"),
+        (r"\blimit_of\(", "literal display-fn name `limit_of(`"),
+        (r"\bdet_of\(", "literal display-fn name `det_of(`"),
+        (r"\bmatrix_of\(", "literal display-fn name `matrix_of(`"),
     ];
     for (i, p) in problems.iter().enumerate() {
         let combined = format!("{}\n{}", p.question_latex, p.solution_latex);
@@ -942,10 +1012,16 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\infty"),
-            "expected \\infty in {}", p.question_latex);
-        assert!(!p.question_latex.contains("infinity"),
-            "literal `infinity` leaked: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\infty"),
+            "expected \\infty in {}",
+            p.question_latex
+        );
+        assert!(
+            !p.question_latex.contains("infinity"),
+            "literal `infinity` leaked: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -965,11 +1041,17 @@ answer: answer
     let problems = gen_problems(yaml, 3);
     for p in &problems {
         // SymEngine's Latex printer emits `<` for StrictLessThan
-        assert!(p.question_latex.contains("<"),
-            "expected `<` in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("<"),
+            "expected `<` in: {}",
+            p.question_latex
+        );
         // The math expression is wrapped in $...$ by the template renderer
-        assert!(p.question_latex.contains("$x < "),
-            "expected math-mode `x < ...`: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains("$x < "),
+            "expected math-mode `x < ...`: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -988,10 +1070,16 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\lambda"),
-            "expected `\\lambda` in: {}", p.question_latex);
-        assert!(!p.question_latex.contains(" lambda "),
-            "literal `lambda` leaked: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\lambda"),
+            "expected `\\lambda` in: {}",
+            p.question_latex
+        );
+        assert!(
+            !p.question_latex.contains(" lambda "),
+            "literal `lambda` leaked: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1008,8 +1096,11 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\geq"),
-            "expected `\\geq` in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\geq"),
+            "expected `\\geq` in: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1026,8 +1117,11 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"f\left("),
-            "expected LaTeX function notation in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"f\left("),
+            "expected LaTeX function notation in: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1050,11 +1144,19 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\begin{pmatrix}"),
-            "expected pmatrix in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\begin{pmatrix}"),
+            "expected pmatrix in: {}",
+            p.question_latex
+        );
         // No leftover unresolved variable names from the literal `[[a, b], [c, d]]`
-        assert!(!regex::Regex::new(r"\b[a-d]\b").unwrap().is_match(&p.question_latex.replace(r"\begin", "").replace(r"\end", "")),
-            "raw single-letter sampler name leaked into render: {}", p.question_latex);
+        assert!(
+            !regex::Regex::new(r"\b[a-d]\b")
+                .unwrap()
+                .is_match(&p.question_latex.replace(r"\begin", "").replace(r"\end", "")),
+            "raw single-letter sampler name leaked into render: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1074,8 +1176,11 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\begin{vmatrix}"),
-            "expected vmatrix in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\begin{vmatrix}"),
+            "expected vmatrix in: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1093,11 +1198,17 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(p.question_latex.contains(r"\begin{pmatrix}"),
-            "expected column pmatrix in: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\begin{pmatrix}"),
+            "expected column pmatrix in: {}",
+            p.question_latex
+        );
         // Rows separated by \\ — column vector has exactly one cell per row
-        assert!(p.question_latex.contains(r"\\"),
-            "expected row separator: {}", p.question_latex);
+        assert!(
+            p.question_latex.contains(r"\\"),
+            "expected row separator: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1118,12 +1229,21 @@ answer: a
 "#;
     let problems = gen_problems(yaml, 3);
     for p in &problems {
-        assert!(!p.question_latex.contains("derivative_of("),
-            "literal display fn in: {}", p.question_latex);
-        assert!(!p.question_latex.contains("derivative("),
-            "literal `derivative(` in: {}", p.question_latex);
-        assert!(p.question_latex.contains(r"\frac{d}{dt}"),
-            "expected \\frac{{d}}{{dt}} in: {}", p.question_latex);
+        assert!(
+            !p.question_latex.contains("derivative_of("),
+            "literal display fn in: {}",
+            p.question_latex
+        );
+        assert!(
+            !p.question_latex.contains("derivative("),
+            "literal `derivative(` in: {}",
+            p.question_latex
+        );
+        assert!(
+            p.question_latex.contains(r"\frac{d}{dt}"),
+            "expected \\frac{{d}}{{dt}} in: {}",
+            p.question_latex
+        );
     }
 }
 
@@ -1142,10 +1262,15 @@ answer: answer
 "#;
     let problems = gen_problems(yaml, 5);
     for p in &problems {
-        assert!(!p.question_latex.contains("x^"),
-            "evaluate didn't substitute: {}", p.question_latex);
-        assert!(!p.question_latex.contains("evaluate("),
-            "literal display-fn leaked: {}", p.question_latex);
+        assert!(
+            !p.question_latex.contains("x^"),
+            "evaluate didn't substitute: {}",
+            p.question_latex
+        );
+        assert!(
+            !p.question_latex.contains("evaluate("),
+            "literal display-fn leaked: {}",
+            p.question_latex
+        );
     }
 }
-

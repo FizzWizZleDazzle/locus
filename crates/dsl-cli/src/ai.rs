@@ -42,7 +42,11 @@ pub async fn generate_batch_multi_diff(
 
     let mut results = Vec::with_capacity(total);
     for handle in handles {
-        results.push(handle.await.unwrap_or_else(|e| Err(format!("Task panic: {e}"))));
+        results.push(
+            handle
+                .await
+                .unwrap_or_else(|e| Err(format!("Task panic: {e}"))),
+        );
     }
     results
 }
@@ -101,10 +105,12 @@ async fn generate_one(
                     .collect()
             })
             .unwrap_or_default();
-        eprintln!("    [turn {}] tools: {:?} ({})",
+        eprintln!(
+            "    [turn {}] tools: {:?} ({})",
             turn + 1,
             tools_in_turn,
-            stop_reason);
+            stop_reason
+        );
 
         // Echo the assistant's turn back into history before processing tools.
         messages.push(serde_json::json!({
@@ -131,9 +137,16 @@ async fn generate_one(
                     if let Some(audit) = r.get("audit") {
                         if audit["ok"].as_bool() != Some(true) {
                             if let Some(issues) = audit["issues"].as_array() {
-                                eprintln!("        audit hits ({}): {}",
+                                eprintln!(
+                                    "        audit hits ({}): {}",
                                     issues.len(),
-                                    issues.iter().take(2).filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" | "));
+                                    issues
+                                        .iter()
+                                        .take(2)
+                                        .filter_map(|v| v.as_str())
+                                        .collect::<Vec<_>>()
+                                        .join(" | ")
+                                );
                             }
                         }
                     }
@@ -181,7 +194,8 @@ async fn generate_one(
             // The model produced text without calling any tool. If it said
             // `end_turn`, it's giving up; bail with whatever rationale it gave.
             if stop_reason == "end_turn" {
-                let text = blocks.iter()
+                let text = blocks
+                    .iter()
                     .filter(|b| b["type"].as_str() == Some("text"))
                     .filter_map(|b| b["text"].as_str())
                     .collect::<Vec<_>>()
@@ -413,9 +427,11 @@ fn tool_solve_linear_inequality(input: &serde_json::Value) -> serde_json::Value 
 
     let (a_n, b_n, c_n, d_n) = match (numeric(a), numeric(b), numeric(c), numeric(d)) {
         (Some(a), Some(b), Some(c), Some(d)) => (a, b, c, d),
-        _ => return serde_json::json!({
-            "error": "all four coefficients must reduce to numbers (try compute() first if any are expressions)"
-        }),
+        _ => {
+            return serde_json::json!({
+                "error": "all four coefficients must reduce to numbers (try compute() first if any are expressions)"
+            });
+        }
     };
     let coef = a_n - c_n;
     let rhs = d_n - b_n;
@@ -525,7 +541,7 @@ fn tool_verify_answer_key(input: &serde_json::Value, difficulty: &str) -> serde_
         Err(e) => return serde_json::json!({"ok": false, "mismatches": [format!("generate: {e}")]}),
     };
     // Self-grade: feed the answer_key back as the student's submission.
-    use locus_common::{GradingMode, AnswerType};
+    use locus_common::{AnswerType, GradingMode};
     let grading_mode = match p.grading_mode.as_str() {
         "factor" => GradingMode::Factor,
         "expand" => GradingMode::Expand,
@@ -539,12 +555,8 @@ fn tool_verify_answer_key(input: &serde_json::Value, difficulty: &str) -> serde_
         "word" => AnswerType::Word,
         _ => AnswerType::Expression,
     };
-    let verdict = locus_common::grader::grade_answer(
-        &p.answer_key,
-        &p.answer_key,
-        answer_type,
-        grading_mode,
-    );
+    let verdict =
+        locus_common::grader::grade_answer(&p.answer_key, &p.answer_key, answer_type, grading_mode);
     let ok = matches!(verdict, locus_common::grader::GradeResult::Correct);
     if ok {
         serde_json::json!({
@@ -690,7 +702,8 @@ async fn call_agent_turn(
             Ok(r) => r,
             Err(e) => {
                 if attempt < 2 {
-                    tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 5)).await;
+                    tokio::time::sleep(std::time::Duration::from_secs((attempt + 1) as u64 * 5))
+                        .await;
                     continue;
                 }
                 return Err(format!("HTTP error after 3 attempts: {e}"));
@@ -709,21 +722,26 @@ async fn call_agent_turn(
             return Err(format!("API error {status}: {text}"));
         }
 
-        return resp.json().await.map_err(|e| format!("JSON decode error: {e}"));
+        return resp
+            .json()
+            .await
+            .map_err(|e| format!("JSON decode error: {e}"));
     }
     Err("unreachable".into())
 }
-
 
 /// Override difficulty in generated YAML to match CLI arg
 fn inject_difficulty(yaml: &str, difficulty: &str) -> String {
     let re = regex::Regex::new(r"(?m)^difficulty:.*$").unwrap();
     if re.is_match(yaml) {
-        re.replace(yaml, format!("difficulty: {difficulty}")).to_string()
+        re.replace(yaml, format!("difficulty: {difficulty}"))
+            .to_string()
     } else {
         // No difficulty line — insert after topic line
         let topic_re = regex::Regex::new(r"(?m)^(topic:.*)$").unwrap();
-        topic_re.replace(yaml, format!("$1\ndifficulty: {difficulty}")).to_string()
+        topic_re
+            .replace(yaml, format!("$1\ndifficulty: {difficulty}"))
+            .to_string()
     }
 }
 
@@ -788,7 +806,11 @@ fn audit_yaml_inner(yaml: &str, runs: usize) -> Result<(), Vec<String>> {
             }
         }
     }
-    if errors.is_empty() { Ok(()) } else { Err(errors) }
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
 }
 
 /// Patterns that should never appear in a rendered question or solution.
@@ -796,65 +818,102 @@ fn audit_yaml_inner(yaml: &str, runs: usize) -> Result<(), Vec<String>> {
 /// to the audit message so the model can apply it without a separate diagnosis
 /// step.
 const RENDER_BANLIST: &[(&str, &str, &str)] = &[
-    (r"\*\*",
+    (
+        r"\*\*",
         "raw `**` exponent",
-        "wrap the math in `{math(expr)}` or define a variable; never write `**` in solution prose"),
-    (r"\bsqrt\(",
+        "wrap the math in `{math(expr)}` or define a variable; never write `**` in solution prose",
+    ),
+    (
+        r"\bsqrt\(",
         "raw `sqrt(` in prose",
-        "wrap with `{math(sqrt(N))}` or pre-compute the value via the `compute` tool"),
-    (r"\binfinity\b",
+        "wrap with `{math(sqrt(N))}` or pre-compute the value via the `compute` tool",
+    ),
+    (
+        r"\binfinity\b",
         "literal word `infinity`",
-        "use the `{limit_of(...)}` display function or write `oo` inside a variable definition"),
-    (r"\b(Infinity|INF|Inf)\b",
+        "use the `{limit_of(...)}` display function or write `oo` inside a variable definition",
+    ),
+    (
+        r"\b(Infinity|INF|Inf)\b",
         "literal infinity alias",
-        "same fix as `infinity` — use display fn or `oo`"),
-    (r"\bderivative_of\(",
+        "same fix as `infinity` — use display fn or `oo`",
+    ),
+    (
+        r"\bderivative_of\(",
         "literal display fn `derivative_of(`",
-        "the inner display call wasn't nested inside a `{...}` ref — wrap the entire call in braces"),
-    (r"\bintegral_of\(",
+        "the inner display call wasn't nested inside a `{...}` ref — wrap the entire call in braces",
+    ),
+    (
+        r"\bintegral_of\(",
         "literal display fn `integral_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bdefinite_integral_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bdefinite_integral_of\(",
         "literal display fn `definite_integral_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bevaluate\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bevaluate\(",
         "literal display fn `evaluate(`",
-        "wrap in `{...}` braces — the form is `{evaluate(expr, var, val)}`"),
-    (r"\blimit_of\(",
+        "wrap in `{...}` braces — the form is `{evaluate(expr, var, val)}`",
+    ),
+    (
+        r"\blimit_of\(",
         "literal display fn `limit_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bdet_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bdet_of\(",
         "literal display fn `det_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bmatrix_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bmatrix_of\(",
         "literal display fn `matrix_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bsum_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bsum_of\(",
         "literal display fn `sum_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bproduct_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bproduct_of\(",
         "literal display fn `product_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bpartial_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bpartial_of\(",
         "literal display fn `partial_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bnth_derivative_of\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bnth_derivative_of\(",
         "literal display fn `nth_derivative_of(`",
-        "wrap in `{...}` braces"),
-    (r"\bAbs\(",
+        "wrap in `{...}` braces",
+    ),
+    (
+        r"\bAbs\(",
         "raw `Abs(`",
-        "use `{abs_of(x)}` display fn for `|x|` rendering"),
-    (r"[∞∪∩≤≥±→√∂∇∫∑∏×÷·°′″πθλαβγδεζημσφψωΔΣΠΩ]",
+        "use `{abs_of(x)}` display fn for `|x|` rendering",
+    ),
+    (
+        r"[∞∪∩≤≥±→√∂∇∫∑∏×÷·°′″πθλαβγδεζημσφψωΔΣΠΩ]",
         "unicode math glyph",
-        "write the spelled-out name: pi, theta, lambda, infinity, leq, geq — SymEngine renders them as LaTeX"),
-    (r"_\$\d+\$[a-zA-Z]",
+        "write the spelled-out name: pi, theta, lambda, infinity, leq, geq — SymEngine renders them as LaTeX",
+    ),
+    (
+        r"_\$\d+\$[a-zA-Z]",
         "subscript value followed by letters (`a_$7$th`)",
-        "describe the position in plain English (e.g. `the 7th term`) without subscript"),
-    (r"'[^']{1,8}'",
+        "describe the position in plain English (e.g. `the 7th term`) without subscript",
+    ),
+    (
+        r"'[^']{1,8}'",
         "single-quoted literal",
-        "remove the quotes — the DSL has no strings; either define a variable or rephrase"),
+        "remove the quotes — the DSL has no strings; either define a variable or rephrase",
+    ),
 ];
-
 
 // =============================================================================
 // System prompt (static, cached by Anthropic)
@@ -892,12 +951,12 @@ mod judge_tests {
     #[test]
     fn render_banlist_catches_known_leaks() {
         let bad_renders = [
-            (r"$\lim_{x \to infinity} x$",  "infinity"),
-            (r"$x**2 + 1$",                  "raw `**`"),
-            (r"$5*sqrt(x)$",                 "raw `sqrt(`"),
-            (r"$derivative_of(f, x)$",       "literal display fn"),
-            (r"a_$7$th term",                "subscript-followed-by-text"),
-            (r"$3 + Abs(y)$",                "raw `Abs(`"),
+            (r"$\lim_{x \to infinity} x$", "infinity"),
+            (r"$x**2 + 1$", "raw `**`"),
+            (r"$5*sqrt(x)$", "raw `sqrt(`"),
+            (r"$derivative_of(f, x)$", "literal display fn"),
+            (r"a_$7$th term", "subscript-followed-by-text"),
+            (r"$3 + Abs(y)$", "raw `Abs(`"),
         ];
         for (sample, label) in bad_renders {
             let mut hit = false;

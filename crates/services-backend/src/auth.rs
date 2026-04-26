@@ -95,4 +95,3 @@ impl FromRequestParts<AppState> for Option<AuthUser> {
         Ok(AuthUser::from_request_parts(parts, state).await.ok())
     }
 }
-

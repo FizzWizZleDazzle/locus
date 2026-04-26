@@ -316,17 +316,11 @@ fn derive_stats(
     let has_one_trick =
         correct_attempts >= 50 && max_topic_correct as f64 / correct_attempts as f64 >= 0.8;
 
-    let has_stubborn = topic_stats
-        .iter()
-        .any(|t| (t.total - t.correct) >= 50);
+    let has_stubborn = topic_stats.iter().any(|t| (t.total - t.correct) >= 50);
 
-    let has_unbreakable = topic_stats
-        .iter()
-        .any(|t| t.peak_topic_streak >= 20);
+    let has_unbreakable = topic_stats.iter().any(|t| t.peak_topic_streak >= 20);
 
-    let has_the_wall = topic_stats
-        .iter()
-        .any(|t| t.peak_topic_streak >= 50);
+    let has_the_wall = topic_stats.iter().any(|t| t.peak_topic_streak >= 50);
 
     let high_accuracy_topics = topic_stats
         .iter()
@@ -390,8 +384,7 @@ fn qualifies(
         "try_hard" => total_attempts >= 500,
         "perfectionist" => ds.has_perfectionist,
         "sharpshooter" => {
-            total_attempts >= 100
-                && correct_attempts as f64 / total_attempts as f64 >= 0.9
+            total_attempts >= 100 && correct_attempts as f64 / total_attempts as f64 >= 0.9
         }
         "one_trick" => ds.has_one_trick,
         "lucky" => correct_attempts >= 777,

@@ -27,36 +27,58 @@ pub fn render(spec: &CoordinatePlane, vars: &VarMap) -> Result<String, DslError>
     // Grid (light gray).
     if spec.grid {
         for i in (xlo.ceil() as i64)..=(xhi.floor() as i64) {
-            if i == 0 { continue; }
+            if i == 0 {
+                continue;
+            }
             let x = i as f64;
             let _ = write!(
                 s,
                 "line({}, {}, stroke: (paint: gray, thickness: 0.3pt))\n",
-                cetz::pt(x, ylo), cetz::pt(x, yhi),
+                cetz::pt(x, ylo),
+                cetz::pt(x, yhi),
             );
         }
         for i in (ylo.ceil() as i64)..=(yhi.floor() as i64) {
-            if i == 0 { continue; }
+            if i == 0 {
+                continue;
+            }
             let y = i as f64;
             let _ = write!(
                 s,
                 "line({}, {}, stroke: (paint: gray, thickness: 0.3pt))\n",
-                cetz::pt(xlo, y), cetz::pt(xhi, y),
+                cetz::pt(xlo, y),
+                cetz::pt(xhi, y),
             );
         }
     }
 
     // Axes.
-    cetz::line(&mut s, (xlo, 0.0), (xhi, 0.0), Color::Black, LineStyle::Solid);
-    cetz::line(&mut s, (0.0, ylo), (0.0, yhi), Color::Black, LineStyle::Solid);
+    cetz::line(
+        &mut s,
+        (xlo, 0.0),
+        (xhi, 0.0),
+        Color::Black,
+        LineStyle::Solid,
+    );
+    cetz::line(
+        &mut s,
+        (0.0, ylo),
+        (0.0, yhi),
+        Color::Black,
+        LineStyle::Solid,
+    );
 
     // Tick labels.
     for i in (xlo.ceil() as i64)..=(xhi.floor() as i64) {
-        if i == 0 { continue; }
+        if i == 0 {
+            continue;
+        }
         cetz::content_anchor(&mut s, (i as f64, -0.3), &i.to_string(), "north");
     }
     for i in (ylo.ceil() as i64)..=(yhi.floor() as i64) {
-        if i == 0 { continue; }
+        if i == 0 {
+            continue;
+        }
         cetz::content_anchor(&mut s, (-0.3, i as f64), &i.to_string(), "east");
     }
 
@@ -87,9 +109,9 @@ pub fn render(spec: &CoordinatePlane, vars: &VarMap) -> Result<String, DslError>
                     // the coordinate. So `north` => label sits SOUTH of point.
                     let anchor = match (x.abs() < 1e-3, y.abs() < 1e-3) {
                         (true, true) => "north-west", // origin -> SE quadrant
-                        (true, _)    => "north",      // on y-axis -> south
-                        (_, true)    => "north",      // on x-axis -> south
-                        _            => "south-west", // upper-right of point
+                        (true, _) => "north",         // on y-axis -> south
+                        (_, true) => "north",         // on x-axis -> south
+                        _ => "south-west",            // upper-right of point
                     };
                     cetz::content_anchor_plain(&mut s, (x, y), label, anchor);
                 }
@@ -139,20 +161,42 @@ pub fn render(spec: &CoordinatePlane, vars: &VarMap) -> Result<String, DslError>
     Ok(s)
 }
 
-fn clip_line(m: f64, b: f64, xlo: f64, xhi: f64, ylo: f64, yhi: f64) -> Option<((f64, f64), (f64, f64))> {
+fn clip_line(
+    m: f64,
+    b: f64,
+    xlo: f64,
+    xhi: f64,
+    ylo: f64,
+    yhi: f64,
+) -> Option<((f64, f64), (f64, f64))> {
     let mut pts: Vec<(f64, f64)> = Vec::new();
     let push = |pts: &mut Vec<(f64, f64)>, p: (f64, f64)| {
-        if !pts.iter().any(|q| (q.0 - p.0).abs() < 1e-9 && (q.1 - p.1).abs() < 1e-9) {
+        if !pts
+            .iter()
+            .any(|q| (q.0 - p.0).abs() < 1e-9 && (q.1 - p.1).abs() < 1e-9)
+        {
             pts.push(p);
         }
     };
     let y_at = |x: f64| m * x + b;
-    if (ylo..=yhi).contains(&y_at(xlo)) { push(&mut pts, (xlo, y_at(xlo))); }
-    if (ylo..=yhi).contains(&y_at(xhi)) { push(&mut pts, (xhi, y_at(xhi))); }
+    if (ylo..=yhi).contains(&y_at(xlo)) {
+        push(&mut pts, (xlo, y_at(xlo)));
+    }
+    if (ylo..=yhi).contains(&y_at(xhi)) {
+        push(&mut pts, (xhi, y_at(xhi)));
+    }
     if m.abs() > 1e-9 {
         let x_at = |y: f64| (y - b) / m;
-        if (xlo..=xhi).contains(&x_at(ylo)) { push(&mut pts, (x_at(ylo), ylo)); }
-        if (xlo..=xhi).contains(&x_at(yhi)) { push(&mut pts, (x_at(yhi), yhi)); }
+        if (xlo..=xhi).contains(&x_at(ylo)) {
+            push(&mut pts, (x_at(ylo), ylo));
+        }
+        if (xlo..=xhi).contains(&x_at(yhi)) {
+            push(&mut pts, (x_at(yhi), yhi));
+        }
     }
-    if pts.len() >= 2 { Some((pts[0], pts[1])) } else { None }
+    if pts.len() >= 2 {
+        Some((pts[0], pts[1]))
+    } else {
+        None
+    }
 }

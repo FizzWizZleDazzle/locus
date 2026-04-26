@@ -1,2 +1,2 @@
-pub mod status_indicator;
 pub mod chart;
+pub mod status_indicator;

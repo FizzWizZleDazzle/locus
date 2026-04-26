@@ -52,9 +52,7 @@ pub struct HoistResult {
 /// Returns one entry per variable whose symbolic value could be computed.
 /// Vars whose builtin op we can't hoist (`solve`, `integrate`, …) are simply
 /// absent from `by_var`.
-pub fn try_hoist(
-    variables: &BTreeMap<String, String>,
-) -> Result<HoistResult, HoistError> {
+pub fn try_hoist(variables: &BTreeMap<String, String>) -> Result<HoistResult, HoistError> {
     let order =
         crate::resolver::topo_sort(variables).map_err(|e| HoistError::Circular(e.to_string()))?;
 
@@ -111,10 +109,7 @@ fn substitute_var_refs(s: &str, sym_table: &HashMap<String, Expr>) -> String {
 
 /// Symbolically evaluate a builtin call. Returns `UnsupportedBuiltin` if we
 /// don't have a symbolic implementation.
-fn sym_eval_builtin(
-    def: &str,
-    sym_table: &HashMap<String, Expr>,
-) -> Result<Expr, HoistError> {
+fn sym_eval_builtin(def: &str, sym_table: &HashMap<String, Expr>) -> Result<Expr, HoistError> {
     let (name, args) = parse_call(def)?;
     let resolved_args: Vec<String> = args
         .iter()
@@ -130,8 +125,11 @@ fn sym_eval_builtin(
             }
             let f =
                 Expr::parse(&resolved_args[0]).map_err(|e| HoistError::SymEngine(e.to_string()))?;
-            let var = resolved_args[1].trim().trim_matches(|c| c == '(' || c == ')');
-            f.diff(var).map_err(|e| HoistError::SymEngine(e.to_string()))
+            let var = resolved_args[1]
+                .trim()
+                .trim_matches(|c| c == '(' || c == ')');
+            f.diff(var)
+                .map_err(|e| HoistError::SymEngine(e.to_string()))
         }
         "expand" | "simplify" => {
             if resolved_args.len() != 1 {
@@ -153,8 +151,8 @@ fn sym_eval_builtin(
                 .map_err(|err| HoistError::SymEngine(err.to_string()))?;
             for pair in resolved_args[1..].chunks(2) {
                 let var = pair[0].trim().trim_matches(|c| c == '(' || c == ')');
-                let val = Expr::parse(&pair[1])
-                    .map_err(|err| HoistError::SymEngine(err.to_string()))?;
+                let val =
+                    Expr::parse(&pair[1]).map_err(|err| HoistError::SymEngine(err.to_string()))?;
                 e = e.subs_expr(var, &val);
             }
             Ok(e)
@@ -165,9 +163,9 @@ fn sym_eval_builtin(
 }
 
 fn parse_call(def: &str) -> Result<(&str, Vec<&str>), HoistError> {
-    let paren = def.find('(').ok_or_else(|| {
-        HoistError::UnsupportedBuiltin(format!("not a call: {def}"))
-    })?;
+    let paren = def
+        .find('(')
+        .ok_or_else(|| HoistError::UnsupportedBuiltin(format!("not a call: {def}")))?;
     if !def.ends_with(')') {
         return Err(HoistError::UnsupportedBuiltin(format!("missing ): {def}")));
     }

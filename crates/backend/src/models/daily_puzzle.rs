@@ -299,11 +299,10 @@ where
 
 /// Get current daily puzzle streak for a user
 pub async fn get_daily_puzzle_streak(pool: &PgPool, user_id: Uuid) -> Result<i32, sqlx::Error> {
-    let row: (i32,) =
-        sqlx::query_as("SELECT daily_puzzle_streak FROM users WHERE id = $1")
-            .bind(user_id)
-            .fetch_one(pool)
-            .await?;
+    let row: (i32,) = sqlx::query_as("SELECT daily_puzzle_streak FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?;
     Ok(row.0)
 }
 

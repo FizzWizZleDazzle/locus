@@ -49,12 +49,10 @@ pub fn run_cpu(plan: &Plan, target: usize) -> (Vec<SurvivorRow>, usize) {
                         let s = &plan.sampler_slots[*si as usize];
                         row[*var_slot as usize] = s.values[sampler_idx[*si as usize]];
                     }
-                    EvalStep::Derived { var_slot, program } => {
-                        match run_program(program, &row) {
-                            Ok(v) => row[*var_slot as usize] = v,
-                            Err(_) => return None,
-                        }
-                    }
+                    EvalStep::Derived { var_slot, program } => match run_program(program, &row) {
+                        Ok(v) => row[*var_slot as usize] = v,
+                        Err(_) => return None,
+                    },
                 }
             }
 

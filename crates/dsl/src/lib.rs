@@ -24,7 +24,7 @@ pub mod diagram;
 use error::DslError;
 use spec::{ProblemSpec, Variant};
 
-pub use gpu::{enumerate as enumerate_problems, Executor};
+pub use gpu::{Executor, enumerate as enumerate_problems};
 
 /// Parse a YAML string into a ProblemSpec
 pub fn parse(yaml: &str) -> Result<ProblemSpec, DslError> {

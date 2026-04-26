@@ -340,10 +340,8 @@ impl User {
         .fetch_one(pool)
         .await?;
 
-        let elos: HashMap<String, i32> =
-            serde_json::from_value(row.1).unwrap_or_default();
-        let oauth_providers: Vec<String> =
-            serde_json::from_value(row.2).unwrap_or_default();
+        let elos: HashMap<String, i32> = serde_json::from_value(row.1).unwrap_or_default();
+        let oauth_providers: Vec<String> = serde_json::from_value(row.2).unwrap_or_default();
 
         Ok(UserProfile {
             id: self.id,

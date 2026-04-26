@@ -9,11 +9,11 @@ use rayon::prelude::*;
 use xxhash_rust::xxh3::xxh3_128;
 
 use crate::error::DslError;
-use crate::gpu::compile::{compile, CompileError, Plan};
+use crate::gpu::compile::{CompileError, Plan, compile};
 use crate::gpu::cpu_exec::run_cpu;
-use crate::resolver::{resolve_with_preset, VarMap};
+use crate::resolver::{VarMap, resolve_with_preset};
 use crate::spec::{ProblemSpec, Variant};
-use crate::{answer, sampler, template, ProblemOutput};
+use crate::{ProblemOutput, answer, sampler, template};
 
 /// Executor selection. `Auto` prefers GPU when available, else CPU.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

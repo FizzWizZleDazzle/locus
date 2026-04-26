@@ -21,7 +21,12 @@ pub fn self_grade(output: &ProblemOutput) -> Result<(), DslError> {
     // because the grader checks if the answer IS factored/expanded.
     // For self-grading, always use Equivalent mode — we just want to verify parseability.
     let self_grade_mode = GradingMode::Equivalent;
-    let result = grade_answer(&output.answer_key, &output.answer_key, answer_type, self_grade_mode);
+    let result = grade_answer(
+        &output.answer_key,
+        &output.answer_key,
+        answer_type,
+        self_grade_mode,
+    );
 
     match result {
         GradeResult::Correct => Ok(()),

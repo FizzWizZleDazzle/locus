@@ -144,8 +144,11 @@ fn eval_derived(expr_str: &str, vars: &VarMap) -> Result<String, DslError> {
     if trimmed.contains(", ") && !trimmed.contains('(') && !trimmed.contains('[') {
         let all_simple = trimmed.split(", ").all(|p| {
             let p = p.trim();
-            p.parse::<f64>().is_ok() || p.contains('/')
-                || p.trim_start_matches('-').chars().all(|c| c.is_ascii_digit() || c == '/' || c == '.')
+            p.parse::<f64>().is_ok()
+                || p.contains('/')
+                || p.trim_start_matches('-')
+                    .chars()
+                    .all(|c| c.is_ascii_digit() || c == '/' || c == '.')
         });
         if all_simple {
             return Ok(trimmed.to_string());
@@ -208,8 +211,12 @@ fn eval_simple_condition(cond: &str) -> Option<bool> {
     // String equality: ("x") == "x" or "x" == "x"
     for (op, negate) in &[("==", false), ("!=", true)] {
         if let Some(pos) = cond.find(op) {
-            let lhs = cond[..pos].trim().trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
-            let rhs = cond[pos + op.len()..].trim().trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
+            let lhs = cond[..pos]
+                .trim()
+                .trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
+            let rhs = cond[pos + op.len()..]
+                .trim()
+                .trim_matches(|c: char| c == '"' || c == '(' || c == ')' || c.is_whitespace());
             let equal = lhs == rhs;
             return Some(if *negate { !equal } else { equal });
         }
@@ -332,8 +339,7 @@ pub(crate) fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<Stri
 fn eval_embedded_functions(s: &str) -> Result<String, DslError> {
     // Functions we need to evaluate ourselves (SymEngine doesn't handle these)
     const EVAL_FUNCS: &[&str] = &[
-        "gcd", "lcm", "mod", "abs", "floor", "ceil",
-        "round", "max", "min",
+        "gcd", "lcm", "mod", "abs", "floor", "ceil", "round", "max", "min",
     ];
 
     let mut result = s.to_string();
@@ -385,7 +391,12 @@ fn eval_embedded_functions(s: &str) -> Result<String, DslError> {
             let empty_vars = VarMap::new();
             match crate::functions::evaluate(full_call, &empty_vars) {
                 Ok(val) => {
-                    result = format!("{}{}{}", &result[..func_start], val, &result[close_pos + 1..]);
+                    result = format!(
+                        "{}{}{}",
+                        &result[..func_start],
+                        val,
+                        &result[close_pos + 1..]
+                    );
                     continue;
                 }
                 Err(_) => break, // can't evaluate, let SymEngine try
@@ -489,7 +500,14 @@ fn eval_constraint(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {
     }
 
     // Try comparison operators (longest first to avoid partial matches)
-    for (op, _) in &[("!=", 2), (">=", 2), ("<=", 2), ("==", 2), (">", 1), ("<", 1)] {
+    for (op, _) in &[
+        ("!=", 2),
+        (">=", 2),
+        ("<=", 2),
+        ("==", 2),
+        (">", 1),
+        ("<", 1),
+    ] {
         if let Some(pos) = c.find(op) {
             // Avoid matching sub-operators
             if *op == ">" && pos > 0 && c.as_bytes()[pos - 1] == b'!' {
@@ -536,9 +554,10 @@ fn eval_constraint(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {
     if c.starts_with("is_integer(") && c.ends_with(')') {
         let inner = &c[11..c.len() - 1];
         let val = eval_derived(inner, vars)?;
-        let f = val.parse::<f64>().ok().or_else(|| {
-            Expr::parse(&val).ok().and_then(|e| e.to_float())
-        });
+        let f = val
+            .parse::<f64>()
+            .ok()
+            .or_else(|| Expr::parse(&val).ok().and_then(|e| e.to_float()));
         return Ok(f.map_or(false, |f| (f - f.round()).abs() < 1e-10));
     }
 

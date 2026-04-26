@@ -369,16 +369,19 @@ mod tests {
     #[test]
     fn latex_native_printer_covers_common_forms() {
         let cases = [
-            ("sqrt(20)",            r"\sqrt{20}"),
-            ("x**(7/2)",            r"x^{\frac{7}{2}}"),
+            ("sqrt(20)", r"\sqrt{20}"),
+            ("x**(7/2)", r"x^{\frac{7}{2}}"),
             // Single-digit exponents are emitted unbraced — KaTeX renders identically
-            ("3*x**2 + 2*x + 1",    r"1 + 2 x + 3 x^2"),
-            ("sin(x) + cos(2*x)",   r"\sin{\left(x\right)} + \cos{\left(2 x\right)}"),
-            ("lambda + 1",          r"1 + \lambda"),
-            ("oo",                  r"\infty"),
-            ("-oo",                 r"-\infty"),
-            ("pi",                  r"\pi"),
-            ("E",                   r"e"),
+            ("3*x**2 + 2*x + 1", r"1 + 2 x + 3 x^2"),
+            (
+                "sin(x) + cos(2*x)",
+                r"\sin{\left(x\right)} + \cos{\left(2 x\right)}",
+            ),
+            ("lambda + 1", r"1 + \lambda"),
+            ("oo", r"\infty"),
+            ("-oo", r"-\infty"),
+            ("pi", r"\pi"),
+            ("E", r"e"),
         ];
         for (input, want) in cases {
             let got = Expr::parse(input).unwrap().to_latex();
@@ -426,8 +429,16 @@ mod tests {
     fn latex_powers_handle_all_exponent_kinds() {
         assert_eq!(Expr::parse("x**2").unwrap().to_latex(), r"x^2");
         assert_eq!(Expr::parse("x**(-1)").unwrap().to_latex(), r"x^{-1}");
-        assert_eq!(Expr::parse("(a+b)**3").unwrap().to_latex(), r"\left(a + b\right)^3");
+        assert_eq!(
+            Expr::parse("(a+b)**3").unwrap().to_latex(),
+            r"\left(a + b\right)^3"
+        );
         // Fractional exponent — the bug from `derivative_rules/hard.yaml`
-        assert!(Expr::parse("x**(7/2)").unwrap().to_latex().contains(r"\frac{7}{2}"));
+        assert!(
+            Expr::parse("x**(7/2)")
+                .unwrap()
+                .to_latex()
+                .contains(r"\frac{7}{2}")
+        );
     }
 }

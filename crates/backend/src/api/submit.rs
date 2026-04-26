@@ -97,7 +97,11 @@ pub async fn submit_answer(
         elo_after,
         elo_change,
         topic_streak,
-        answer_key: if !is_correct { Some(problem.answer_key.clone()) } else { None },
+        answer_key: if !is_correct {
+            Some(problem.answer_key.clone())
+        } else {
+            None
+        },
         solution_latex: if !is_correct && !problem.solution_latex.is_empty() {
             Some(problem.solution_latex.clone())
         } else {

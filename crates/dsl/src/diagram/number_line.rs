@@ -48,7 +48,9 @@ pub fn render(spec: &NumberLine, vars: &VarMap) -> Result<String, DslError> {
                 let _ = write!(
                     s,
                     "line({}, {}, stroke: (paint: {}, thickness: 2pt))\n",
-                    cetz::pt(x1, 0.0), cetz::pt(x2, 0.0), cetz::color(seg.color),
+                    cetz::pt(x1, 0.0),
+                    cetz::pt(x2, 0.0),
+                    cetz::color(seg.color),
                 );
             }
             NumberLineElement::Arrow(a) => {

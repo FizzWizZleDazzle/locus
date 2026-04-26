@@ -8,7 +8,9 @@ use locus_common::svg_compress::decompress_svg;
 use locus_dsl::{generate_random, parse};
 
 const SAMPLES: &[(&str, &str)] = &[
-    ("number_line", r#"
+    (
+        "number_line",
+        r#"
 topic: algebra1/test
 difficulty: easy
 variants:
@@ -26,8 +28,11 @@ variants:
         - point: {at: b, style: open, label: b}
         - segment: {from: b, to: a, color: blue}
         - arrow: {from: a, direction: right, color: red}
-"#),
-    ("coordinate_plane", r#"
+"#,
+    ),
+    (
+        "coordinate_plane",
+        r#"
 topic: algebra1/test
 difficulty: easy
 variants:
@@ -46,8 +51,11 @@ variants:
         - line: {slope: m, intercept: b, color: blue, label: y}
         - point: {x: 0, y: b, label: P}
         - asymptote: {x: 3, style: dashed}
-"#),
-    ("circle", r#"
+"#,
+    ),
+    (
+        "circle",
+        r#"
 topic: geometry/test
 difficulty: easy
 variants:
@@ -64,8 +72,11 @@ variants:
       elements:
         - central_angle: {vertex: O, sides: [A, B], label: central}
         - inscribed_angle: {vertex: C, sides: [A, B], label: half_central}
-"#),
-    ("polygon_trapezoid", r#"
+"#,
+    ),
+    (
+        "polygon_trapezoid",
+        r#"
 topic: geometry/test
 difficulty: medium
 variants:
@@ -85,8 +96,11 @@ variants:
         BC: {label: ht, style: dashed}
       angles:
         B: right_angle
-"#),
-    ("polygon_l_shape", r#"
+"#,
+    ),
+    (
+        "polygon_l_shape",
+        r#"
 topic: geometry/test
 difficulty: medium
 variants:
@@ -109,8 +123,11 @@ variants:
         - {x: a, y: b}
         - {x: a, y: height}
         - {x: 0, y: height}
-"#),
-    ("triangle", r#"
+"#,
+    ),
+    (
+        "triangle",
+        r#"
 topic: geometry/test
 difficulty: easy
 variants:
@@ -125,8 +142,11 @@ variants:
       type: triangle
       vertices: [A, B, C]
       angles: {A: angle_a, B: angle_b, C: angle_c}
-"#),
-    ("triangle_right", r#"
+"#,
+    ),
+    (
+        "triangle_right",
+        r#"
 topic: geometry/test
 difficulty: easy
 variants:
@@ -146,8 +166,11 @@ variants:
       angles:
         A: angle_deg
       right_angle: B
-"#),
-    ("function_graph", r#"
+"#,
+    ),
+    (
+        "function_graph",
+        r#"
 topic: precalc/test
 difficulty: easy
 variants:
@@ -166,8 +189,11 @@ variants:
       features:
         - zero: {of: f, label: true}
         - minimum: {of: f, label: true}
-"#),
-    ("force_diagram", r#"
+"#,
+    ),
+    (
+        "force_diagram",
+        r#"
 topic: physics_c_mech/test
 difficulty: medium
 variants:
@@ -186,8 +212,11 @@ variants:
         - normal: {label: "N"}
         - friction: {direction: up_incline, label: "f"}
         - applied: {angle: 30, label: "F"}
-"#),
-    ("field_dipole", r#"
+"#,
+    ),
+    (
+        "field_dipole",
+        r#"
 topic: physics_c_em/test
 difficulty: medium
 variants:
@@ -204,7 +233,8 @@ variants:
         - charge: {value: -q, position: [2, 0], label: "-q"}
       show_lines: true
       region: [-5, 5, -5, 5]
-"#),
+"#,
+    ),
 ];
 
 fn main() {
@@ -216,7 +246,11 @@ fn main() {
         let svg = decompress_svg(&out.question_image_url);
         let path = format!("{out_dir}/{name}.svg");
         fs::write(&path, &svg).unwrap();
-        println!("{name}: {} bytes raw, {} bytes compressed", svg.len(), out.question_image_url.len());
+        println!(
+            "{name}: {} bytes raw, {} bytes compressed",
+            svg.len(),
+            out.question_image_url.len()
+        );
     }
     println!("\nWrote samples to {out_dir}/");
 }

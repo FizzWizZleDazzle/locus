@@ -116,12 +116,12 @@ fn sample_integer(args: &[&str]) -> Result<String, DslError> {
             "integer(lo, hi) requires 2 args".into(),
         ));
     }
-    let lo: i64 = args[0].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("integer: can't parse lo '{}'", args[0]))
-    })?;
-    let hi: i64 = args[1].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("integer: can't parse hi '{}'", args[1]))
-    })?;
+    let lo: i64 = args[0]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("integer: can't parse lo '{}'", args[0])))?;
+    let hi: i64 = args[1]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("integer: can't parse hi '{}'", args[1])))?;
     Ok(rand::random_range(lo..=hi).to_string())
 }
 
@@ -267,12 +267,12 @@ fn sample_vector(args: &[&str]) -> Result<String, DslError> {
     let dim: usize = args[0]
         .parse()
         .map_err(|_| DslError::InvalidSampler(format!("vector: can't parse '{}'", args[0])))?;
-    let lo: i64 = args[1].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("vector: can't parse '{}'", args[1]))
-    })?;
-    let hi: i64 = args[2].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("vector: can't parse '{}'", args[2]))
-    })?;
+    let lo: i64 = args[1]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("vector: can't parse '{}'", args[1])))?;
+    let hi: i64 = args[2]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("vector: can't parse '{}'", args[2])))?;
 
     let vals: Vec<String> = (0..dim)
         .map(|_| rand::random_range(lo..=hi).to_string())
@@ -292,12 +292,12 @@ fn sample_matrix(args: &[&str]) -> Result<String, DslError> {
     let cols: usize = args[1]
         .parse()
         .map_err(|_| DslError::InvalidSampler(format!("matrix: can't parse '{}'", args[1])))?;
-    let lo: i64 = args[2].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("matrix: can't parse '{}'", args[2]))
-    })?;
-    let hi: i64 = args[3].parse().map_err(|_| {
-        DslError::InvalidSampler(format!("matrix: can't parse '{}'", args[3]))
-    })?;
+    let lo: i64 = args[2]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("matrix: can't parse '{}'", args[2])))?;
+    let hi: i64 = args[3]
+        .parse()
+        .map_err(|_| DslError::InvalidSampler(format!("matrix: can't parse '{}'", args[3])))?;
 
     let row_strs: Vec<String> = (0..rows)
         .map(|_| {

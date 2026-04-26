@@ -26,7 +26,11 @@ pub fn format(
                     })
             })
             .collect();
-        return Ok(parts?.iter().map(|p| normalize_for_grader(p)).collect::<Vec<_>>().join(", "));
+        return Ok(parts?
+            .iter()
+            .map(|p| normalize_for_grader(p))
+            .collect::<Vec<_>>()
+            .join(", "));
     }
 
     // Single variable ref
@@ -41,7 +45,9 @@ pub fn format(
     for (name, value) in &sorted_vars {
         let pattern = format!(r"\b{}\b", regex::escape(name));
         if let Ok(re) = regex::Regex::new(&pattern) {
-            substituted = re.replace_all(&substituted, format!("({})", value)).to_string();
+            substituted = re
+                .replace_all(&substituted, format!("({})", value))
+                .to_string();
         }
     }
 
@@ -71,10 +77,7 @@ pub fn infer_type(answer_key: &str, explicit: Option<&str>) -> String {
     let key = answer_key.trim();
 
     // Boolean
-    if matches!(
-        key.to_lowercase().as_str(),
-        "true" | "false" | "yes" | "no"
-    ) {
+    if matches!(key.to_lowercase().as_str(), "true" | "false" | "yes" | "no") {
         return "boolean".into();
     }
 

@@ -29,7 +29,15 @@ use locus_common::{ApiError, LeaderboardEntry};
 pub type LeaderboardCache = Arc<RwLock<HashMap<String, (Instant, Vec<LeaderboardEntry>)>>>;
 
 /// Cached daily puzzle + problem for today
-pub type DailyPuzzleCache = Arc<RwLock<Option<(chrono::NaiveDate, crate::models::daily_puzzle::DailyPuzzle, crate::models::Problem)>>>;
+pub type DailyPuzzleCache = Arc<
+    RwLock<
+        Option<(
+            chrono::NaiveDate,
+            crate::models::daily_puzzle::DailyPuzzle,
+            crate::models::Problem,
+        )>,
+    >,
+>;
 
 /// Shared application state
 #[derive(Clone)]

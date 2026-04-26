@@ -55,7 +55,11 @@ impl LineStyle {
     }
 
     pub fn stroke_width(self) -> f64 {
-        if matches!(self, LineStyle::Thick) { 2.5 } else { 1.5 }
+        if matches!(self, LineStyle::Thick) {
+            2.5
+        } else {
+            1.5
+        }
     }
 }
 

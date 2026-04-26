@@ -10,7 +10,9 @@ use super::style::{Color, LineStyle};
 
 pub fn render(spec: &Triangle, vars: &VarMap) -> Result<String, DslError> {
     let v = &spec.vertices;
-    let a = &v[0]; let b = &v[1]; let c = &v[2];
+    let a = &v[0];
+    let b = &v[1];
+    let c = &v[2];
 
     // Right-angle marker (either `right_angle: <name>` or `angles: {<name>: right_angle}`)
     // forces a Pythagorean layout with the two legs given as the sides
@@ -50,14 +52,20 @@ pub fn render(spec: &Triangle, vars: &VarMap) -> Result<String, DslError> {
             if let Some(label) = side.label() {
                 cetz::label_on_line(&mut s, name, &format_label(label, vars, ""), outward_anchor);
             } else if let Some(len_expr) = side.length() {
-                cetz::label_on_line(&mut s, name, &format_label(len_expr, vars, ""), outward_anchor);
+                cetz::label_on_line(
+                    &mut s,
+                    name,
+                    &format_label(len_expr, vars, ""),
+                    outward_anchor,
+                );
             }
         }
     }
 
     // Vertex labels — push outward from centroid.
     for (vname, p) in v.iter().zip(pts.iter()) {
-        let dx = p.0 - centroid.0; let dy = p.1 - centroid.1;
+        let dx = p.0 - centroid.0;
+        let dy = p.1 - centroid.1;
         let len = (dx * dx + dy * dy).sqrt().max(1e-6);
         let off = 0.4;
         let lp = (p.0 + dx / len * off, p.1 + dy / len * off);
@@ -129,8 +137,16 @@ fn normalize_proportional(
     let scale = long / dx.max(dy);
     let new_dx = dx * scale;
     let new_dy = dy * scale;
-    let sx_extra = if new_dx < min_short { min_short / new_dx } else { 1.0 };
-    let sy_extra = if new_dy < min_short { min_short / new_dy } else { 1.0 };
+    let sx_extra = if new_dx < min_short {
+        min_short / new_dx
+    } else {
+        1.0
+    };
+    let sy_extra = if new_dy < min_short {
+        min_short / new_dy
+    } else {
+        1.0
+    };
     let cx = (xmin + xmax) / 2.0;
     let cy = (ymin + ymax) / 2.0;
     let map = |p: (f64, f64)| ((p.0 - cx) * scale * sx_extra, (p.1 - cy) * scale * sy_extra);
@@ -138,10 +154,14 @@ fn normalize_proportional(
 }
 
 fn right_angle_vertex(spec: &Triangle) -> Option<String> {
-    if let Some(v) = &spec.right_angle { return Some(v.clone()); }
+    if let Some(v) = &spec.right_angle {
+        return Some(v.clone());
+    }
     for (k, av) in &spec.angles {
         if let AngleValue::Marker(m) = av {
-            if m == "right_angle" { return Some(k.clone()); }
+            if m == "right_angle" {
+                return Some(k.clone());
+            }
         }
     }
     None
@@ -203,7 +223,11 @@ fn layout_right_triangle(
 }
 
 fn layout_general(
-    spec: &Triangle, a: &str, b: &str, c: &str, vars: &VarMap,
+    spec: &Triangle,
+    a: &str,
+    b: &str,
+    c: &str,
+    vars: &VarMap,
 ) -> ((f64, f64), (f64, f64), (f64, f64)) {
     let ab = side_len(spec, a, b, vars).unwrap_or(1.0);
     let ac = side_len(spec, a, c, vars).unwrap_or(1.0);
@@ -212,18 +236,24 @@ fn layout_general(
         if let Some(bc_v) = bc {
             let cos_a = (ab * ab + ac * ac - bc_v * bc_v) / (2.0 * ab * ac);
             cos_a.clamp(-1.0, 1.0).acos().to_degrees()
-        } else { 60.0 }
+        } else {
+            60.0
+        }
     });
     let theta = angle_a_deg.to_radians();
     ((0.0, 0.0), (ab, 0.0), (ac * theta.cos(), ac * theta.sin()))
 }
 
 fn side_len(spec: &Triangle, a: &str, b: &str, vars: &VarMap) -> Option<f64> {
-    lookup_side(spec, a, b).and_then(|s| s.length()).and_then(|e| eval_num(e, vars).ok())
+    lookup_side(spec, a, b)
+        .and_then(|s| s.length())
+        .and_then(|e| eval_num(e, vars).ok())
 }
 
 fn lookup_side<'a>(spec: &'a Triangle, a: &str, b: &str) -> Option<&'a SideValue> {
-    spec.sides.get(&format!("{a}{b}")).or_else(|| spec.sides.get(&format!("{b}{a}")))
+    spec.sides
+        .get(&format!("{a}{b}"))
+        .or_else(|| spec.sides.get(&format!("{b}{a}")))
 }
 
 fn angle_deg(spec: &Triangle, vertex: &str, vars: &VarMap) -> Option<f64> {
@@ -250,7 +280,9 @@ fn draw_right_angle(buf: &mut String, pts: &[(f64, f64)], idx: usize) {
     cetz::line(buf, c, b, Color::Black, LineStyle::Solid);
 }
 
-fn sub(a: (f64, f64), b: (f64, f64)) -> (f64, f64) { (a.0 - b.0, a.1 - b.1) }
+fn sub(a: (f64, f64), b: (f64, f64)) -> (f64, f64) {
+    (a.0 - b.0, a.1 - b.1)
+}
 fn unit(v: (f64, f64)) -> (f64, f64) {
     let len = (v.0 * v.0 + v.1 * v.1).sqrt().max(1e-6);
     (v.0 / len, v.1 / len)

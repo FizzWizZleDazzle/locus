@@ -27,9 +27,8 @@ pub fn eval_num(expr: &str, vars: &VarMap) -> Result<f64, DslError> {
             e = e.subs_float(name, v);
         }
     }
-    e.to_float().ok_or_else(|| {
-        DslError::Evaluation(format!("diagram value not numeric: '{trimmed}'"))
-    })
+    e.to_float()
+        .ok_or_else(|| DslError::Evaluation(format!("diagram value not numeric: '{trimmed}'")))
 }
 
 /// Evaluate optional value, returning `Ok(None)` when absent.

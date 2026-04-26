@@ -105,7 +105,7 @@ fn validate_spec(spec: &ProblemSpec) -> Result<(), DslError> {
             other => {
                 return Err(DslError::InvalidSampler(format!(
                     "Unknown calculator type: '{other}'"
-                )))
+                )));
             }
         }
     }
@@ -136,7 +136,7 @@ fn validate_spec(spec: &ProblemSpec) -> Result<(), DslError> {
                     return Err(DslError::InvalidSampler(format!(
                         "Unknown grading mode in variant '{}': '{other}'",
                         v.name
-                    )))
+                    )));
                 }
             }
         }

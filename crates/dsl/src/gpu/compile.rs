@@ -30,14 +30,8 @@ pub struct SamplerSlot {
 /// Either populate a slot from a sampler index, or evaluate a derived program.
 #[derive(Debug, Clone)]
 pub enum EvalStep {
-    Sampler {
-        sampler_idx: u32,
-        var_slot: u32,
-    },
-    Derived {
-        var_slot: u32,
-        program: Program,
-    },
+    Sampler { sampler_idx: u32, var_slot: u32 },
+    Derived { var_slot: u32, program: Program },
 }
 
 #[derive(Debug, Clone)]
@@ -191,7 +185,6 @@ fn try_compile_var(
     compile_expression(&lowered, var_to_slot).ok()
 }
 
-
 const MAX_COMBOS: u64 = 16_000_000;
 
 /// Topological sort over variable dependency graph. Mirrors `resolver::topo_sort`
@@ -295,13 +288,17 @@ fn compile_sampler(def: &str) -> Result<Option<Vec<i32>>, CompileError> {
         "integer" => {
             let (lo, hi) = parse_pair(&args, name)?;
             if hi - lo + 1 > MAX_COMBOS as i64 {
-                return Err(CompileError::Unsupported(format!("integer range too wide: {def}")));
+                return Err(CompileError::Unsupported(format!(
+                    "integer range too wide: {def}"
+                )));
             }
             Ok(Some((lo..=hi).map(|v| v as i32).collect()))
         }
         "nonzero" => {
             let (lo, hi) = parse_pair(&args, name)?;
-            Ok(Some((lo..=hi).filter(|&v| v != 0).map(|v| v as i32).collect()))
+            Ok(Some(
+                (lo..=hi).filter(|&v| v != 0).map(|v| v as i32).collect(),
+            ))
         }
         "choice" => {
             let mut vals = Vec::with_capacity(args.len());
@@ -316,7 +313,10 @@ fn compile_sampler(def: &str) -> Result<Option<Vec<i32>>, CompileError> {
         "prime" => {
             let (lo, hi) = parse_pair(&args, name)?;
             let lo = lo.max(2);
-            let primes: Vec<i32> = (lo..=hi).filter(|&n| is_prime(n as u64)).map(|v| v as i32).collect();
+            let primes: Vec<i32> = (lo..=hi)
+                .filter(|&n| is_prime(n as u64))
+                .map(|v| v as i32)
+                .collect();
             if primes.is_empty() {
                 return Err(CompileError::Unsupported(format!("no primes in {def}")));
             }
@@ -697,9 +697,9 @@ impl<'a> Parser<'a> {
             return self.parse_call(name, prog, slots);
         }
 
-        let slot = slots
-            .get(name)
-            .ok_or_else(|| CompileError::Unsupported(format!("unknown ident '{name}' in '{}'", self.src)))?;
+        let slot = slots.get(name).ok_or_else(|| {
+            CompileError::Unsupported(format!("unknown ident '{name}' in '{}'", self.src))
+        })?;
         prog.emit_var(*slot);
         Ok(())
     }
@@ -718,7 +718,7 @@ impl<'a> Parser<'a> {
             _ => {
                 return Err(CompileError::Unsupported(format!(
                     "unsupported function '{name}'"
-                )))
+                )));
             }
         };
         let mut args_seen = 0;
@@ -737,11 +737,15 @@ impl<'a> Parser<'a> {
             self.parse_or(prog, slots)?;
             args_seen += 1;
             if args_seen > n_args_expected {
-                return Err(CompileError::Unsupported(format!("too many args to {name}")));
+                return Err(CompileError::Unsupported(format!(
+                    "too many args to {name}"
+                )));
             }
         }
         if !self.eat(")") {
-            return Err(CompileError::Unsupported(format!("missing ')' in {name}(...)")));
+            return Err(CompileError::Unsupported(format!(
+                "missing ')' in {name}(...)"
+            )));
         }
         if args_seen != n_args_expected {
             return Err(CompileError::Unsupported(format!(

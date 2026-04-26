@@ -244,11 +244,12 @@ fn dispatch(ctx: &GpuContext, plan: &Plan, target: usize) -> (Vec<SurvivorRow>, 
 
     use wgpu::util::DeviceExt;
     let mk_storage = |label: &str, data: &[u8]| -> wgpu::Buffer {
-        ctx.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some(label),
-            contents: data,
-            usage: wgpu::BufferUsages::STORAGE,
-        })
+        ctx.device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some(label),
+                contents: data,
+                usage: wgpu::BufferUsages::STORAGE,
+            })
     };
 
     // Pad zero-sized buffers since wgpu requires non-empty bindings.
@@ -257,16 +258,30 @@ fn dispatch(ctx: &GpuContext, plan: &Plan, target: usize) -> (Vec<SurvivorRow>, 
     } else {
         constraint_ranges
     };
-    let dedup_data = if dedup_idx.is_empty() { vec![0u32] } else { dedup_idx };
-    let consts_data = if consts_buf.is_empty() { vec![0i32] } else { consts_buf };
+    let dedup_data = if dedup_idx.is_empty() {
+        vec![0u32]
+    } else {
+        dedup_idx
+    };
+    let consts_data = if consts_buf.is_empty() {
+        vec![0i32]
+    } else {
+        consts_buf
+    };
     let code_data = if code.is_empty() { vec![0u32] } else { code };
-    let steps_data = if steps.is_empty() { vec![GpuStep::zeroed()] } else { steps };
+    let steps_data = if steps.is_empty() {
+        vec![GpuStep::zeroed()]
+    } else {
+        steps
+    };
 
-    let cfg_buf = ctx.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("cfg"),
-        contents: bytemuck::bytes_of(&cfg),
-        usage: wgpu::BufferUsages::UNIFORM,
-    });
+    let cfg_buf = ctx
+        .device
+        .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("cfg"),
+            contents: bytemuck::bytes_of(&cfg),
+            usage: wgpu::BufferUsages::UNIFORM,
+        });
     let radixes_buf = mk_storage("radixes", bytemuck::cast_slice(&radixes));
     let so_buf = mk_storage("sampler_offsets", bytemuck::cast_slice(&sampler_offsets));
     let sv_buf = mk_storage("sampler_values", bytemuck::cast_slice(&sampler_values));
@@ -322,18 +337,54 @@ fn dispatch(ctx: &GpuContext, plan: &Plan, target: usize) -> (Vec<SurvivorRow>, 
         label: Some("enum_bg"),
         layout: &ctx.bind_group_layout,
         entries: &[
-            wgpu::BindGroupEntry { binding: 0, resource: cfg_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 1, resource: radixes_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 2, resource: so_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 3, resource: sv_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 4, resource: steps_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 5, resource: code_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 6, resource: consts_buf_b.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 7, resource: cr_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 8, resource: dd_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 9, resource: rows_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 10, resource: valid_buf.as_entire_binding() },
-            wgpu::BindGroupEntry { binding: 11, resource: hash_buf.as_entire_binding() },
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: cfg_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: radixes_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: so_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 3,
+                resource: sv_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 4,
+                resource: steps_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 5,
+                resource: code_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 6,
+                resource: consts_buf_b.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 7,
+                resource: cr_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 8,
+                resource: dd_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 9,
+                resource: rows_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 10,
+                resource: valid_buf.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 11,
+                resource: hash_buf.as_entire_binding(),
+            },
         ],
     });
 
@@ -356,7 +407,8 @@ fn dispatch(ctx: &GpuContext, plan: &Plan, target: usize) -> (Vec<SurvivorRow>, 
     ctx.device.poll(wgpu::Maintain::Wait);
 
     let rows_data: Vec<i32> = bytemuck::cast_slice(&rows_stg.slice(..).get_mapped_range()).to_vec();
-    let valid_data: Vec<u32> = bytemuck::cast_slice(&valid_stg.slice(..).get_mapped_range()).to_vec();
+    let valid_data: Vec<u32> =
+        bytemuck::cast_slice(&valid_stg.slice(..).get_mapped_range()).to_vec();
     let hash_data: Vec<u32> = bytemuck::cast_slice(&hash_stg.slice(..).get_mapped_range()).to_vec();
 
     // Compact + dedup on CPU

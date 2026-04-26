@@ -23,7 +23,11 @@ fn assert_compressed_svg(image: &str) {
         &image[..image.len().min(40)]
     );
     let svg = decompress_svg(image);
-    assert!(svg.contains("<svg "), "decompressed not SVG: {}", &svg[..svg.len().min(80)]);
+    assert!(
+        svg.contains("<svg "),
+        "decompressed not SVG: {}",
+        &svg[..svg.len().min(80)]
+    );
     assert!(svg.contains("</svg>"), "decompressed missing close tag");
 }
 

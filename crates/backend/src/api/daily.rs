@@ -1,12 +1,15 @@
 //! Daily puzzle endpoints
 
-use axum::{Json, extract::{Path, Query, State}};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
 use chrono::{NaiveDate, Utc};
 
 use locus_common::{
-    DailyActivityDay, DailyActivityResponse, DailyArchiveEntry, DailyArchiveQuery,
-    DailyDayStatus, DailyPuzzleDetailResponse, DailyPuzzleResponse, DailyPuzzleStats,
-    DailySubmitRequest, DailySubmitResponse, DailyUserStatus,
+    DailyActivityDay, DailyActivityResponse, DailyArchiveEntry, DailyArchiveQuery, DailyDayStatus,
+    DailyPuzzleDetailResponse, DailyPuzzleResponse, DailyPuzzleStats, DailySubmitRequest,
+    DailySubmitResponse, DailyUserStatus,
 };
 
 use crate::{
@@ -115,7 +118,11 @@ pub async fn get_puzzle_by_date(
         puzzle_date,
         title: dp.title,
         problem: problem.to_response(is_past), // include answer for past puzzles
-        editorial_latex: if is_past { dp.editorial_latex } else { String::new() },
+        editorial_latex: if is_past {
+            dp.editorial_latex
+        } else {
+            String::new()
+        },
         hints,
         source: dp.source,
         stats: DailyPuzzleStats {
@@ -167,7 +174,8 @@ pub async fn submit_daily(
 
     // Reject post-solve submissions to prevent attempt count inflation
     let puzzle_date = dp.puzzle_date.unwrap_or_else(|| Utc::now().date_naive());
-    let existing = DailyPuzzleAttempt::get_user_status(&state.pool, user.id, dp.id, puzzle_date).await?;
+    let existing =
+        DailyPuzzleAttempt::get_user_status(&state.pool, user.id, dp.id, puzzle_date).await?;
     if let Some(ref s) = existing {
         if s.solved.unwrap_or(false) {
             let streak = get_daily_puzzle_streak(&state.pool, user.id).await?;
@@ -206,9 +214,12 @@ pub async fn submit_daily(
     tx.commit().await?;
 
     // Check if user has now solved this puzzle
-    let status = DailyPuzzleAttempt::get_user_status(&state.pool, user.id, dp.id, puzzle_date)
-        .await?;
-    let solved = status.as_ref().map(|s| s.solved.unwrap_or(false)).unwrap_or(false);
+    let status =
+        DailyPuzzleAttempt::get_user_status(&state.pool, user.id, dp.id, puzzle_date).await?;
+    let solved = status
+        .as_ref()
+        .map(|s| s.solved.unwrap_or(false))
+        .unwrap_or(false);
     let attempts = status.as_ref().map(|s| s.attempts).unwrap_or(1);
 
     Ok(Json(DailySubmitResponse {
