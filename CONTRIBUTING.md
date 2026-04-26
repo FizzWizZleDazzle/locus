@@ -82,19 +82,10 @@ cargo run --bin dsl-cli -- validate problems/  # All problem files
 
 ## Branching Workflow
 
-The repo has two long-lived protected branches:
+`main` is protected — direct pushes are blocked, including by admins.
+Every change lands via PR with CI green.
 
-- **`stable`** — what's deployed to production. Only PRs from `main` or
-  `hotfix/<slug>` can target it. CI must be green; admin pushes are blocked.
-  This is the lane for shipping a security fix without dragging unfinished
-  `main` work along.
-- **`main`** — integration branch. All feature work lands here via PR. May
-  contain features that are still being smoke-tested on staging. Direct
-  pushes (including by admins) are blocked.
-
-### Routine feature work → main
-
-Use a personal namespace for branches:
+Use a personal namespace for your branches:
 
 ```bash
 git checkout -b <your-github-username>/<short-feature-slug>
@@ -105,32 +96,6 @@ gh pr create --base main --fill
 Examples: `fizzwizzledazzle/gpu-enumerator`, `alice/algebra2-yamls`. One
 topic per branch — keep them short-lived and rebase or merge `main` into
 them frequently.
-
-### Promoting main → stable
-
-Once main is verified on staging, open a PR from `main` to `stable`:
-
-```bash
-gh pr create --base stable --head main --title "Promote main to stable"
-```
-
-The Stable Gate workflow only allows `main` and `hotfix/*` as the head
-branch — any other source is rejected automatically.
-
-### Hotfixes (security or prod-breaking)
-
-Branch off `stable`, fix, then PR into both `stable` and `main`:
-
-```bash
-git checkout -b hotfix/<slug> origin/stable
-# … fix …
-git push -u origin HEAD
-gh pr create --base stable --fill   # ships to prod
-gh pr create --base main --fill     # forward-port the fix
-```
-
-Hotfix PRs to stable bypass the "wait for main to be ready" cycle — the
-fix lands directly. The forward-port PR keeps main from regressing.
 
 ## PR Guidelines
 
