@@ -16,19 +16,29 @@ pub fn eval_num(expr: &str, vars: &VarMap) -> Result<f64, DslError> {
         return Ok(n);
     }
     if let Some(v) = vars.get(trimmed) {
-        if let Ok(n) = v.parse::<f64>() {
+        if let Some(n) = parse_value_as_f64(v) {
             return Ok(n);
         }
     }
     let mut e = Expr::parse(trimmed)
         .map_err(|err| DslError::ExpressionParse(format!("{err}: '{trimmed}'")))?;
     for (name, value) in vars {
-        if let Ok(v) = value.parse::<f64>() {
+        if let Some(v) = parse_value_as_f64(value) {
             e = e.subs_float(name, v);
         }
     }
     e.to_float()
         .ok_or_else(|| DslError::Evaluation(format!("diagram value not numeric: '{trimmed}'")))
+}
+
+/// Coerce a stored variable value (which may be `"3"`, `"5/2"`, or a richer
+/// expression like `"sqrt(2)/2"`) to f64. Falls back to SymEngine when the
+/// raw `parse::<f64>` fails so rationals and surds substitute correctly.
+fn parse_value_as_f64(value: &str) -> Option<f64> {
+    if let Ok(n) = value.parse::<f64>() {
+        return Some(n);
+    }
+    Expr::parse(value).ok().and_then(|e| e.to_float())
 }
 
 /// Evaluate optional value, returning `Ok(None)` when absent.
@@ -47,7 +57,7 @@ pub fn eval_num_opt(expr: Option<&str>, vars: &VarMap) -> Result<Option<f64>, Ds
 pub fn format_label(label: &str, vars: &VarMap, unit: &str) -> String {
     let trimmed = label.trim();
     if let Some(v) = vars.get(trimmed) {
-        if let Ok(n) = v.parse::<f64>() {
+        if let Some(n) = parse_value_as_f64(v) {
             return format!("{}{}", format_num(n), unit);
         }
         return v.clone();

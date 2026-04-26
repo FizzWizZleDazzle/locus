@@ -4,12 +4,13 @@ The YAML you write is consumed by a Rust DSL renderer that parses the spec, samp
 
 # THE CONTRACT
 
-Four things are non-negotiable:
+Five things are non-negotiable:
 
 1. The answer is uniquely determined by the question.
 2. Every symbol in the question text is either a sampled/computed variable, a math identifier the student is expected to know (x, y, z, t, n, k, π, e), or a plain English word.
 3. The rendered LaTeX is clean: no raw `sqrt(`, `**`, `infinity`, `derivative_of(`, `Abs(`, or other code-flavored tokens.
 4. **Every numeric/symbolic value in the SOLUTION text comes from a variable that SymEngine computed.** Never write a number, fraction, or surd as a literal claim in solution prose. If you want the solution to say `sin(60°) = √3/2`, define `sin_val: compute("sin(pi/3)")` and write `{equation(math(sin(60_deg)), sin_val)}`. Never `"sin(60°) = sqrt(3)/2"` as text. Every literal you type is a chance to be wrong; every variable is correct by construction.
+5. **`answer_type: numeric` with the default `mode: equivalent` is strongly preferred for every YAML.** Reframe the question so the answer is a single number whenever possible. `expression`, `tuple`, `set`, `boolean`, `word`, `inequality`, and `interval` are accepted but discouraged — only use one when the topic genuinely cannot be reduced to a numeric answer (e.g. `geometry/triangle_congruence` legitimately needs `word`). `answer_type: matrix` and the `matrix(...)` sampler are **banned** for now.
 
 If you violate any of these, the YAML is rejected.
 
@@ -67,6 +68,11 @@ The right-hand side of a variable definition can be a sampler call:
 | `choice(a, b, c, ...)`          | one of the literal arguments                     |
 | `prime(lo, hi)`                 | random prime in range                            |
 | `decimal(lo, hi, places)`       | decimal with `places` digits after the point     |
+| `rational(lo, hi, max_d)`       | simplified fraction `num/denom`, denom in `[2, max_d]` |
+| `vector(dim, lo, hi)`           | `[a, b, ...]` integer vector, length `dim`       |
+| `angle(lo, hi, step)`           | integer degrees stepped by `step` (e.g. `angle(0, 90, 15)`) |
+
+The `matrix(rows, cols, lo, hi)` sampler exists in the parser but is **banned** for new YAMLs — matrix grading is not reliable. Pick scalar entries individually with `integer(...)` and reference them via `{matrix_of([[a, b], [c, d]])}` for display only.
 
 Every sampler call MUST be on the right-hand side of a variable; you cannot inline `integer(1, 5)` inside an expression.
 
@@ -77,14 +83,22 @@ These compute new values from existing variables. They run through SymEngine, so
 | Function                              | Behavior                                                |
 |---------------------------------------|---------------------------------------------------------|
 | `derivative(expr, var)`               | symbolic derivative                                     |
+| `partial(expr, var)`                  | partial derivative — same engine as `derivative`        |
+| `gradient(expr, [vars])`              | gradient vector wrt listed vars (matrix-domain; prefer per-component `partial`) |
 | `integral(expr, var)`                 | antiderivative (polynomial in `var` only)               |
 | `definite_integral(expr, var, a, b)`  | F(b) − F(a)                                             |
+| `limit(expr, var, point)`             | numeric two-sided limit at `point`                      |
 | `expand(expr)`                        | distribute products                                     |
-| `solve(expr, var)`                    | roots of `expr = 0` (linear or quadratic only)          |
+| `factor(expr)`                        | factor a single-variable polynomial over Q via rational-root reduction; falls back to expanded form when no rational roots exist |
+| `simplify(expr)`                      | canonicalize via SymEngine `expand`                     |
+| `solve(expr, var)`                    | roots of `expr = 0` (linear or quadratic; numeric fallback for higher) |
 | `evaluate(expr, var, val)`            | substitute `var = val` and reduce; EXACTLY 3 args       |
 | `sqrt(expr)` `abs(expr)`              | √x, \|x\|                                               |
 | `sin/cos/tan/asin/acos/atan/log/ln/exp` | standard transcendental                              |
 | `floor/ceil/round/mod/max/min/gcd/lcm`  | integer/numeric ops                                  |
+| `dot([a, b, ...], [c, d, ...])`       | numeric dot product of two integer vectors              |
+| `magnitude([a, b, ...])`              | √(sum of squares) of an integer vector                  |
+| `det / inverse / transpose / eigenvalues / rank / cross` | matrix-domain only — currently UNSUPPORTED via FFI; do NOT use. Use the agent tool `matrix_with_eigenvalues` for eigenvalue construction. |
 
 Builtins parse their arguments through SymEngine. Any expression you write inside a builtin call must be a valid math expression — not template syntax.
 
@@ -125,7 +139,7 @@ The renderer pipes every variable value through SymEngine's native LaTeX printer
 - `f: a*x^n + b*sqrt(x)` rendered via `{f}` produces e.g. `2 x^3 + 5 \sqrt{x}` — clean LaTeX, no leakage.
 - `f: a / b` produces `\frac{a}{b}`.
 - `f: x**(7/2)` produces `x^{\frac{7}{2}}`.
-- `oo` (or `inf`) produces `\infty`. The literal word `infinity` is a free symbol — it does NOT auto-translate. Use `oo` in variable values; in display functions like `{limit_of(f, x, infinity)}` the renderer aliases `infinity` to `\infty` for you, but DO NOT write `infinity` inside a variable RHS.
+- **Infinity, exact rule:** Inside a variable RHS, write `oo` (only). Inside display-function arguments such as `{limit_of(f, x, infinity)}` the lowercase word `infinity` is allowed — the renderer aliases it to `\infty`. Anywhere else (variable RHS, prose, solution text) the word `infinity` is banned. The capitalized variants `Infinity`, `INF`, `Inf` are banned in ALL contexts — the audit rejects them outright.
 
 This means: write expressions naturally in the variable section. Don't pre-format them. The renderer takes care of LaTeX.
 
@@ -197,7 +211,8 @@ These cause hard failures or visible bugs. Do NOT emit ANY of them:
 - `%` operator — use `mod(a, b)` builtin in variables.
 - Unicode math anywhere — in YAML or in question/solution text. The renderer does NOT translate unicode glyphs to LaTeX commands; they show up as literal characters in the wrong font. The full ban list:
   `∞ ∪ ∩ ≤ ≥ ± → √ ∂ ∇ ∫ ∑ ∏ × ÷ · ° ′ ″ π θ λ α β γ δ ε ζ η μ σ φ ψ ω Δ Σ Π Ω`
-  Spell them out: `infinity`, `pi`, `theta`, `lambda`, `alpha`, `beta`, `Delta`, etc. SymEngine recognizes most Greek names; the LaTeX printer renders them as `\pi`, `\theta`, `\lambda`. For operators like ≤, write `<=` (which the `{math()}` wrapper renders as `\leq`).
+  Spell them out: `pi`, `theta`, `lambda`, `alpha`, `beta`, `Delta`, etc. SymEngine recognizes most Greek names; the LaTeX printer renders them as `\pi`, `\theta`, `\lambda`. For operators like ≤, write `<=` (which the `{math()}` wrapper renders as `\leq`).
+- Capitalized infinity tokens — `Infinity`, `INF`, `Inf` are banned outright by the audit. Use `oo` in variable RHS or lowercase `infinity` only inside `{limit_of(...)}` arguments. The lowercase word `infinity` in a variable RHS or in plain prose is also banned (becomes a free symbol in the wrong font).
 - Array indexing: `result[0]`, `solve(expr, x)[0]`. Solve returns a comma-separated string; either use the whole result with `answer_type: set` or design so there's a single root.
 - `evaluate()` with more than 3 args. Chain it: `step1: evaluate(f, x, 2)` then `step2: evaluate(step1, y, 3)`.
 - `equation()` with more than 2 args.
@@ -325,7 +340,7 @@ Use these patterns; adapt freely. Each recipe shows just the variant body — wr
   answer_type: tuple
 ```
 
-**Matrix with chosen eigenvalues** (use the `matrix_with_eigenvalues` agent tool to construct):
+**Matrix with chosen eigenvalues — ask for ONE scalar** (use the `matrix_with_eigenvalues` agent tool to construct, then ask for a single number derived from the matrix):
 ```
 - name: default
   variables:
@@ -333,11 +348,12 @@ Use these patterns; adapt freely. Each recipe shows just the variant body — wr
     b: <from tool>
     c: <from tool>
     d: <from tool>
-    answer: lambda1, lambda2
-  question: "Find the eigenvalues of {matrix_of([[a, b], [c, d]])}."
+    answer: lambda1                           # the larger eigenvalue
+  question: "Find the larger eigenvalue of {matrix_of([[a, b], [c, d]])}."
   answer: answer
-  answer_type: set
+  answer_type: numeric
 ```
+Same pattern for determinant questions (`answer: a*d - b*c`), single-entry inverse questions, etc. — keep `answer_type: numeric`. Do not return the whole eigenvalue set, do not return a matrix.
 
 **Sequence n-th term**:
 ```
@@ -570,19 +586,25 @@ If you write `answer: solve_linear_inequality(5, -7, -5, -6, "<=")` in a YAML, t
 
 # ANSWER ENCODING — WHAT GOES IN `answer:` FOR EACH `answer_type`
 
+**STRONG PREFERENCE: use `answer_type: numeric` with `mode: equivalent` (the default mode).** These are the only combinations the current grading pipeline is fully tested against. If the natural answer for a topic is a single number — including signed integers, fractions, decimals, or exact symbolic numbers like `sqrt(3)/2` — pick `numeric`. Reframe the question to ask for one numeric value whenever possible (e.g. "what is the boundary value of x?" instead of "give the inequality"; "what is the larger root?" instead of "give the set of roots").
+
+Only use a non-numeric `answer_type` when the question genuinely cannot be reduced to one number — and even then, prefer `expression` for symbolic answers and `word` for fixed-vocabulary answers.
+
+**BANNED for now:** `answer_type: matrix` and the `matrix(...)` sampler. Matrix grading is not reliable in the current pipeline. If a topic conceptually needs a matrix (eigenvalues, RREF, inverses), ask for a single derived scalar instead — the determinant, a single entry, the trace, the largest eigenvalue, etc.
+
 The `answer:` field must match what the grader expects for the declared `answer_type`:
 
-| answer_type | What to put in `answer:` | Example |
-|---|---|---|
-| `numeric` | A single number (variable name resolving to one) | `answer: 42` or `answer: my_var` |
-| `expression` | A symbolic expression (variable resolving to one) | `answer: 3*x^2 + 5*x + 1` |
-| `tuple` | Comma-separated values | `answer: x_sol, y_sol` |
-| `set` | Comma-separated values, ORDER-INDEPENDENT | `answer: r1, r2` |
-| `boolean` | A `true` / `false` value or variable | `answer: my_bool` |
-| `word` | A short word/phrase | `answer: SSS` or `answer: "right triangle"` |
-| `inequality` | The FULL inequality string, e.g. `x < 5` or `x >= -2/3` | `answer: "x < 5"` (the variable would be defined as the literal inequality) |
-| `interval` | Boundaries plus open/closed indicators — usually use `tuple` of (lo, hi) instead |
-| `matrix` | A `[[a, b], [c, d]]` literal |
+| answer_type | What to put in `answer:` | Example | Status |
+|---|---|---|---|
+| `numeric` | A single number (variable name resolving to one) | `answer: 42` or `answer: my_var` | **PREFERRED** |
+| `expression` | A symbolic expression (variable resolving to one) | `answer: 3*x^2 + 5*x + 1` | discouraged — only when the question must be symbolic |
+| `tuple` | Comma-separated values | `answer: x_sol, y_sol` | discouraged — split the question or pick one value |
+| `set` | Comma-separated values, ORDER-INDEPENDENT | `answer: r1, r2` | discouraged — ask for one root |
+| `boolean` | A `true` / `false` value or variable | `answer: my_bool` | discouraged |
+| `word` | A short word/phrase | `answer: SSS` or `answer: "right triangle"` | discouraged — only for fixed-vocabulary topics |
+| `inequality` | The FULL inequality string, e.g. `x < 5` or `x >= -2/3` | `answer: "x < 5"` | discouraged — ask for the boundary as `numeric` |
+| `interval` | Boundaries plus open/closed indicators | usually use `tuple` of (lo, hi) instead | discouraged |
+| `matrix` | (banned — see above) | — | **BANNED** |
 
 For `inequality`, the answer must be parseable as an inequality. `8/5` alone is NOT a valid inequality answer — it's just a number. Build the inequality string explicitly:
 

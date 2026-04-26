@@ -12,9 +12,9 @@ Pure number problems. Pick clean inputs, compute the answer with `compute`. No C
 
 ## algebra1/*
 
-- `algebra1/quadratic_formula` — pick roots first, then build coefficients with `polynomial_from_roots([r1, r2])`. Answer is the SET of roots, `answer_type: set`. Use `quadratic_roots(a, b, c)` to verify.
-- `algebra1/linear_inequalities` — use `solve_linear_inequality(a, b, c, d, op)`. The answer is the inequality (`x < N` or `x > N`), not the boundary value. Set `answer_type: inequality`. Don't write `answer: x_val` and hope.
-- `algebra1/compound_inequalities` — return both bounds as a tuple: `answer: lo, hi` with `answer_type: tuple`.
+- `algebra1/quadratic_formula` — pick roots first, then build coefficients with `polynomial_from_roots([r1, r2])`. Ask for the **larger root** as `answer_type: numeric` (or smaller root, sum of roots, product of roots — pick whichever is unique). Use `quadratic_roots(a, b, c)` to verify.
+- `algebra1/linear_inequalities` — use `solve_linear_inequality(a, b, c, d, op)`. Ask for the **boundary value** of x as `answer_type: numeric` (the question text states the inequality direction). Avoid `answer_type: inequality`.
+- `algebra1/compound_inequalities` — ask for the width `hi - lo` or the midpoint, `answer_type: numeric`. Avoid returning both bounds as a tuple.
 - `algebra1/factoring_gcf` — pick GCF and per-term integer coefficients, build the expression as `gcf*c1*x + gcf*c2`, answer is the factored form.
 - `algebra1/factoring_trinomials` — pick roots r1, r2, build `(x - r1)*(x - r2)`, expand for the question. Use `polynomial_from_roots`.
 - `algebra1/graphing_lines` / `slope_and_intercept` — pick slope `m` and a point (x1, y1), compute intercept `b = y1 - m*x1`. Add a `coordinate_plane` diagram.
@@ -61,7 +61,7 @@ Pure number problems. Pick clean inputs, compute the answer with `compute`. No C
 - `differential_equations/variation_of_parameters` — design the homogeneous solution + a clean particular solution.
 - `differential_equations/exact_equations` — pick a potential function F(x, y), the ODE is `dF/dx*dx + dF/dy*dy = 0`.
 - `differential_equations/laplace_transforms` — pick the time-domain function with a known transform table entry. Answer is the transform.
-- `differential_equations/systems_of_odes` — use `matrix_with_eigenvalues(λ1, λ2)` to build the coefficient matrix. The eigenvalues ARE the answer. Never construct the matrix entries first.
+- `differential_equations/systems_of_odes` — use `matrix_with_eigenvalues(λ1, λ2)` to build the coefficient matrix. Ask for the **larger eigenvalue** as `answer_type: numeric`.
 
 ## geometry/*
 
@@ -72,15 +72,15 @@ Always include a `diagram:` block (inside the variant — never at the top level
 - `geometry/perimeter` / `area_of_polygons` — pick side lengths or radii. Use `type: polygon` for non-rectangular shapes.
 - `geometry/surface_area` / `volume` — pick dimensions. Use `compute` for cylinders, cones, spheres in terms of pi.
 - `geometry/similar_triangles` — pick scale factor, build proportional sides.
-- `geometry/triangle_congruence` — answer is the criterion (`SSS`, `SAS`, `ASA`, `AAS`, `HL`). `answer_type: word`.
+- `geometry/triangle_congruence` — answer is the criterion (`SSS`, `SAS`, `ASA`, `AAS`, `HL`). `answer_type: word` is unavoidable here — this is one of the few topics where `word` is the right answer type.
 - `geometry/angle_relationships` — pick one angle, derive the partner via supplementary/complementary/vertical relationships.
 
 ## linear_algebra/*
 
 - `linear_algebra/determinants` — pick small integer entries, compute det via `compute("a*d - b*c")` for 2x2 or expand for 3x3.
-- `linear_algebra/eigenvalues` / `diagonalization` — use `matrix_with_eigenvalues(λ1, λ2)` to build the matrix.
-- `linear_algebra/matrix_arithmetic` / `matrix_inverses` — pick small integer matrices. For inverse, design so determinant divides evenly.
-- `linear_algebra/row_reduction` — pick an invertible matrix; the answer is the RREF (which is identity or close).
+- `linear_algebra/eigenvalues` / `diagonalization` — use `matrix_with_eigenvalues(λ1, λ2)` to build the matrix. Ask for the **larger eigenvalue** as `answer_type: numeric`.
+- `linear_algebra/matrix_arithmetic` / `matrix_inverses` — pick small integer matrices. Ask for a **single derived scalar** (`answer_type: numeric`) — e.g. a specific entry of A·B, the determinant of the inverse, or the trace. Do NOT return a whole matrix.
+- `linear_algebra/row_reduction` — pick an invertible matrix; ask for the **rank** or the value of a specific pivot entry, `answer_type: numeric`. Do NOT return the whole RREF.
 - `linear_algebra/linear_independence` / `linear_transformations` / `vector_spaces` / `subspaces` — answer is often boolean or word (`yes`, `no`, `dependent`, `independent`).
 
 ## multivariable_calculus/*
@@ -92,6 +92,7 @@ Always include a `diagram:` block (inside the variant — never at the top level
 - `multivariable_calculus/line_integrals` / `greens_theorem` — pick the parametrization and the field; verify with `compute`.
 - `multivariable_calculus/lagrange_multipliers` — pick the optimal point on the constraint, design the objective so its critical point lands there.
 - `multivariable_calculus/change_of_variables` — pick the Jacobian determinant; design the transformation backward.
+- `multivariable_calculus/stokes_divergence` — pick a closed surface or loop with clean parametrization; pre-compute the divergence/curl integrand so the answer comes out to an integer or a small rational. For Stokes', set up `F = (P, Q, R)` with `curl F · n` reducing to a single polynomial in one parameter. For divergence theorem, choose a vector field whose `div F` is a constant — then the answer is `(div F) * volume`.
 
 ## precalculus/*
 
@@ -102,6 +103,6 @@ Always include a `diagram:` block (inside the variant — never at the top level
 - `precalculus/polar_coordinates` / `polar_curves` — pick r(theta), evaluate at standard angles.
 - `precalculus/vector_operations` / `dot_cross_product` — pick small integer vectors. Cross product is 3D; dot is any dimension.
 - `precalculus/function_composition` / `inverse_functions` — pick f(x), compose / invert symbolically.
-- `precalculus/domain_and_range` — answer is an interval or union; use `answer_type: tuple` for boundary pairs.
+- `precalculus/domain_and_range` — ask for one boundary value (`answer_type: numeric`), not the whole interval.
 - `precalculus/transformations` — pick parent function and shifts, answer is the transformed expression.
 - `precalculus/law_of_sines_cosines` — pick triangle sides/angles such that the unknown comes out clean. `compute` for verification.
