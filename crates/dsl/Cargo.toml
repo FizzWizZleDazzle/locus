@@ -18,6 +18,9 @@ rand = { workspace = true }
 regex = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
+rayon = { workspace = true }
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+dashmap = "6"
 wgpu = { version = "24", optional = true }
 pollster = { version = "0.4", optional = true }
 bytemuck = { version = "1", features = ["derive"], optional = true }

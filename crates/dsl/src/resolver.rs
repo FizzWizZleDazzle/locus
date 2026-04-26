@@ -16,6 +16,38 @@ use crate::sampler;
 /// Resolved variables: name → string value (SymEngine-compatible)
 pub type VarMap = BTreeMap<String, String>;
 
+/// Resolve all derived/builtin variables given pre-determined sampler values.
+/// Used by the GPU enumerator's render path so we don't redo random sampling
+/// — the GPU already chose specific sampler values, we just need to compute
+/// the dependent symbolic/numeric forms for question/answer/solution rendering.
+pub fn resolve_with_preset(
+    variables: &BTreeMap<String, String>,
+    presets: &VarMap,
+) -> Result<VarMap, DslError> {
+    let order = topo_sort(variables)?;
+    let mut resolved: VarMap = presets.clone();
+
+    for name in &order {
+        if resolved.contains_key(name) {
+            continue;
+        }
+        let definition = &variables[name];
+        if sampler::is_sampler(definition) {
+            // Should have been preset; sample as fallback
+            let value = sampler::sample(definition)?;
+            resolved.insert(name.clone(), value);
+        } else if functions::is_builtin_call(definition) {
+            let value = functions::evaluate(definition, &resolved)?;
+            resolved.insert(name.clone(), value);
+        } else {
+            let value = eval_derived(definition, &resolved)?;
+            resolved.insert(name.clone(), value);
+        }
+    }
+
+    Ok(resolved)
+}
+
 /// Resolve all variables: sample randoms, evaluate derived, execute functions.
 /// Resamples up to 1000 times if constraints aren't satisfied.
 pub fn resolve(
@@ -232,7 +264,7 @@ fn eval_indexing(s: &str) -> String {
 }
 
 /// Topological sort of variable dependencies
-fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<String>, DslError> {
+pub(crate) fn topo_sort(variables: &BTreeMap<String, String>) -> Result<Vec<String>, DslError> {
     let var_names: HashSet<&str> = variables.keys().map(|s| s.as_str()).collect();
 
     // Build dependency graph: deps[name] = vars that `name` depends on
@@ -433,6 +465,10 @@ fn check_constraints(vars: &VarMap, constraints: &[String]) -> Result<bool, DslE
         }
     }
     Ok(true)
+}
+
+pub fn eval_constraint_str(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {
+    eval_constraint(constraint, vars)
 }
 
 fn eval_constraint(constraint: &str, vars: &VarMap) -> Result<bool, DslError> {

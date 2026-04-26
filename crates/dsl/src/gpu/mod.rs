@@ -1,10 +1,19 @@
-//! GPU-accelerated sampling and constraint checking via wgpu compute shaders.
+//! Combinatorial enumeration with bytecode VM.
 //!
-//! Generates millions of variable sets in parallel on GPU, filters by constraints,
-//! returns passing sets to CPU for expression evaluation and LaTeX rendering.
+//! - `bytecode` — opcode set, stack-machine VM, encoder.
+//! - `compile`  — turn ProblemSpec variables/constraints into an executable `Plan`.
+//! - `cpu_exec` — rayon-parallel Cartesian-product enumeration on CPU.
+//! - `enumerator` — top-level driver: compile → execute → render.
+//!
+//! GPU executor (wgpu) lands in M2.
+
+pub mod bytecode;
+pub mod compile;
+pub mod cpu_exec;
+pub mod enumerator;
+pub mod hoist;
 
 #[cfg(feature = "gpu")]
-mod compute;
+pub mod gpu_exec;
 
-#[cfg(feature = "gpu")]
-pub use compute::GpuSampler;
+pub use enumerator::{enumerate, Executor};

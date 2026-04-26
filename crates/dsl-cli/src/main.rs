@@ -57,6 +57,9 @@ enum Command {
         /// Number of rayon threads (default: all cores)
         #[arg(short = 'j', long)]
         threads: Option<usize>,
+        /// Executor: `auto` (try enumerate, fall back), `cpu`, `gpu`, or `legacy`
+        #[arg(long, default_value = "auto")]
+        executor: String,
     },
 
     /// Audit YAMLs: render N samples each, scan for banlist patterns and orphan
@@ -71,6 +74,23 @@ enum Command {
         /// Print full output for each failing file
         #[arg(short, long)]
         verbose: bool,
+    },
+
+    /// Verify enumerator output against legacy rejection sampling on a YAML.
+    /// Asserts every legacy `(question, answer)` pair appears in the
+    /// enumerator's full unique set (modulo the GPU-eligibility check).
+    Verify {
+        /// Path to .yaml file or directory of .yaml files
+        path: PathBuf,
+        /// Legacy samples per file (more = stricter coverage assertion)
+        #[arg(long, default_value = "200")]
+        legacy_samples: usize,
+        /// Enumerator target per file
+        #[arg(long, default_value = "10000")]
+        enum_target: usize,
+        /// Max files to verify (random sample if directory has more)
+        #[arg(long, default_value = "50")]
+        max_files: usize,
     },
 
     /// Use AI to generate new problem YAML files (concurrent)
@@ -110,7 +130,14 @@ fn main() {
             count,
             fast,
             threads,
-        } => cmd_batch(&dir, &output, count, fast, threads),
+            executor,
+        } => cmd_batch(&dir, &output, count, fast, threads, &executor),
+        Command::Verify {
+            path,
+            legacy_samples,
+            enum_target,
+            max_files,
+        } => cmd_verify(&path, legacy_samples, enum_target, max_files),
         Command::Ai {
             topic,
             difficulty,
@@ -296,11 +323,29 @@ fn cmd_audit(path: &PathBuf, runs: usize, verbose: bool) {
     }
 }
 
-fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize, fast: bool, threads: Option<usize>) {
+fn cmd_batch(
+    dir: &PathBuf,
+    output: &PathBuf,
+    count: usize,
+    fast: bool,
+    threads: Option<usize>,
+    executor_str: &str,
+) {
     use rayon::prelude::*;
     use std::io::{BufWriter, Write};
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::{Arc, Mutex};
+
+    let executor = match executor_str {
+        "auto" => Some(locus_dsl::Executor::Auto),
+        "cpu" => Some(locus_dsl::Executor::Cpu),
+        "gpu" => Some(locus_dsl::Executor::Gpu),
+        "legacy" => None,
+        other => {
+            eprintln!("Unknown --executor '{other}' (auto|cpu|gpu|legacy)");
+            std::process::exit(2);
+        }
+    };
 
     let n_threads = threads.unwrap_or_else(|| {
         std::thread::available_parallelism().map(|n| n.get()).unwrap_or(8)
@@ -334,7 +379,7 @@ fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize, fast: bool, threads:
     let n_specs = specs.len();
     let total_target = n_specs * count;
     eprintln!(
-        "{n_specs} specs × {count} = {total_target} problems, {n_threads} threads{}",
+        "{n_specs} specs × {count} = {total_target} problems, {n_threads} threads, executor={executor_str}{}",
         if fast { " [fast]" } else { "" }
     );
 
@@ -350,26 +395,51 @@ fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize, fast: bool, threads:
     let total_written = Arc::new(AtomicUsize::new(0));
     let total_errors = Arc::new(AtomicUsize::new(0));
     let files_done = Arc::new(AtomicUsize::new(0));
+    let total_fallback = Arc::new(AtomicUsize::new(0));
 
     specs.par_iter().for_each(|(name, spec)| {
         let mut buf = Vec::with_capacity(count * 1024);
         let mut ok = 0usize;
-        let mut consecutive_errors = 0u32;
 
-        for _ in 0..count {
-            match gen_fn(spec) {
-                Ok(p) => {
-                    serde_json::to_writer(&mut buf, &p).unwrap();
-                    buf.push(b'\n');
-                    ok += 1;
-                    consecutive_errors = 0;
-                }
+        // Try enumeration path (skipped if --executor=legacy)
+        let enumerated: Option<Vec<locus_dsl::ProblemOutput>> = match executor {
+            Some(exec) => match locus_dsl::enumerate_problems(spec, count, exec) {
+                Ok(Some(rows)) => Some(rows),
+                Ok(None) => None,
                 Err(e) => {
-                    consecutive_errors += 1;
-                    total_errors.fetch_add(1, Ordering::Relaxed);
-                    if consecutive_errors >= 5 {
-                        eprintln!("Bail {name} after 5 consecutive errors: {e}");
-                        break;
+                    eprintln!("Enumerate {name}: {e} — falling back");
+                    None
+                }
+            },
+            None => None,
+        };
+
+        if let Some(rows) = enumerated {
+            for p in rows.iter().take(count) {
+                serde_json::to_writer(&mut buf, p).unwrap();
+                buf.push(b'\n');
+                ok += 1;
+            }
+        } else {
+            if executor.is_some() {
+                total_fallback.fetch_add(1, Ordering::Relaxed);
+            }
+            let mut consecutive_errors = 0u32;
+            for _ in 0..count {
+                match gen_fn(spec) {
+                    Ok(p) => {
+                        serde_json::to_writer(&mut buf, &p).unwrap();
+                        buf.push(b'\n');
+                        ok += 1;
+                        consecutive_errors = 0;
+                    }
+                    Err(e) => {
+                        consecutive_errors += 1;
+                        total_errors.fetch_add(1, Ordering::Relaxed);
+                        if consecutive_errors >= 5 {
+                            eprintln!("Bail {name} after 5 consecutive errors: {e}");
+                            break;
+                        }
                     }
                 }
             }
@@ -384,20 +454,97 @@ fn cmd_batch(dir: &PathBuf, output: &PathBuf, count: usize, fast: bool, threads:
         let done = files_done.fetch_add(1, Ordering::Relaxed) + 1;
         if done % 25 == 0 || done == n_specs {
             eprintln!(
-                "[{done}/{n_specs}] {} written, {} errors",
+                "[{done}/{n_specs}] {} written, {} errors, {} fallback",
                 total_written.load(Ordering::Relaxed),
-                total_errors.load(Ordering::Relaxed)
+                total_errors.load(Ordering::Relaxed),
+                total_fallback.load(Ordering::Relaxed)
             );
         }
     });
 
     writer.lock().unwrap().flush().unwrap();
     eprintln!(
-        "Done: {} problems → {}, {} errors",
+        "Done: {} problems → {}, {} errors, {} fallback",
         total_written.load(Ordering::Relaxed),
         output.display(),
-        total_errors.load(Ordering::Relaxed)
+        total_errors.load(Ordering::Relaxed),
+        total_fallback.load(Ordering::Relaxed)
     );
+}
+
+fn cmd_verify(path: &PathBuf, legacy_samples: usize, enum_target: usize, max_files: usize) {
+    use std::collections::HashSet;
+    let files: Vec<PathBuf> = collect_yaml_files(path).into_iter().take(max_files).collect();
+    if files.is_empty() {
+        eprintln!("No .yaml files found in {}", path.display());
+        std::process::exit(1);
+    }
+
+    let mut total_ok = 0;
+    let mut total_fail = 0;
+    let mut total_skipped = 0;
+    let mut details: Vec<(String, String)> = Vec::new();
+
+    for file in &files {
+        let yaml = read_file(file);
+        let spec = match locus_dsl::parse(&yaml) {
+            Ok(s) => s,
+            Err(e) => {
+                details.push((file.display().to_string(), format!("parse: {e}")));
+                total_fail += 1;
+                continue;
+            }
+        };
+
+        // Enumerator full unique set
+        let enum_rows = match locus_dsl::enumerate_problems(
+            &spec,
+            enum_target,
+            locus_dsl::Executor::Cpu,
+        ) {
+            Ok(Some(rows)) => rows,
+            Ok(None) => {
+                total_skipped += 1;
+                continue;
+            }
+            Err(e) => {
+                details.push((file.display().to_string(), format!("enum err: {e}")));
+                total_fail += 1;
+                continue;
+            }
+        };
+        let enum_set: HashSet<(String, String)> = enum_rows
+            .iter()
+            .map(|p| (p.question_latex.clone(), p.answer_key.clone()))
+            .collect();
+
+        // Legacy random samples
+        let mut legacy_set: HashSet<(String, String)> = HashSet::new();
+        for _ in 0..legacy_samples {
+            if let Ok(p) = locus_dsl::generate_fast(&spec) {
+                legacy_set.insert((p.question_latex, p.answer_key));
+            }
+        }
+
+        let missing: Vec<_> = legacy_set.difference(&enum_set).cloned().collect();
+        if missing.is_empty() {
+            total_ok += 1;
+        } else {
+            total_fail += 1;
+            details.push((
+                file.display().to_string(),
+                format!("legacy − enum = {} missing pairs (first: {:?})", missing.len(), missing.first()),
+            ));
+        }
+    }
+
+    println!("verified: {} OK, {} FAIL, {} SKIPPED", total_ok, total_fail, total_skipped);
+    for (path, msg) in details.iter().take(20) {
+        println!("  {path}: {msg}");
+    }
+    if total_fail > 0 {
+        std::process::exit(1);
+    }
 }
 
 fn cmd_ai(

@@ -11,7 +11,7 @@ name = "dsl-cli"
 path = "src/main.rs"
 
 [dependencies]
-locus-dsl = { path = "../dsl" }
+locus-dsl = { path = "../dsl", features = ["gpu"] }
 locus-common = { path = "../common" }
 clap = { version = "4", features = ["derive"] }
 serde_json = { workspace = true }

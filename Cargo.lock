@@ -2441,15 +2441,18 @@ name = "locus-dsl"
 version = "0.1.5"
 dependencies = [
  "bytemuck",
+ "dashmap",
  "locus-common",
  "pollster",
  "rand 0.10.0",
+ "rayon",
  "regex",
  "serde",
  "serde_yaml",
  "thiserror 2.0.18",
  "uuid",
  "wgpu",
+ "xxhash-rust",
 ]
 
 [[package]]

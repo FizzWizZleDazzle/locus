@@ -24,6 +24,8 @@ pub mod validate;
 use error::DslError;
 use spec::ProblemSpec;
 
+pub use gpu::{enumerate as enumerate_problems, Executor};
+
 /// Parse a YAML string into a ProblemSpec
 pub fn parse(yaml: &str) -> Result<ProblemSpec, DslError> {
     spec::parse_yaml(yaml)

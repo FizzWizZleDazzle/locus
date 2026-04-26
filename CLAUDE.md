@@ -40,10 +40,9 @@ When modifying code, **always update the corresponding doc**:
 These rules prevent segfaults and undefined behavior. Violating them crashes the process.
 
 1. **Always guard `number_is_zero()` with `is_a_Number()` first** — segfaults on non-Number types in native builds
-2. **Native SymEngine is NOT thread-safe** — all FFI calls are serialized through a global `Mutex` (`SYMENGINE_LOCK`); on WASM this is a no-op
-3. **`Expr::clone()` must use a single lock acquisition** — do not call `to_string()` then `parse()` separately (deadlock risk)
-4. **WASM allocator bridge is mandatory** — `frontend/src/main.rs` provides `malloc`/`free`/`calloc`/`realloc` that delegate to Rust's allocator; removing them causes "env" module import errors
-5. **wasi-libc's dlmalloc is stripped** from `libc.a` to prevent dual-allocator conflicts
+2. **Native SymEngine is built with `WITH_SYMENGINE_THREAD_SAFE=ON`** — atomic refcounts + atomic hash caching mean each thread can safely own its own `Expr`. `se_lock!` is a no-op. `Expr` is `Send` but not `Sync` — never share refs across threads.
+3. **WASM allocator bridge is mandatory** — `frontend/src/main.rs` provides `malloc`/`free`/`calloc`/`realloc` that delegate to Rust's allocator; removing them causes "env" module import errors
+4. **wasi-libc's dlmalloc is stripped** from `libc.a` to prevent dual-allocator conflicts
 
 ## Dev Quickstart
 

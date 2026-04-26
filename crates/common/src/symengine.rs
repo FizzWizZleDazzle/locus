@@ -299,6 +299,23 @@ impl Expr {
             Ok(Self { ptr: result_ptr })
         }
     }
+
+    /// Substitute a named symbol with another expression.
+    /// `self.subs_expr("x", &(2*y))` → expression with every `x` replaced by `2*y`.
+    pub fn subs_expr(&self, sym_name: &str, replacement: &Self) -> Self {
+        se_lock!();
+        unsafe {
+            let sym_ptr = basic_new_heap();
+            let c_name = CString::new(sym_name).expect("Invalid symbol name");
+            symbol_set(sym_ptr, c_name.as_ptr());
+
+            let result_ptr = basic_new_heap();
+            basic_subs2(result_ptr, self.ptr, sym_ptr, replacement.ptr);
+
+            basic_free_heap(sym_ptr);
+            Self { ptr: result_ptr }
+        }
+    }
 }
 
 impl Drop for Expr {
