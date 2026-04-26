@@ -80,9 +80,27 @@ cargo test -p locus-dsl          # DSL parser tests
 cargo run --bin dsl-cli -- validate problems/  # All problem files
 ```
 
+## Branching Workflow
+
+`main` is protected — direct pushes are blocked, including by admins.
+Every change lands via PR with CI green.
+
+Use a personal namespace for your branches:
+
+```bash
+git checkout -b <your-github-username>/<short-feature-slug>
+git push -u origin HEAD
+gh pr create --base main --fill
+```
+
+Examples: `fizzwizzledazzle/gpu-enumerator`, `alice/algebra2-yamls`. One
+topic per branch — keep them short-lived and rebase or merge `main` into
+them frequently.
+
 ## PR Guidelines
 
 - One topic per PR
 - All problem YAMLs must pass `dsl-cli validate`
 - Run `cargo clippy` before submitting
 - Include test output for new problems
+- Resolve CI failures before requesting merge — admins won't bypass the gate

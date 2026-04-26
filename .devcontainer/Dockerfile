@@ -104,11 +104,13 @@ COPY --chown=vscode:vscode crates/backend/Cargo.toml crates/backend/Cargo.toml
 COPY --chown=vscode:vscode crates/frontend/Cargo.toml crates/frontend/Cargo.toml
 COPY --chown=vscode:vscode crates/dsl/Cargo.toml crates/dsl/Cargo.toml
 COPY --chown=vscode:vscode crates/dsl-cli/Cargo.toml crates/dsl-cli/Cargo.toml
+COPY --chown=vscode:vscode crates/services-backend/Cargo.toml crates/services-backend/Cargo.toml
+COPY --chown=vscode:vscode crates/status/Cargo.toml crates/status/Cargo.toml
 COPY --chown=vscode:vscode crates/common/build.rs crates/common/build.rs
 COPY --chown=vscode:vscode crates/common/wasi_stub.c crates/common/wasi_stub.c
 # cargo-chef needs stub source files to satisfy Cargo's manifest validation
-RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src crates/dsl/src crates/dsl-cli/src \
-    && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs crates/dsl/src/lib.rs crates/dsl-cli/src/main.rs \
+RUN mkdir -p crates/common/src crates/backend/src crates/frontend/src crates/dsl/src crates/dsl-cli/src crates/services-backend/src crates/status/src \
+    && touch crates/common/src/lib.rs crates/backend/src/main.rs crates/frontend/src/main.rs crates/dsl/src/lib.rs crates/dsl-cli/src/main.rs crates/services-backend/src/main.rs crates/status/src/main.rs \
     && cargo chef prepare --recipe-path /tmp/recipe.json
 
 # ---- Final stage: cook (pre-build) all dependency crates ----

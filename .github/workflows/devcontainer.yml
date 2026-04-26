@@ -10,11 +10,17 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'crates/*/Cargo.toml'
-  workflow_dispatch: # manual trigger
+  # PRs always trigger so the required `build` status reports. The job below
+  # short-circuits on pull_request to avoid pushing images, leaving a
+  # `skipped` conclusion which counts as success for branch protection.
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
     permissions:
       contents: read
       packages: write

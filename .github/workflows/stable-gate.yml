@@ -1,0 +1,27 @@
+name: Stable Gate
+
+# Enforces the branching model: only `main` and `hotfix/*` may PR into `stable`.
+# Any other source branch fails the check, blocking the merge button when this
+# job is required by branch protection.
+
+on:
+  pull_request:
+    branches: [stable]
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  check-source:
+    name: Check Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate head branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          echo "PR head: $HEAD_REF"
+          if [ "$HEAD_REF" = "main" ] || [[ "$HEAD_REF" == hotfix/* ]]; then
+            echo "OK: $HEAD_REF is allowed to merge into stable."
+            exit 0
+          fi
+          echo "::error::PRs to 'stable' must come from 'main' or 'hotfix/<slug>', got '$HEAD_REF'."
+          exit 1

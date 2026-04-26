@@ -13,114 +13,184 @@ env:
   COMMUNITY_API_URL: http://localhost:8090
   LOCUS_FRONTEND_URL: http://localhost:8080
 
+# Path filters drive which downstream jobs run. A docs- or YAML-only push
+# skips the Rust pipeline entirely; a Rust-only push skips YAML validation.
 jobs:
-  check:
-    name: Check & Test
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      rust: ${{ steps.filter.outputs.rust }}
+      yaml: ${{ steps.filter.outputs.yaml }}
+      docker_locus: ${{ steps.filter.outputs.docker_locus }}
+      docker_services: ${{ steps.filter.outputs.docker_services }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            rust:
+              - 'crates/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/setup-symengine/**'
+            yaml:
+              - 'problems/**/*.yaml'
+              - 'crates/dsl/**'
+              - 'crates/dsl-cli/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+            docker_locus:
+              - 'docker/Dockerfile'
+              - 'crates/common/**'
+              - 'crates/backend/**'
+              - 'crates/frontend/**'
+              - 'crates/dsl/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+            docker_services:
+              - 'crates/services-backend/Dockerfile'
+              - 'crates/services-backend/**'
+              - 'crates/common/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+
+  build:
+    name: Cargo check & clippy
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-
-      - name: Cache cargo
-        uses: actions/cache@v4
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache SymEngine
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/lib/libsymengine.a
-          key: symengine-static-threadsafe-v1
-
-      - name: Install system deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgmp-dev cmake g++ pkg-config libssl-dev
-
-      - name: Build SymEngine
-        run: |
-          if [ ! -f /usr/local/lib/libsymengine.a ]; then
-            git clone --depth 1 https://github.com/symengine/symengine.git /tmp/symengine
-            cd /tmp/symengine && mkdir build && cd build
-            cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWITH_SYMENGINE_THREAD_SAFE=ON -DCMAKE_INSTALL_PREFIX=/usr/local ..
-            make -j$(nproc)
-            sudo make install
-            cd / && rm -rf /tmp/symengine
-          fi
-
+          shared-key: build
+      - uses: ./.github/actions/setup-symengine
       - name: Cargo check
         run: cargo check --workspace
-
-      - name: Cargo test (common)
-        run: cargo test -p locus-common
-
-      - name: Cargo test (dsl)
-        run: cargo test -p locus-dsl
-
-      - name: Validate problem files
-        run: |
-          cargo build --bin dsl-cli
-          find problems/ -name "handwritten.yaml" | while read f; do
-            echo "Validating $f..."
-            cargo run --bin dsl-cli -- generate "$f" -n 3 || exit 1
-          done
-          echo "Parsing all YAML files..."
-          find problems/ -name "*.yaml" | while read f; do
-            cargo run --bin dsl-cli -- parse "$f" || exit 1
-          done
-
       - name: Cargo clippy
         run: cargo clippy -p locus-dsl -p locus-dsl-cli -- -W clippy::all
 
-  docker:
-    name: Docker Build & Push
-    needs: check
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  test:
+    name: Cargo test
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: test
+      - uses: ./.github/actions/setup-symengine
+      - name: Cargo test (common + dsl)
+        run: cargo test -p locus-common -p locus-dsl
+
+  validate:
+    name: Validate problem YAML
+    needs: changes
+    if: needs.changes.outputs.yaml == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: validate
+      - uses: ./.github/actions/setup-symengine
+      - name: Validate problem files
+        run: |
+          cargo build --bin dsl-cli
+          BIN=target/debug/dsl-cli
+          find problems/ -name "handwritten.yaml" -print0 | while IFS= read -r -d '' f; do
+            "$BIN" generate "$f" -n 3 || exit 1
+          done
+          find problems/ -name "*.yaml" -print0 | while IFS= read -r -d '' f; do
+            "$BIN" parse "$f" || exit 1
+          done
+
+  docker-locus:
+    name: Docker - locus
+    needs: [changes, build, test]
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.changes.outputs.docker_locus == 'true' &&
+      needs.build.result == 'success' &&
+      needs.test.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        include:
-          - dockerfile: docker/Dockerfile
-            image: locus
-          - dockerfile: crates/services-backend/Dockerfile
-            image: locus-services
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set image name
-        id: meta
+      - id: meta
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "tag_latest=${{ env.REGISTRY }}/${OWNER}/${{ matrix.image }}:latest" >> "$GITHUB_OUTPUT"
-          echo "tag_sha=${{ env.REGISTRY }}/${OWNER}/${{ matrix.image }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
+          echo "tag_latest=${{ env.REGISTRY }}/${OWNER}/locus:latest" >> "$GITHUB_OUTPUT"
+          echo "tag_sha=${{ env.REGISTRY }}/${OWNER}/locus:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.tag_latest }}
+            ${{ steps.meta.outputs.tag_sha }}
+
+  docker-services:
+    name: Docker - services-backend
+    needs: [changes, build, test]
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.changes.outputs.docker_services == 'true' &&
+      needs.build.result == 'success' &&
+      needs.test.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "tag_latest=${{ env.REGISTRY }}/${OWNER}/locus-services:latest" >> "$GITHUB_OUTPUT"
+          echo "tag_sha=${{ env.REGISTRY }}/${OWNER}/locus-services:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: crates/services-backend/Dockerfile
           push: true
           tags: |
             ${{ steps.meta.outputs.tag_latest }}
