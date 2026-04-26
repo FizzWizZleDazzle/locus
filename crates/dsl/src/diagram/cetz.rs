@@ -91,14 +91,15 @@ pub fn label_on_line(buf: &mut String, name: &str, text: &str, anchor: &str) {
 
 /// Use cetz's `angle.angle` helper to draw an interior angle arc at vertex
 /// `o` between rays to `a` and `b`, with `text` placed past the arc on the
-/// angular bisector. `direction: "near"` picks the smaller (interior) angle.
+/// angular bisector. `direction: "cw"` picks the interior arc on the side
+/// where centroid usually sits; label-radius pushes label well off the arc.
 pub fn angle_arc(buf: &mut String, o: (f64, f64), a: (f64, f64), b: (f64, f64), text: &str, radius: f64) {
     let _ = write!(
         buf,
         "angle.angle({o}, {a}, {b}, direction: \"cw\", radius: {r}, label-radius: {r2}, label: text(8pt)[{lab_inner}])\n",
         o = pt(o.0, o.1), a = pt(a.0, a.1), b = pt(b.0, b.1),
         r = n(radius),
-        r2 = n(radius * 1.7),
+        r2 = n(radius * 2.2),
         lab_inner = text,
     );
 }
