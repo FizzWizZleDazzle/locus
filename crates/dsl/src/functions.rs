@@ -92,7 +92,10 @@ pub fn evaluate(definition: &str, vars: &VarMap) -> Result<String, DslError> {
             if let Some(val) = vars.get(a) {
                 return val.clone();
             }
-            // If it contains variable refs, substitute them and evaluate
+            // If it contains variable refs, substitute them and evaluate.
+            // Inputs here are fed straight to SymEngine, so we err on the side
+            // of *over*-parenthesizing — the parser handles it and produces a
+            // canonicalized result with redundant parens stripped.
             let mut substituted = a.to_string();
             let mut sorted_vars: Vec<(&String, &String)> = vars.iter().collect();
             sorted_vars.sort_by(|a, b| b.0.len().cmp(&a.0.len()));

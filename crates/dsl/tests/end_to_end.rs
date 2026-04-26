@@ -818,3 +818,275 @@ fn collect_yaml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) 
         }
     }
 }
+
+// ============================================================================
+// LaTeX rendering quality (regression suite for the prompt-quality overhaul)
+// ============================================================================
+
+/// Generate `n` outputs, assert no banned token appears in question or solution.
+/// Patterns are common bug signatures from the earlier regex-based renderer.
+fn assert_no_render_leaks(yaml: &str, n: usize) {
+    let problems = gen_problems(yaml, n);
+    let banned: &[(&str, &str)] = &[
+        (r"\*\*",               "raw `**` — SymEngine native printer should emit `^{}`"),
+        (r"\bsqrt\(",           "raw `sqrt(` — should render as \\sqrt{}"),
+        (r"\binfinity\b",       "literal word `infinity` — should be \\infty"),
+        (r"\bderivative_of\(",  "literal display-fn name `derivative_of(`"),
+        (r"\bintegral_of\(",    "literal display-fn name `integral_of(`"),
+        (r"\bevaluate\(",       "literal display-fn name `evaluate(`"),
+        (r"\blimit_of\(",       "literal display-fn name `limit_of(`"),
+        (r"\bdet_of\(",         "literal display-fn name `det_of(`"),
+        (r"\bmatrix_of\(",      "literal display-fn name `matrix_of(`"),
+    ];
+    for (i, p) in problems.iter().enumerate() {
+        let combined = format!("{}\n{}", p.question_latex, p.solution_latex);
+        for (pat, why) in banned {
+            let re = regex::Regex::new(pat).unwrap();
+            assert!(
+                !re.is_match(&combined),
+                "iteration {i}: matched banned pattern `{pat}` ({why})\nrender: {combined}"
+            );
+        }
+    }
+}
+
+#[test]
+fn render_no_leaks_derivative_with_sqrt() {
+    // Was producing `21sqrt(x) + 35x**(9/2)` — should be \sqrt and \frac now.
+    let yaml = r#"
+topic: calculus/derivative_rules
+difficulty: hard
+variables:
+  a: nonzero(-6, 6)
+  b: nonzero(-8, 8)
+  n: integer(3, 6)
+  f: a * x^n + b * sqrt(x)
+  answer: derivative(f, x)
+question: "Find {derivative_of(f, x)}"
+answer: answer
+"#;
+    assert_no_render_leaks(yaml, 5);
+}
+
+#[test]
+fn render_limit_at_infinity_emits_latex_infinity() {
+    let yaml = r#"
+topic: calculus/limits_at_infinity
+difficulty: very_easy
+variables:
+  a: nonzero(-5, 5)
+  c: nonzero(-5, 5)
+  f: (a*x) / (c*x)
+  answer: a/c
+question: "Find {limit_of(f, x, infinity)}"
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\infty"),
+            "expected \\infty in {}", p.question_latex);
+        assert!(!p.question_latex.contains("infinity"),
+            "literal `infinity` leaked: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_math_wraps_inequality_in_latex() {
+    // `{math(x < c)}` lets the AI typeset inline math without falling back to
+    // bare-text `x < c`, which the platform doesn't render as LaTeX.
+    let yaml = r#"
+topic: arithmetic/inequality
+difficulty: easy
+variables:
+  c: integer(2, 5)
+  answer: c
+question: "Find x such that {math(x < c)}."
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        // SymEngine's Latex printer emits `<` for StrictLessThan
+        assert!(p.question_latex.contains("<"),
+            "expected `<` in: {}", p.question_latex);
+        // The math expression is wrapped in $...$ by the template renderer
+        assert!(p.question_latex.contains("$x < "),
+            "expected math-mode `x < ...`: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_math_wraps_equality_and_renders_greek() {
+    // SymEngine doesn't parse `lambda = 3`, so {math()} must split on `=`
+    // and render each side. Otherwise `lambda = -2` came out as plain text.
+    let yaml = r#"
+topic: differential_equations/test
+difficulty: easy
+variables:
+  lam: integer(2, 5)
+  answer: lam
+question: "Eigenvalue is {math(lambda = lam)}."
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\lambda"),
+            "expected `\\lambda` in: {}", p.question_latex);
+        assert!(!p.question_latex.contains(" lambda "),
+            "literal `lambda` leaked: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_math_wraps_inequality_with_geq() {
+    let yaml = r#"
+topic: arithmetic/inequality
+difficulty: easy
+variables:
+  c: integer(2, 5)
+  answer: c
+question: "Find {math(x >= c)}."
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\geq"),
+            "expected `\\geq` in: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_math_wraps_function_notation() {
+    let yaml = r#"
+topic: arithmetic/composition
+difficulty: easy
+variables:
+  c: integer(2, 5)
+  answer: c
+question: "Compute {math(f(c))}."
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"f\left("),
+            "expected LaTeX function notation in: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_matrix_cells_resolve_per_cell() {
+    // Earlier output: `\begin{pmatrix} (2) & (1) \\ (0) & (-1) \end{pmatrix}` —
+    // the whole `[[...]]` text was passed through unchanged.
+    // Now each cell goes through expr_to_latex independently.
+    let yaml = r#"
+topic: linear_algebra/matrix_operations
+difficulty: easy
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  d: integer(1, 3)
+  answer: a*d - b*c
+question: "Find the determinant of {matrix_of([[a, b], [c, d]])}"
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\begin{pmatrix}"),
+            "expected pmatrix in: {}", p.question_latex);
+        // No leftover unresolved variable names from the literal `[[a, b], [c, d]]`
+        assert!(!regex::Regex::new(r"\b[a-d]\b").unwrap().is_match(&p.question_latex.replace(r"\begin", "").replace(r"\end", "")),
+            "raw single-letter sampler name leaked into render: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_det_of_uses_vmatrix() {
+    let yaml = r#"
+topic: linear_algebra/determinants
+difficulty: easy
+variables:
+  a: integer(1, 3)
+  b: integer(1, 3)
+  c: integer(1, 3)
+  d: integer(1, 3)
+  answer: a*d - b*c
+question: "Compute {det_of([[a, b], [c, d]])}"
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\begin{vmatrix}"),
+            "expected vmatrix in: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_vec_emits_column_pmatrix() {
+    let yaml = r#"
+topic: linear_algebra/vectors
+difficulty: easy
+variables:
+  a: integer(1, 5)
+  b: integer(1, 5)
+  answer: a + b
+question: "Find the magnitude of {vec([a, b])}"
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(p.question_latex.contains(r"\begin{pmatrix}"),
+            "expected column pmatrix in: {}", p.question_latex);
+        // Rows separated by \\ — column vector has exactly one cell per row
+        assert!(p.question_latex.contains(r"\\"),
+            "expected row separator: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_nested_display_funcs_dispatch() {
+    // `{equation(derivative_of(x, t), expr)}` was leaving the inner call literal:
+    //   `\begin{cases} derivative(x, t) = ... \end{cases}`
+    // Recursive arg resolution should now dispatch the inner display fn.
+    let yaml = r#"
+topic: differential_equations/systems_of_odes
+difficulty: very_easy
+variables:
+  a: nonzero(-3, 3)
+  b: nonzero(-3, 3)
+  rhs: a*x + b*y
+question: "{equation(derivative_of(x, t), rhs)}"
+answer: a
+"#;
+    let problems = gen_problems(yaml, 3);
+    for p in &problems {
+        assert!(!p.question_latex.contains("derivative_of("),
+            "literal display fn in: {}", p.question_latex);
+        assert!(!p.question_latex.contains("derivative("),
+            "literal `derivative(` in: {}", p.question_latex);
+        assert!(p.question_latex.contains(r"\frac{d}{dt}"),
+            "expected \\frac{{d}}{{dt}} in: {}", p.question_latex);
+    }
+}
+
+#[test]
+fn render_evaluate_returns_concrete_value() {
+    // `{evaluate(f, x, c)}` should compute. Earlier bug returned the unevaluated form.
+    let yaml = r#"
+topic: arithmetic/addition
+difficulty: easy
+variables:
+  c: choice(2, 3, 4)
+  g: x^2 + c
+  answer: c
+question: "Compute {evaluate(g, x, c)}"
+answer: answer
+"#;
+    let problems = gen_problems(yaml, 5);
+    for p in &problems {
+        assert!(!p.question_latex.contains("x^"),
+            "evaluate didn't substitute: {}", p.question_latex);
+        assert!(!p.question_latex.contains("evaluate("),
+            "literal display-fn leaked: {}", p.question_latex);
+    }
+}
+
