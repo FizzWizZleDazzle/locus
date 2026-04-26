@@ -4,7 +4,7 @@
 //! variant into cetz markup; `compile::compile` runs Typst (with bundled
 //! cetz + oxifmt packages) to produce SVG; the result is fed through
 //! `locus_common::svg_compress::compress_svg` and stored in
-//! `ProblemOutput.question_image`. The frontend's `decompress_svg`
+//! `ProblemOutput.question_image_url`. The frontend's `decompress_svg`
 //! (`crates/frontend/src/components/problem_card.rs:30`) inverts the same
 //! dictionary on display.
 

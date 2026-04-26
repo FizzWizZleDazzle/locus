@@ -1,6 +1,7 @@
 //! LocusDSL CLI — parse, generate, validate, batch, AI generation
 
 mod ai;
+mod upload;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -115,13 +116,22 @@ enum Command {
     },
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     dotenvy::dotenv().ok();
     let cli = Cli::parse();
 
+    let uploader = match upload::Uploader::from_env() {
+        Ok(opt) => opt,
+        Err(e) => {
+            eprintln!("Uploader init failed (continuing with inline SVG): {e}");
+            None
+        }
+    };
+
     match cli.command {
         Command::Parse { file } => cmd_parse(&file),
-        Command::Generate { file, count, fast } => cmd_generate(&file, count, fast),
+        Command::Generate { file, count, fast } => cmd_generate(&file, count, fast, &uploader).await,
         Command::Validate { path, runs } => cmd_validate(&path, runs),
         Command::Audit { path, runs, verbose } => cmd_audit(&path, runs, verbose),
         Command::Batch {
@@ -171,7 +181,7 @@ fn cmd_parse(file: &PathBuf) {
     }
 }
 
-fn cmd_generate(file: &PathBuf, count: usize, fast: bool) {
+async fn cmd_generate(file: &PathBuf, count: usize, fast: bool, uploader: &Option<upload::Uploader>) {
     let yaml = read_file(file);
     let spec = match locus_dsl::parse(&yaml) {
         Ok(s) => s,
@@ -183,12 +193,15 @@ fn cmd_generate(file: &PathBuf, count: usize, fast: bool) {
 
     let mut success = 0;
     let mut errors = 0;
-    let max_consecutive_errors = 5; // bail early if file is broken
+    let max_consecutive_errors = 5;
     let mut consecutive_errors = 0;
     let gen_fn = if fast { locus_dsl::generate_random_fast } else { locus_dsl::generate_random };
     for _ in 0..count {
         match gen_fn(&spec) {
-            Ok(problem) => {
+            Ok(mut problem) => {
+                if let Err(e) = upload_question_image(&mut problem, uploader.as_ref()).await {
+                    eprintln!("Upload error: {e}");
+                }
                 println!("{}", serde_json::to_string(&problem).unwrap());
                 success += 1;
                 consecutive_errors = 0;
@@ -205,6 +218,28 @@ fn cmd_generate(file: &PathBuf, count: usize, fast: bool) {
         }
     }
     eprintln!("Generated: {success}, Errors: {errors}");
+}
+
+/// If the rendered `question_image_url` field still holds an inline
+/// (compressed) SVG and an uploader is available, push the bytes to the
+/// bucket and replace the field with the resulting public URL.
+async fn upload_question_image(
+    problem: &mut locus_dsl::ProblemOutput,
+    uploader: Option<&upload::Uploader>,
+) -> Result<(), String> {
+    let Some(up) = uploader else { return Ok(()); };
+    let img = std::mem::take(&mut problem.question_image_url);
+    if img.is_empty() {
+        return Ok(());
+    }
+    if img.starts_with("http://") || img.starts_with("https://") {
+        problem.question_image_url = img;
+        return Ok(());
+    }
+    let svg = locus_common::svg_compress::decompress_svg(&img);
+    let url = up.put(svg.as_bytes(), "svg", "image/svg+xml").await?;
+    problem.question_image_url = url;
+    Ok(())
 }
 
 fn cmd_validate(path: &PathBuf, runs: usize) {

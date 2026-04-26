@@ -26,10 +26,18 @@ pub fn ProblemCard(
                 </div>
             </div>
 
-            {(!problem.question_image.is_empty()).then(|| {
-                let svg = locus_common::svg_compress::decompress_svg(&problem.question_image);
+            {(!problem.question_image_url.is_empty()).then(|| {
+                let url = problem.question_image_url.clone();
                 view! {
-                    <div class="flex justify-center my-3" inner_html=svg />
+                    <div class="flex justify-center my-3">
+                        <img
+                            src=url
+                            alt="Problem diagram"
+                            class="max-w-full h-auto"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
                 }
             })}
 

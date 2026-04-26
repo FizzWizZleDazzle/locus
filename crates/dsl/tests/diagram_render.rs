@@ -1,7 +1,7 @@
 //! Diagram render round-trip tests.
 //!
 //! For each implemented diagram type, parse a representative YAML, generate a
-//! problem, and assert `question_image`:
+//! problem, and assert `question_image_url`:
 //! - is non-empty
 //! - starts with the dictionary-compression prefix `s1:`
 //! - decompresses to valid SVG containing `<svg ...>` and `</svg>`
@@ -9,14 +9,14 @@
 use locus_common::svg_compress::decompress_svg;
 use locus_dsl::{generate_random, parse};
 
-fn render_question_image(yaml: &str) -> String {
+fn render_question_image_url(yaml: &str) -> String {
     let spec = parse(yaml).expect("parse");
     let out = generate_random(&spec).expect("generate");
-    out.question_image
+    out.question_image_url
 }
 
 fn assert_compressed_svg(image: &str) {
-    assert!(!image.is_empty(), "expected non-empty question_image");
+    assert!(!image.is_empty(), "expected non-empty question_image_url");
     assert!(
         image.starts_with("s1:"),
         "expected compression prefix, got: {}",
@@ -45,7 +45,7 @@ variants:
         - point: {at: a, style: filled}
         - arrow: {from: a, direction: right, color: blue}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -69,7 +69,7 @@ variants:
         - line: {slope: m, intercept: b, color: blue, label: y}
         - point: {x: 0, y: b, label: P}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -92,7 +92,7 @@ variants:
         - central_angle: {vertex: O, sides: [A, B], label: central}
         - inscribed_angle: {vertex: C, sides: [A, B], label: half_central}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -120,7 +120,7 @@ variants:
       angles:
         B: right_angle
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -143,7 +143,7 @@ variants:
       vertices: [A, B, C]
       angles: {A: angle_a, B: angle_b, C: angle_c}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -169,7 +169,7 @@ variants:
         A: angle_deg
       right_angle: B
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -193,7 +193,7 @@ variants:
         - zero: {of: f, label: true}
         - minimum: {of: f, label: true}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -218,7 +218,7 @@ variants:
         - normal: {label: "N"}
         - friction: {direction: up_incline, label: "f"}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -241,7 +241,7 @@ variants:
       show_lines: true
       region: [-5, 5, -5, 5]
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }
 
 #[test]
@@ -264,5 +264,5 @@ variants:
         - point: {at: b, style: filled}
         - arrow: {from: a, to: b, direction: right, color: blue}
 "#;
-    assert_compressed_svg(&render_question_image(yaml));
+    assert_compressed_svg(&render_question_image_url(yaml));
 }

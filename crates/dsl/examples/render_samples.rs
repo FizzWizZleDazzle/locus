@@ -213,10 +213,10 @@ fn main() {
     for (name, yaml) in SAMPLES {
         let spec = parse(yaml).unwrap_or_else(|e| panic!("{name}: parse: {e}"));
         let out = generate_random(&spec).unwrap_or_else(|e| panic!("{name}: gen: {e}"));
-        let svg = decompress_svg(&out.question_image);
+        let svg = decompress_svg(&out.question_image_url);
         let path = format!("{out_dir}/{name}.svg");
         fs::write(&path, &svg).unwrap();
-        println!("{name}: {} bytes raw, {} bytes compressed", svg.len(), out.question_image.len());
+        println!("{name}: {} bytes raw, {} bytes compressed", svg.len(), out.question_image_url.len());
     }
     println!("\nWrote samples to {out_dir}/");
 }
