@@ -48,10 +48,20 @@ FRONTEND_BASE_URL="${PRODUCTION_FRONTEND_BASE_URL}"
 OAUTH_REDIRECT_BASE="${PRODUCTION_OAUTH_REDIRECT_BASE}"
 RESEND_FROM_EMAIL="${PRODUCTION_RESEND_FROM_EMAIL}"
 CLOUDFLARED_TUNNEL="${PRODUCTION_CLOUDFLARED_TUNNEL}"
+MINIO_ROOT_USER="${PRODUCTION_MINIO_ROOT_USER:-locus-admin}"
+MINIO_ROOT_PASSWORD="${PRODUCTION_MINIO_ROOT_PASSWORD}"
+MINIO_TUNNEL_TOKEN="${PRODUCTION_MINIO_TUNNEL_TOKEN}"
 
 # Verify required variables
 if [ -z "$JWT_SECRET" ] || [ -z "$DB_PASSWORD" ]; then
     echo "ERROR: Required secrets not found in .env (PRODUCTION_JWT_SECRET, PRODUCTION_DB_PASSWORD)"
+    exit 1
+fi
+
+if [ -z "$MINIO_ROOT_PASSWORD" ] || [ -z "$MINIO_TUNNEL_TOKEN" ]; then
+    echo "ERROR: PRODUCTION_MINIO_ROOT_PASSWORD and PRODUCTION_MINIO_TUNNEL_TOKEN must be set in .env"
+    echo "Generate password: openssl rand -base64 32"
+    echo "Get tunnel token from Cloudflare Zero Trust dashboard for the media tunnel"
     exit 1
 fi
 
@@ -103,6 +113,9 @@ helm upgrade --install $RELEASE_NAME ./helm/locus \
     --set backend.frontendBaseUrl="$FRONTEND_BASE_URL" \
     --set backend.oauthRedirectBase="$OAUTH_REDIRECT_BASE" \
     --set cloudflaredTunnel.token="$CLOUDFLARED_TUNNEL" \
+    --set minio.rootUser="$MINIO_ROOT_USER" \
+    --set minio.rootPassword="$MINIO_ROOT_PASSWORD" \
+    --set minioTunnel.token="$MINIO_TUNNEL_TOKEN" \
     ${VALUES_FILE:+--values $VALUES_FILE} \
     --wait
 

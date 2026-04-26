@@ -437,7 +437,7 @@ pub struct ProblemResponse {
     #[serde(default)]
     pub solution_latex: String,
     #[serde(default)]
-    pub question_image: String,
+    pub question_image_url: String,
     #[serde(default)]
     pub time_limit_seconds: Option<i32>,
 }

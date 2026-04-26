@@ -82,8 +82,9 @@ pub struct Variant {
     /// Solution steps
     pub solution: Option<Vec<String>>,
 
-    /// Diagram specification (declarative; renderer is a planned follow-up)
-    pub diagram: Option<serde_yaml::Value>,
+    /// Diagram specification — rendered to compressed SVG at generation time.
+    /// See `crate::diagram` and `docs/DSL_SPEC.md` §11.
+    pub diagram: Option<crate::diagram::spec::DiagramSpec>,
 
     /// Variant-level difficulty override
     pub difficulty: Option<Difficulty>,

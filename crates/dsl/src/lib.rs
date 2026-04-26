@@ -19,7 +19,7 @@ pub mod spec;
 pub mod template;
 pub mod validate;
 
-// pub mod diagram;  // TODO: Typst + circuitikz integration
+pub mod diagram;
 
 use error::DslError;
 use spec::{ProblemSpec, Variant};
@@ -45,6 +45,11 @@ pub fn generate_fast(spec: &ProblemSpec, variant: &Variant) -> Result<ProblemOut
     let answer_type = answer::infer_type(&answer_key, variant.answer_type.as_deref());
     let difficulty = variant.difficulty.as_ref().unwrap_or(&spec.difficulty);
 
+    let question_image_url = match &variant.diagram {
+        Some(d) => diagram::render(d, &vars)?,
+        None => String::new(),
+    };
+
     Ok(ProblemOutput {
         question_latex,
         answer_key,
@@ -55,7 +60,7 @@ pub fn generate_fast(spec: &ProblemSpec, variant: &Variant) -> Result<ProblemOut
         grading_mode: variant.mode.clone().unwrap_or_else(|| "equivalent".into()),
         answer_type,
         calculator_allowed: spec.calculator.clone().unwrap_or_else(|| "none".into()),
-        question_image: String::new(),
+        question_image_url,
         time_limit_seconds: spec.time,
         variant_name: variant.name.clone(),
     })
@@ -116,7 +121,7 @@ pub struct ProblemOutput {
     pub grading_mode: String,
     pub answer_type: String,
     pub calculator_allowed: String,
-    pub question_image: String,
+    pub question_image_url: String,
     pub time_limit_seconds: Option<i32>,
     /// Name of the variant this output was rendered from.
     pub variant_name: String,

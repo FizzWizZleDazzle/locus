@@ -423,14 +423,17 @@ Declarative SVG generation. AI describes what to draw. Parser generates renderin
 
 ### Rendering Engines
 
-| Engine | Used for | Integration |
-|--------|----------|-------------|
-| **Typst + cetz** | Geometry, coord planes, graphs, number lines, force diagrams, field lines | In-process via `typst` Rust crate (~100ms) |
-| **circuitikz** (LaTeX) | Circuit diagrams | CLI: `pdflatex` → `pdf2svg` (~1-2s) |
+| Type group | Used for | Integration |
+|---|---|---|
+| **Direct SVG (Rust)** | Geometry, coord planes, graphs, number lines, force diagrams, field lines | Pure-Rust string emission via `diagram::svg` helpers; no external deps |
+| **circuitikz** (LaTeX) | Circuit diagrams | **Not yet implemented** — circuit specs parse but the renderer returns an error |
 
-Parser translates diagram YAML → Typst/cetz markup (or circuitikz for circuits) → compiles to SVG → compresses via `compress_svg()`.
+The eight Typst-formerly-targeted types are rendered directly to SVG that
+matches the `SVG_DICT` token shortcuts in `crates/common/src/svg_compress.rs`,
+then compressed via `compress_svg()`. Circuit (§11.9) is parsed but not
+rendered — the pdflatex/circuitikz subprocess pipeline is future work.
 
-AI never sees Typst or LaTeX. AI only writes the diagram YAML block.
+AI never sees the rendering layer. AI only writes the diagram YAML block.
 
 ### 11.1 Coordinate Plane
 
@@ -449,7 +452,7 @@ diagram:
     - arrow: {from: [0, 0], to: [3, 4], label: v}
 ```
 
-Rendered via: Typst + cetz `plot` module.
+Rendered via: `diagram::coordinate_plane` (direct SVG).
 
 ### 11.2 Triangle
 
@@ -469,7 +472,7 @@ diagram:
   right_angle: C
 ```
 
-Rendered via: Typst + cetz. Parser computes vertex positions from side lengths + angles using law of cosines, draws with `cetz.draw`.
+Rendered via: `diagram::triangle` — vertex positions computed from sides + angles via law of cosines.
 
 ### 11.3 Circle
 
@@ -487,7 +490,7 @@ diagram:
     - inscribed_angle: {vertex: C, sides: [A, B], label: alpha}
 ```
 
-Rendered via: Typst + cetz. Parser places points on circle at computed angles.
+Rendered via: `diagram::circle` — referenced points are auto-distributed evenly around the circle in declaration order; explicit `point: {name, angle}` overrides. The `radius:` field is informational (geometry of the picture is independent of magnitude).
 
 ### 11.4 Polygon
 
@@ -505,7 +508,7 @@ diagram:
     center: "Area = ?"
 ```
 
-Rendered via: Typst + cetz.
+Rendered via: `diagram::polygon` — vertices are auto-placed by walking the perimeter using sides + interior angles, or you may give explicit `{x, y}` per vertex.
 
 ### 11.5 Number Line
 
@@ -520,7 +523,7 @@ diagram:
     - arrow: {from: 3, direction: right, color: red}
 ```
 
-Rendered via: Typst + cetz. Simple axis with tick marks + elements.
+Rendered via: `diagram::number_line` — axis with integer tick labels and the listed elements.
 
 ### 11.6 Graph of Function
 
@@ -542,7 +545,7 @@ diagram:
     - inflection: {of: f, style: dot}
 ```
 
-Rendered via: Typst + cetz `plot`. Parser evaluates `f` at sample points, plots curve, marks features.
+Rendered via: `diagram::function_graph` — each function is sampled via SymEngine `Expr::subs_float` at 240 x-points and emitted as a `<polyline>`; features (zero/maximum/minimum/inflection) are detected heuristically from the samples.
 
 ### 11.7 Force Diagram (Physics C: Mechanics)
 
@@ -559,7 +562,7 @@ diagram:
     - applied: {angle: 30, magnitude: F, label: "F"}
 ```
 
-Rendered via: Typst + cetz. Parser draws object shape, surface, then force arrows at correct angles with labels.
+Rendered via: `diagram::force_diagram` — object shape + surface + arrows at the correct angles with labels.
 
 ### 11.8 Field Lines (Physics C: E&M)
 
@@ -575,7 +578,7 @@ diagram:
   region: [-5, 5, -5, 5]
 ```
 
-Rendered via: Typst + cetz. Parser computes field line trajectories numerically from source positions and charge values.
+Rendered via: `diagram::field` — streamlines integrated numerically (Euler step, normalized field) from each source and emitted as `<polyline>`s.
 
 ### 11.9 Circuit (Physics C: E&M)
 
@@ -591,7 +594,7 @@ diagram:
   layout: series    # series, parallel, bridge, wheatstone
 ```
 
-Rendered via: **circuitikz** (LaTeX). Parser generates `.tex` with circuitikz commands → `pdflatex` → `pdf2svg` → compress. Used instead of Typst because circuitikz has the most mature circuit component library (resistors, capacitors, inductors, op-amps, transistors, voltage/current sources, grounds, switches).
+Rendered via: **not yet implemented**. Circuit YAML parses successfully so existing problem files validate, but `diagram::render` returns an error if invoked. Planned: pdflatex + pdf2svg subprocess pipeline (circuitikz has the most mature circuit component library — resistors, capacitors, inductors, op-amps, transistors, voltage/current sources, grounds, switches).
 
 Node positions auto-computed from `layout` + `between` declarations. AI never specifies coordinates.
 

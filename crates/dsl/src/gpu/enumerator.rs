@@ -183,6 +183,14 @@ fn render_row(
     let answer_type = answer::infer_type(&answer_key, variant.answer_type.as_deref());
     let difficulty = variant.difficulty.as_ref().unwrap_or(&spec.difficulty);
 
+    let question_image_url = match &variant.diagram {
+        Some(d) => match crate::diagram::render(d, &vars) {
+            Ok(s) => s,
+            Err(_) => return Ok(None),
+        },
+        None => String::new(),
+    };
+
     Ok(Some(ProblemOutput {
         question_latex,
         answer_key,
@@ -193,7 +201,7 @@ fn render_row(
         grading_mode: variant.mode.clone().unwrap_or_else(|| "equivalent".into()),
         answer_type,
         calculator_allowed: spec.calculator.clone().unwrap_or_else(|| "none".into()),
-        question_image: String::new(),
+        question_image_url,
         time_limit_seconds: spec.time,
         variant_name: variant.name.clone(),
     }))

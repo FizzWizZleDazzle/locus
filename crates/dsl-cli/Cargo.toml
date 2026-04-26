@@ -21,3 +21,6 @@ reqwest = { workspace = true }
 tokio = { workspace = true }
 dotenvy = { workspace = true }
 rayon = { workspace = true }
+rust-s3 = { version = "0.36", default-features = false, features = ["tokio-rustls-tls"] }
+sha2 = "0.10"
+hex = "0.4"

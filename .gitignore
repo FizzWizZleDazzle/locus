@@ -28,6 +28,10 @@ target
 # Environment files
 .env
 
+# Local helm overrides (contain secrets — never commit)
+helm/**/values.local.yaml
+helm/**/values.secret.yaml
+
 # Frontend build output
 crates/frontend/dist/
 
@@ -61,3 +65,14 @@ kubeconfig
 .devcontainer/*.db
 
 .claude/
+
+# Vendored Typst packages (cetz, oxifmt) — fetched by
+# scripts/fetch-diagram-assets.sh from packages.typst.org with pinned
+# SHA-256. Only LICENSE files are committed (for compliance visibility).
+crates/dsl/assets/*/src/
+crates/dsl/assets/*/cetz-core/
+crates/dsl/assets/*/typst.toml
+crates/dsl/assets/*/README.md
+crates/dsl/assets/*/.fetched-*
+crates/dsl/assets/*/lib.typ
+crates/dsl/assets/*/oxifmt.typ

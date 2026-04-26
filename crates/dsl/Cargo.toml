@@ -21,6 +21,10 @@ uuid = { workspace = true }
 rayon = { workspace = true }
 xxhash-rust = { version = "0.8", features = ["xxh3"] }
 dashmap = "6"
+typst = "0.14"
+typst-svg = "0.14"
+typst-assets = { version = "0.14", features = ["fonts"] }
+include_dir = "0.7"
 wgpu = { version = "24", optional = true }
 pollster = { version = "0.4", optional = true }
 bytemuck = { version = "1", features = ["derive"], optional = true }
