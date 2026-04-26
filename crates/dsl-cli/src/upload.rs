@@ -29,7 +29,8 @@ impl Uploader {
         // dev endpoint is) into stored problem rows.
         let public_base = std::env::var("S3_PUBLIC_BASE").map_err(|_| {
             "S3_PUBLIC_BASE is required when S3_ENDPOINT_URL is set; refusing to default \
-             to the endpoint URL (would leak local addresses into stored URLs)".to_string()
+             to the endpoint URL (would leak local addresses into stored URLs)"
+                .to_string()
         })?;
         if public_base.contains("localhost")
             || public_base.contains("127.0.0.1")
