@@ -1,0 +1,31 @@
+name: Setup SymEngine
+description: Install build deps and (cached) static SymEngine with thread-safe refcounts.
+runs:
+  using: composite
+  steps:
+    - name: Cache SymEngine
+      uses: actions/cache@v4
+      with:
+        path: /usr/local/lib/libsymengine.a
+        key: symengine-static-threadsafe-v1
+
+    - name: Install system deps
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgmp-dev cmake g++ pkg-config libssl-dev
+
+    - name: Build SymEngine
+      shell: bash
+      run: |
+        if [ ! -f /usr/local/lib/libsymengine.a ]; then
+          git clone --depth 1 https://github.com/symengine/symengine.git /tmp/symengine
+          cd /tmp/symengine && mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DBUILD_SHARED_LIBS=OFF \
+                -DWITH_SYMENGINE_THREAD_SAFE=ON \
+                -DCMAKE_INSTALL_PREFIX=/usr/local ..
+          make -j$(nproc)
+          sudo make install
+          cd / && rm -rf /tmp/symengine
+        fi
