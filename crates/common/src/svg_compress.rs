@@ -44,6 +44,17 @@ pub fn decompress_svg(s: &str) -> String {
     out
 }
 
+/// Compress a raw SVG using the same dictionary `decompress_svg` inverts.
+/// Iterates `SVG_DICT` in the declared longest-first order, replacing each
+/// expansion with its short token. Output is prefixed with `"s1:"`.
+pub fn compress_svg(s: &str) -> String {
+    let mut out = s.to_string();
+    for &(token, expansion) in SVG_DICT {
+        out = out.replace(expansion, token);
+    }
+    format!("s1:{out}")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,5 +76,18 @@ mod tests {
     #[test]
     fn empty_string_passthrough() {
         assert_eq!(decompress_svg(""), "");
+    }
+
+    #[test]
+    fn compress_matches_python_fixture() {
+        let original = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none" stroke="currentColor"><line class="g" stroke-width="2" x1="0" y1="100" x2="400" y2="100"/><text class="t" text-anchor="middle" dominant-baseline="central" font-size="14" fill="currentColor" x="200" y="50">Hello</text></svg>"#;
+        let expected = r#"s1:<svg ~X ~v0 0 400 200" ~n ~s>~L~g ~w2" x1="0" y1="100" x2="400" y2="100"/>~T~t ~m ~D ~z14" ~f x="200" y="50">Hello~E</svg>"#;
+        assert_eq!(compress_svg(original), expected);
+    }
+
+    #[test]
+    fn compress_decompress_roundtrip() {
+        let original = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none" stroke="currentColor"><line class="g" stroke-width="2" x1="0" y1="100" x2="400" y2="100"/></svg>"#;
+        assert_eq!(decompress_svg(&compress_svg(original)), original);
     }
 }

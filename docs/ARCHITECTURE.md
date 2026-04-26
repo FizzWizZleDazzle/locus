@@ -238,7 +238,38 @@ Dictionary-based compression in `common/src/svg_compress.rs` for compact SVG sto
 - **Prefix**: `s1:` marks compressed SVGs (raw `<svg...` passes through unchanged)
 - **24 token mappings**: longest-first replacement for safe decompression
 - Examples: `~X` → `xmlns="http://www.w3.org/2000/svg"`, `~P` → `<path d="`
+- `compress_svg()` is the inverse of `decompress_svg()` — both iterate the
+  same `SVG_DICT`; `compress_svg` is used by the DSL diagram renderer to
+  produce dictionary-friendly output, `decompress_svg` runs in the frontend
+  (`crates/frontend/src/components/problem_card.rs:30`)
 - Used by factory-generated question images (`question_image` column)
+
+## Diagram Pipeline
+
+`crates/dsl/src/diagram/` renders the optional `diagram:` block on a
+`Variant` to a compressed SVG that lands in `ProblemOutput.question_image`.
+
+- **Spec**: `docs/DSL_SPEC.md` §11 defines the YAML schema. `spec.rs` mirrors
+  it as a typed `DiagramSpec` enum (replaces `serde_yaml::Value` in
+  `crates/dsl/src/spec.rs`); the `Num` wrapper deserializes from either YAML
+  number or string so callers can write `radius: 5` or `radius: r`.
+- **Render**: `diagram::render(spec, &vars)` dispatches by type to one of
+  `number_line`, `coordinate_plane`, `triangle`, `circle`, `polygon`,
+  `function_graph`, `force_diagram`, `field`. Each module emits SVG fragments
+  through `diagram::svg` builder helpers (`<line>`, `<text>`, `<circle>`,
+  `<polyline>`, `<polygon>`, `<path>`) that match the `SVG_DICT` shortcuts.
+- **Compress**: the wrapped `<svg>` string is passed through
+  `locus_common::svg_compress::compress_svg` before storage.
+- **Eval**: `diagram::eval::eval_num(expr, vars)` resolves any field to
+  `f64` — accepts literals, variable references, or full expressions
+  (parses via SymEngine, substitutes via `Expr::subs_float`).
+- **Hook points**: `crates/dsl/src/lib.rs::generate_fast` and
+  `crates/dsl/src/gpu/enumerator.rs` populate `question_image` from
+  `variant.diagram` if present.
+- **Circuit (§11.9)**: parsed but not rendered — pdflatex/circuitikz
+  pipeline is future work; the renderer returns a clear error if invoked.
+- **No external deps**: the renderer is pure Rust + SymEngine. No Typst,
+  no LaTeX subprocess, no bundled packages.
 
 ## Caching Strategies
 

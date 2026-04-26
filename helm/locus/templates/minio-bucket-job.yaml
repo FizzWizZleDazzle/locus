@@ -1,0 +1,76 @@
+{{- if .Values.minio.initBucket }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-minio-init
+  labels:
+    app: {{ .Release.Name }}-minio
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: minio/mc:latest
+          env:
+            - name: MC_HOST_local
+              value: http://$(ROOT_USER):$(ROOT_PASSWORD)@{{ .Release.Name }}-minio:9000
+            - name: ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio-secrets
+                  key: root-user
+            - name: ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio-secrets
+                  key: root-password
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              # Wait for MinIO to be reachable.
+              until mc ready local; do echo waiting for minio; sleep 2; done
+
+              BUCKET={{ .Values.minio.bucket | default "diagrams" | quote }}
+              mc mb --ignore-existing local/$BUCKET
+
+              # Public-read for stored objects (bucket itself stays non-listable).
+              cat > /tmp/policy.json <<EOF
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": ["*"]},
+                    "Action": ["s3:GetObject"],
+                    "Resource": ["arn:aws:s3:::$BUCKET/*"]
+                  }
+                ]
+              }
+              EOF
+              mc anonymous set-json /tmp/policy.json local/$BUCKET || \
+                mc policy set-json /tmp/policy.json local/$BUCKET
+
+              # CORS so frontend <img src> works from the main origin.
+              cat > /tmp/cors.json <<EOF
+              {
+                "CORSRules": [
+                  {
+                    "AllowedOrigins": {{ .Values.minio.corsOrigins | default (list "https://locusmath.org") | toJson }},
+                    "AllowedMethods": ["GET", "HEAD"],
+                    "AllowedHeaders": ["*"],
+                    "MaxAgeSeconds": 3600
+                  }
+                ]
+              }
+              EOF
+              # MinIO accepts CORS via mc admin or per-bucket; new releases use anonymous + cors aliases.
+              mc admin config set local cors:default cors_allow_origin="*" || true
+{{- end }}

@@ -42,8 +42,13 @@ init:
 	fi
 
 
+# Fetch vendored binary assets (cetz_core.wasm). Idempotent.
+.PHONY: assets
+assets:
+	@scripts/fetch-diagram-assets.sh
+
 # Build Docker image
-build:
+build: assets
 	@echo "============================================"
 	@echo "Building Docker image..."
 	@echo "============================================"

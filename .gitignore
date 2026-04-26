@@ -28,6 +28,10 @@ target
 # Environment files
 .env
 
+# Local helm overrides (contain secrets — never commit)
+helm/**/values.local.yaml
+helm/**/values.secret.yaml
+
 # Frontend build output
 crates/frontend/dist/
 
@@ -61,3 +65,6 @@ kubeconfig
 .devcontainer/*.db
 
 .claude/
+
+# Vendored cetz WASM plugin — fetched by scripts/fetch-diagram-assets.sh
+crates/dsl/assets/cetz-*/cetz-core/*.wasm

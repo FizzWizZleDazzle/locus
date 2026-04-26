@@ -114,10 +114,30 @@ secrets:
   resendFromEmail: "no-reply@yourdomain.com"
   resendFromName: "Locus"
 
-# Cloudflare Tunnel configuration
+# Cloudflare Tunnel configuration (backend)
 cloudflaredTunnel:
   hostname: api.locusmath.org
   token: ""  # Get token from Cloudflare dashboard or: cloudflared tunnel token <tunnel-name>
+
+# MinIO object store for diagram SVGs / PNGs.
+# Set rootUser/rootPassword via --set; never commit real values.
+minio:
+  image: minio/minio:latest
+  storage: 20Gi
+  storageClass: ""        # use cluster default if empty
+  bucket: diagrams
+  initBucket: true        # run mc Job to create + set public-read + CORS
+  rootUser: ""            # required at deploy time
+  rootPassword: ""        # required at deploy time
+  consoleUrl: ""          # optional public URL for MinIO console
+  corsOrigins:
+    - https://locusmath.org
+
+# Separate Cloudflare Tunnel for media.locusmath.org (its own tunnel,
+# different token from cloudflaredTunnel above).
+minioTunnel:
+  hostname: media.locusmath.org
+  token: ""  # Set via --set minioTunnel.token=<token>; never commit.
 
 # Autoscaling (optional)
 autoscaling:
